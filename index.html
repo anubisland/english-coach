@@ -299,7 +299,7 @@ function quizView(){
 }
 
 /* ================= التحدث ================= */
-function speakView(){
+function oldSpeakView(){
   const P=CONV[S.ci%CONV.length];
   return card('محادثة سريعة 🗣️',`<p class="muted">أجب بجملة كاملة بالصوت أو بالكتابة</p>
     <div class="mean en" style="font-size:19px">${P}</div>
@@ -334,6 +334,80 @@ function mic(){
   r.onerror=e=>{if(c)c.innerHTML='<span class="muted">تعذّر التسجيل ('+e.error+'). اكتب إجابتك في المربع أو راجع إذن الميكروفون</span>'};
   try{r.start()}catch(x){}
 }
+
+const SCENES=[
+{t:'التعارف',turns:[
+{p:"Hi! I'm Sara. What's your name?",need:/name|i am|i'm|my name/i,model:'My name is Ahmed.'},
+{p:'Nice to meet you! Where are you from?',need:/from/i,model:'I am from Egypt.'},
+{p:'Oh, really? What do you do?',need:/i am|i'm|i work|i study|student|teacher|engineer|doctor|nurse|driver|manager/i,model:'I am a teacher.'},
+{p:'That sounds interesting! Do you like your job?',need:/yes|no|like|love|enjoy|hate|don't|do not/i,model:'Yes, I like it very much.'}]},
+{t:'المطعم',turns:[
+{p:'Welcome! What would you like to order?',need:/like|want|have|please|can i/i,model:'I would like a salad, please.'},
+{p:'Would you like something to drink?',need:/yes|no|water|juice|tea|coffee|drink|thanks|thank you/i,model:"No, thanks. I don't want a drink."},
+{p:'Do you want it here or to go?',need:/here|go|take|away|stay/i,model:'Here, please. Thank you.'}]},
+{t:'درس 1.1: هل أنت طالب؟',les:'1.1',turns:[
+{p:'Hi! Are you a student?',need:/yes|no|i am|i'm|not/i,model:'Yes, I am a student.'},
+{p:'Is your friend a student too?',need:/yes|no|he is|she is|he's|she's|not/i,model:'Yes, he is a student.'},
+{p:'Are you and your friends at school today?',need:/yes|no|we are|we're|i am|i'm|not/i,model:'Yes, we are at school today.'}]},
+{t:'الاتجاهات',turns:[
+{p:'Excuse me, where is the bank?',need:/it is|it's|there|next|near|across|left|right|straight|corner|on the/i,model:'It is next to the park.'},
+{p:'Is it far from here?',need:/yes|no|far|close|near|walk|minutes|not/i,model:'No, it is very close.'},
+{p:'Thanks a lot! Have a nice day.',need:/thank|you too|bye|same|nice/i,model:'Thank you, you too!'}]}
+];
+
+function base(v){if(/ies$/.test(v))return v.replace(/ies$/,'y');if(/(sses|shes|ches|xes|oes)$/.test(v))return v.replace(/es$/,'');if(/s$/.test(v))return v.slice(0,-1);return v}
+function s3(v){if(v==='have')return 'has';if(v==='do')return 'does';if(/[^aeiou]y$/.test(v))return v.slice(0,-1)+'ies';if(/(s|sh|ch|x|o)$/.test(v))return v+'es';return v+'s'}
+
+const GR=[
+{re:/\bi is\b/gi,f:()=>'I am',ar:'مع I نستخدم am وليس is'},
+{re:/\b(he|she|it) are\b/gi,f:(m,p)=>p+' is',ar:'مع he / she / it نستخدم is وليس are'},
+{re:/\b(we|you|they) is\b/gi,f:(m,p)=>p+' are',ar:'مع we / you / they نستخدم are وليس is'},
+{re:/\bthere is (two|three|four|five|many|some|several)\b/gi,f:(m,n)=>'there are '+n,ar:'مع الجمع نستخدم there are'},
+{re:/\bthere are (a|an|one)\b/gi,f:(m,n)=>'there is '+n,ar:'مع المفرد نستخدم there is'},
+{re:/\bin my home\b/gi,f:()=>'at home',ar:'نقول at home وليس in my home'},
+{re:/(?<!\b(?:does|do|don't|doesn't|did) )\b(he|she|it) (go|like|work|study|live|stay|watch|play|want|need|speak|know|think|have|do|read|write|drink|eat|wake|get|come)\b/gi,f:(m,p,v)=>p+' '+s3(v.toLowerCase()),ar:'مع he / she / it نضيف s للفعل'},
+{re:/\b(i|you|we|they) (goes|likes|works|studies|lives|stays|watches|plays|wants|needs|speaks|knows|thinks|has|does|reads|writes|drinks|eats|wakes|gets|comes)\b/gi,f:(m,p,v)=>p+' '+base(v.toLowerCase()),ar:'مع I / you / we / they لا نضيف s للفعل'},
+{re:/\bdon't (he|she|it)\b/gi,f:(m,p)=>"doesn't "+p,ar:"مع he / she / it نستخدم doesn't"},
+{re:/\bdoesn't (i|you|we|they)\b/gi,f:(m,p)=>"don't "+p,ar:"مع I / you / we / they نستخدم don't"},
+{re:/\bdoes (i|you|we|they) /gi,f:(m,p)=>'do '+p+' ',ar:'مع I / you / we / they نستخدم do في السؤال'},
+{re:/\bdoes (he|she|it) (\w+s)\b/gi,f:(m,p,v)=>'does '+p+' '+base(v.toLowerCase()),ar:'بعد does نستخدم الفعل بدون s'},
+{re:/\bdo (he|she|it) /gi,f:(m,p)=>'does '+p+' ',ar:'مع he / she / it نستخدم does في السؤال'},
+{re:/\ba (?!(?:university|user|one|useful|unique|european|eu)\b)(?=[aeiou])/gi,f:()=>'an ',ar:'نستخدم an قبل الكلمة التي تبدأ بحرف متحرك'},
+{re:/\ban (?=[bcdfgjklmnpqrstvwxyz])/gi,f:()=>'a ',ar:'نستخدم a قبل الكلمة التي تبدأ بحرف ساكن'},
+{re:/\bi am agree\b/gi,f:()=>'I agree',ar:'نقول I agree بدون am'},
+{re:/\bi am like\b/gi,f:()=>'I like',ar:'نقول I like بدون am'},
+{re:/\bi very\b/gi,f:()=>'I am very',ar:'بعد I نحتاج فعلاً، مثل I am very'},
+{re:/\bmore better\b/gi,f:()=>'better',ar:'better وحدها تكفي بدون more'},
+{re:/\bwhat you do\b/gi,f:()=>'what do you do',ar:'في السؤال نحتاج do: what do you do?'},
+{re:/\bwhere you from\b/gi,f:()=>'where are you from',ar:'في السؤال نحتاج are: where are you from?'},
+{re:/\bwhat your name\b/gi,f:()=>'what is your name',ar:'نقول what is your name?'}
+];
+function fixText(t){let o=t;GR.forEach(r=>{o=o.replace(r.re,r.f)});return o.charAt(0).toUpperCase()+o.slice(1)}
+function checkGrammar(t){const out=[];GR.forEach(r=>{if(new RegExp(r.re.source,'i').test(t)&&!out.some(x=>x.ar===r.ar))out.push({ar:r.ar})});return out}
+
+function lev(a,b){const m=a.length,n=b.length,d=[];for(let i=0;i<=m;i++)d[i]=[i];for(let j=0;j<=n;j++)d[0][j]=j;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[m][n]}
+function pronScore(target,heard){const T=words(target),H=words(heard);const miss=[],near=[];let ok=0;T.forEach(w=>{if(H.includes(w))ok++;else if(H.some(h=>lev(h,w)<=2))near.push(w);else miss.push(w)});const sc=Math.round(ok/T.length*100);const tips=[];if(T.some(w=>w.includes('th')))tips.push('الصوت th: ضع طرف لسانك بين أسنانك وانفخ بهدوء');if(T.some(w=>w.includes('v')))tips.push('الصوت v: ضع أسنانك العليا على شفتك السفلى');if(T.some(w=>w.includes('r')))tips.push('الصوت r: ارفع طرف لسانك قليلاً دون أن تلمس الحلق');return {sc,miss,near,tips,heard}}
+
+function chatTurn(){const c=S.chat;return SCENES[c.sc].turns[c.ti]}
+function chatSay(){say(chatTurn().p)}
+function chatListen(cb){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R){cb(null,'التعرف على الصوت غير متاح هنا، اكتب الإجابة في المربع');return}const r=new R();r.lang='en-US';r.onresult=e=>cb(e.results[0][0].transcript.trim(),null);r.onerror=e=>cb(null,'تعذّر التسجيل ('+e.error+')');try{r.start()}catch(x){cb(null,'تعذّر بدء التسجيل')}}
+function chatMic(){chatListen((t,err)=>{if(err){S.chat.fb=err;render();return}chatReply(t)})}
+function chatType(){const v=(document.getElementById('chatTxt')||{}).value;if(v&&v.trim())chatReply(v.trim())}
+function chatReply(text){const c=S.chat,T=chatTurn();c.ok=T.need.test(text);c.g=checkGrammar(text);c.fixed=fixText(text);c.g.forEach(x=>S.errs[x.ar]=(S.errs[x.ar]||0)+1);if(!c.ok)c.miss++;c.stage='fb';c.pr=null;c.fb=null;save();render()}
+function chatRetry(){const c=S.chat;c.stage='reply';c.ok=null;c.g=null;c.pr=null;c.fb=null;save();render()}
+function chatModel(){chatListen((t,err)=>{const c=S.chat;if(err){c.fb=err;render();return}c.pr=pronScore(chatTurn().model,t);c.fb=null;save();render()})}
+function chatModelTyped(){const v=(document.getElementById('chatPr')||{}).value;if(!v||!v.trim())return;S.chat.pr=pronScore(chatTurn().model,v.trim());save();render()}
+function chatPick(i){const c=S.chat;c.sc=i;c.ti=0;c.stage='reply';c.ok=null;c.g=null;c.fixed=null;c.pr=null;c.fb=null;save();render();setTimeout(chatSay,300)}
+function chatNext(){const c=S.chat,sc=SCENES[c.sc];c.ti++;if(c.ti>=sc.turns.length){c.ti=0;c.sc=(c.sc+1)%SCENES.length}c.miss=0;c.stage='reply';c.ok=null;c.g=null;c.fixed=null;c.pr=null;c.fb=null;save();render();setTimeout(chatSay,300)}
+
+function pronHtml(p){return `<div style='margin-top:10px'><p>دقة النطق: <b>${p.sc}%</b></p>`+(p.heard?`<p class=muted>سمعتُ: «${p.heard}»</p>`:'')+(p.miss.length?`<p class=muted>كلمات لم تُسمع: ${p.miss.join('، ')}</p>`:'')+(p.near.length?`<p class=muted>كلمات قريبة تحتاج ضبطاً: ${p.near.join('، ')}</p>`:'')+p.tips.map(t=>`<p class=muted>💡 ${t}</p>`).join('')+'</div>'}
+function chatFeedback(c,T){let h=`<div style='background:#F8FAFC;border-radius:14px;padding:12px;margin-top:14px'>`;h+=c.ok?`<p>✅ فهمت ردّك</p>`:`<p>⚠️ ردّك لا يطابق ما يُطلب في هذا الموقف. جرّب مثلاً:</p><p class=en><b>${T.model}</b></p>`;if(c.g&&c.g.length){h+=`<p>ملاحظات الجرامر:</p>`+c.g.map(x=>`<div class=muted>• ${x.ar}</div>`).join('')+`<p style='margin-top:8px'>الصياغة المصححة: <b class=en>${c.fixed}</b></p>`}else h+=`<p>جرامر سليم ✅</p>`;if(c.pr)h+=pronHtml(c.pr);if(c.fb)h+=`<p class=muted>${c.fb}</p>`;h+=`<div class=row style='margin-top:12px'>${c.ok?'':"<button class='btn ghost' onclick='chatRetry()'>أعد المحاولة</button>"}<button class=btn onclick='chatModel()'>🎙️ قل الجملة النموذجية</button><button class='btn ghost' onclick='chatNext()'>التالي ←</button></div>`;h+=`<div class=row style='margin-top:8px'><input id=chatPr class=en placeholder='Or type the model sentence' style='direction:ltr;max-width:260px;margin:0;padding:10px;border:2px solid var(--line);border-radius:12px'><button class='btn ghost' onclick='chatModelTyped()'>✓</button></div>`;return h+'</div>'}
+
+function speakView(){const c=S.chat||(S.chat={sc:0,ti:0,miss:0,stage:'reply'});const sc=SCENES[c.sc],T=sc.turns[c.ti];
+const top=Object.entries(S.errs||{}).sort((a,b)=>b[1]-a[1]).slice(0,3);
+let h=card('محادثة حيّة 🗣️',`<div class=row>${SCENES.map((x,i)=>`<button class='btn ${i===c.sc?'':'ghost'}' onclick='chatPick(${i})'>${x.les?'درس '+x.les:x.t}</button>`).join('')}</div><div class=muted>المشهد: ${sc.t} · الجملة ${c.ti+1} من ${sc.turns.length}</div><div class=en style='font-size:20px;font-weight:700;margin:14px 0'>${T.p}</div><div class=row><button class='btn ghost' onclick='chatSay()'>🔊 استمع</button><button class=btn onclick='chatMic()'>🎙️ أجب بالصوت</button></div><div class=row style='margin-top:10px'><input id=chatTxt class=en placeholder='Type your answer' style='direction:ltr;max-width:260px;margin:0;padding:10px;border:2px solid var(--line);border-radius:12px'><button class=btn onclick='chatType()'>✓</button></div>${c.stage!=='reply'?chatFeedback(c,T):''}${!c.stage||c.stage==='reply'?(c.fb?`<p class=muted>${c.fb}</p>`:''):''}`);
+if(top.length)h+=card('مراجعة أخطائي المتكررة (اختيارية)',top.map(([k,v])=>`• ${k} (${v})`).join('<br>'));
+return h}
 
 const VIEWS={home:homeView,course:courseView,speak:speakView};
 render();
