@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مدرب الإنجليزية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--ind:#4338CA;--ind2:#6366F1;--blue:#2563EB;--green:#16A34A;--purple:#9333EA;--bg:#F5F6FB;--card:#fff;--ink:#1E1B4B;--mute:#6B7280;--line:#E5E7EB;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Cairo,Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding-bottom:92px}
+.en{font-family:Inter,Cairo,sans-serif;direction:ltr}
+header{background:linear-gradient(135deg,var(--ind),var(--ind2));color:#fff;padding:22px 20px 34px;border-radius:0 0 28px 28px}
+header h1{font-size:22px;font-weight:800}
+header p{opacity:.85;font-size:14px;margin-top:4px}
+.wrap{padding:16px;max-width:560px;margin:auto}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:-22px}
+.stat{border-radius:18px;padding:14px 8px;color:#fff;text-align:center}
+.stat b{display:block;font-size:24px;font-weight:800}
+.stat span{font-size:12px}
+.s1{background:var(--blue)}.s2{background:var(--green)}.s3{background:var(--purple)}
+.card{background:var(--card);border-radius:20px;padding:18px;margin-top:14px;box-shadow:0 4px 14px rgba(30,27,75,.07)}
+.card h2{font-size:17px;font-weight:800;margin-bottom:10px}
+.btn{display:inline-block;border:0;border-radius:999px;background:var(--ind);color:#fff;padding:11px 20px;font:700 15px Cairo,sans-serif;cursor:pointer;margin-top:8px}
+.btn.ghost{background:#EEF2FF;color:var(--ind)}
+.opt{display:block;width:100%;text-align:left;background:#F9FAFB;border:2px solid var(--line);border-radius:14px;padding:12px;margin-top:8px;font:600 16px Inter,Cairo,sans-serif;cursor:pointer;color:var(--ink)}
+.opt.ok{border-color:var(--green);background:#ECFDF5}
+.opt.bad{border-color:#DC2626;background:#FEF2F2}
+.bar{height:10px;background:#E0E7FF;border-radius:99px;overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ind2),var(--green));border-radius:99px}
+.unit{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+.unit:last-child{border:0}
+.dot{width:30px;height:30px;border-radius:50%;background:#EEF2FF;color:var(--ind);display:grid;place-items:center;font-weight:800;flex-shrink:0;font-size:13px}
+.dot.done{background:var(--green);color:#fff}
+.pill{display:inline-block;background:#ECFDF5;color:var(--green);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:700;margin-top:8px}
+.muted{color:var(--mute);font-size:14px}
+.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.mean{text-align:center}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:8px 4px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 16px rgba(0,0,0,.06)}
+.tab{background:none;border:0;font:700 12px Cairo,sans-serif;color:var(--mute);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 10px;border-radius:10px}
+.tab i{font-size:20px;font-style:normal}
+.tab.on{color:var(--ind)}
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;display:none;z-index:9}
+</style>
+</head>
+<body>
+<header>
+  <h1>مدرب الإنجليزية 🇬🇧</h1>
+  <p>شرح، تمارين، ثم اختبار: لا تنتقل إلى المستوى التالي إلا بعد إتقان الحالي</p>
+</header>
+<main class="wrap" id="app"></main>
+<nav id="nav"></nav>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= المحتوى: مستوى A1 ================= */
+const UNITS=[{n:1,t:'الضمير وفعل To Be'},{n:2,t:'المضارع البسيط'},{n:3,t:'أدوات التعريف و There is'}];
+const LESSONS=[
+{id:'1.1',u:1,t:'I am / You are',more:'<b>القاعدة الأساسية:</b> كل جملة إنجليزية تحتاج فعلاً، وهذا الفعل يتغير حسب الشخص أو الشيء الذي يقوم بالفعل.<br><br>• <b>I</b> ← am (أنا)<br>• <b>you / we / they</b> ← are (أنت / نحن / هم)<br>• <b>he / she / it</b> ← is (هو / هي / هذا)<br>• الاسم المفرد مثل Mom أو my name يعامل معاملة he / she / it فنستخدم is.<br>• إذا جمعت اسمين بـ and صار الفاعل جمعاً، مثل: Ahmed and Sara are.<br><br><b>لماذا هي مهمة؟</b> ستستخدمها في كل جملة تعرّف بها نفسك، أو تصف حالك، أو تتحدث عن الناس من حولك في البيت والعمل والشارع.', ex:'نستخدم am مع I فقط، ونستخدم are مع you وwe وthey.',s:['I am a student.','You are my friend.','We are ready.','I am at work now.','Are you hungry? Yes, I am.','Hi, I am Sara. Nice to meet you!'],items:[
+ {q:'Hi, my name ___ Omar.',o:['am','is','are'],a:1,tip:'my name مفرد، فنستخدم is'},
+{q:'I ___ hungry right now.',o:['am','is','are'],a:0,tip:'مع I نستخدم am'},
+{q:'They ___ at the airport.',o:['am','is','are'],a:2,tip:'مع they نستخدم are'},
+{q:'Mom ___ in the kitchen.',o:['am','is','are'],a:1,tip:'Mom مفرد، فنستخدم is'},
+{q:'My friends and I ___ students.',o:['am','is','are'],a:2,tip:'عندما تجمع الفاعلين نستخدم are'},
+{q:'Ahmed and Sara ___ my neighbors.',o:['am','is','are'],a:2,tip:'اسمان معاً هم جمع فنستخدم are'},
+{q:'The coffee ___ hot. Be careful!',o:['am','is','are'],a:1,tip:'coffee مفرد، فنستخدم is'},
+{q:'Excuse me, ___ you the manager?',o:['Am','Is','Are'],a:2,tip:'في السؤال مع you نبدأ بـ Are'},
+{q:'I ___ not late, I am on time.',o:['am','is','are'],a:0,tip:'مع I نستخدم am والنفي am not'},
+{q:'I ___ a student.',o:['am','is','are'],a:0,tip:'مع I نستخدم am'},
+ {q:'You ___ my friend.',o:['am','is','are'],a:2,tip:'مع you نستخدم are'},
+ {q:'We ___ ready.',o:['am','is','are'],a:2,tip:'مع we نستخدم are'}]},
+{id:'1.2',u:1,t:'He / She / It is',ex:'مع he وshe وit نستخدم is، والاسم المفرد يعامل معاملة he أو she أو it.',s:['He is tall.','She is kind.','It is big.'],items:[
+ {q:'He ___ tall.',o:['is','are','am'],a:0,tip:'مع he نستخدم is'},
+ {q:'She ___ kind.',o:['is','are','am'],a:0,tip:'مع she نستخدم is'},
+ {q:'It ___ big.',o:['is','are','am'],a:0,tip:'مع it نستخدم is'}]},
+{id:'1.3',u:1,t:'أسئلة مع is / are',ex:'لبناء السؤال نضع is أو are في البداية قبل الفاعل.',s:['Are you ready?','Is she your sister?','Are they at home?'],items:[
+ {q:'___ you ready?',o:['Is','Are','Am'],a:1,tip:'مع you نبدأ السؤال بـ Are'},
+ {q:'___ she your sister?',o:['Is','Are','Am'],a:0,tip:'مع she نبدأ السؤال بـ Is'},
+ {q:'___ they at home?',o:['Is','Are','Am'],a:1,tip:'مع they نبدأ السؤال بـ Are'}]},
+{id:'2.1',u:2,t:'المضارع البسيط مع I / you / we / they',ex:'مع I وyou وwe وthey نستخدم الفعل كما هو بدون تغيير.',s:['I work every day.','They play football.','Do you like coffee?'],items:[
+ {q:'We ___ English every day.',o:['study','studies','studying'],a:0,tip:'مع we نستخدم الفعل كما هو'},
+ {q:'They ___ to school.',o:['go','goes','going'],a:0,tip:'مع they نستخدم الفعل كما هو'},
+ {q:'Do you ___ coffee?',o:['like','likes','liking'],a:0,tip:'بعد Do نستخدم الفعل بدون s'}]},
+{id:'2.2',u:2,t:'he / she / it + s',ex:'مع he وshe وit نضيف s للفعل. مثال: work يصبح works.',s:['He works in a bank.','She watches TV at night.','It runs fast.'],items:[
+ {q:'He ___ in a bank.',o:['work','works','working'],a:1,tip:'مع he نضيف s للفعل'},
+ {q:'She ___ TV at night.',o:['watch','watches','watching'],a:1,tip:'مع she نضيف es بعد ch'},
+ {q:'It ___ very fast.',o:['run','runs','running'],a:1,tip:'مع it نضيف s للفعل'}]},
+{id:'2.3',u:2,t:'النفي مع do / does',ex:'مع I وyou وwe وthey نستخدم don\'t، ومع he وshe وit نستخدم doesn\'t مع الفعل بدون s.',s:['I don\'t like fish.','She doesn\'t drink coffee.','They don\'t live here.'],items:[
+ {q:'I ___ like fish.',o:['don\'t','doesn\'t','isn\'t'],a:0,tip:'مع I نستخدم don\'t'},
+ {q:'She ___ like coffee.',o:['don\'t','doesn\'t','aren\'t'],a:1,tip:'مع she نستخدم doesn\'t والفعل بدون s'},
+ {q:'They ___ live here.',o:['don\'t','doesn\'t','aren\'t'],a:0,tip:'مع they نستخدم don\'t'}]},
+{id:'3.1',u:3,t:'a / an',ex:'نستخدم a قبل الكلمة التي تبدأ بصوت ساكن، و an قبل الكلمة التي تبدأ بصوت حرف العلة.',s:['a book','an apple','a dog'],items:[
+ {q:'I have ___ apple.',o:['a','an','the'],a:1,tip:'apple يبدأ بصوت حرف علة، فنستخدم an'},
+ {q:'She is ___ engineer.',o:['a','an','the'],a:1,tip:'engineer يبدأ بصوت حرف علة، فنستخدم an'},
+ {q:'___ dog is big.',o:['A','An','The'],a:0,tip:'dog يبدأ بصوت ساكن، فنستخدم A'}]},
+{id:'3.2',u:3,t:'the',ex:'نستخدم the للشيء المعروف أو المحدد، مثل الشمس أو باب معين.',s:['the sun','the door','the book on the table'],items:[
+ {q:'Please close ___ door.',o:['the','a','an'],a:0,tip:'door محدد هنا، فنستخدم the'},
+ {q:'___ sun is hot.',o:['The','A','An'],a:0,tip:'الشمس شيء واحد معروف، فنستخدم the'},
+ {q:'We visited ___ Eiffel Tower.',o:['the','a','an'],a:0,tip:'المعالم المعروفة تأخذ the'}]},
+{id:'3.3',u:3,t:'There is / There are',ex:'نستخدم There is مع المفرد، و There are مع الجمع.',s:['There is a book.','There are two cats.','Is there any milk?'],items:[
+ {q:'There ___ a book on the table.',o:['is','are','be'],a:0,tip:'مع المفرد نستخدم is'},
+ {q:'There ___ two cats.',o:['is','are','be'],a:1,tip:'مع الجمع نستخدم are'},
+ {q:'___ there any milk?',o:['Is','Are','Do'],a:0,tip:'milk مفرد، فنبدأ السؤال بـ Is'}]}
+];
+/* أسئلة معايرة للمستوى A2 (عينة أولية، تُستكمل لاحقاً) */
+const PLACE2=[
+ {q:'I have been learning English ___ two years.',o:['for','since','during'],a:0,tip:'for مع مدة زمنية',lv:2},
+ {q:'She ___ to London last year.',o:['went','goes','has gone'],a:0,tip:'last year تستخدم مع الماضي البسيط',lv:2},
+ {q:'If I ___ time, I will call you.',o:['have','had','will have'],a:0,tip:'الشرط الأول: if مع المضارع',lv:2},
+ {q:'He is taller ___ his brother.',o:['than','then','that'],a:0,tip:'المقارنة تستخدم than',lv:2}
+];
+const CONVO=[
+{id:'c1',u:1,t:'التعارف مع زميل جديد',turns:[
+{p:`Hi! What is your name?`,o:[`My name is Ahmed.`,`I is Ahmed.`,`Name my Ahmed.`],a:0,tip:`للتعريف بالاسم نقول: My name is ...`},
+{p:`Nice to meet you. Where are you from?`,o:[`I am from Egypt.`,`I from Egypt am.`,`Egypt I am from.`],a:0,tip:`I am from ثم اسم البلد`},
+{p:`Are you a student or a teacher?`,o:[`I am a student.`,`I am an student.`,`I student am.`],a:0,tip:`student يبدأ بصوت ساكن فنستخدم a`}]},
+{id:'c2',u:1,t:'الحديث عن الناس',turns:[
+{p:`Is that your brother?`,o:[`Yes, he is my brother.`,`Yes, he are my brother.`,`Yes, is he my brother.`],a:0,tip:`مع he نستخدم is`},
+{p:`Is she your friend?`,o:[`No, she is not my friend.`,`No, she not is my friend.`,`No, is she not my friend.`],a:0,tip:`النفي: الفاعل ثم is ثم not`},
+{p:`Are they happy today?`,o:[`Yes, they are happy.`,`Yes, they is happy.`,`Yes, are they happy.`],a:0,tip:`مع they نستخدم are`}]},
+{id:'c3',u:2,t:'يومي مع الناس',turns:[
+{p:`What do you do in the morning?`,o:[`I work at eight.`,`I works at eight.`,`I am work at eight.`],a:0,tip:`مع I نستخدم الفعل بدون s`},
+{p:`Does your sister study at night?`,o:[`Yes, she studies at night.`,`Yes, she study at night.`,`Yes, she studying at night.`],a:0,tip:`مع she نضيف s: studies`},
+{p:`Do you like coffee?`,o:[`Yes, I like coffee.`,`Yes, I likes coffee.`,`Yes, I am like coffee.`],a:0,tip:`بعد I نستخدم like بدون s`}]},
+{id:'c4',u:2,t:'في المطعم',turns:[
+{p:`Welcome! What would you like to order?`,o:[`I would like a salad, please.`,`I want salad please to.`,`Salad I like please.`],a:0,tip:`I would like ... please جملة مهذبة للطلب`},
+{p:`Would you like something to drink?`,o:[`No, thanks. I don't want a drink.`,`No, thanks. I doesn't want.`,`No thanks, I not drink.`],a:0,tip:`مع I نستخدم don't`},
+{p:`Do you want it here or to go?`,o:[`Here, please. Thank you.`,`Here, I am please.`,`Here please I am.`],a:0,tip:`الرد الواضح والمهذب`}]},
+{id:'c5',u:3,t:'السؤال عن الاتجاهات',turns:[
+{p:`Excuse me, is there a bank near here?`,o:[`Yes, there is one on the corner.`,`Yes, there are one on the corner.`,`Yes, is there one on the corner.`],a:0,tip:`مع المفرد نستخدم there is`},
+{p:`Where is the train station?`,o:[`It is next to the park.`,`It is the next to park.`,`Next park it is to.`],a:0,tip:`It is + مكان`},
+{p:`Thank you. Is there a pharmacy too?`,o:[`Yes, there is a pharmacy near the bank.`,`Yes, there are a pharmacy near the bank.`,`Yes, is there a pharmacy near bank.`],a:0,tip:`there is مع المفرد، وthe bank معروف`}]},
+{id:'c6',u:3,t:'الطلب في المقهى',turns:[
+{p:`What can I get for you?`,o:[`I would like an orange juice, please.`,`I would like a orange juice, please.`,`Orange juice an I like.`],a:0,tip:`orange يبدأ بحرف علة فنستخدم an`},
+{p:`Anything else?`,o:[`Yes, a sandwich, please.`,`Yes, an sandwich, please.`,`Yes, sandwich a please.`],a:0,tip:`sandwich يبدأ بصوت ساكن فنستخدم a`},
+{p:`That is ten dollars. Thank you.`,o:[`Here you are. Thank you.`,`Here you is. Thank you.`,`You here are. Thank you.`],a:0,tip:`Here you are عبارة شائعة عند الدفع`}]}
+];
+const CONV=['Hi! How was your day?','What do you usually do on weekends?','Can you tell me about your job?','What is your favorite food and why?'];
+
+/* ================= الحالة ================= */
+const K='eng-coach-v3';
+let S={placed:false,level:'A1',conv:{},lessons:{},cp:{},ret:{},exam:false,xp:0,tab:'home',q:null,open:null,ci:0,place:null};
+try{Object.assign(S,JSON.parse(localStorage.getItem(K)||'{}'))}catch(e){}
+if(!S.placed){S.placed=true;S.level=S.level||'A1'}
+function save(){const c=Object.assign({},S);delete c.q;try{localStorage.setItem(K,JSON.stringify(c))}catch(e){}}
+function addXp(n){S.xp+=n}
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',1800)}
+function say(t,r=0.9){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=r;speechSynthesis.speak(u)}catch(e){toast('الصوت غير متاح')}}
+
+/* ================= أدوات ================= */
+const unitLessons=u=>LESSONS.filter(l=>l.u===u);
+const unitItems=u=>unitLessons(u).flatMap(l=>l.items);
+const itemsUpTo=u=>[1,2,3].filter(x=>x<=u).flatMap(unitItems);
+const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
+const PLACE=LESSONS.flatMap(l=>l.items).map(i=>Object.assign({},i,{lv:1})).concat(PLACE2);
+const unitOpen=u=>u===1||(!!S.cp[u-1]&&!!S.ret[u-1]);
+const lessonOpen=l=>{if(!unitOpen(l.u))return false;const ls=unitLessons(l.u);const i=ls.indexOf(l);return i===0||!!S.lessons[ls[i-1].id]};
+const examOpen=()=>[1,2,3].every(u=>S.cp[u])&&[1,2].every(u=>S.ret[u]);
+const convoList=u=>CONVO.filter(c=>c.u===u);
+const convoOpen=c=>{const L=convoList(c.u),i=L.indexOf(c);return unitOpen(c.u)&&unitLessons(c.u).every(l=>S.lessons[l.id])&&(i===0||!!S.conv[L[i-1].id])};
+function convoHtml(u){return `<div style='margin-top:12px'><b>🗣️ المحادثة</b>${convoList(u).map(c=>{const ok=!!S.conv[c.id],av=convoOpen(c);return `<div class='unit' style='padding:10px 0'><div class='dot ${ok?'done':''}'>${ok?'✓':'🗣️'}</div><div style='flex:1'><b>${c.t}</b>${av?`<div><button class='btn ghost' onclick="launch('conv','${c.id}')">${ok?'إعادة':'ابدأ المحادثة'}</button></div>`:'<div class=muted>🔒 بعد إتقان دروس الوحدة</div>'}</div></div>`}).join('')}</div>`}
+
+/* ================= التنقل ================= */
+function renderNav(){
+  const T=[['home','🏠','الرئيسية'],['course','📚','المسار'],['speak','🎙️','التحدث']];
+  document.getElementById('nav').innerHTML=T.map(t=>`<button class="tab ${S.tab===t[0]?'on':''}" onclick="go('${t[0]}')"><i>${t[1]}</i>${t[2]}</button>`).join('');
+}
+function go(t){S.tab=t;S.q=null;save();render()}
+function card(h,b){return `<div class="card"><h2>${h}</h2>${b}</div>`}
+function render(){
+  renderNav();
+  const app=document.getElementById('app');
+  if(S.q){app.innerHTML=quizView();return}
+  app.innerHTML=VIEWS[S.tab]();
+}
+
+/* ================= الرئيسية ================= */
+function homeView(){
+  const done=LESSONS.filter(l=>S.lessons[l.id]).length;
+  if(!S.placed) return card('ابدأ بتحديد مستواك','<p class="muted">اختبار تكيفي قصير من 10 أسئلة يحدد نقطة البداية، ثم تبدأ الدورة من أول درس.</p><div class="row"><button class="btn" onclick="launch(\'place\')">ابدأ اختبار تحديد المستوى</button></div>');
+  return `<div class="stats">
+    <div class="stat s1"><b>${S.xp}</b><span>نقاط XP</span></div>
+    <div class="stat s2"><b>${done}/${LESSONS.length}</b><span>دروس متقنة</span></div>
+    <div class="stat s3"><b>${Object.keys(S.cp).length}/3</b><span>وحدات مجتازة</span></div></div>`+
+  card(`مستواك: <span class="en">${S.level}</span>`,
+    `<div class="bar"><i style="width:${Math.round(done/LESSONS.length*100)}%"></i></div>
+     ${S.level==='A2'?'<p class="muted" style="margin-top:8px">محتوى A2 قيد الإعداد. ابدأ بتثبيت A1 في المسار.</p>':''}
+     <div class="row"><button class="btn" onclick="go(\'course\')">متابعة المسار</button></div>`)+
+  card('الامتحان النهائي', `<p>${S.exam?'🎉 أتممت مستوى A1':'يُفتح بعد اجتياز الوحدات الثلاث واختبارات الاستبقاء'}</p>`);
+}
+
+/* ================= المسار ================= */
+function unitDone(n){return unitLessons(n).every(l=>S.lessons[l.id])&&convoList(n).every(c=>S.conv[c.id])&&!!S.cp[n]&&(n===3||!!S.ret[n])}
+function unitStatus(n){if(unitDone(n))return '<span class=pill>✅ مكتملة</span>';if(unitOpen(n))return '<span class=pill style="background:#EEF2FF;color:var(--ind)">📍 الوحدة الحالية</span>';return '<span class=pill style="background:#F3F4F6;color:var(--mute)">🔒 مقفلة</span>'}
+function courseView(){
+  if(!S.placed) return card('ابدأ بتحديد المستوى أولاً','<div class="row"><button class="btn" onclick="launch(\'place\')">اختبار تحديد المستوى</button></div>');
+  let h=card('اختبار تحديد المستوى (اختياري)',`<p class='muted'>يُنصح به لمعرفة مستواك قبل بدء الوحدات، ولا يلزم لبدء الدورة من A1.</p><div class='row'><button class='btn ghost' onclick="launch('place')">ابدأ الاختبار</button></div>`);
+  if(S.open){const l=LESSONS.find(x=>x.id===S.open);
+    h+=card(`الدرس ${l.id}: ${l.t}`,`<p>${l.ex}</p>${l.more?`<div class='muted' style='margin-top:10px;line-height:1.9'>${l.more}</div>`:''}<div class="en muted" style="margin-top:10px;line-height:1.9">${l.s.map(x=>'• '+x).join('<br>')}</div>
+      <div class="row"><button class="btn" onclick="launch(\'lesson\',\'${l.id}\')">ابدأ تمارين الدرس</button><button class="btn ghost" onclick="S.open=null;render()">إغلاق</button></div>`);}
+  for(const u of UNITS){
+    const ls=unitLessons(u.n).map(l=>{const ok=!!S.lessons[l.id],av=lessonOpen(l);
+      return `<div class="unit"><div class="dot ${ok?'done':''}">${ok?'✓':l.id}</div><div style="flex:1"><b>${l.t}</b>
+        ${av?`<div><button class="btn ghost" onclick="openLesson('${l.id}')">${ok?'مراجعة':'اقرأ الشرح وابدأ'}</button></div>`:'<div class="muted">🔒 يفتح بعد الدرس السابق</div>'}</div></div>`}).join('');
+    const extra=unitOpen(u.n)?convoHtml(u.n)+`<div class="row">${cpBtn(u.n)}${retBtn(u.n)}</div>`:'';
+    h+=card(`الوحدة ${u.n}: ${u.t} ${unitStatus(u.n)}`, unitOpen(u.n)?(unitDone(u.n)?'<details><summary class=muted>عرض دروس الوحدة للمراجعة</summary>'+ls+extra+'</details>':ls+extra):'<p class="muted">🔒 تُفتح بعد اجتياز اختبار الوحدة السابقة واختبار استبقائها</p>');
+  }
+  h+=card('الامتحان النهائي لـ A1', examOpen()&&!S.exam?'<div class="row"><button class="btn" onclick="launch(\'exam\')">ابدأ الامتحان النهائي</button></div>':(S.exam?'<p>🎉 أتممت A1</p>':'<p class="muted">🔒 يُفتح بعد اجتياز الوحدات الثلاث</p>'));
+  return h;
+}
+function openLesson(id){S.open=id;render();window.scrollTo(0,0)}
+function cpBtn(u){
+  if(!unitLessons(u).every(l=>S.lessons[l.id])||!convoList(u).every(c=>S.conv[c.id])) return '';
+  if(S.cp[u]) return '<span class="pill">✓ اختبار الوحدة مُجتاز</span>';
+  return `<button class="btn" onclick="launch('cp',${u})">اختبار الوحدة ${u}</button>`;
+}
+function retBtn(u){
+  if(!S.cp[u]||u===3) return '';
+  if(S.ret[u]) return '<span class="pill">✓ الاستبقاء مُجتاز</span>';
+  return `<button class="btn ghost" onclick="launch('ret',${u})">اختبار الاستبقاء</button>`;
+}
+
+/* ================= المحرك: الاختبارات ================= */
+function launch(kind,id){
+  const q={kind,id,i:0,got:[],wrong:[],picked:null,done:false,theta:1};
+  if(kind==='lesson'){const l=LESSONS.find(x=>x.id===id);Object.assign(q,{items:l.items,title:'درس '+l.id,need:l.items.length})}
+  else if(kind==='cp'){Object.assign(q,{items:shuffle(unitItems(id)).slice(0,8),title:'اختبار الوحدة '+id,need:7})}
+  else if(kind==='ret'){Object.assign(q,{items:shuffle(itemsUpTo(id)).slice(0,4),title:'اختبار الاستبقاء (حتى الوحدة '+id+')',need:3})}
+  else if(kind==='exam'){Object.assign(q,{items:shuffle(itemsUpTo(3)).slice(0,10),title:'الامتحان النهائي A1',need:8})}
+  else if(kind==='conv'){const c=CONVO.find(x=>x.id===id);Object.assign(q,{title:'محادثة: '+c.t,items:c.turns.map(t=>({q:t.p,o:t.o,a:t.a,tip:t.tip})),need:c.turns.length})}
+  else if(kind==='place'){Object.assign(q,{title:'تحديد المستوى',items:[pickPlace(q)]})}
+  S.q=q;render();window.scrollTo(0,0);
+}
+function pickPlace(q){
+  const used=q.items.map(x=>x.q);const pool=PLACE.filter(x=>!used.includes(x.q));
+  const want=q.theta>=1.5?2:1;let c=pool.filter(x=>x.lv===want);if(!c.length)c=pool;
+  return shuffle(c)[0];
+}
+function pick(k){
+  const q=S.q;if(q.picked!=null)return;
+  const it=q.items[q.i],ok=k===it.a;
+  q.picked=k;q.choiceOk=ok;if(q.kind!=='conv'){q.got.push(ok);if(!ok)q.wrong.push(it)}
+  if(q.kind==='place')q.theta=Math.min(2,Math.max(1,q.theta+(ok?0.5:-0.5)));
+  render();
+}
+function nextQ(){
+  const q=S.q;q.i++;q.picked=null;q.spoke=null;q.att=0;q.feedback=null;q.choiceOk=null;
+  const total=q.kind==='place'?10:q.items.length;
+  if(q.i>=total)endQ();
+  else if(q.kind==='place')q.items.push(pickPlace(q));
+  render();
+}
+function endQ(){
+  const q=S.q;q.done=true;q.score=q.got.filter(Boolean).length;
+  if(q.kind==='lesson'){q.pass=q.score===q.items.length;if(q.pass){S.lessons[q.id]=true;addXp(20)}}
+  else if(q.kind==='cp'){q.pass=q.score>=q.need;if(q.pass){S.cp[q.id]=true;addXp(50)}}
+  else if(q.kind==='ret'){q.pass=q.score>=q.need;if(q.pass){S.ret[q.id]=true;addXp(30)}}
+  else if(q.kind==='conv'){q.pass=q.score===q.items.length;if(q.pass){S.conv[q.id]=true;addXp(40)}}
+  else if(q.kind==='exam'){q.pass=q.score>=q.need;if(q.pass){S.exam=true;addXp(100)}}
+  else if(q.kind==='place'){
+    const rows=q.items.map((x,i)=>({lv:x.lv,ok:q.got[i]}));
+    const r1=rows.filter(r=>r.lv===1),r2=rows.filter(r=>r.lv===2);
+    const a1=r1.length?r1.filter(r=>r.ok).length/r1.length:0;
+    const a2=r2.length?r2.filter(r=>r.ok).length/r2.length:0;
+    S.level=(r2.length>=2&&a2>=0.75)?'A2':'A1';S.placed=true;S.place={a1,a2,n1:r1.length,n2:r2.length};q.pass=true;
+  }
+  save();
+}
+function speakPanel(q,it){if(q.kind!=='conv'||q.picked==null)return '';if(q.spoke!=null)return `<p class=muted style='margin-top:8px'>دقة النطق: ${q.spoke}%</p>`;return `<div style='background:#EEF2FF;border-radius:14px;padding:12px;margin-top:12px'><div class=muted>الآن قل الجملة الصحيحة بصوتك أو اكتبها:</div><div class=en style='font-size:18px;margin:8px 0;font-weight:700'>${it.o[it.a]}</div><div class=row><button class=btn onclick='mic2()'>🎙️ تحدّث</button></div><div class=row style='margin-top:8px'><input id=ctxt2 class=en placeholder='Type it' style='direction:ltr;max-width:220px;margin:0;padding:10px;border:2px solid var(--line);border-radius:12px'><button class='btn' onclick='typed2()'>✓</button></div>${q.feedback?`<p class=muted style='margin-top:8px'>${q.feedback}</p>`:''}</div>`}
+function words(s){return s.toLowerCase().replace(/[^\w\s]/g,'').split(/\s+/).filter(Boolean)}
+function speakTurn(said){const q=S.q;if(!q||q.kind!=='conv'||q.spoke!=null||!said)return;const it=q.items[q.i];const T=words(it.o[it.a]),G=words(said);const sc=Math.round(T.filter(w=>G.includes(w)).length/T.length*100);q.att=(q.att||0)+1;if(sc>=75||q.att>=2){q.spoke=sc;const pass=!!q.choiceOk&&sc>=75;q.got.push(pass);if(!pass)q.wrong.push(it);addXp(pass?10:2);save()}else{q.feedback='حاول مرة أخرى، لم أسمع: '+T.filter(w=>!G.includes(w)).join(' ')}render()}
+function mic2(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;const q=S.q;if(!R){q.feedback='التعرف على الصوت غير مدعوم هنا، اكتب الجملة في المربع';render();return}const r=new R();r.lang='en-US';r.onresult=e=>speakTurn(e.results[0][0].transcript.trim());r.onerror=e=>{q.feedback='تعذّر التسجيل ('+e.error+')';render()};try{r.start()}catch(x){}}
+function typed2(){const el=document.getElementById('ctxt2');speakTurn(el?el.value.trim():'')}
+function retryQ(){const q=S.q;launch(q.kind,q.id)}
+function closeQ(){const wasPlace=S.q&&S.q.kind==='place';S.q=null;S.tab=wasPlace?'home':'course';save();render()}
+function quizView(){
+  const q=S.q;
+  if(q.done){
+    if(q.kind==='place'){const p=S.place;
+      return card('نتيجة تحديد المستوى',`<p>مستواك: <b class="en" style="font-size:26px">${S.level}</b></p>
+        <p class="muted">دقتك في أسئلة A1: ${Math.round(p.a1*100)}%${p.n2>=2?'، وفي أسئلة A2: '+Math.round(p.a2*100)+'%':''}</p>
+        <div class="row"><button class="btn" onclick="closeQ()">ابدأ الدورة</button></div>`);}
+    const tips=q.wrong.map(x=>`<div class="muted">💡 ${x.tip}</div>`).join('');
+    return card(`${q.pass?'🎉 اجتزت':'لم تجتز بعد'}: ${q.title}`,
+      `<p>نتيجتك ${q.score} من ${q.items.length} والمطلوب ${q.need}</p>${tips}
+       <div class="row">${q.pass?'<button class="btn" onclick="closeQ()">متابعة</button>':'<button class="btn" onclick="retryQ()">أعد المحاولة</button><button class="btn ghost" onclick="closeQ()">رجوع</button>'}</div>`);
+  }
+  const it=q.items[q.i],total=q.kind==='place'?10:q.items.length;
+  const opts=it.o.map((o,k)=>{let c='';if(q.picked!=null){if(k===it.a)c='ok';else if(k===q.picked)c='bad'}
+    return `<button class="opt en ${c}" ${q.picked!=null?'disabled':''} onclick="pick(${k})">${o}</button>`}).join('');
+  return card(`${q.title} <span class="muted">(${q.i+1}/${total})</span>`,
+    `<div class="bar"><i style="width:${q.i/total*100}%"></i></div>
+     <div class="mean en" style="font-size:19px;margin-top:14px">${it.q}</div>${opts}
+     ${speakPanel(q,it)}${q.picked!=null&&(q.kind!=='conv'||q.spoke!=null)?`<p class='muted' style='margin-top:10px'>💡 ${it.tip}</p><div class="row"><button class="btn" onclick="nextQ()">${q.i+1>=total?'النتيجة':'التالي ←'}</button></div>`:''}
+     <div class="row"><button class="btn ghost" onclick="closeQ()">إلغاء</button></div>`);
+}
+
+/* ================= التحدث ================= */
+function speakView(){
+  const P=CONV[S.ci%CONV.length];
+  return card('محادثة سريعة 🗣️',`<p class="muted">أجب بجملة كاملة بالصوت أو بالكتابة</p>
+    <div class="mean en" style="font-size:19px">${P}</div>
+    <div class="row" style="margin-top:12px"><button class="btn ghost" onclick="say('${P}')">🔊 استمع</button><button class="btn" onclick="mic()">🎙️ أجب بالصوت</button><button class="btn ghost" onclick="S.ci++;save();render()">سؤال آخر</button></div>
+    <div class="row" style="margin-top:12px"><input id="ctxt" class="en" placeholder="Type your answer" style="direction:ltr;max-width:240px;margin:0;padding:10px;border:2px solid var(--line);border-radius:12px"><button class="btn" onclick="typed()">✓</button></div>
+    <div id="cres" class="mean en" style="margin-top:12px;font-size:16px"></div>`);
+}
+function review(t){
+  const tips=[];const w=t.split(/\s+/).filter(Boolean).length;
+  if(w<4)tips.push('حاول جملة أطول، 4 كلمات على الأقل');
+  if(/\bI\s+(is|are)\b/i.test(t))tips.push('مع I استخدم am أو have');
+  if(/\b(he|she|it)\s+(don't|do|have|like|want|go|make|work|live|need|take)\b/i.test(t))tips.push('مع he / she / it أضف s للفعل، مثل: he works');
+  if(/\b(he|she|it)\s+doesn't\s+\w+s\b/i.test(t))tips.push('بعد doesn\'t الفعل يكون بدون s');
+  if(/\ba\s+[aeiou]/i.test(t))tips.push('قبل حرف العلة استخدم an بدل a');
+  if(/\bdidn't\s+\w+ed\b/i.test(t))tips.push('بعد didn\'t الفعل يكون بدون ed');
+  if(/^[a-z]/.test(t))tips.push('ابدأ الجملة بحرف كبير');
+  return tips;
+}
+function show(t){
+  if(!t)return;const tips=review(t);const c=document.getElementById('cres');
+  if(c)c.innerHTML='سمعتُ: "'+t+'"'+(tips.length?tips.map(x=>'<div class="muted">💡 '+x+'</div>').join(''):'<div class="muted">ممتاز، جملة صحيحة ✅</div>');
+  addXp(tips.length?5:15);save();
+}
+function typed(){show((document.getElementById('ctxt').value||'').trim())}
+function mic(){
+  const R=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const c=document.getElementById('cres');
+  if(!R){if(c)c.innerHTML='<span class="muted">التعرف على الصوت غير مدعوم هنا، اكتب إجابتك في المربع</span>';return}
+  const r=new R();r.lang='en-US';
+  if(c)c.innerHTML='<span class="muted">🎙️ تحدّث الآن...</span>';
+  r.onresult=e=>show(e.results[0][0].transcript.trim());
+  r.onerror=e=>{if(c)c.innerHTML='<span class="muted">تعذّر التسجيل ('+e.error+'). اكتب إجابتك في المربع أو راجع إذن الميكروفون</span>'};
+  try{r.start()}catch(x){}
+}
+
+const VIEWS={home:homeView,course:courseView,speak:speakView};
+render();
+</script>
+</body>
+</html>
