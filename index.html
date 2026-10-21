@@ -194,7 +194,7 @@ function unitDone(n){return unitLessons(n).every(l=>S.lessons[l.id])&&convoList(
 function unitStatus(n){if(unitDone(n))return '<span class=pill>✅ مكتملة</span>';if(unitOpen(n))return '<span class=pill style="background:#EEF2FF;color:var(--ind)">📍 الوحدة الحالية</span>';return '<span class=pill style="background:#F3F4F6;color:var(--mute)">🔒 مقفلة</span>'}
 function courseView(){setTimeout(()=>{const p=[...document.querySelectorAll('.pill')].find(e=>e.textContent.includes('الوحدة الحالية'));if(p)p.scrollIntoView({block:'start'})},0);
   if(!S.placed) return card('ابدأ بتحديد المستوى أولاً','<div class="row"><button class="btn" onclick="launch(\'place\')">اختبار تحديد المستوى</button></div>');
-  let h=card('اختبار تحديد المستوى (اختياري)',`<p class='muted'>يُنصح به لمعرفة مستواك قبل بدء الوحدات، ولا يلزم لبدء الدورة من A1.</p><div class='row'><button class='btn ghost' onclick="launch('place')">ابدأ الاختبار</button></div>`);
+  let h=card('وضع التجربة السريعة',`<p class=muted>للمراجعة فقط: يفتح كل الدروس والاختبارات، أو يعيد التقدم من البداية.</p><div class=row><button class=btn ghost onclick="devUnlock()">فتح كل الدروس</button><button class=btn ghost onclick="devReset()">إعادة البداية</button></div>`)+card('اختبار تحديد المستوى (اختياري)',`<p class='muted'>يُنصح به لمعرفة مستواك قبل بدء الوحدات، ولا يلزم لبدء الدورة من A1.</p><div class='row'><button class='btn ghost' onclick="launch('place')">ابدأ الاختبار</button></div>`);
   if(S.open){const l=LESSONS.find(x=>x.id===S.open);
     h+=card(`الدرس ${l.id}: ${l.t}`,`<p>${l.ex}</p>${l.more?`<div class='muted' style='margin-top:10px;line-height:1.9'>${l.more}</div>`:''}<div class="en muted" style="margin-top:10px;line-height:1.9">${l.s.map(x=>'• '+x).join('<br>')}</div>
       <div class="row"><button class="btn" onclick="launch(\'lesson\',\'${l.id}\')">ابدأ تمارين الدرس</button><button class="btn ghost" onclick="S.open=null;render()">إغلاق</button></div>`);}
@@ -222,7 +222,7 @@ function retBtn(u){
 
 /* ================= المحرك: الاختبارات ================= */
 function launch(kind,id){window.scrollTo(0,0);_launch(kind,id)}
-function _launch(kind,id){kind,id){
+function _launch(kind,id){
   const q={kind,id,i:0,got:[],wrong:[],picked:null,done:false,theta:1};
   if(kind==='lesson'){const l=LESSONS.find(x=>x.id===id);Object.assign(q,{items:l.items,title:'درس '+l.id,need:l.items.length})}
   else if(kind==='cp'){Object.assign(q,{items:shuffle(unitItems(id)).slice(0,8),title:'اختبار الوحدة '+id,need:7})}
@@ -271,6 +271,8 @@ function speakPanel(q,it){if(q.kind!=='conv'||q.picked==null)return '';if(q.spok
 function words(s){return s.toLowerCase().replace(/[^\w\s]/g,'').split(/\s+/).filter(Boolean)}
 function speakTurn(said){const q=S.q;if(!q||q.kind!=='conv'||q.spoke!=null||!said)return;const it=q.items[q.i];const T=words(it.o[it.a]),G=words(said);const sc=Math.round(T.filter(w=>G.includes(w)).length/T.length*100);q.heard=said;q.att=(q.att||0)+1;if(sc>=75||q.att>=2){q.spoke=sc;const pass=!!q.choiceOk&&sc>=75;q.got.push(pass);if(!pass)q.wrong.push(it);addXp(pass?10:2);save()}else{q.feedback='حاول مرة أخرى، لم أسمع: '+T.filter(w=>!G.includes(w)).join(' ')}render()}
 function mic2(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;const q=S.q;if(!R){q.feedback='التعرف على الصوت غير مدعوم هنا، اكتب الجملة في المربع';render();return}const r=new R();r.lang='en-US';r.onresult=e=>speakTurn(e.results[0][0].transcript.trim());r.onerror=e=>{q.feedback='تعذّر التسجيل ('+e.error+')';render()};try{r.start()}catch(x){}}
+function devUnlock(){[1,2,3].forEach(n=>{unitLessons(n).forEach(l=>S.lessons[l.id]=true);convoList(n).forEach(c=>S.conv[c.id]=true);S.cp[n]=true;S.ret[n]=true});S.exam=true;localStorage.setItem(K,JSON.stringify(S));render()}
+function devReset(){if(!confirm('هل تريد بدء الدورة من الصفر؟'))return;S.lessons={};S.conv={};S.cp={};S.ret={};S.exam=false;S.xp=0;localStorage.setItem(K,JSON.stringify(S));render()}
 function typed2(){const el=document.getElementById('ctxt2');speakTurn(el?el.value.trim():'')}
 function retryQ(){const q=S.q;launch(q.kind,q.id)}
 function closeQ(){const wasPlace=S.q&&S.q.kind==='place';S.q=null;S.tab=wasPlace?'home':'course';save();render()}
