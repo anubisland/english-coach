@@ -318,4 +318,75 @@ run('بطاقة الشرح تظهر في كل درس من التسعة',
   });
 });
 
+console.log('— التصميم —');
+
+run('قلم المصحّح يضع الصواب فوق الخطأ في علامة واحدة', {}, (ctx, ev) => {
+  const h = ctx.penDiff('he go to school', 'He goes to school');
+  if ((h.match(/class="fix"/g) || []).length !== 1)
+    throw new Error('الاستبدال رُسم كعلامتين بدل واحدة: ' + h);
+  if (!h.includes('<u>goes</u><s>go</s>')) throw new Error('ترتيب الصواب والخطأ خاطئ: ' + h);
+  if (!h.startsWith('He ') || !h.endsWith('to school')) throw new Error('الكلمات السليمة تغيّرت: ' + h);
+});
+
+run('قلم المصحّح لا يعلّم شيئاً في جملة سليمة', {}, (ctx, ev) => {
+  const h = ctx.penDiff('I am a teacher', 'I am a teacher');
+  if (h.includes('class="fix"')) throw new Error('عُلّمت جملة سليمة: ' + h);
+});
+
+run('قلم المصحّح يهرّب وسوم HTML من نصّ المتعلم', {}, (ctx, ev) => {
+  const h = ctx.penDiff('<img src=x onerror=alert(1)> go', 'He goes');
+  if (h.includes('<img')) throw new Error('وسم خام وصل إلى الصفحة: ' + h);
+});
+
+run('المحادثة تعرض تصحيح قلم المدرّس', {}, (ctx, ev) => {
+  ctx.go('speak');
+  ctx.chatReply('he are my brother');
+  const h = ctx.speakView();
+  if (!h.includes('class="fix"')) throw new Error('لا تصحيح داخل الفقاعة');
+  if (!h.includes('bub me')) throw new Error('لا فقاعة للمتعلم');
+  if (!h.includes('bub them')) throw new Error('لا فقاعة للمحاور');
+});
+
+run('الوضع الليلي والنهاري يُحفظان', {}, (ctx, ev) => {
+  if (ev('S').theme !== 'dark') throw new Error('الوضع الافتراضي ليس ليلياً');
+  ctx.toggleTheme();
+  if (ev('S').theme !== 'light') throw new Error('لم يتبدّل الوضع');
+  if (!ctx._store['eng-coach-v3'].includes('"theme":"light"')) throw new Error('الوضع لم يُحفظ');
+});
+
+run('الوضع المحفوظ يُستعاد',
+  { 'eng-coach-v3': JSON.stringify({ placed: true, theme: 'light' }) },
+  (ctx, ev) => { if (ev('S').theme !== 'light') throw new Error('لم يُستعد الوضع المحفوظ') });
+
+run('هدف الكلام اليومي يُحفظ',
+  { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+  ctx.setGoal(20);
+  if (ev('S').goal !== 20) throw new Error('لم يتغيّر الهدف');
+  if (!ctx._store['eng-coach-v3'].includes('"goal":20')) throw new Error('الهدف لم يُحفظ');
+});
+
+run('شريط التنقل يستخدم أيقونات مرسومة لا إيموجي', {}, (ctx, ev) => {
+  ctx.render();
+  const nav = ctx._els.nav.innerHTML;
+  if (!nav.includes('<svg')) throw new Error('لا أيقونات مرسومة');
+  if (/[\u{1F300}-\u{1FAFF}]/u.test(nav)) throw new Error('ما زال فيه إيموجي');
+});
+
+run('الرئيسية تعرض حلقة التقدّم',
+  { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true } }) },
+  (ctx, ev) => {
+    const h = ctx.homeView();
+    if (!h.includes('<svg')) throw new Error('لا حلقة');
+    if (!h.includes('stroke-dashoffset')) throw new Error('الحلقة بلا تقدّم');
+    if (!h.includes('هدف الكلام اليومي')) throw new Error('لا اختيار للهدف');
+  });
+
+run('خريطة الرحلة ترسم خطاً ومحطات',
+  { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    const h = ctx.courseView();
+    if (!h.includes('class="spine')) throw new Error('لا خط رحلة');
+    if (!h.includes('stopCard')) throw new Error('لا محطات');
+    if (!h.includes('dot now')) throw new Error('لا محطة حالية بارزة');
+  });
+
 report();

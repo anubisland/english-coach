@@ -4,49 +4,149 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>مدرب الإنجليزية</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--ind:#4338CA;--ind2:#6366F1;--blue:#2563EB;--green:#16A34A;--purple:#9333EA;--bg:#F5F6FB;--card:#fff;--ink:#1E1B4B;--mute:#6B7280;--line:#E5E7EB;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+/* ============ نظام التصميم ============
+   داكن افتراضاً، ونهاري عبر [data-theme=light] على <html>.
+   أسماء الأصناف كما كانت، فما يعتمد عليها في الكود لم يتغيّر. */
+:root{
+  --bg:#0B0D1C; --surf:#15182E; --surf2:#1C2040; --line:#2A2F52;
+  --ink:#F2F3FA; --mute:#A3A8C3; --faint:#7D82A6;
+  --ind:#6D5BFF; --ind2:#8B7BFF; --soft:rgba(109,91,255,.16);
+  --blue:#4C8DFF; --green:#35D07F; --teal:#00C2A8; --amber:#FFB020; --coral:#FF7A59;
+  --onBlue:#06132B; --onGreen:#00241F; --onTeal:#002B25; --onAmber:#331F00;
+  --okBg:rgba(53,208,127,.12); --badBg:rgba(255,122,89,.12);
+  --warnBd:#B45309; --warnBg:#2B1B06; --warnInk:#FFC65C;
+  --shadow:0 6px 20px rgba(0,0,0,.28);
+}
+:root[data-theme=light]{
+  --bg:#F6F5FB; --surf:#FFFFFF; --surf2:#EFEDFB; --line:#E6E5F0;
+  --ink:#16142E; --mute:#5A5E84; --faint:#5A5E84;
+  --ind:#5B47F5; --ind2:#4635D6; --soft:#EFEDFB;
+  --blue:#2F6BD4; --green:#00806F; --teal:#00806F; --amber:#B06A00; --coral:#C23F22;
+  --onBlue:#fff; --onGreen:#fff; --onTeal:#fff; --onAmber:#fff;
+  --okBg:rgba(0,128,111,.10); --badBg:rgba(194,63,34,.10);
+  --warnBd:#B45309; --warnBg:#FFFBEB; --warnInk:#92400E;
+  --shadow:0 4px 14px rgba(30,27,75,.08);
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Cairo,Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding-bottom:92px}
-.en{font-family:Inter,Cairo,sans-serif;direction:ltr}
-header{background:linear-gradient(135deg,var(--ind),var(--ind2));color:#fff;padding:22px 20px 34px;border-radius:0 0 28px 28px}
-header h1{font-size:22px;font-weight:800}
-header p{opacity:.85;font-size:14px;margin-top:4px}
-.wrap{padding:16px;max-width:560px;margin:auto}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:-22px}
-.stat{border-radius:18px;padding:14px 8px;color:#fff;text-align:center}
-.stat b{display:block;font-size:24px;font-weight:800}
-.stat span{font-size:12px}
-.s1{background:var(--blue)}.s2{background:var(--green)}.s3{background:var(--purple)}
-.card{background:var(--card);border-radius:20px;padding:18px;margin-top:14px;box-shadow:0 4px 14px rgba(30,27,75,.07)}
-.card h2{font-size:17px;font-weight:800;margin-bottom:10px}
-.btn{display:inline-block;border:0;border-radius:999px;background:var(--ind);color:#fff;padding:11px 20px;font:700 15px Cairo,sans-serif;cursor:pointer;margin-top:8px}
-.btn.ghost{background:#EEF2FF;color:var(--ind)}
-.opt{display:block;width:100%;text-align:left;background:#F9FAFB;border:2px solid var(--line);border-radius:14px;padding:12px;margin-top:8px;font:600 16px Inter,Cairo,sans-serif;cursor:pointer;color:var(--ink)}
-.opt.ok{border-color:var(--green);background:#ECFDF5}
-.opt.bad{border-color:#DC2626;background:#FEF2F2}
-.bar{height:10px;background:#E0E7FF;border-radius:99px;overflow:hidden;margin-top:10px}
-.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ind2),var(--green));border-radius:99px}
-.unit{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
-.unit:last-child{border:0}
-.dot{width:30px;height:30px;border-radius:50%;background:#EEF2FF;color:var(--ind);display:grid;place-items:center;font-weight:800;flex-shrink:0;font-size:13px}
-.dot.done{background:var(--green);color:#fff}
-.pill{display:inline-block;background:#ECFDF5;color:var(--green);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:700;margin-top:8px}
-.muted{color:var(--mute);font-size:14px}
+body{
+  font-family:'IBM Plex Sans Arabic',Cairo,system-ui,sans-serif;
+  background:var(--bg);color:var(--ink);min-height:100vh;padding-bottom:96px;
+  -webkit-font-smoothing:antialiased;
+  padding-top:env(safe-area-inset-top,0px);
+}
+.en{font-family:Inter,'IBM Plex Sans Arabic',sans-serif;direction:ltr;unicode-bidi:isolate}
+.dsp{font-family:'Readex Pro','IBM Plex Sans Arabic',sans-serif;font-weight:600}
+
+header{padding:20px 20px 10px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+header h1{font:600 21px 'Readex Pro','IBM Plex Sans Arabic',sans-serif;line-height:1.3}
+header p{color:var(--mute);font-size:12.5px;margin-top:4px;line-height:1.6}
+.themeBtn{background:var(--surf);border:1px solid var(--line);color:var(--mute);
+  width:38px;height:38px;flex:0 0 38px;border-radius:13px;display:grid;place-items:center;cursor:pointer;font-size:16px}
+
+.wrap{padding:0 16px;max-width:560px;margin:auto}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:4px}
+.stat{border-radius:18px;padding:13px 10px;display:flex;flex-direction:column;gap:3px}
+.stat b{font:600 22px 'Readex Pro',sans-serif;line-height:1}
+.stat span{font-size:11px;font-weight:600;line-height:1.35;opacity:.82}
+.s1{background:var(--blue);color:var(--onBlue)}
+.s2{background:var(--teal);color:var(--onTeal)}
+.s3{background:var(--amber);color:var(--onAmber)}
+
+.card{background:var(--surf);border:1px solid var(--line);border-radius:22px;padding:16px;margin-top:13px;box-shadow:var(--shadow)}
+.card h2{font:600 16px 'Readex Pro','IBM Plex Sans Arabic',sans-serif;margin-bottom:9px;line-height:1.5}
+.card.flat{box-shadow:none;background:transparent}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:16px;
+  background:var(--ind);color:#fff;padding:12px 19px;min-height:44px;
+  font:700 14.5px 'IBM Plex Sans Arabic',sans-serif;cursor:pointer;margin-top:8px}
+.btn.ghost{background:var(--surf2);color:var(--ind2)}
+:root[data-theme=light] .btn.ghost{color:var(--ind)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+.opt{display:block;width:100%;text-align:left;background:var(--surf2);border:2px solid var(--line);
+  border-radius:15px;padding:13px 15px;margin-top:9px;min-height:48px;
+  font:600 16px Inter,sans-serif;cursor:pointer;color:var(--ink);direction:ltr}
+.opt.ok{border-color:var(--green);background:var(--okBg)}
+.opt.bad{border-color:var(--coral);background:var(--badBg)}
+
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;background:var(--ind);border-radius:99px}
+
+/* ====== خريطة الرحلة: خط متصل ومحطات ====== */
+.unit{display:flex;gap:13px;align-items:stretch;padding:0;border:0}
+.spine{width:34px;position:relative;display:grid;place-items:center;flex:0 0 34px}
+.spine i{position:absolute;top:0;bottom:0;right:15.5px;width:3px;border-radius:2px;background:var(--line)}
+.spine.lit i{background:var(--ind)}
+.spine.first i{top:14px}
+.spine.last i{bottom:auto;height:16px}
+.dot{position:relative;width:24px;height:24px;border-radius:50%;background:var(--bg);
+  border:2.5px solid var(--line);color:var(--faint);display:grid;place-items:center;
+  font:700 11px 'IBM Plex Sans Arabic',sans-serif;flex-shrink:0}
+.dot.done{background:var(--ind);border-color:var(--ind);color:#fff}
+.dot.now{width:30px;height:30px;border-width:3.5px;border-color:var(--ind);background:var(--bg);box-shadow:0 0 0 5px var(--soft)}
+.dot.mic{border-radius:9px}
+.stop{flex:1;min-width:0;padding:3px 0 13px}
+.stopCard{display:flex;align-items:center;gap:10px;border-radius:17px;padding:12px 14px;
+  background:var(--surf);border:1px solid var(--line)}
+.stopCard.now{background:var(--ind);border-color:var(--ind)}
+.stopCard.now b,.stopCard.now .muted{color:#fff}
+.stopCard.now .muted{opacity:.85}
+.stopCard.locked{background:transparent;border-style:dashed}
+.stopCard b{font-size:13.5px;font-weight:600;line-height:1.5}
+
+.pill{display:inline-block;background:var(--okBg);color:var(--green);border-radius:999px;
+  padding:4px 12px;font-size:12px;font-weight:700}
+.muted{color:var(--mute);font-size:13px;line-height:1.8}
 .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 .mean{text-align:center}
-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:8px 4px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 16px rgba(0,0,0,.06)}
-.tab{background:none;border:0;font:700 12px Cairo,sans-serif;color:var(--mute);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 10px;border-radius:10px}
-.tab i{font-size:20px;font-style:normal}
-.tab.on{color:var(--ind)}
-.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;display:none;z-index:9}
+
+/* ====== المحادثة ====== */
+.bub{max-width:88%;border-radius:18px;padding:12px 15px;line-height:1.6}
+.bub.them{align-self:flex-start;background:var(--surf2);border-bottom-left-radius:5px}
+.bub.me{align-self:flex-end;background:var(--ind);color:#fff;border-bottom-right-radius:5px}
+.stream{display:flex;flex-direction:column;gap:11px;margin-top:12px}
+.fix{position:relative;display:inline-block;margin:0 2px}
+.fix u{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
+  font-size:11.5px;font-weight:600;color:var(--green);text-decoration:none;white-space:nowrap;line-height:1.2}
+.fix s{text-decoration-color:var(--coral);text-decoration-thickness:2px}
+.bub.me .fix u{color:#B9FFD8}
+.bub.me .fix s{text-decoration-color:#FFBCA8;color:#EFE9FF}
+.meters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}
+.meter b{display:block;font-size:10.5px;color:var(--faint);font-weight:600;text-align:center}
+.meter u{display:block;height:5px;border-radius:3px;background:var(--line);margin-top:5px;overflow:hidden;text-decoration:none}
+.meter u i{display:block;height:100%;border-radius:3px}
+
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--surf);border-top:1px solid var(--line);
+  display:grid;grid-template-columns:repeat(3,1fr);padding:8px 10px calc(14px + env(safe-area-inset-bottom,0px));z-index:8}
+.tab{background:none;border:0;font:600 10.5px 'IBM Plex Sans Arabic',sans-serif;color:var(--faint);
+  display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 4px;min-height:44px}
+.tab.on{color:var(--ind2)}
+:root[data-theme=light] .tab.on{color:var(--ind)}
+.tab svg{width:21px;height:21px;display:block}
+
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--surf2);
+  border:1px solid var(--line);color:var(--ink);padding:11px 18px;border-radius:999px;
+  font-size:13.5px;display:none;z-index:99;box-shadow:var(--shadow);max-width:90vw;text-align:center}
+
+.warn{border:2px solid var(--warnBd);background:var(--warnBg)}
+.warn h2,.warn .muted{color:var(--warnInk)}
+
+table.g{width:100%;border-collapse:collapse;margin-top:10px;background:var(--bg);border-radius:12px;overflow:hidden}
+table.g td{padding:8px 11px;border-bottom:1px solid var(--line);font-size:13px}
+table.g tr:last-child td{border-bottom:0}
 </style>
 </head>
 <body>
 <header>
-  <h1>مدرب الإنجليزية 🇬🇧 <span style="font-size:12px;opacity:.8;font-weight:400">إصدار 3</span></h1>
-  <p>شرح، تمارين، ثم اختبار: لا تنتقل إلى المستوى التالي إلا بعد إتقان الحالي</p>
+  <div>
+    <h1 id="hTitle">مدرب الإنجليزية</h1>
+    <p id="hSub">الكلام أولاً: شرح، تمرين، ثم محادثة حقيقية</p>
+  </div>
+  <button class="themeBtn" id="themeBtn" onclick="toggleTheme()" aria-label="تبديل الوضع الليلي">🌙</button>
 </header>
 <main class="wrap" id="app"></main>
 <nav id="nav"></nav>
@@ -340,25 +440,25 @@ function ruleCard(id,mode){
   const r=RULE[id];if(!r)return '';
   const open=S.ruleOpen===id;
   if(mode==='brief'&&!open)
-    return `<div style='background:#EEF2FF;border-radius:14px;padding:12px;margin-top:10px'>
-      <b style='color:var(--ind)'>${r.t}</b>
-      <p class=muted style='margin-top:6px;line-height:1.9'>${r.rule}</p>
-      <button class='btn ghost' onclick="toggleRule('${id}')">الشرح كاملاً</button></div>`;
-  const rows=r.table.map(x=>`<tr><td style='padding:6px 10px;border-bottom:1px solid var(--line)' class=en>${x[0]}</td><td style='padding:6px 10px;border-bottom:1px solid var(--line)'>${x[1]}</td></tr>`).join('');
-  const exs=r.ex.map(x=>`<div style='margin-top:6px'><span class=en style='font-weight:700'>${x.en}</span><br><span class=muted>${x.ar}</span></div>`).join('');
-  return `<div style='background:#EEF2FF;border-radius:16px;padding:14px;margin-top:10px'>
-    <b style='color:var(--ind);font-size:16px'>${r.t}</b>
-    <p style='margin-top:8px;line-height:1.9'>${r.rule}</p>
-    <p class=muted style='margin-top:8px;line-height:1.9'>${r.why}</p>
-    <table style='width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border-radius:10px;overflow:hidden'>${rows}</table>
-    ${r.more.map(x=>`<p class=muted style='margin-top:8px;line-height:1.9'>• ${x}</p>`).join('')}
-    <p style='margin-top:12px;font-weight:700'>أمثلة</p>${exs}
-    <p style='margin-top:12px;font-weight:700'>أخطاء شائعة</p>
-    ${r.bad.map(x=>`<p class=muted style='margin-top:6px;line-height:1.9'>✗ ${x}</p>`).join('')}
-    <div style='background:#fff;border-radius:12px;padding:12px;margin-top:12px'>
-      <b style='color:var(--green)'>لماذا يخطئ العربي هنا؟</b>
-      <p class=muted style='margin-top:6px;line-height:1.9'>${r.ar}</p></div>
-    ${mode==='brief'?`<button class='btn ghost' onclick="toggleRule('${id}')">إخفاء الشرح</button>`:''}
+    return `<div class="card" style="background:var(--surf2)">
+      <h2 style="color:var(--ind2)">${r.t}</h2>
+      <p class="muted">${r.rule}</p>
+      <button class="btn ghost" style="background:var(--surf)" onclick="toggleRule('${id}')">الشرح كاملاً</button></div>`;
+  const rows=r.table.map(x=>`<tr><td class="en">${x[0]}</td><td>${x[1]}</td></tr>`).join('');
+  const exs=r.ex.map(x=>`<div style="margin-top:8px"><span class="en" style="font-weight:600;font-size:14.5px">${x.en}</span><br><span class="muted" style="font-size:12.5px">${x.ar}</span></div>`).join('');
+  return `<div class="card" style="background:var(--surf2)">
+    <h2 style="color:var(--ind2)">${r.t}</h2>
+    <p style="line-height:1.9;font-size:14.5px">${r.rule}</p>
+    <p class="muted" style="margin-top:8px">${r.why}</p>
+    <table class="g">${rows}</table>
+    ${r.more.map(x=>`<p class="muted" style="margin-top:8px">• ${x}</p>`).join('')}
+    <p style="margin-top:14px;font-weight:700;font-size:13.5px">أمثلة</p>${exs}
+    <p style="margin-top:14px;font-weight:700;font-size:13.5px">أخطاء شائعة</p>
+    ${r.bad.map(x=>`<p class="muted" style="margin-top:6px">✗ ${x}</p>`).join('')}
+    <div style="background:var(--bg);border-radius:14px;padding:13px;margin-top:14px;border-right:3px solid var(--green)">
+      <b style="color:var(--green);font-size:13.5px">لماذا يخطئ العربي هنا؟</b>
+      <p class="muted" style="margin-top:6px">${r.ar}</p></div>
+    ${mode==='brief'?`<button class="btn ghost" style="background:var(--surf)" onclick="toggleRule('${id}')">إخفاء الشرح</button>`:''}
   </div>`;
 }
 function toggleRule(id){S.ruleOpen=S.ruleOpen===id?null:id;save();render()}
@@ -410,7 +510,9 @@ function defaultState(){return{
   tab:'home',q:null,open:null,ci:0,place:null,
   errs:{},                  // عدّاد أخطاء الجرامر المتكررة
   ruleOpen:null,            // بطاقة القاعدة المفتوحة حالياً
-  chat:{sc:0,ti:0,miss:0,stage:'reply',ok:null,g:null,fixed:null,pr:null,fb:null,hint:false}
+  theme:'dark',             // 'dark' أو 'light'
+  goal:10,                  // هدف دقائق الكلام اليومي
+  chat:{sc:0,ti:0,miss:0,stage:'reply',ok:null,g:null,said:null,fixed:null,pr:null,fb:null,hint:false}
 }}
 
 /* هل في الحالة المحفوظة أثر عمل سابق؟ */
@@ -434,6 +536,8 @@ function migrate(saved){
   if(Number.isFinite(saved.xp)&&saved.xp>=0)S.xp=saved.xp;
   if(Number.isInteger(saved.ci)&&saved.ci>=0)S.ci=saved.ci;
   if(LEVELS.includes(saved.level))S.level=saved.level;
+  if(saved.theme==='light'||saved.theme==='dark')S.theme=saved.theme;
+  if([5,10,20].includes(saved.goal))S.goal=saved.goal;
   if(VIEWS_KEYS.includes(saved.tab))S.tab=saved.tab;
   if(saved.place&&typeof saved.place==='object')S.place=saved.place;
   /* الدرس المفتوح مؤشر إلى محتوى قد يختفي بين إصدارين.
@@ -495,26 +599,85 @@ const lessonOpen=l=>{if(!unitOpen(l.u))return false;const ls=unitLessons(l.u);co
 const examOpen=()=>[1,2,3].every(u=>S.cp[u])&&[1,2].every(u=>S.ret[u]);
 const convoList=u=>CONVO.filter(c=>c.u===u);
 const convoOpen=c=>{const L=convoList(c.u),i=L.indexOf(c);return unitOpen(c.u)&&unitLessons(c.u).every(l=>S.lessons[l.id])&&(i===0||!!S.conv[L[i-1].id])};
-function convoHtml(u){return `<div style='margin-top:12px'><b>🗣️ المحادثة</b>${convoList(u).map(c=>{const ok=!!S.conv[c.id],av=convoOpen(c);return `<div class='unit' style='padding:10px 0'><div class='dot ${ok?'done':''}'>${ok?'✓':'🗣️'}</div><div style='flex:1'><b>${c.t}</b>${av?`<div><button class='btn ghost' onclick="launch('conv','${c.id}')">${ok?'إعادة':'ابدأ المحادثة'}</button></div>`:'<div class=muted>🔒 بعد إتقان دروس الوحدة</div>'}</div></div>`}).join('')}</div>`}
+/* محطة واحدة على خط الرحلة: نقطة على الخط، وبطاقة بجوارها. */
+function stop(o){
+  const card=`<div class="stopCard ${o.cls||''}"><span style="flex:1;min-width:0">
+      <b>${o.title}</b><span class="muted" style="display:block;font-size:11.5px">${o.meta}</span></span>
+      ${o.act?`<span class="btn ghost" style="margin:0;padding:8px 13px;min-height:0;font-size:12px">${o.cls==='now'?'تابع':'افتح'}</span>`:''}</div>`;
+  return `<div class="unit"><div class="spine ${o.lit?'lit':''} ${o.first?'first':''} ${o.last?'last':''}"><i></i>${o.dot}</div>
+    <div class="stop">${o.act?`<a href="javascript:void(0)" onclick="${o.act}" style="text-decoration:none;color:inherit;display:block">${card}</a>`:card}</div></div>`;
+}
+function convoHtml(u){
+  const L=convoList(u);
+  return L.map(c=>{const ok=!!S.conv[c.id],av=convoOpen(c);
+    return stop({
+      lit:ok,
+      dot:ok?`<div class="dot done mic">${svg('check',13,'var(--onGreen)')}</div>`
+          :`<div class="dot mic">${svg('mic',12)}</div>`,
+      cls:av&&!ok?'':(av?'':'locked'),
+      title:'محادثة: '+c.t,
+      meta:av?(ok?'مكتملة · اضغط للإعادة':'تدرّب على القاعدة في حوار'):'بعد إتقان دروس الوحدة',
+      act:av?`launch('conv','${c.id}')`:''
+    })}).join('');
+}
 
 /* ================= التنقل ================= */
+/* أيقونات خطّية بدل الإيموجي: شكلها ثابت على كل جهاز، والإيموجي يختلف. */
+const ICON={
+ home:'<path d="M3 10.2 12 3l9 7.2V20a1.4 1.4 0 0 1-1.4 1.4H4.4A1.4 1.4 0 0 1 3 20v-9.8Z"/>',
+ map:'<circle cx="17" cy="5.5" r="2.6"/><circle cx="7" cy="18.5" r="2.6"/><path d="M17 8.1v3.4a3 3 0 0 1-3 3h-4a3 3 0 0 0-3 3"/>',
+ mic:'<rect x="9" y="2.5" width="6" height="11.5" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>',
+ check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+ lock:'<rect x="4.5" y="10.5" width="15" height="10" rx="2.4"/><path d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7"/>',
+ shield:'<path d="M12 3l7.5 3v5.4c0 4.5-3.1 8.4-7.5 9.6-4.4-1.2-7.5-5.1-7.5-9.6V6L12 3Z"/>',
+ flame:'<path d="M12 3c0 3-4 4.2-4 8a4 4 0 0 0 8 0c0-1.3-.6-2.3-1.2-3.2C16.6 9 18 11 18 13.5A6 6 0 0 1 6 14C6 9 12 8 12 3Z"/>',
+ sound:'<path d="M11 5 6.5 9H3v6h3.5L11 19V5Z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6"/>',
+ alert:'<path d="M12 8.5v4.2M12 16.4h.01M10.3 3.9 2.6 17.2A1.9 1.9 0 0 0 4.3 20h15.4a1.9 1.9 0 0 0 1.7-2.8L13.7 3.9a1.9 1.9 0 0 0-3.4 0Z"/>',
+ book:'<path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H19v18H5.5A1.5 1.5 0 0 1 4 19.5v-15Z"/><path d="M8 3v18"/>'
+};
+function svg(name,size,color){
+  return `<svg width="${size||20}" height="${size||20}" viewBox="0 0 24 24" fill="none" stroke="${color||'currentColor'}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[name]}</svg>`;
+}
+function toggleTheme(){
+  S.theme=S.theme==='light'?'dark':'light';
+  applyTheme();save();
+}
+function applyTheme(){
+  const el=document.documentElement;
+  if(el&&el.setAttribute)el.setAttribute('data-theme',S.theme==='light'?'light':'dark');
+  const b=document.getElementById('themeBtn');
+  if(b)b.textContent=S.theme==='light'?'☀️':'🌙';
+}
 function renderNav(){
-  const T=[['home','🏠','الرئيسية'],['course','📚','المسار'],['speak','🎙️','التحدث']];
-  document.getElementById('nav').innerHTML=T.map(t=>`<button class="tab ${S.tab===t[0]?'on':''}" onclick="go('${t[0]}')"><i>${t[1]}</i>${t[2]}</button>`).join('');
+  const T=[['home','home','اليوم'],['course','map','الرحلة'],['speak','mic','التحدث']];
+  document.getElementById('nav').innerHTML=T.map(t=>
+    `<button class="tab ${S.tab===t[0]?'on':''}" onclick="go('${t[0]}')">${svg(t[1],21)}<span>${t[2]}</span></button>`).join('');
 }
 function go(t){S.tab=t;S.q=null;save();render()}
 function card(h,b){return `<div class="card"><h2>${h}</h2>${b}</div>`}
 /* تحذير يبقى ظاهراً ما دام سببه قائماً، بخلاف التنبيه العابر. */
 function banners(){
-  const box='border:2px solid #B45309;background:#FFFBEB';
   let h='';
-  if(saveFailed)h+='<div class="card" style="'+box+'"><h2 style="color:#92400E">⚠️ تقدّمك لا يُحفظ في هذا المتصفح</h2><p class=muted style="color:#92400E">أكمل درسك الآن لكن لا تغلق الصفحة. جرّب نافذة عادية بدل التصفح الخاص، أو متصفحاً آخر.</p></div>';
-  if(bootWarn)h+='<div class="card" style="'+box+'"><h2 style="color:#92400E">⚠️ تعذّرت قراءة تقدّمك السابق</h2><p class=muted style="color:#92400E">بدأنا من جديد. '+bootWarn+'</p></div>';
+  if(saveFailed)h+='<div class="card warn"><h2>⚠️ تقدّمك لا يُحفظ في هذا المتصفح</h2><p class="muted">أكمل درسك الآن لكن لا تغلق الصفحة. جرّب نافذة عادية بدل التصفح الخاص، أو متصفحاً آخر.</p></div>';
+  if(bootWarn)h+='<div class="card warn"><h2>⚠️ تعذّرت قراءة تقدّمك السابق</h2><p class="muted">بدأنا من جديد. '+bootWarn+'</p></div>';
   return h;
+}
+const HEAD={
+  home:['مدرب الإنجليزية','الكلام أولاً: شرح، تمرين، ثم محادثة حقيقية'],
+  course:['خريطة الرحلة','محطة بعد محطة حتى تتقن المستوى'],
+  speak:['المحادثة الحيّة','تكلّم، وسنصحّح لك بالعربية']
+};
+function renderHead(){
+  const h=HEAD[S.tab]||HEAD.home;
+  const t=document.getElementById('hTitle'),p=document.getElementById('hSub');
+  if(t)t.textContent=h[0];
+  if(p)p.textContent=h[1];
 }
 function render(){
   const app=document.getElementById('app');
   try{
+    applyTheme();
+    renderHead();
     renderNav();
     app.innerHTML=banners()+(S.q?quizView():VIEWS[S.tab]());
   }catch(e){
@@ -549,20 +712,66 @@ function nextStep(){
 
 function homeView(){
   const done=LESSONS.filter(l=>S.lessons[l.id]).length;
-  if(!S.placed) return card('أهلاً بك 👋','<p class="muted">قبل أن نبدأ، اختبار قصير من 10 أسئلة يحدد نقطة انطلاقك. يستغرق دقيقتين، ولا توجد إجابة تُحسب عليك.</p><div class="row"><button class="btn" onclick="launch(\'place\')">ابدأ اختبار تحديد المستوى</button></div>');
+  if(!S.placed) return card('أهلاً بك 👋',
+    '<p class="muted">قبل أن نبدأ، اختبار قصير من 10 أسئلة يحدد نقطة انطلاقك. يستغرق دقيقتين، ولا توجد إجابة تُحسب عليك.</p><div class="row"><button class="btn" onclick="launch(\'place\')">ابدأ اختبار تحديد المستوى</button></div>');
+
   const nx=nextStep();
-  const resume=nx?card('تابع من حيث توقفت',`<p><b>${nx.label}</b></p><div class="row"><button class="btn" onclick="${nx.act}">${nx.cta}</button></div>`):'';
-  return `<div class="stats">
-    <div class="stat s1"><b>${S.xp}</b><span>نقاط XP</span></div>
-    <div class="stat s2"><b>${done}/${LESSONS.length}</b><span>دروس متقنة</span></div>
-    <div class="stat s3"><b>${Object.keys(S.cp).length}/3</b><span>وحدات مجتازة</span></div></div>`+
-  resume+
-  card(`مستواك: <span class="en">${S.level}</span>`,
-    `<div class="bar"><i style="width:${Math.round(done/LESSONS.length*100)}%"></i></div>
-     ${S.level==='A2'?'<p class="muted" style="margin-top:8px">محتوى A2 قيد الإعداد. ابدأ بتثبيت A1 في المسار.</p>':''}
-     <div class="row"><button class="btn ghost" onclick="go(\'course\')">عرض المسار كاملاً</button></div>`)+
-  card('الامتحان النهائي', `<p>${S.exam?'🎉 أتممت مستوى A1':'يُفتح بعد اجتياز الوحدات الثلاث واختبارات الاستبقاء'}</p>`);
+  const pct=Math.round(done/LESSONS.length*100);
+  const top=Object.entries(S.errs||{}).sort((a,b)=>b[1]-a[1])[0];
+
+  return ringCard(pct)+
+  `<div class="stats">
+    <div class="stat s1"><b>${ar(done)}<span style="font-size:14px">/${ar(LESSONS.length)}</span></b><span>دروس متقنة</span></div>
+    <div class="stat s2"><b>${ar(Object.keys(S.cp).length)}<span style="font-size:14px">/٣</span></b><span>وحدات مجتازة</span></div>
+    <div class="stat s3"><b>${ar(S.xp)}</b><span>نقاط XP</span></div></div>`+
+  (nx?card('تابع من حيث توقفت',
+    `<p style="font-size:15px;font-weight:600;line-height:1.6">${nx.label}</p>
+     <div class="row" style="justify-content:flex-start"><button class="btn" onclick="${nx.act}">${svg('mic',18,'#fff')} ${nx.cta}</button></div>`):'')+
+  (top?card('خطؤك المتكرر',
+    `<div style="display:flex;align-items:center;gap:11px">
+       <span style="width:40px;height:40px;flex:0 0 40px;display:grid;place-items:center;background:var(--badBg);border-radius:13px;color:var(--coral)">${svg('alert',19)}</span>
+       <span style="flex:1;min-width:0"><span class="muted" style="display:block">${top[0]}</span>
+       <span class="muted" style="display:block;font-size:12px">تكرر ${ar(top[1])} مرة</span></span>
+       <button class="btn ghost" style="margin:0" onclick="go('speak')">درّبني</button></div>`):'')+
+  card('الامتحان النهائي',
+    `<p class="muted">${S.exam?'🎉 أتممت مستوى A1':'يُفتح بعد اجتياز الوحدات الثلاث واختبارات الاستبقاء'}</p>
+     <div class="row" style="justify-content:flex-start"><button class="btn ghost" onclick="go('course')">عرض الرحلة كاملة</button></div>`);
 }
+
+/* أرقام عربية-هندية في الواجهة العربية، والإنجليزية تبقى كما هي. */
+function ar(n){return String(n).replace(/[0-9]/g,c=>'٠١٢٣٤٥٦٧٨٩'[+c])}
+
+/* حلقة التقدّم مرسومة كموجة صوت: النجاح هنا هو الكلام، لا النقر. */
+function ringCard(pct){
+  const C=414.7, p=Math.max(0,Math.min(1,pct/100));
+  const lens=[6,11,4,13,7,9,5,14,8,6,12,5];
+  let ticks='';
+  for(let i=0;i<48;i++){
+    const a=(-90+i*7.5)*Math.PI/180, len=lens[i%lens.length];
+    const x1=(100+81*Math.cos(a)).toFixed(1), y1=(100+81*Math.sin(a)).toFixed(1);
+    const x2=(100+(81+len)*Math.cos(a)).toFixed(1), y2=(100+(81+len)*Math.sin(a)).toFixed(1);
+    ticks+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${i/48<p?'var(--ind)':'var(--line)'}" stroke-width="2.4" stroke-linecap="round"/>`;
+  }
+  const goals=[5,10,20].map(g=>`<button class="btn${g===S.goal?'':' ghost'}" style="margin:0;padding:8px 15px;min-height:0;border-radius:999px;font-size:12.5px${g===S.goal?'':';background:transparent;color:var(--mute)'}" onclick="setGoal(${g})">${ar(g)} د</button>`).join('');
+  return `<div class="card" style="display:flex;flex-direction:column;align-items:center;padding-top:10px">
+    <div style="position:relative;width:186px;height:186px">
+      <svg width="186" height="186" viewBox="0 0 200 200" role="img" aria-label="أتممتَ ${pct} بالمئة من دروس المستوى">
+        <circle cx="100" cy="100" r="66" fill="none" stroke="var(--line)" stroke-width="13"/>
+        <circle cx="100" cy="100" r="66" fill="none" stroke="var(--ind)" stroke-width="13" stroke-linecap="round"
+                stroke-dasharray="${C}" stroke-dashoffset="${(C*(1-p)).toFixed(1)}" transform="rotate(-90 100 100)"/>
+        ${ticks}
+      </svg>
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+        <span class="dsp" style="font-size:44px;line-height:1">${ar(pct)}<span style="font-size:20px">٪</span></span>
+        <span class="muted" style="font-size:12px">من مستوى <span class="en">${S.level}</span></span>
+      </div>
+    </div>
+    <div class="muted" style="font-size:12px;margin-top:10px">هدف الكلام اليومي</div>
+    <div role="group" aria-label="هدف اليوم" style="display:flex;gap:5px;background:var(--surf2);border-radius:999px;padding:4px;margin-top:7px">${goals}</div>
+  </div>`;
+}
+function setGoal(g){S.goal=g;save();render()}
+
 
 /* ================= المسار ================= */
 function unitDone(n){return unitLessons(n).every(l=>S.lessons[l.id])&&convoList(n).every(c=>S.conv[c.id])&&!!S.cp[n]&&(n===3||!!S.ret[n])}
@@ -576,10 +785,28 @@ function courseView(){setTimeout(()=>{const p=[...document.querySelectorAll('.pi
     h+=card(`الدرس ${l.id}: ${l.t}`,`<p>${l.ex}</p>${l.more?`<div class='muted' style='margin-top:10px;line-height:1.9'>${l.more}</div>`:''}${(l.rules||[]).map(r=>ruleCard(r,'full')).join('')}<div class="en muted" style="margin-top:10px;line-height:1.9">${l.s.map(x=>'• '+x).join('<br>')}</div>
       <div class="row"><button class="btn" onclick="launch(\'lesson\',\'${l.id}\')">ابدأ تمارين الدرس</button><button class="btn ghost" onclick="S.open=null;render()">إغلاق</button></div>`);}
   for(const u of UNITS){
-    const ls=unitLessons(u.n).map(l=>{const ok=!!S.lessons[l.id],av=lessonOpen(l);
-      return `<div class="unit"><div class="dot ${ok?'done':''}">${ok?'✓':l.id}</div><div style="flex:1"><b>${l.t}</b>
-        ${av?`<div><button class="btn ghost" onclick="openLesson('${l.id}')">${ok?'مراجعة':'اقرأ الشرح وابدأ'}</button></div>`:'<div class="muted">🔒 يفتح بعد الدرس السابق</div>'}</div></div>`}).join('');
-    const extra=unitOpen(u.n)?convoHtml(u.n)+`<div class="row">${cpBtn(u.n)}${retBtn(u.n)}</div>`:'';
+    const LS=unitLessons(u.n);
+    const ls=LS.map((l,i)=>{const ok=!!S.lessons[l.id],av=lessonOpen(l);
+      const now=av&&!ok;
+      return stop({
+        first:i===0,
+        lit:ok||now,
+        dot:ok?`<div class="dot done">${svg('check',13,'var(--onGreen)')}</div>`
+            :now?'<div class="dot now"></div>'
+            :`<div class="dot">${svg('lock',11)}</div>`,
+        cls:now?'now':(av?'':'locked'),
+        title:`${l.id} — ${l.t}`,
+        meta:av?(ok?'متقن · اضغط للمراجعة':`${ar(l.items.length)} تمارين`):'يفتح بعد الدرس السابق',
+        act:av?`openLesson('${l.id}')`:''
+      })}).join('');
+    const gate=`${cpBtn(u.n)}${retBtn(u.n)}`;
+    const extra=unitOpen(u.n)?convoHtml(u.n)+stop({
+      last:true,lit:!!S.cp[u.n],
+      dot:S.cp[u.n]?`<div class="dot done">${svg('check',13,'var(--onGreen)')}</div>`:`<div class="dot mic">${svg('shield',13)}</div>`,
+      cls:'locked',
+      title:`بوابة الوحدة ${ar(u.n)}`,
+      meta:S.cp[u.n]?'مُجتازة':'٨ أسئلة · تحتاج ٧ صحيحة'
+    }).replace('</div></div>',`<div class="row" style="justify-content:flex-start">${gate}</div></div></div>`):'';
     h+=card(`الوحدة ${u.n}: ${u.t} ${unitStatus(u.n)}`, unitOpen(u.n)?(unitDone(u.n)?'<details><summary class=muted>عرض دروس الوحدة للمراجعة</summary>'+ls+extra+'</details>':ls+extra):'<p class="muted">🔒 تُفتح بعد اجتياز اختبار الوحدة السابقة واختبار استبقائها</p>');
   }
   h+=card('الامتحان النهائي لـ A1', examOpen()&&!S.exam?'<div class="row"><button class="btn" onclick="launch(\'exam\')">ابدأ الامتحان النهائي</button></div>':(S.exam?'<p>🎉 أتممت A1</p>':'<p class="muted">🔒 يُفتح بعد اجتياز الوحدات الثلاث</p>'));
@@ -666,19 +893,27 @@ function quizView(){
       return card('نتيجة تحديد المستوى',`<p>مستواك: <b class="en" style="font-size:26px">${S.level}</b></p>
         <p class="muted">دقتك في أسئلة A1: ${Math.round(p.a1*100)}%${p.n2>=2?'، وفي أسئلة A2: '+Math.round(p.a2*100)+'%':''}</p>
         <div class="row"><button class="btn" onclick="closeQ()">ابدأ الدورة</button></div>`);}
-    const tips=q.wrong.map(x=>`<div class="muted">💡 ${x.tip}</div>`).join('');
-    return card(`${q.pass?'🎉 اجتزت':'لم تجتز بعد'}: ${q.title}`,
-      `<p>نتيجتك ${q.score} من ${q.items.length} والمطلوب ${q.need}</p>${tips}
-       <div class="row">${q.pass?'<button class="btn" onclick="closeQ()">متابعة</button>':'<button class="btn" onclick="retryQ()">أعد المحاولة</button><button class="btn ghost" onclick="closeQ()">رجوع</button>'}</div>`);
+    const pc=Math.round(q.score/q.items.length*100);
+    const tips=q.wrong.map(x=>`<p class="muted">💡 ${x.tip}</p>`).join('');
+    return `<div class="card" style="text-align:center;padding-top:22px">
+        <div class="dsp" style="font-size:52px;line-height:1;color:${q.pass?'var(--green)':'var(--amber)'}">${ar(q.score)}<span style="font-size:24px;color:var(--mute)">/${ar(q.items.length)}</span></div>
+        <div class="bar" style="max-width:220px;margin:14px auto 0"><i style="width:${pc}%;background:${q.pass?'var(--green)':'var(--amber)'}"></i></div>
+        <h2 style="margin-top:14px">${q.pass?'🎉 اجتزت '+q.title:'لم تجتز بعد'}</h2>
+        <p class="muted">${q.pass?'أحسنت، تابع إلى الخطوة التالية':'المطلوب '+ar(q.need)+' إجابات صحيحة'}</p>
+        <div class="row" style="margin-top:6px">${q.pass?'<button class="btn" onclick="closeQ()">متابعة</button>':'<button class="btn" onclick="retryQ()">أعد المحاولة</button><button class="btn ghost" onclick="closeQ()">رجوع</button>'}</div>
+      </div>${tips?card('ما تحتاج مراجعته',tips):''}`;
   }
   const it=q.items[q.i],total=q.kind==='place'?10:q.items.length;
   const opts=it.o.map((o,k)=>{let c='';if(q.picked!=null){if(k===it.a)c='ok';else if(k===q.picked)c='bad'}
     return `<button class="opt en ${c}" ${q.picked!=null?'disabled':''} onclick="pick(${k})">${o}</button>`}).join('');
-  return card(`${q.title} <span class="muted">(${q.i+1}/${total})</span>`,
-    `<div class="bar"><i style="width:${q.i/total*100}%"></i></div>
-     <div class="mean en" style="font-size:19px;margin-top:14px">${it.q}</div>${opts}
+  return `<div class="card">
+     <div style="display:flex;align-items:center;gap:11px">
+       <div class="bar" style="flex:1;margin:0"><i style="width:${q.i/total*100}%"></i></div>
+       <span class="muted" style="font-size:12px;font-weight:700;flex:0 0 auto">${ar(q.i+1)} / ${ar(total)}</span></div>
+     <p class="muted" style="margin-top:12px;font-size:12px">${q.title}</p>
+     <div class="mean en" style="font-size:19px;margin-top:6px;line-height:1.7;font-weight:500">${it.q}</div>${opts}
      ${speakPanel(q,it)}${q.picked!=null&&(q.kind!=='conv'||q.spoke!=null)?`<p class='muted' style='margin-top:10px'>💡 ${it.tip}</p>${itemRuleHtml(q,it)}<div class="row"><button class="btn" onclick="nextQ()">${q.i+1>=total?'النتيجة':'التالي ←'}</button></div>`:''}
-     <div class="row"><button class="btn ghost" onclick="closeQ()">إلغاء</button></div>`);
+     <div class="row" style="margin-top:4px"><button class="btn ghost" style="background:transparent;color:var(--faint)" onclick="closeQ()">إلغاء</button></div></div>`;
 }
 
 /* ================= التحدث ================= */
@@ -816,7 +1051,7 @@ function chatClamp(){const c=S.chat;let moved=false;
   if(moved){
     logError('ضبط مؤشر المحادثة',new Error('sc/ti خارج الحدود'));
     /* التغذية الراجعة الباقية تخصّ سؤالاً آخر، وعرضها هنا يعلّم المتعلم خطأً. */
-    c.stage='reply';c.ok=null;c.g=null;c.fixed=null;c.pr=null;c.hint=false;
+    c.stage='reply';c.ok=null;c.g=null;c.said=null;c.fixed=null;c.pr=null;c.hint=false;
     c.fb='تغيّرت المشاهد، فبدأنا من المشهد الأول.';
     save();
   }
@@ -826,7 +1061,7 @@ function chatSay(){say(chatTurn().p)}
 function chatListen(cb){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R){cb(null,'التعرف على الصوت غير متاح هنا، اكتب الإجابة في المربع');return}const r=new R();r.lang='en-US';r.onresult=e=>cb(e.results[0][0].transcript.trim(),null);r.onerror=e=>cb(null,'تعذّر التسجيل ('+e.error+')');try{r.start()}catch(x){cb(null,'تعذّر بدء التسجيل')}}
 function chatMic(){chatListen((t,err)=>{if(err){S.chat.fb=err;render();return}chatReply(t)})}
 function chatType(){const v=(document.getElementById('chatTxt')||{}).value;if(v&&v.trim())chatReply(v.trim())}
-function chatReply(text){const c=S.chat,T=chatTurn();c.ok=T.need.test(text);c.g=checkGrammar(text);c.fixed=fixText(text);c.g.forEach(x=>S.errs[x.ar]=(S.errs[x.ar]||0)+1);if(!c.ok)c.miss++;c.stage='fb';c.pr=null;c.fb=null;save();render()}
+function chatReply(text){const c=S.chat,T=chatTurn();c.said=text;c.ok=T.need.test(text);c.g=checkGrammar(text);c.fixed=fixText(text);c.g.forEach(x=>S.errs[x.ar]=(S.errs[x.ar]||0)+1);if(!c.ok)c.miss++;c.stage='fb';c.pr=null;c.fb=null;save();render()}
 function chatRetry(){const c=S.chat;c.stage='reply';c.ok=null;c.g=null;c.pr=null;c.fb=null;save();render()}
 function chatModel(){chatListen((t,err)=>{const c=S.chat;if(err){c.fb=err;render();return}c.pr=pronScore(chatTurn().model,t);c.fb=null;save();render()})}
 function chatModelTyped(){const v=(document.getElementById('chatPr')||{}).value;if(!v||!v.trim())return;S.chat.pr=pronScore(chatTurn().model,v.trim());save();render()}
@@ -835,26 +1070,141 @@ function chatNext(){const c=S.chat,sc=SCENES[c.sc];c.ti++;if(c.ti>=sc.turns.leng
 
 function pronHtml(p){return `<div style='margin-top:10px'><p>دقة النطق: <b>${p.sc}%</b></p>`+(p.heard?`<p class=muted>سمعتُ: «${p.heard}»</p>`:'')+(p.miss.length?`<p class=muted>كلمات لم تُسمع: ${p.miss.join('، ')}</p>`:'')+(p.near.length?`<p class=muted>كلمات قريبة تحتاج ضبطاً: ${p.near.join('، ')}</p>`:'')+p.tips.map(t=>`<p class=muted>💡 ${t}</p>`).join('')+'</div>'}
 function chatHint(){const c=S.chat;c.hint=!c.hint;save();render()}
-function chatFeedback(c,T){let h=`<div style='background:#F8FAFC;border-radius:14px;padding:14px;margin-top:14px;font-size:18px;line-height:1.9;color:#1e1b4b'>`;
-h+=c.ok?`<p style='font-size:22px;font-weight:700;color:#15803d'>✅ فهمت إجابتك</p>`:`<p style='font-size:22px;font-weight:700;color:#b45309'>⚠️ إجابتك لا تناسب هذا السؤال</p>`;
-h+=`<p style='margin-top:8px'>الإجابة النموذجية:</p><p class=en style='font-size:18px;font-weight:700'>${T.model}</p>`;
-if(c.g&&c.g.length){h+=`<p style='margin-top:8px'>ملاحظات الجرامر في إجابتك:</p>`+c.g.map(x=>`<div style='font-size:18px;color:#1e1b4b'>• ${x.ar}</div>`).join('')+`<p style='margin-top:6px'>صياغتك المصححة: <b class=en style='font-size:20px'>${c.fixed}</b></p>`+c.g.filter(x=>x.rid).map(x=>ruleCard(x.rid,'brief')).join('')}else h+=`<p style='font-size:18px;color:#1e1b4b' style='margin-top:8px'>جرامر إجابتك سليم ✅</p>`;
-h+=`<p style='margin-top:12px'><b>الخطوة التالية:</b> قل الإجابة النموذجية بصوتك لنقيّم نطقك.</p>`;
-if(c.pr)h+=pronHtml(c.pr);
-if(c.fb)h+=`<p style='font-size:18px;color:#1e1b4b'>${c.fb}</p>`;
-h+=`<div class=row style='margin-top:10px'><button class=btn onclick='chatModel()'>🎙️ قل الإجابة النموذجية</button><button class='btn ghost' onclick='chatNext()'>السؤال التالي ←</button></div>`;
-h+=`<div class=row style='margin-top:8px'><input id=chatPr class=en placeholder='أو اكتب الإجابة النموذجية' style='direction:ltr;max-width:260px;margin:0;padding:10px;border:2px solid var(--line);border-radius:12px'><button class='btn ghost' onclick='chatModelTyped()'>✓</button></div>`;
-if(!c.ok)h+=`<div class=row style='margin-top:8px'><button class='btn ghost' onclick='chatRetry()'>أعد الإجابة على السؤال</button></div>`;
-return h+'</div>'}
-function speakView(){chatClamp();const c=S.chat,sc=SCENES[c.sc],T=sc.turns[c.ti];
-const top=Object.entries(S.errs||{}).sort((a,b)=>b[1]-a[1]).slice(0,3);
-const picker=`<div class=row>${SCENES.map((x,i)=>`<button class='btn ${i===c.sc?'':'ghost'}' onclick='chatPick(${i})'>${x.les?'درس '+x.les:x.t}</button>`).join('')}</div>`;
-let body;
-if(c.stage==='reply'){body=`<p class=muted>الخطوة 1: استمع للسؤال، ثم أجب بجملة كاملة.</p><div class=row><button class='btn ghost' onclick='chatSay()'>🔊 استمع للسؤال</button><button class=btn onclick='chatMic()'>🎙️ أجب بصوتك</button></div><div class=row style='margin-top:10px'><input id=chatTxt class=en placeholder='أو اكتب إجابتك' style='direction:ltr;max-width:260px;margin:0;padding:10px;border:2px solid var(--line);border-radius:12px'><button class=btn onclick='chatType()'>✓</button></div><div class=row style='margin-top:10px'><button class='btn ghost' onclick='chatHint()'>💡 ${c.hint?'إخفاء المثال':'أعطني مثالاً'}</button></div>${c.hint?`<p class=en style='margin-top:8px'>مثال: <b>${T.model}</b></p>`:''}${c.fb?`<p class=muted>${c.fb}</p>`:''}`}
-else body=chatFeedback(c,T);
-let out=card('محادثة حيّة 🗣️',picker+`<div class=muted style='margin-top:10px'>المشهد: ${sc.t} · السؤال ${c.ti+1} من ${sc.turns.length}</div><div class=en style='font-size:20px;font-weight:700;margin:12px 0'>${T.p}</div>`+body);
-if(top.length)out+=card('مراجعة أخطائي المتكررة (اختيارية)',top.map(([k,v])=>`• ${k} (${v})`).join('<br>'));
-return out}
+/* يقارن جملة المتعلّم بالمصححة كلمةً بكلمة (أطول تسلسل مشترك)،
+   فيظهر الخطأ مشطوباً والصواب فوقه — كما يفعل المدرّس بالقلم. */
+function penDiff(said,fixed){
+  const A=String(said||'').split(/\s+/).filter(Boolean);
+  const B=String(fixed||'').split(/\s+/).filter(Boolean);
+  const norm=w=>w.toLowerCase().replace(/[^\w']/g,'');
+  const n=A.length,m=B.length;
+  const L=Array.from({length:n+1},()=>new Array(m+1).fill(0));
+  for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)
+    L[i][j]=norm(A[i])===norm(B[j])?L[i+1][j+1]+1:Math.max(L[i+1][j],L[i][j+1]);
+  /* نجمع العمليات أولاً، ثم ندمج كل حذف يتبعه إضافة في علامة واحدة
+     يظهر فيها الصواب فوق الخطأ المشطوب، كما يكتب المدرّس بالقلم. */
+  const ops=[];let i=0,j=0;
+  while(i<n&&j<m){
+    if(norm(A[i])===norm(B[j])){ops.push({k:'=',w:B[j]});i++;j++}
+    else if(L[i+1][j]>=L[i][j+1]){ops.push({k:'-',w:A[i]});i++}
+    else{ops.push({k:'+',w:B[j]});j++}
+  }
+  while(i<n)ops.push({k:'-',w:A[i++]});
+  while(j<m)ops.push({k:'+',w:B[j++]});
+
+  const merged=[];
+  for(let k=0;k<ops.length;k++){
+    const a=ops[k],b=ops[k+1];
+    if(a.k==='-'&&b&&b.k==='+'){merged.push({k:'~',bad:a.w,good:b.w});k++}
+    else if(a.k==='+'&&b&&b.k==='-'){merged.push({k:'~',bad:b.w,good:a.w});k++}
+    else merged.push(a);
+  }
+
+  const esc=t=>String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  return merged.map(o=>{
+    if(o.k==='=')return esc(o.w);
+    if(o.k==='~')return '<span class="fix"><u>'+esc(o.good)+'</u><s>'+esc(o.bad)+'</s></span>';
+    if(o.k==='-')return '<span class="fix"><s>'+esc(o.w)+'</s></span>';
+    return '<span class="fix"><u>'+esc(o.w)+'</u></span>';
+  }).join(' ');
+}
+
+/* مقاييس من بيانات حقيقية فقط: لا نعرض رقماً لا نحسبه. */
+function chatMeters(c){
+  const gn=(c.g||[]).length;
+  const m=[
+    {l:'صلة',  t:c.ok?'مناسبة':'لا تناسب', v:c.ok?100:12, c:c.ok?'var(--teal)':'var(--coral)'},
+    {l:'جرامر',t:gn?ar(gn)+' ملاحظة':'سليم', v:gn?Math.max(25,100-gn*30):100, c:gn?'var(--amber)':'var(--green)'}
+  ];
+  if(c.pr)m.push({l:'نطق',t:ar(c.pr.sc)+'٪',v:c.pr.sc,c:c.pr.sc>=75?'var(--green)':'var(--amber)'});
+  else m.push({l:'نطق',t:'لم يُقس بعد',v:0,c:'var(--line)'});
+  return `<div class="meters">${m.map(x=>
+    `<div class="meter"><b>${x.l} · ${x.t}</b><u><i style="width:${x.v}%;background:${x.c}"></i></u></div>`).join('')}</div>`;
+}
+
+function chatFeedback(c,T){
+  const clean=!c.g||!c.g.length;
+  let h='<div class="stream">';
+
+  /* فقاعة المتعلّم: نصّه كما قاله، والتصحيح داخله لا تحته */
+  h+=`<div class="bub me"><p class="en" style="font-size:15.5px;line-height:${clean?'1.6':'2.6'};margin:0">${
+    clean?String(c.said||'').replace(/[&<>]/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[x])):penDiff(c.said,c.fixed)}</p></div>`;
+
+  h+='</div>';
+  h+=chatMeters(c);
+
+  /* ملاحظة المصحّح بالعربية */
+  h+=`<div class="card" style="margin-top:12px;border-right:3px solid ${c.ok?'var(--green)':'var(--amber)'}">`;
+  h+=c.ok?'<h2 style="color:var(--green)">فهمت إجابتك</h2>'
+         :'<h2 style="color:var(--amber)">إجابتك لا تناسب هذا السؤال</h2>';
+  if(!clean){
+    h+=c.g.map(x=>`<p class="muted">• ${x.ar}</p>`).join('');
+    h+=`<p style="margin-top:9px;font-size:13px;color:var(--mute)">والصحيح أن تقول:</p>
+        <p class="en" style="font-size:15.5px;font-weight:600;color:var(--green);margin-top:3px">${c.fixed}</p>`;
+  } else h+='<p class="muted">جرامر إجابتك سليم ✅</p>';
+  h+=`<p style="margin-top:9px;font-size:13px;color:var(--mute)">الإجابة النموذجية:</p>
+      <p class="en" style="font-size:15.5px;font-weight:600;margin-top:3px">${T.model}</p>`;
+  h+='</div>';
+
+  if(!clean)h+=c.g.filter(x=>x.rid).map(x=>ruleCard(x.rid,'brief')).join('');
+
+  /* خطوة النطق */
+  h+=`<div class="card"><h2>قل الإجابة النموذجية بصوتك</h2>`;
+  if(c.pr)h+=pronHtml(c.pr);
+  if(c.fb)h+=`<p class="muted">${c.fb}</p>`;
+  h+=`<div class="row" style="justify-content:flex-start">
+        <button class="btn" onclick="chatModel()">${svg('mic',18,'#fff')} تحدّث</button>
+        <button class="btn ghost" onclick="chatNext()">السؤال التالي ←</button></div>
+      <div class="row" style="justify-content:flex-start;margin-top:8px">
+        <input id="chatPr" class="en" placeholder="أو اكتبها" style="flex:1;min-width:0;padding:11px 13px;border:2px solid var(--line);border-radius:14px;background:var(--surf2);color:var(--ink)">
+        <button class="btn ghost" style="margin:0" onclick="chatModelTyped()">✓</button></div>`;
+  if(!c.ok)h+=`<div class="row" style="justify-content:flex-start;margin-top:8px"><button class="btn ghost" onclick="chatRetry()">أعد الإجابة</button></div>`;
+  return h+'</div>';
+}
+function speakView(){
+  chatClamp();
+  const c=S.chat,sc=SCENES[c.sc],T=sc.turns[c.ti];
+  const top=Object.entries(S.errs||{}).sort((a,b)=>b[1]-a[1]).slice(0,3);
+
+  /* شرائط المشاهد: المشهد الحالي بارز، والبقية هادئة */
+  const picker=`<div style="display:flex;gap:7px;overflow-x:auto;padding:2px 0 4px;-webkit-overflow-scrolling:touch">${
+    SCENES.map((x,i)=>`<button class="btn${i===c.sc?'':' ghost'}" style="margin:0;padding:8px 14px;min-height:0;border-radius:999px;font-size:12.5px;white-space:nowrap${i===c.sc?'':';background:var(--surf2);color:var(--mute)'}" onclick="chatPick(${i})">${x.les?'درس '+x.les:x.t}</button>`).join('')}</div>`;
+
+  /* نقاط تقدّم المشهد */
+  const dots=sc.turns.map((_,i)=>
+    `<span style="width:17px;height:4px;border-radius:2px;background:${i<c.ti?'var(--green)':i===c.ti?'var(--ind)':'var(--line)'}"></span>`).join('');
+
+  let out=`<div class="card" style="padding:14px 16px 16px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="flex:1;min-width:0"><b style="font-size:14.5px">${sc.t}</b>
+        <span class="muted" style="display:block;font-size:11.5px">السؤال ${ar(c.ti+1)} من ${ar(sc.turns.length)}</span></span>
+      <span style="display:flex;gap:4px">${dots}</span></div>
+
+    <div class="stream">
+      <div class="bub them">
+        <p class="en" style="font-size:15.5px;margin:0">${T.p}</p>
+        <button class="btn ghost" style="margin-top:7px;padding:6px 11px;min-height:0;font-size:11.5px;background:transparent;color:var(--ind2)" onclick="chatSay()">${svg('sound',13)} استمع</button>
+      </div>
+    </div>`;
+
+  if(c.stage==='reply'){
+    out+=`<div class="row" style="justify-content:flex-start;margin-top:14px">
+        <button class="btn" onclick="chatMic()">${svg('mic',18,'#fff')} أجب بصوتك</button>
+        <button class="btn ghost" onclick="chatHint()">${c.hint?'إخفاء المثال':'ساعدني'}</button></div>
+      <div class="row" style="justify-content:flex-start;margin-top:8px">
+        <input id="chatTxt" class="en" placeholder="أو اكتب إجابتك" style="flex:1;min-width:0;padding:11px 13px;border:2px solid var(--line);border-radius:14px;background:var(--surf2);color:var(--ink)">
+        <button class="btn" style="margin:0" onclick="chatType()">✓</button></div>`;
+    if(c.hint)out+=`<p class="muted" style="margin-top:9px">مثال: <b class="en">${T.model}</b></p>`;
+    if(c.fb)out+=`<p class="muted" style="margin-top:9px">${c.fb}</p>`;
+    out+='</div>';
+  } else {
+    out+='</div>'+chatFeedback(c,T);
+  }
+
+  out=picker+out;
+  if(top.length)out+=card('أخطاؤك المتكررة',
+    top.map(([k,v])=>`<p class="muted">• ${k} <span style="color:var(--coral)">(${ar(v)})</span></p>`).join(''));
+  return out;
+}
 
 const VIEWS={home:homeView,course:courseView,speak:speakView};
 render();
