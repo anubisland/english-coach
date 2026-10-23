@@ -56,7 +56,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-
 /* ================= المحتوى: مستوى A1 ================= */
 const UNITS=[{n:1,t:'الضمير وفعل To Be'},{n:2,t:'المضارع البسيط'},{n:3,t:'أدوات التعريف و There is'}];
 const LESSONS=[
-{id:'1.1',u:1,t:'I am / You are',more:'<b>القاعدة الأساسية:</b> كل جملة إنجليزية تحتاج فعلاً، وهذا الفعل يتغير حسب الشخص أو الشيء الذي يقوم بالفعل.<br><br>• <b>I</b> ← am (أنا)<br>• <b>you / we / they</b> ← are (أنت / نحن / هم)<br>• <b>he / she / it</b> ← is (هو / هي / هذا)<br>• الاسم المفرد مثل Mom أو my name يعامل معاملة he / she / it فنستخدم is.<br>• إذا جمعت اسمين بـ and صار الفاعل جمعاً، مثل: Ahmed and Sara are.<br><br><b>لماذا هي مهمة؟</b> ستستخدمها في كل جملة تعرّف بها نفسك، أو تصف حالك، أو تتحدث عن الناس من حولك في البيت والعمل والشارع.', ex:'نستخدم am مع I فقط، ونستخدم are مع you وwe وthey.',s:['I am a student.','You are my friend.','We are ready.','I am at work now.','Are you hungry? Yes, I am.','Hi, I am Sara. Nice to meet you!'],items:[
+{id:'1.1',u:1,t:'I am / You are',rules:['be-subject'],more:'<b>القاعدة الأساسية:</b> كل جملة إنجليزية تحتاج فعلاً، وهذا الفعل يتغير حسب الشخص أو الشيء الذي يقوم بالفعل.<br><br>• <b>I</b> ← am (أنا)<br>• <b>you / we / they</b> ← are (أنت / نحن / هم)<br>• <b>he / she / it</b> ← is (هو / هي / هذا)<br>• الاسم المفرد مثل Mom أو my name يعامل معاملة he / she / it فنستخدم is.<br>• إذا جمعت اسمين بـ and صار الفاعل جمعاً، مثل: Ahmed and Sara are.<br><br><b>لماذا هي مهمة؟</b> ستستخدمها في كل جملة تعرّف بها نفسك، أو تصف حالك، أو تتحدث عن الناس من حولك في البيت والعمل والشارع.', ex:'نستخدم am مع I فقط، ونستخدم are مع you وwe وthey.',s:['I am a student.','You are my friend.','We are ready.','I am at work now.','Are you hungry? Yes, I am.','Hi, I am Sara. Nice to meet you!'],items:[
  {q:'Hi, my name ___ Omar.',o:['am','is','are'],a:1,tip:'my name مفرد، فنستخدم is'},
 {q:'I ___ hungry right now.',o:['am','is','are'],a:0,tip:'مع I نستخدم am'},
 {q:'They ___ at the airport.',o:['am','is','are'],a:2,tip:'مع they نستخدم are'},
@@ -69,7 +69,7 @@ const LESSONS=[
 {q:'I ___ a student.',o:['am','is','are'],a:0,tip:'مع I نستخدم am'},
  {q:'You ___ my friend.',o:['am','is','are'],a:2,tip:'مع you نستخدم are'},
  {q:'We ___ ready.',o:['am','is','are'],a:2,tip:'مع we نستخدم are'}]},
-{id:'1.2',u:1,t:'He / She / It is',more:`<b>القاعدة:</b> مع he و she و it نستخدم is. وأي اسم مفرد، مثل My father أو The book أو Sara، يعامل مثل he أو she أو it فنستخدم is أيضاً.<br><br>• <b>he</b> = هو، <b>she</b> = هي، <b>it</b> = هذا أو هذه (للأشياء والحيوانات)<br>• للنفي نضع not بعد is: He is not tired.<br>• عند الكلام عن رجل مفرد استخدم he، وعن امرأة مفردة استخدم she.`,ex:'مع he وshe وit نستخدم is، والاسم المفرد يعامل معاملة he أو she أو it.',s:['He is tall.','She is kind.','It is big.'],items:[
+{id:'1.2',u:1,t:'He / She / It is',rules:['be-subject','be-negative'],more:`<b>القاعدة:</b> مع he و she و it نستخدم is. وأي اسم مفرد، مثل My father أو The book أو Sara، يعامل مثل he أو she أو it فنستخدم is أيضاً.<br><br>• <b>he</b> = هو، <b>she</b> = هي، <b>it</b> = هذا أو هذه (للأشياء والحيوانات)<br>• للنفي نضع not بعد is: He is not tired.<br>• عند الكلام عن رجل مفرد استخدم he، وعن امرأة مفردة استخدم she.<br>• <b>قارن دائماً بالفاعل:</b> إن كان الفاعل جمعاً (they أو my parents) أو you فنستخدم are، ومع I نستخدم am. القاعدة تتبع الفاعل لا الكلمة الأخيرة.`,ex:'مع he وshe وit نستخدم is، والاسم المفرد يعامل معاملة he أو she أو it.',s:['He is tall.','She is kind.','It is big.'],items:[
 {q:`He ___ my brother.`,o:[`am`,`is`,`are`],a:1,tip:`he مفرد، فنستخدم is`},
 {q:`She ___ a doctor.`,o:[`am`,`is`,`are`],a:1,tip:`she مع is`},
 {q:`It ___ very hot today.`,o:[`am`,`is`,`are`],a:1,tip:`it مع is`},
@@ -79,10 +79,14 @@ const LESSONS=[
 {q:`He ___ not tired.`,o:[`am`,`is`,`are`],a:1,tip:`للنفي: is not`},
 {q:`Ali is my teacher. ___ is very kind.`,o:[`He`,`They`,`We`],a:0,tip:`Ali رجل واحد، فنقول He`},
 
- {q:'He ___ tall.',o:['is','are','am'],a:0,tip:'مع he نستخدم is'},
- {q:'She ___ kind.',o:['is','are','am'],a:0,tip:'مع she نستخدم is'},
- {q:'It ___ big.',o:['is','are','am'],a:0,tip:'مع it نستخدم is'}]},
-{id:'1.3',u:1,t:'أسئلة مع is / are',more:`<b>القاعدة:</b> في السؤال نضع is أو are قبل الفاعل: Are you ready؟ Is she your sister؟<br><br>• I ← Am: Am I late؟<br>• he / she / it ← Is: Is he a doctor؟<br>• you / we / they والجمع ← Are: Are they at home؟<br>• في الأسئلة التي تبدأ بكلمة استفهام تأتي الكلمة أولاً ثم is أو are: What is your name؟ Where are my keys؟`,ex:'لبناء السؤال نضع is أو are في البداية قبل الفاعل.',s:['Are you ready?','Is she your sister?','Are they at home?'],items:[
+ {q:'He ___ tall.',o:['am','is','are'],a:1,tip:'مع he نستخدم is'},
+ {q:'She ___ kind.',o:['am','is','are'],a:1,tip:'مع she نستخدم is'},
+ {q:'It ___ big.',o:['am','is','are'],a:1,tip:'مع it نستخدم is'},
+ {q:'They ___ my cousins.',o:['am','is','are'],a:2,tip:'انتبه: they جمع وليس مفرداً، فنستخدم are لا is'},
+ {q:'My parents ___ doctors.',o:['am','is','are'],a:2,tip:'انتبه: parents جمع، فنستخدم are لا is'},
+ {q:'You ___ very kind.',o:['am','is','are'],a:2,tip:'انتبه: مع you نستخدم are لا is'},
+ {q:'I ___ his neighbor.',o:['am','is','are'],a:0,tip:'انتبه: مع I نستخدم am لا is'}]},
+{id:'1.3',u:1,t:'أسئلة مع is / are',rules:['be-question'],more:`<b>القاعدة:</b> في السؤال نضع is أو are قبل الفاعل: Are you ready؟ Is she your sister؟<br><br>• I ← Am: Am I late؟<br>• he / she / it ← Is: Is he a doctor؟<br>• you / we / they والجمع ← Are: Are they at home؟<br>• في الأسئلة التي تبدأ بكلمة استفهام تأتي الكلمة أولاً ثم is أو are: What is your name؟ Where are my keys؟`,ex:'لبناء السؤال نضع is أو are في البداية قبل الفاعل.',s:['Are you ready?','Is she your sister?','Are they at home?'],items:[
 {q:`___ you ready?`,o:[`Am`,`Is`,`Are`],a:2,tip:`you مع Are في السؤال`},
 {q:`___ she your sister?`,o:[`Am`,`Is`,`Are`],a:1,tip:`she مع Is في السؤال`},
 {q:`___ they at home?`,o:[`Am`,`Is`,`Are`],a:2,tip:`they مع Are في السؤال`},
@@ -90,38 +94,29 @@ const LESSONS=[
 {q:`Where ___ my keys?`,o:[`am`,`is`,`are`],a:2,tip:`keys جمع، فنستخدم are`},
 {q:`___ the kids happy?`,o:[`Am`,`Is`,`Are`],a:2,tip:`kids جمع، فنستخدم Are`},
 {q:`What ___ your name?`,o:[`am`,`is`,`are`],a:1,tip:`your name مفرد، فنستخدم is`},
-{q:`___ he a doctor?`,o:[`Am`,`Is`,`Are`],a:1,tip:`he مع Is في السؤال`},
-
- {q:'___ you ready?',o:['Is','Are','Am'],a:1,tip:'مع you نبدأ السؤال بـ Are'},
- {q:'___ she your sister?',o:['Is','Are','Am'],a:0,tip:'مع she نبدأ السؤال بـ Is'},
- {q:'___ they at home?',o:['Is','Are','Am'],a:1,tip:'مع they نبدأ السؤال بـ Are'}]},
-{id:'2.1',u:2,t:'المضارع البسيط مع I / you / we / they',more:`مع I و you و we و they نستخدم الفعل كما هو بدون أي تغيير.<br><br>• I work، you work، we work، they work<br>• في السؤال نبدأ بـ Do: Do you work؟ Do they play؟<br>• لا نضيف s هنا، حتى لو كان الفعل مثل go أو watch.`,ex:'مع I وyou وwe وthey نستخدم الفعل كما هو بدون تغيير.',s:['I work every day.','They play football.','Do you like coffee?'],items:[
+{q:`___ he a doctor?`,o:[`Am`,`Is`,`Are`],a:1,tip:`he مع Is في السؤال`}]},
+{id:'2.1',u:2,t:'المضارع البسيط مع I / you / we / they',rules:['present-base'],more:`مع I و you و we و they نستخدم الفعل كما هو بدون أي تغيير.<br><br>• I work، you work، we work، they work<br>• في السؤال نبدأ بـ Do: Do you work؟ Do they play؟<br>• لا نضيف s هنا، حتى لو كان الفعل مثل go أو watch.`,ex:'مع I وyou وwe وthey نستخدم الفعل كما هو بدون تغيير.',s:['I work every day.','They play football.','Do you like coffee?'],items:[
 {q:`I ___ to work every day.`,o:[`go`,`goes`,`going`],a:0,tip:`مع I نستخدم الفعل بدون s`},
-{q:`They ___ football on Friday.`,o:[`play`,`plays`,`playing`],a:0,tip:`مع they نستخدم الفعل بدون s`},
-{q:`We ___ coffee in the morning.`,o:[`drink`,`drinks`,`drinking`],a:0,tip:`مع we نستخدم الفعل بدون s`},
+{q:`They ___ football on Friday.`,o:[`playing`,`play`,`plays`],a:1,tip:`مع they نستخدم الفعل بدون s`},
+{q:`We ___ coffee in the morning.`,o:[`drinks`,`drinking`,`drink`],a:2,tip:`مع we نستخدم الفعل بدون s`},
 {q:`You ___ English well.`,o:[`speak`,`speaks`,`speaking`],a:0,tip:`مع you نستخدم الفعل بدون s`},
-{q:`Do you ___ coffee?`,o:[`like`,`likes`,`liking`],a:0,tip:`بعد Do نستخدم الفعل بدون s`},
-{q:`I ___ my friends on weekends.`,o:[`visit`,`visits`,`visiting`],a:0,tip:`مع I نستخدم الفعل بدون s`},
+{q:`Do you ___ coffee?`,o:[`liking`,`like`,`likes`],a:1,tip:`بعد Do نستخدم الفعل بدون s`},
+{q:`I ___ my friends on weekends.`,o:[`visits`,`visiting`,`visit`],a:2,tip:`مع I نستخدم الفعل بدون s`},
 {q:`They ___ at eight o'clock.`,o:[`start`,`starts`,`starting`],a:0,tip:`مع they نستخدم الفعل بدون s`},
-{q:`We ___ school every day.`,o:[`love`,`loves`,`loving`],a:0,tip:`مع we نستخدم الفعل بدون s`},
+{q:`We ___ school every day.`,o:[`loving`,`love`,`loves`],a:1,tip:`مع we نستخدم الفعل بدون s`},
 
- {q:'We ___ English every day.',o:['study','studies','studying'],a:0,tip:'مع we نستخدم الفعل كما هو'},
- {q:'They ___ to school.',o:['go','goes','going'],a:0,tip:'مع they نستخدم الفعل كما هو'},
- {q:'Do you ___ coffee?',o:['like','likes','liking'],a:0,tip:'بعد Do نستخدم الفعل بدون s'}]},
-{id:'2.2',u:2,t:'he / she / it + s',more:`مع he و she و it نضيف s للفعل.<br><br>• work ← works، play ← plays، go ← goes، watch ← watches<br>• إذا انتهى الفعل بحرف y بعد حرف ساكن نحوّله إلى ies: cry ← cries، study ← studies<br>• الأسماء المفردة مثل My brother أو The baby تأخذ s أيضاً.`,ex:'مع he وshe وit نضيف s للفعل. مثال: work يصبح works.',s:['He works in a bank.','She watches TV at night.','It runs fast.'],items:[
-{q:`He ___ in a bank.`,o:[`work`,`works`,`working`],a:1,tip:`he مع الفعل + s`},
+ {q:'We ___ English every day.',o:['studies','studying','study'],a:2,tip:'مع we نستخدم الفعل كما هو'},
+ {q:'They ___ to school.',o:['go','goes','going'],a:0,tip:'مع they نستخدم الفعل كما هو'}]},
+{id:'2.2',u:2,t:'he / she / it + s',rules:['present-s'],more:`مع he و she و it نضيف s للفعل.<br><br>• work ← works، play ← plays، go ← goes، watch ← watches<br>• إذا انتهى الفعل بحرف y بعد حرف ساكن نحوّله إلى ies: cry ← cries، study ← studies<br>• الأسماء المفردة مثل My brother أو The baby تأخذ s أيضاً.`,ex:'مع he وshe وit نضيف s للفعل. مثال: work يصبح works.',s:['He works in a bank.','She watches TV at night.','It runs fast.'],items:[
+{q:`He ___ in a bank.`,o:[`works`,`working`,`work`],a:0,tip:`he مع الفعل + s`},
 {q:`She ___ TV at night.`,o:[`watch`,`watches`,`watching`],a:1,tip:`watch تصبح watches`},
-{q:`My brother ___ football every week.`,o:[`play`,`plays`,`playing`],a:1,tip:`اسم مفرد مثل he، فنضيف s`},
-{q:`It ___ very fast.`,o:[`run`,`runs`,`running`],a:1,tip:`it مع الفعل + s`},
+{q:`My brother ___ football every week.`,o:[`playing`,`play`,`plays`],a:2,tip:`اسم مفرد مثل he، فنضيف s`},
+{q:`It ___ very fast.`,o:[`runs`,`running`,`run`],a:0,tip:`it مع الفعل + s`},
 {q:`She ___ coffee every morning.`,o:[`drink`,`drinks`,`drinking`],a:1,tip:`she مع الفعل + s`},
-{q:`He ___ English very well.`,o:[`speak`,`speaks`,`speaking`],a:1,tip:`he مع الفعل + s`},
-{q:`My sister ___ to school by bus.`,o:[`go`,`goes`,`going`],a:1,tip:`go تصبح goes`},
-{q:`The baby ___ a lot at night.`,o:[`cry`,`cries`,`crying`],a:1,tip:`cry تصبح cries`},
-
- {q:'He ___ in a bank.',o:['work','works','working'],a:1,tip:'مع he نضيف s للفعل'},
- {q:'She ___ TV at night.',o:['watch','watches','watching'],a:1,tip:'مع she نضيف es بعد ch'},
- {q:'It ___ very fast.',o:['run','runs','running'],a:1,tip:'مع it نضيف s للفعل'}]},
-{id:'2.3',u:2,t:'النفي مع do / does',more:`للنفي في المضارع البسيط نستخدم do أو does مع not:<br><br>• I / you / we / they ← don't + الفعل بدون s: I don't like fish.<br>• he / she / it ← doesn't + الفعل بدون s: She doesn't drink coffee.<br>• بعد doesn't يبقى الفعل بدون s دائماً.`,ex:'مع I وyou وwe وthey نستخدم don\'t، ومع he وshe وit نستخدم doesn\'t مع الفعل بدون s.',s:['I don\'t like fish.','She doesn\'t drink coffee.','They don\'t live here.'],items:[
+{q:`He ___ English very well.`,o:[`speaking`,`speak`,`speaks`],a:2,tip:`he مع الفعل + s`},
+{q:`My sister ___ to school by bus.`,o:[`goes`,`going`,`go`],a:0,tip:`go تصبح goes`},
+{q:`The baby ___ a lot at night.`,o:[`cry`,`cries`,`crying`],a:1,tip:`cry تصبح cries`}]},
+{id:'2.3',u:2,t:'النفي مع do / does',rules:['present-neg'],more:`للنفي في المضارع البسيط نستخدم do أو does مع not:<br><br>• I / you / we / they ← don't + الفعل بدون s: I don't like fish.<br>• he / she / it ← doesn't + الفعل بدون s: She doesn't drink coffee.<br>• بعد doesn't يبقى الفعل بدون s دائماً.`,ex:'مع I وyou وwe وthey نستخدم don\'t، ومع he وshe وit نستخدم doesn\'t مع الفعل بدون s.',s:['I don\'t like fish.','She doesn\'t drink coffee.','They don\'t live here.'],items:[
 {q:`I ___ like fish.`,o:[`don't`,`doesn't`,`isn't`],a:0,tip:`مع I نستخدم don't`},
 {q:`She ___ drink coffee.`,o:[`don't`,`doesn't`,`isn't`],a:1,tip:`she مع doesn't والفعل بدون s`},
 {q:`They ___ live here.`,o:[`don't`,`doesn't`,`aren't`],a:0,tip:`مع they نستخدم don't`},
@@ -130,11 +125,8 @@ const LESSONS=[
 {q:`My father ___ smoke.`,o:[`don't`,`doesn't`,`isn't`],a:1,tip:`اسم مفرد مثل he، فنستخدم doesn't`},
 {q:`He ___ like music.`,o:[`don't`,`doesn't`,`isn't`],a:1,tip:`he مع doesn't`},
 {q:`I ___ know the answer.`,o:[`don't`,`doesn't`,`isn't`],a:0,tip:`مع I نستخدم don't`},
-
- {q:'I ___ like fish.',o:['don\'t','doesn\'t','isn\'t'],a:0,tip:'مع I نستخدم don\'t'},
- {q:'She ___ like coffee.',o:['don\'t','doesn\'t','aren\'t'],a:1,tip:'مع she نستخدم doesn\'t والفعل بدون s'},
- {q:'They ___ live here.',o:['don\'t','doesn\'t','aren\'t'],a:0,tip:'مع they نستخدم don\'t'}]},
-{id:'3.1',u:3,t:'a / an',more:`نستخدم a و an قبل الأسماء المفردة غير المحددة:<br><br>• a قبل الصوت الساكن: a book، a doctor، a new car<br>• an قبل الصوت المتحرك: an apple، an hour، an old car<br>• انتبه: المهم هو الصوت وليس الحرف، لذلك نقول an hour لأن h صامتة.`,ex:'نستخدم a قبل الكلمة التي تبدأ بصوت ساكن، و an قبل الكلمة التي تبدأ بصوت حرف العلة.',s:['a book','an apple','a dog'],items:[
+ {q:'She ___ like coffee.',o:['don\'t','doesn\'t','aren\'t'],a:1,tip:'مع she نستخدم doesn\'t والفعل بدون s'}]},
+{id:'3.1',u:3,t:'a / an',rules:['article-a-an'],more:`نستخدم a و an قبل الأسماء المفردة غير المحددة:<br><br>• a قبل الصوت الساكن: a book، a doctor، a new car<br>• an قبل الصوت المتحرك: an apple، an hour، an old car<br>• انتبه: المهم هو الصوت وليس الحرف، لذلك نقول an hour لأن h صامتة.`,ex:'نستخدم a قبل الكلمة التي تبدأ بصوت ساكن، و an قبل الكلمة التي تبدأ بصوت حرف العلة.',s:['a book','an apple','a dog'],items:[
 {q:`I have ___ apple.`,o:[`a`,`an`,`the`],a:1,tip:`apple يبدأ بصوت متحرك، فنستخدم an`},
 {q:`She is ___ doctor.`,o:[`a`,`an`,`the`],a:0,tip:`doctor يبدأ بصوت ساكن، فنستخدم a`},
 {q:`He bought ___ umbrella.`,o:[`a`,`an`,`the`],a:1,tip:`umbrella يبدأ بصوت متحرك، فنستخدم an`},
@@ -143,11 +135,9 @@ const LESSONS=[
 {q:`I see ___ elephant.`,o:[`a`,`an`,`the`],a:1,tip:`elephant يبدأ بصوت متحرك، فنستخدم an`},
 {q:`They live in ___ big house.`,o:[`a`,`an`,`the`],a:0,tip:`big يبدأ بصوت ساكن، فنستخدم a`},
 {q:`My brother is ___ engineer.`,o:[`a`,`an`,`the`],a:1,tip:`engineer يبدأ بصوت متحرك، فنستخدم an`},
-
- {q:'I have ___ apple.',o:['a','an','the'],a:1,tip:'apple يبدأ بصوت حرف علة، فنستخدم an'},
  {q:'She is ___ engineer.',o:['a','an','the'],a:1,tip:'engineer يبدأ بصوت حرف علة، فنستخدم an'},
  {q:'___ dog is big.',o:['A','An','The'],a:0,tip:'dog يبدأ بصوت ساكن، فنستخدم A'}]},
-{id:'3.2',u:3,t:'the',more:`نستخدم the للشيء المعروف أو المحدد:<br><br>• the sun، the moon، the door (باب معين)<br>• إذا كان الشيء معروفاً للمستمع: Close the door، Where is the bank؟<br>• لا نستخدم the للأشياء العامة غير المحددة: I love music.`,ex:'نستخدم the للشيء المعروف أو المحدد، مثل الشمس أو باب معين.',s:['the sun','the door','the book on the table'],items:[
+{id:'3.2',u:3,t:'the',rules:['article-the'],more:`نستخدم the للشيء المعروف أو المحدد:<br><br>• the sun، the moon، the door (باب معين)<br>• إذا كان الشيء معروفاً للمستمع: Close the door، Where is the bank؟<br>• لا نستخدم the للأشياء العامة غير المحددة: I love music.`,ex:'نستخدم the للشيء المعروف أو المحدد، مثل الشمس أو باب معين.',s:['the sun','the door','the book on the table'],items:[
 {q:`___ sun is very hot today.`,o:[`The`,`A`,`An`],a:0,tip:`الشمس شيء واحد معروف، فنستخدم The`},
 {q:`Close ___ door, please.`,o:[`a`,`the`,`an`],a:1,tip:`باب معين نعرفه، فنستخدم the`},
 {q:`Where is ___ bank?`,o:[`a`,`the`,`an`],a:1,tip:`البنك المعروف في المكان، فنستخدم the`},
@@ -160,7 +150,7 @@ const LESSONS=[
  {q:'Please close ___ door.',o:['the','a','an'],a:0,tip:'door محدد هنا، فنستخدم the'},
  {q:'___ sun is hot.',o:['The','A','An'],a:0,tip:'الشمس شيء واحد معروف، فنستخدم the'},
  {q:'We visited ___ Eiffel Tower.',o:['the','a','an'],a:0,tip:'المعالم المعروفة تأخذ the'}]},
-{id:'3.3',u:3,t:'There is / There are',more:`نستخدم There is مع المفرد، و There are مع الجمع:<br><br>• There is a book on the desk.<br>• There are two cats in the garden.<br>• في السؤال: Is there any milk؟ Are there any students؟<br>• في النفي: There is not a bank here.`,ex:'نستخدم There is مع المفرد، و There are مع الجمع.',s:['There is a book.','There are two cats.','Is there any milk?'],items:[
+{id:'3.3',u:3,rules:['there-is-are'],t:'There is / There are',more:`نستخدم There is مع المفرد، و There are مع الجمع:<br><br>• There is a book on the desk.<br>• There are two cats in the garden.<br>• في السؤال: Is there any milk؟ Are there any students؟<br>• في النفي: There is not a bank here.`,ex:'نستخدم There is مع المفرد، و There are مع الجمع.',s:['There is a book.','There are two cats.','Is there any milk?'],items:[
 {q:`___ a book on the desk.`,o:[`There is`,`There are`,`It is`],a:0,tip:`book مفرد، فنستخدم There is`},
 {q:`___ two cats in the garden.`,o:[`There is`,`There are`,`They are`],a:1,tip:`two cats جمع، فنستخدم There are`},
 {q:`___ any milk in the fridge?`,o:[`Is there`,`Are there`,`There is`],a:0,tip:`milk غير معدود، فنستخدم Is there`},
@@ -175,6 +165,204 @@ const LESSONS=[
  {q:'___ there any milk?',o:['Is','Are','Do'],a:0,tip:'milk مفرد، فنبدأ السؤال بـ Is'}]}
 ];
 /* أسئلة معايرة للمستوى A2 (عينة أولية، تُستكمل لاحقاً) */
+
+/* ===================== بنك القواعد =====================
+   بطاقة واحدة لكل قاعدة، تُعرض في ثلاثة أماكن: قبل الدرس كاملة،
+   وبعد خطأ في التمرين مختصرة، وداخل المحادثة عند اكتشاف الخطأ.
+   كتلة محتوى مستقلة: تنتقل إلى content/rules.js في المرحلة 1 كما هي.
+   ====================================================== */
+const RULES=[
+{id:'be-subject',
+ t:'فعل الكون: am / is / are',
+ rule:'الفعل يتبع الفاعل دائماً: I ← am، وhe / she / it ← is، وyou / we / they ← are.',
+ why:'أكثر قاعدة استعمالاً في الإنجليزية. ستحتاجها في كل جملة تعرّف بها نفسك، أو تصف حالك، أو تتحدث فيها عن أحد.',
+ table:[['I','am'],['he / she / it','is'],['you / we / they','are']],
+ more:[
+  'الاسم المفرد يعامَل معاملة he أو she أو it، فنستخدم معه is: <span class=en>My name is Omar.</span>',
+  'اسمان يربطهما and يصيران جمعاً، فنستخدم are: <span class=en>Ahmed and Sara are here.</span>',
+  'الاختصار في الكلام: <span class=en>I\'m</span> و<span class=en>he\'s</span> و<span class=en>they\'re</span>. المعنى نفسه، لكنه أقرب للكلام الطبيعي.'],
+ ex:[
+  {en:'I am a student.',ar:'أنا طالب.'},
+  {en:'She is my sister.',ar:'هي أختي.'},
+  {en:'We are ready.',ar:'نحن جاهزون.'},
+  {en:'The coffee is hot.',ar:'القهوة ساخنة.'}],
+ bad:['<span class=en>I is tired.</span> ← الصواب <span class=en>I am tired.</span>',
+      '<span class=en>He are my brother.</span> ← الصواب <span class=en>He is my brother.</span>',
+      '<span class=en>I student.</span> ← جملة بلا فعل، والصواب <span class=en>I am a student.</span>'],
+ ar:'العربية تقول «أنا طالب» بكلمتين بلا فعل، لأن فعل الكون محذوف في المضارع. الإنجليزية لا تقبل جملة بلا فعل أبداً، فتضيف am. ولهذا ينسى المتعلّم العربي هذا الفعل تحديداً أكثر من أي شيء آخر. القاعدة العملية: إن لم يكن في جملتك فعل، فأنت تحتاج am أو is أو are.'},
+
+{id:'be-negative',
+ t:'النفي مع فعل الكون',
+ rule:'نضع not بعد الفعل مباشرة: I am not، he is not، they are not.',
+ why:'النفي نصف الكلام. من لا يتقنه يستطيع أن يقول ما هو كائن، ولا يستطيع أن يقول ما ليس كائناً.',
+ table:[['I am not','I\'m not'],['he / she / it is not','isn\'t'],['you / we / they are not','aren\'t']],
+ more:[
+  'الاختصار: <span class=en>isn\'t</span> و<span class=en>aren\'t</span>. أما <span class=en>am not</span> فلا اختصار لها، ونقول <span class=en>I\'m not</span>.',
+  'لا نضيف do أو does مع فعل الكون أبداً: النفي بـ not وحدها.'],
+ ex:[
+  {en:'I am not late.',ar:'لست متأخراً.'},
+  {en:'He is not tired.',ar:'هو ليس متعباً.'},
+  {en:'They are not at home.',ar:'هم ليسوا في البيت.'}],
+ bad:['<span class=en>I don\'t be ready.</span> ← الصواب <span class=en>I am not ready.</span>',
+      '<span class=en>He not is tired.</span> ← الصواب <span class=en>He is not tired.</span>'],
+ ar:'العربية تضع أداة النفي قبل الجملة: «لستُ متأخراً»، «ليس متعباً». الإنجليزية تضعها بعد الفعل لا قبله. فإن ترجمت ترتيب العربية حرفياً خرجت بجملة مقلوبة مثل <span class=en>not I am late</span>.'},
+
+{id:'be-question',
+ t:'السؤال مع is / are',
+ rule:'نقدّم الفعل على الفاعل: Are you ready؟ وIs she your sister؟',
+ why:'بهذه القاعدة تسأل وتُجيب، وبها تبدأ أي محادثة حقيقية.',
+ table:[['Am I …?','مع I'],['Is he / she / it …?','مع المفرد'],['Are you / we / they …?','مع الجمع']],
+ more:[
+  'مع كلمة استفهام تأتي الكلمة أولاً ثم الفعل: <span class=en>What is your name?</span> و<span class=en>Where are my keys?</span>',
+  'الجواب القصير يعيد الفعل ولا يكرر الجملة: <span class=en>Yes, I am.</span> و<span class=en>No, she isn\'t.</span>',
+  'لا نقول <span class=en>Yes, I\'m.</span> — الجواب القصير بالإيجاب لا يُختصر.'],
+ ex:[
+  {en:'Are you ready?',ar:'هل أنت جاهز؟'},
+  {en:'Is she your sister?',ar:'هل هي أختك؟'},
+  {en:'What is your name?',ar:'ما اسمك؟'},
+  {en:'Where are my keys?',ar:'أين مفاتيحي؟'}],
+ bad:['<span class=en>You are ready?</span> ← الصواب <span class=en>Are you ready?</span>',
+      '<span class=en>What your name?</span> ← الصواب <span class=en>What is your name?</span>'],
+ ar:'العربية تسأل بإضافة «هل» في أول الجملة دون تغيير ترتيبها: «أنت جاهز» تصير «هل أنت جاهز؟». الإنجليزية ليس فيها كلمة تقابل «هل» — التقديم نفسه هو السؤال. فمن يبحث عن ترجمة لـ«هل» لن يجدها، وسيقول <span class=en>You are ready?</span> بنبرة سؤال، وهي ليست سؤالاً سليماً.'},
+
+{id:'present-base',
+ t:'المضارع البسيط مع I / you / we / they',
+ rule:'الفعل يبقى كما هو بلا أي تغيير: I work، you work، we work، they work.',
+ why:'المضارع البسيط هو زمن الروتين والحقائق: ما تفعله كل يوم، وما تحبه، وما تعمله. وهو أكثر الأزمنة استعمالاً في الكلام اليومي.',
+ table:[['I / you / we / they','الفعل كما هو'],['السؤال','Do + الفاعل + الفعل']],
+ more:[
+  'في السؤال نبدأ بـ Do ويبقى الفعل كما هو: <span class=en>Do you like coffee?</span>',
+  'لا نضيف s هنا أبداً، حتى مع أفعال مثل <span class=en>go</span> أو <span class=en>watch</span>.',
+  'نستخدمه للعادة لا للحظة: <span class=en>I work in a bank</span> تعني عملي، لا أنني أعمل الآن.'],
+ ex:[
+  {en:'I go to work every day.',ar:'أذهب إلى العمل كل يوم.'},
+  {en:'They play football on Friday.',ar:'يلعبون كرة القدم يوم الجمعة.'},
+  {en:'Do you like coffee?',ar:'هل تحب القهوة؟'}],
+ bad:['<span class=en>I goes to work.</span> ← الصواب <span class=en>I go to work.</span>',
+      '<span class=en>You likes coffee?</span> ← الصواب <span class=en>Do you like coffee?</span>'],
+ ar:'العربية تغيّر الفعل مع كل ضمير: أذهب، تذهب، نذهب، يذهبون. فيتوقع المتعلّم العربي تغييراً مماثلاً في الإنجليزية ويبحث عن صيغة لكل ضمير. الحقيقة أبسط بكثير: الفعل لا يتغيّر إطلاقاً إلا مع he و she و it. هذه بشرى لا عبء — احفظ صيغة واحدة تكفيك مع أربعة ضمائر.'},
+
+{id:'present-s',
+ t:'المضارع البسيط مع he / she / it: إضافة s',
+ rule:'مع he و she و it وأي اسم مفرد نضيف s إلى الفعل: he works، she goes، it runs.',
+ why:'هذا أشهر خطأ يقع فيه المتعلّم العربي على الإطلاق، ويستمر معه سنوات إن لم يُعالَج مبكراً. إتقانه وحده يرفع مستوى كلامك فوراً.',
+ table:[['الحالة العادية','+ s: work ← works'],['ينتهي بـ s, sh, ch, x, o','+ es: watch ← watches'],['ينتهي بـ ساكن + y','ies: cry ← cries'],['have','has']],
+ more:[
+  'الاسم المفرد يعامَل معاملة he أو she أو it: <span class=en>My brother plays</span> و<span class=en>The baby cries</span>.',
+  'الفعل <span class=en>have</span> شاذ ويصير <span class=en>has</span>: <span class=en>She has a car.</span>',
+  'إن انتهى الفعل بحرف علة + y فلا نغيّره: <span class=en>play ← plays</span> لا <span class=en>plies</span>.'],
+ ex:[
+  {en:'He works in a bank.',ar:'يعمل في بنك.'},
+  {en:'She watches TV at night.',ar:'تشاهد التلفاز ليلاً.'},
+  {en:'My sister goes to school by bus.',ar:'أختي تذهب إلى المدرسة بالحافلة.'},
+  {en:'The baby cries a lot.',ar:'الرضيع يبكي كثيراً.'}],
+ bad:['<span class=en>He work in a bank.</span> ← الصواب <span class=en>He works in a bank.</span>',
+      '<span class=en>She watchs TV.</span> ← الصواب <span class=en>She watches TV.</span>',
+      '<span class=en>My brother play football.</span> ← الصواب <span class=en>My brother plays football.</span>'],
+ ar:'العربية تضع علامة المذكّر والمؤنّث في <b>أول</b> الفعل: «يذهب» و«تذهب». فحين ينتقل العربي إلى الإنجليزية يبحث عن العلامة في أول الفعل ولا يجدها، فيظن أن لا علامة أصلاً — بينما هي موجودة في <b>آخره</b>: حرف s صغير سهل النسيان. القاعدة العملية: قبل أن تنطق أي فعل، اسأل نفسك «هل الفاعل هو أو هي أو هذا؟» فإن كان الجواب نعم، فالفعل ينتهي بـ s.'},
+
+{id:'present-neg',
+ t:'النفي والسؤال مع do / does',
+ rule:'نستخدم don\'t مع I / you / we / they، وdoesn\'t مع he / she / it، ويعود الفعل بعدهما بلا s.',
+ why:'بهذه القاعدة تقول ما لا تفعله وما لا تحبه، وتسأل الآخرين. بدونها نصف كلامك مفقود.',
+ table:[['I / you / we / they','don\'t + الفعل'],['he / she / it','doesn\'t + الفعل'],['السؤال','Do / Does + الفاعل + الفعل']],
+ more:[
+  'حرف s ينتقل إلى does ويختفي من الفعل: <span class=en>She works</span> تصير <span class=en>She doesn\'t work</span>.',
+  'الأمر نفسه في السؤال: <span class=en>Does she work here?</span> لا <span class=en>Does she works here?</span>',
+  'مع فعل الكون (am / is / are) لا نستخدم do إطلاقاً، بل not وحدها.'],
+ ex:[
+  {en:"I don't like fish.",ar:'لا أحب السمك.'},
+  {en:"She doesn't drink coffee.",ar:'هي لا تشرب القهوة.'},
+  {en:'Does your brother live here?',ar:'هل يسكن أخوك هنا؟'}],
+ bad:['<span class=en>She doesn\'t drinks coffee.</span> ← الصواب <span class=en>She doesn\'t drink coffee.</span>',
+      '<span class=en>I not like fish.</span> ← الصواب <span class=en>I don\'t like fish.</span>',
+      '<span class=en>Do he work here?</span> ← الصواب <span class=en>Does he work here?</span>'],
+ ar:'العربية تنفي بأداة واحدة قبل الفعل: «لا أحب». الإنجليزية تحتاج فعلاً مساعداً (do أو does) ثم not، ثم يعود الفعل إلى أصله. فيقع العربي في خطأين متتاليين: ينسى do أصلاً فيقول <span class=en>I not like</span>، أو يتذكرها لكن يُبقي الـ s فيقول <span class=en>She doesn\'t likes</span>. تذكّر أن الـ s انتقلت إلى does، ولا تُكتب مرتين.'},
+
+{id:'article-a-an',
+ t:'أداة التنكير: a / an',
+ rule:'نضع a أو an قبل الاسم المفرد غير المحدد. والاختيار بالصوت: an قبل صوت متحرك، وa قبل غيره.',
+ why:'الإنجليزية لا تقبل اسماً مفرداً عارياً. حذف الأداة من أوضح علامات غير الناطق بالإنجليزية.',
+ table:[['يبدأ بصوت ساكن','a book, a car'],['يبدأ بصوت متحرك','an apple, an hour'],['الجمع','بلا أداة: books']],
+ more:[
+  'العبرة بالصوت لا بالحرف: نقول <span class=en>a university</span> لأنها تُنطق «يونيفرستي» بصوت ساكن.',
+  'وبالمثل <span class=en>an hour</span> لأن حرف h لا يُنطق، فتبدأ بصوت متحرك.',
+  'مع الجمع لا نستخدم a ولا an: <span class=en>I have books</span> لا <span class=en>a books</span>.'],
+ ex:[
+  {en:'I have an apple.',ar:'معي تفاحة.'},
+  {en:'She is a doctor.',ar:'هي طبيبة.'},
+  {en:'He is an engineer.',ar:'هو مهندس.'}],
+ bad:['<span class=en>She is doctor.</span> ← الصواب <span class=en>She is a doctor.</span>',
+      '<span class=en>I have a apple.</span> ← الصواب <span class=en>I have an apple.</span>'],
+ ar:'العربية ليس فيها أداة تنكير إطلاقاً: «كتاب» وحدها تعني a book. فالمتعلّم العربي لا يتردد بين a وan فحسب، بل ينسى الأداة كلها فيقول <span class=en>She is doctor</span>. القاعدة العملية: كل اسم مفرد في جملتك يحتاج أداة — a أو an أو the — ولا يقف عارياً أبداً.'},
+
+{id:'article-the',
+ t:'أداة التعريف: the',
+ rule:'نستخدم the للشيء المعروف للمتكلم والمستمع معاً، أو الذي لا نظير له.',
+ why:'الفرق بين a وthe هو الفرق بين «أي واحد» و«هذا بالذات». وهو فرق يغيّر المعنى لا الشكل.',
+ table:[['أول ذكر','a: I saw a dog.'],['بعد أن صار معروفاً','the: The dog was big.'],['وحيد لا نظير له','the sun, the moon']],
+ more:[
+  'إذا كان الشيء معروفاً للمستمع نستخدم the: <span class=en>Close the door</span> — باب بعينه يعرفه.',
+  'الأشياء الوحيدة تأخذ the دائماً: <span class=en>the sun</span> و<span class=en>the moon</span>.',
+  '<b>الأهم:</b> لا نستخدم the مع العموميات: <span class=en>I love music</span> لا <span class=en>the music</span>.'],
+ ex:[
+  {en:'The sun is very hot today.',ar:'الشمس حارة جداً اليوم.'},
+  {en:'Close the door, please.',ar:'أغلق الباب من فضلك.'},
+  {en:'I love music.',ar:'أحب الموسيقى.'}],
+ bad:['<span class=en>I love the music.</span> ← الصواب <span class=en>I love music.</span> عند الحديث عن الموسيقى عموماً.',
+      '<span class=en>Close door.</span> ← الصواب <span class=en>Close the door.</span>'],
+ ar:'هنا فخّ معاكس لفخّ a / an. العربية فيها «الـ» وهي قريبة من the، فيطمئن المتعلّم ويستخدمها كثيراً — لكن العربية تضع «الـ» مع العموميات أيضاً: «أحب الموسيقى»، «الصبر جميل». والإنجليزية تحذفها في هذه الحالة تماماً: <span class=en>I love music</span>. فالخطأ الشائع ليس نسيان the، بل الإفراط فيها.'},
+
+{id:'there-is-are',
+ t:'There is / There are',
+ rule:'نستخدم There is مع المفرد، وThere are مع الجمع، للإخبار بوجود شيء ما.',
+ why:'بهذه الصيغة تصف أي مكان: بيتك، حيّك، مكتبك. وهي عمود وصف المكان في المحادثة.',
+ table:[['مفرد','There is a bank.'],['جمع','There are two banks.'],['النفي','There is not / There are not'],['السؤال','Is there …? / Are there …?']],
+ more:[
+  'في السؤال نقدّم الفعل: <span class=en>Is there a bank near here?</span>',
+  'في النفي: <span class=en>There is not a pharmacy here.</span> أو اختصاراً <span class=en>There isn\'t</span>.',
+  'الاختيار يتبع الاسم الذي بعدها مباشرة، لا عدد الأشياء كلها في الجملة.'],
+ ex:[
+  {en:'There is a bank on the corner.',ar:'هناك بنك عند الناصية.'},
+  {en:'There are two restaurants near the bank.',ar:'هناك مطعمان قرب البنك.'},
+  {en:'Is there a pharmacy here?',ar:'هل يوجد صيدلية هنا؟'}],
+ bad:['<span class=en>There is two banks.</span> ← الصواب <span class=en>There are two banks.</span>',
+      '<span class=en>There are a bank.</span> ← الصواب <span class=en>There is a bank.</span>'],
+ ar:'العربية قريبة هنا، فنقول «هناك بنك» و«يوجد بنك». لكن العربية لا تغيّر الصيغة بين المفرد والجمع: «هناك بنك» و«هناك بنوك» بالكلمة نفسها. الإنجليزية تغيّرها حتماً: is للمفرد وare للجمع. فالقرب يخدع — المعنى ينتقل بسهولة، والصيغة لا.'}
+];
+const RULE=Object.fromEntries(RULES.map(r=>[r.id,r]));
+
+/* أي قاعدة تخصّ هذا التمرين؟ نشتقّها من درسه بدل وسمها في 90 تمريناً. */
+const ITEM_RULE=new Map();
+
+/* البطاقة: 'full' قبل الدرس، و'brief' عند الخطأ. */
+function ruleCard(id,mode){
+  const r=RULE[id];if(!r)return '';
+  const open=S.ruleOpen===id;
+  if(mode==='brief'&&!open)
+    return `<div style='background:#EEF2FF;border-radius:14px;padding:12px;margin-top:10px'>
+      <b style='color:var(--ind)'>${r.t}</b>
+      <p class=muted style='margin-top:6px;line-height:1.9'>${r.rule}</p>
+      <button class='btn ghost' onclick="toggleRule('${id}')">الشرح كاملاً</button></div>`;
+  const rows=r.table.map(x=>`<tr><td style='padding:6px 10px;border-bottom:1px solid var(--line)' class=en>${x[0]}</td><td style='padding:6px 10px;border-bottom:1px solid var(--line)'>${x[1]}</td></tr>`).join('');
+  const exs=r.ex.map(x=>`<div style='margin-top:6px'><span class=en style='font-weight:700'>${x.en}</span><br><span class=muted>${x.ar}</span></div>`).join('');
+  return `<div style='background:#EEF2FF;border-radius:16px;padding:14px;margin-top:10px'>
+    <b style='color:var(--ind);font-size:16px'>${r.t}</b>
+    <p style='margin-top:8px;line-height:1.9'>${r.rule}</p>
+    <p class=muted style='margin-top:8px;line-height:1.9'>${r.why}</p>
+    <table style='width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border-radius:10px;overflow:hidden'>${rows}</table>
+    ${r.more.map(x=>`<p class=muted style='margin-top:8px;line-height:1.9'>• ${x}</p>`).join('')}
+    <p style='margin-top:12px;font-weight:700'>أمثلة</p>${exs}
+    <p style='margin-top:12px;font-weight:700'>أخطاء شائعة</p>
+    ${r.bad.map(x=>`<p class=muted style='margin-top:6px;line-height:1.9'>✗ ${x}</p>`).join('')}
+    <div style='background:#fff;border-radius:12px;padding:12px;margin-top:12px'>
+      <b style='color:var(--green)'>لماذا يخطئ العربي هنا؟</b>
+      <p class=muted style='margin-top:6px;line-height:1.9'>${r.ar}</p></div>
+    ${mode==='brief'?`<button class='btn ghost' onclick="toggleRule('${id}')">إخفاء الشرح</button>`:''}
+  </div>`;
+}
+function toggleRule(id){S.ruleOpen=S.ruleOpen===id?null:id;save();render()}
+
 const PLACE2=[
  {q:'I have been learning English ___ two years.',o:['for','since','during'],a:0,tip:'for مع مدة زمنية',lv:2},
  {q:'She ___ to London last year.',o:['went','goes','has gone'],a:0,tip:'last year تستخدم مع الماضي البسيط',lv:2},
@@ -211,15 +399,92 @@ const CONV=['Hi! How was your day?','What do you usually do on weekends?','Can y
 
 /* ================= الحالة ================= */
 const K='eng-coach-v3';
-let S={placed:false,level:'A1',conv:{},lessons:{},cp:{},ret:{},exam:false,xp:0,tab:'home',q:null,open:null,ci:0,place:null};
-try{Object.assign(S,JSON.parse(localStorage.getItem(K)||'{}'))}catch(e){}
-if(!S.placed){S.placed=true;S.level=S.level||'A1'}
-function save(){const c=Object.assign({},S);delete c.q;try{localStorage.setItem(K,JSON.stringify(c))}catch(e){}}
+const SCHEMA=4;
+
+/* البنية الكاملة للحالة. كل حقل جديد يُضاف هنا أولاً، وإلا انهار التطبيق عند أول استخدام. */
+function defaultState(){return{
+  v:SCHEMA,
+  placed:false,             // الدخول الأول يبدأ باختبار تحديد المستوى
+  level:'A1',
+  lessons:{},conv:{},cp:{},ret:{},exam:false,xp:0,
+  tab:'home',q:null,open:null,ci:0,place:null,
+  errs:{},                  // عدّاد أخطاء الجرامر المتكررة
+  ruleOpen:null,            // بطاقة القاعدة المفتوحة حالياً
+  chat:{sc:0,ti:0,miss:0,stage:'reply',ok:null,g:null,fixed:null,pr:null,fb:null,hint:false}
+}}
+
+/* هل في الحالة المحفوظة أثر عمل سابق؟ */
+function hasProgress(x){
+  if(!x||typeof x!=='object')return false;
+  if(Number.isFinite(x.xp)&&x.xp>0)return true;
+  if(x.exam===true)return true;
+  for(const k of ['lessons','conv','cp','ret'])
+    if(x[k]&&typeof x[k]==='object'&&Object.keys(x[k]).length)return true;
+  return false;
+}
+
+/* يرقّي أي حالة محفوظة من إصدار سابق إلى البنية الحالية دون فقد تقدّم المستخدم. */
+function migrate(saved){
+  const S=defaultState();
+  if(!saved||typeof saved!=='object')return S;
+  /* نتحقق من نوع كل قيمة بدل نسخها كما هي: xp كنصّ مثلاً يجعل addXp يدمج بدل أن يجمع. */
+  /* من عنده تقدّم محفوظ هو مستخدم قديم: لا نوقفه عند اختبار لم يكن موجوداً حين بدأ. */
+  if(saved.placed===true||hasProgress(saved))S.placed=true;
+  if(typeof saved.exam==='boolean')S.exam=saved.exam;
+  if(Number.isFinite(saved.xp)&&saved.xp>=0)S.xp=saved.xp;
+  if(Number.isInteger(saved.ci)&&saved.ci>=0)S.ci=saved.ci;
+  if(LEVELS.includes(saved.level))S.level=saved.level;
+  if(VIEWS_KEYS.includes(saved.tab))S.tab=saved.tab;
+  if(saved.place&&typeof saved.place==='object')S.place=saved.place;
+  /* الدرس المفتوح مؤشر إلى محتوى قد يختفي بين إصدارين.
+     مؤشر ميت كان يُسقط الإقلاع كله ويترك شاشة بيضاء بلا شريط تنقل ولا مخرج. */
+  if(typeof saved.open==='string'&&LESSONS.some(l=>l.id===saved.open))S.open=saved.open;
+  for(const k of ['lessons','conv','cp','ret','errs'])
+    if(saved[k]&&typeof saved[k]==='object')S[k]=saved[k];
+  if(saved.chat&&typeof saved.chat==='object')Object.assign(S.chat,saved.chat);
+  if(!S.chat.pr||typeof S.chat.pr!=='object')S.chat.pr=null;
+  S.v=SCHEMA;
+  return S;
+}
+
+const LEVELS=['A1','A2'];
+const VIEWS_KEYS=['home','course','speak'];   // يجب أن يطابق مفاتيح VIEWS في آخر الملف
+let S,bootWarn=null;
+try{S=migrate(JSON.parse(localStorage.getItem(K)||'null'))}
+catch(e){
+  S=defaultState();logError('قراءة التقدم المحفوظ',e);
+  bootWarn='إن كنت تستخدم التصفح الخاص أو حجب بيانات المواقع فجرّب نافذة عادية.';
+}
+
+/* الفشل الصامت أخفى عطلاً حقيقياً من قبل: كل خطأ يُسجَّل ويظهر للمستخدم. */
+function logError(where,e){
+  try{console.error('[مدرب الإنجليزية] '+where+':',e)}catch(_){}
+}
+/* الحالة دائمة، فالتحذير يجب أن يدوم أيضاً.
+   تنبيه يختفي بعد ثانيتين لا يكفي لمن سيُكمل أربعين دقيقة ثم يفقد كل شيء. */
+let saveFailed=false;
+function save(){
+  const c=Object.assign({},S);delete c.q;
+  try{localStorage.setItem(K,JSON.stringify(c));saveFailed=false}
+  catch(e){
+    logError('حفظ التقدم',e);
+    if(!saveFailed){saveFailed=true;render()}
+  }
+}
 function addXp(n){S.xp+=n}
-function toast(t){const e=document.getElementById('toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',1800)}
-function say(t,r=0.9){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=r;speechSynthesis.speak(u)}catch(e){toast('الصوت غير متاح')}}
+function toast(t){const e=document.getElementById('toast');if(!e)return;e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',1800)}
+/* الفشل الشائع للنطق غير متزامن (لا إذن، أو لا صوت إنجليزي مثبّت) ويصل عبر onerror لا عبر throw. */
+function say(t,r=0.9){
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=r;
+    u.onerror=ev=>{logError('نطق الجملة',(ev&&ev.error)||ev);toast('تعذّر تشغيل الصوت، جرّب Chrome أو Edge')};
+    speechSynthesis.speak(u);
+  }catch(e){logError('تشغيل الصوت',e);toast('الصوت غير متاح في هذا المتصفح، جرّب Chrome أو Edge')}
+}
 
 /* ================= أدوات ================= */
+LESSONS.forEach(l=>{if(l.rules&&l.rules.length)l.items.forEach(it=>ITEM_RULE.set(it,l.rules[0]))});
 const unitLessons=u=>LESSONS.filter(l=>l.u===u);
 const unitItems=u=>unitLessons(u).flatMap(l=>l.items);
 const itemsUpTo=u=>[1,2,3].filter(x=>x<=u).flatMap(unitItems);
@@ -239,25 +504,63 @@ function renderNav(){
 }
 function go(t){S.tab=t;S.q=null;save();render()}
 function card(h,b){return `<div class="card"><h2>${h}</h2>${b}</div>`}
-function render(){
-  renderNav();
-  const app=document.getElementById('app');
-  if(S.q){app.innerHTML=quizView();return}
-  app.innerHTML=VIEWS[S.tab]();
+/* تحذير يبقى ظاهراً ما دام سببه قائماً، بخلاف التنبيه العابر. */
+function banners(){
+  const box='border:2px solid #B45309;background:#FFFBEB';
+  let h='';
+  if(saveFailed)h+='<div class="card" style="'+box+'"><h2 style="color:#92400E">⚠️ تقدّمك لا يُحفظ في هذا المتصفح</h2><p class=muted style="color:#92400E">أكمل درسك الآن لكن لا تغلق الصفحة. جرّب نافذة عادية بدل التصفح الخاص، أو متصفحاً آخر.</p></div>';
+  if(bootWarn)h+='<div class="card" style="'+box+'"><h2 style="color:#92400E">⚠️ تعذّرت قراءة تقدّمك السابق</h2><p class=muted style="color:#92400E">بدأنا من جديد. '+bootWarn+'</p></div>';
+  return h;
 }
+function render(){
+  const app=document.getElementById('app');
+  try{
+    renderNav();
+    app.innerHTML=banners()+(S.q?quizView():VIEWS[S.tab]());
+  }catch(e){
+    /* أي استثناء هنا كان يترك الصفحة فارغة بلا شريط تنقل ولا مخرج. */
+    logError('رسم الشاشة',e);
+    if(app)app.innerHTML='<div class="card"><h2>تعذّر عرض هذه الشاشة</h2><p class=muted>حدث خطأ غير متوقع، وتقدّمك محفوظ.</p><div class=row><button class=btn onclick="goHome()">العودة إلى الرئيسية</button></div></div>';
+  }
+}
+function goHome(){S.tab='home';S.q=null;S.open=null;save();render()}
+
+/* آخر خط دفاع: أي استثناء داخل أي onclick كان يُجمّد الواجهة بصمت. */
+if(window.addEventListener)window.addEventListener('error',ev=>{
+  logError('خطأ غير متوقع',(ev&&(ev.error||ev.message))||ev);
+  toast('حدث خطأ غير متوقع. أعد تحميل الصفحة إن توقّف التطبيق');
+});
 
 /* ================= الرئيسية ================= */
+/* الخطوة التالية بالضبط: درس، أو محادثة، أو بوابة وحدة، أو الامتحان. */
+function nextStep(){
+  for(const u of [1,2,3]){
+    if(!unitOpen(u))continue;
+    const l=unitLessons(u).find(x=>lessonOpen(x)&&!S.lessons[x.id]);
+    if(l)return{label:`الدرس ${l.id}: ${l.t}`,act:`openLesson('${l.id}')`,cta:'تابع الدرس'};
+    const c=convoList(u).find(x=>convoOpen(x)&&!S.conv[x.id]);
+    if(c)return{label:`محادثة: ${c.t}`,act:`launch('conv','${c.id}')`,cta:'ابدأ المحادثة'};
+    if(!S.cp[u])return{label:`بوابة الوحدة ${u}`,act:`launch('cp',${u})`,cta:'ابدأ الاختبار'};
+    if(u!==3&&!S.ret[u])return{label:`اختبار الاستبقاء للوحدة ${u}`,act:`launch('ret',${u})`,cta:'ابدأ الاختبار'};
+  }
+  if(examOpen()&&!S.exam)return{label:'الامتحان النهائي A1',act:"launch('exam')",cta:'ابدأ الامتحان'};
+  return null;
+}
+
 function homeView(){
   const done=LESSONS.filter(l=>S.lessons[l.id]).length;
-  if(!S.placed) return card('ابدأ بتحديد مستواك','<p class="muted">اختبار تكيفي قصير من 10 أسئلة يحدد نقطة البداية، ثم تبدأ الدورة من أول درس.</p><div class="row"><button class="btn" onclick="launch(\'place\')">ابدأ اختبار تحديد المستوى</button></div>');
+  if(!S.placed) return card('أهلاً بك 👋','<p class="muted">قبل أن نبدأ، اختبار قصير من 10 أسئلة يحدد نقطة انطلاقك. يستغرق دقيقتين، ولا توجد إجابة تُحسب عليك.</p><div class="row"><button class="btn" onclick="launch(\'place\')">ابدأ اختبار تحديد المستوى</button></div>');
+  const nx=nextStep();
+  const resume=nx?card('تابع من حيث توقفت',`<p><b>${nx.label}</b></p><div class="row"><button class="btn" onclick="${nx.act}">${nx.cta}</button></div>`):'';
   return `<div class="stats">
     <div class="stat s1"><b>${S.xp}</b><span>نقاط XP</span></div>
     <div class="stat s2"><b>${done}/${LESSONS.length}</b><span>دروس متقنة</span></div>
     <div class="stat s3"><b>${Object.keys(S.cp).length}/3</b><span>وحدات مجتازة</span></div></div>`+
+  resume+
   card(`مستواك: <span class="en">${S.level}</span>`,
     `<div class="bar"><i style="width:${Math.round(done/LESSONS.length*100)}%"></i></div>
      ${S.level==='A2'?'<p class="muted" style="margin-top:8px">محتوى A2 قيد الإعداد. ابدأ بتثبيت A1 في المسار.</p>':''}
-     <div class="row"><button class="btn" onclick="go(\'course\')">متابعة المسار</button></div>`)+
+     <div class="row"><button class="btn ghost" onclick="go(\'course\')">عرض المسار كاملاً</button></div>`)+
   card('الامتحان النهائي', `<p>${S.exam?'🎉 أتممت مستوى A1':'يُفتح بعد اجتياز الوحدات الثلاث واختبارات الاستبقاء'}</p>`);
 }
 
@@ -266,9 +569,11 @@ function unitDone(n){return unitLessons(n).every(l=>S.lessons[l.id])&&convoList(
 function unitStatus(n){if(unitDone(n))return '<span class=pill>✅ مكتملة</span>';if(unitOpen(n))return '<span class=pill style="background:#EEF2FF;color:var(--ind)">📍 الوحدة الحالية</span>';return '<span class=pill style="background:#F3F4F6;color:var(--mute)">🔒 مقفلة</span>'}
 function courseView(){setTimeout(()=>{const p=[...document.querySelectorAll('.pill')].find(e=>e.textContent.includes('الوحدة الحالية'));if(p&&!S.open)p.scrollIntoView({block:'start'})},0);
   if(!S.placed) return card('ابدأ بتحديد المستوى أولاً','<div class="row"><button class="btn" onclick="launch(\'place\')">اختبار تحديد المستوى</button></div>');
-  let h=card('وضع التجربة السريعة',`<p class=muted>للمراجعة فقط: يفتح كل الدروس والاختبارات، أو يعيد التقدم من البداية.</p><div class=row><button class=btn ghost onclick="devUnlock()">فتح كل الدروس</button><button class=btn ghost onclick="devReset()">إعادة البداية</button></div>`)+card('اختبار تحديد المستوى (اختياري)',`<p class='muted'>يُنصح به لمعرفة مستواك قبل بدء الوحدات، ولا يلزم لبدء الدورة من A1.</p><div class='row'><button class='btn ghost' onclick="launch('place')">ابدأ الاختبار</button></div>`);
-  if(S.open){const l=LESSONS.find(x=>x.id===S.open);
-    h+=card(`الدرس ${l.id}: ${l.t}`,`<p>${l.ex}</p>${l.more?`<div class='muted' style='margin-top:10px;line-height:1.9'>${l.more}</div>`:''}<div class="en muted" style="margin-top:10px;line-height:1.9">${l.s.map(x=>'• '+x).join('<br>')}</div>
+  let h=card('اختبار تحديد المستوى (اختياري)',`<p class='muted'>يُنصح به لمعرفة مستواك قبل بدء الوحدات، ولا يلزم لبدء الدورة من A1.</p><div class='row'><button class='btn ghost' onclick="launch('place')">ابدأ الاختبار</button></div>`);
+  const openLes=S.open?LESSONS.find(x=>x.id===S.open):null;
+  if(S.open&&!openLes)S.open=null;
+  if(openLes){const l=openLes;
+    h+=card(`الدرس ${l.id}: ${l.t}`,`<p>${l.ex}</p>${l.more?`<div class='muted' style='margin-top:10px;line-height:1.9'>${l.more}</div>`:''}${(l.rules||[]).map(r=>ruleCard(r,'full')).join('')}<div class="en muted" style="margin-top:10px;line-height:1.9">${l.s.map(x=>'• '+x).join('<br>')}</div>
       <div class="row"><button class="btn" onclick="launch(\'lesson\',\'${l.id}\')">ابدأ تمارين الدرس</button><button class="btn ghost" onclick="S.open=null;render()">إغلاق</button></div>`);}
   for(const u of UNITS){
     const ls=unitLessons(u.n).map(l=>{const ok=!!S.lessons[l.id],av=lessonOpen(l);
@@ -280,7 +585,7 @@ function courseView(){setTimeout(()=>{const p=[...document.querySelectorAll('.pi
   h+=card('الامتحان النهائي لـ A1', examOpen()&&!S.exam?'<div class="row"><button class="btn" onclick="launch(\'exam\')">ابدأ الامتحان النهائي</button></div>':(S.exam?'<p>🎉 أتممت A1</p>':'<p class="muted">🔒 يُفتح بعد اجتياز الوحدات الثلاث</p>'));
   return h;
 }
-function openLesson(id){S.open=id;render();window.scrollTo(0,0)}
+function openLesson(id){S.open=id;S.tab='course';save();render();window.scrollTo(0,0)}
 function cpBtn(u){
   if(!unitLessons(u).every(l=>S.lessons[l.id])||!convoList(u).every(c=>S.conv[c.id])) return '';
   if(S.cp[u]) return '<span class="pill">✓ اختبار الوحدة مُجتاز</span>';
@@ -342,12 +647,18 @@ function endQ(){
 function speakPanel(q,it){if(q.kind!=='conv'||q.picked==null)return '';if(q.spoke!=null)return `<p class=muted style='margin-top:8px'>دقة النطق: ${q.spoke}%${q.heard?'<br>سمعتُ: «'+q.heard+'»':''}</p>`;return `<div style='background:#EEF2FF;border-radius:14px;padding:12px;margin-top:12px'><div class=muted>الآن قل الجملة الصحيحة بصوتك أو اكتبها:</div><div class=en style='font-size:18px;margin:8px 0;font-weight:700'>${it.o[it.a]}</div><div class=row><button class=btn onclick='mic2()'>🎙️ تحدّث</button></div><div class=row style='margin-top:8px'><input id=ctxt2 class=en placeholder='Type it' style='direction:ltr;max-width:220px;margin:0;padding:10px;border:2px solid var(--line);border-radius:12px'><button class='btn' onclick='typed2()'>✓</button></div>${q.heard?`<p class=muted style='margin-top:8px'>سمعتُ: «${q.heard}»</p>`:''}${q.feedback?`<p class=muted style='margin-top:8px'>${q.feedback}</p>`:''}</div>`}
 function words(s){return s.toLowerCase().replace(/[^\w\s]/g,'').split(/\s+/).filter(Boolean)}
 function speakTurn(said){const q=S.q;if(!q||q.kind!=='conv'||q.spoke!=null||!said)return;const it=q.items[q.i];const T=words(it.o[it.a]),G=words(said);const sc=Math.round(T.filter(w=>G.includes(w)).length/T.length*100);q.heard=said;q.att=(q.att||0)+1;if(sc>=75||q.att>=2){q.spoke=sc;const pass=!!q.choiceOk&&sc>=75;q.got.push(pass);if(!pass)q.wrong.push(it);addXp(pass?10:2);save()}else{q.feedback='حاول مرة أخرى، لم أسمع: '+T.filter(w=>!G.includes(w)).join(' ')}render()}
-function mic2(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;const q=S.q;if(!R){q.feedback='التعرف على الصوت غير مدعوم هنا، اكتب الجملة في المربع';render();return}const r=new R();r.lang='en-US';r.onresult=e=>speakTurn(e.results[0][0].transcript.trim());r.onerror=e=>{q.feedback='تعذّر التسجيل ('+e.error+')';render()};try{r.start()}catch(x){}}
-function devUnlock(){[1,2,3].forEach(n=>{unitLessons(n).forEach(l=>S.lessons[l.id]=true);convoList(n).forEach(c=>S.conv[c.id]=true);S.cp[n]=true;S.ret[n]=true});S.exam=true;localStorage.setItem(K,JSON.stringify(S));render()}
-function devReset(){if(!confirm('هل تريد بدء الدورة من الصفر؟'))return;S.lessons={};S.conv={};S.cp={};S.ret={};S.exam=false;S.xp=0;localStorage.setItem(K,JSON.stringify(S));render()}
+function mic2(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;const q=S.q;if(!R){q.feedback='التعرف على الصوت غير مدعوم هنا، اكتب الجملة في المربع';render();return}const r=new R();r.lang='en-US';r.onresult=e=>speakTurn(e.results[0][0].transcript.trim());r.onerror=e=>{q.feedback='تعذّر التسجيل ('+e.error+')';render()};
+ try{r.start()}catch(x){logError('بدء التسجيل',x);q.feedback='تعذّر بدء التسجيل. اضغط مرة واحدة فقط، أو اكتب الجملة في المربع';render()}}
 function typed2(){const el=document.getElementById('ctxt2');speakTurn(el?el.value.trim():'')}
 function retryQ(){const q=S.q;launch(q.kind,q.id)}
 function closeQ(){const q=S.q;const wasPlace=q&&q.kind==='place';if(wasPlace){S.q=null;S.tab='home';save();render();return}if(q&&q.kind==='lesson'){const i=LESSONS.findIndex(l=>l.id===q.id);const nx=LESSONS[i+1];S.open=q.pass?(nx&&lessonOpen(nx)?nx.id:null):q.id}else{S.open=null}S.q=null;S.tab='course';save();render();window.scrollTo(0,0)}
+/* الخطأ هو لحظة التعليم: نفتح الشرح تلقائياً عنده، ونتركه زراً عند الإجابة الصحيحة. */
+function itemRuleHtml(q,it){
+  const id=ITEM_RULE.get(it);if(!id)return '';
+  if(q.picked===it.a&&S.ruleOpen!==id)
+    return `<div class="row" style="margin-top:8px"><button class='btn ghost' onclick="toggleRule('${id}')">راجع القاعدة</button></div>`;
+  return ruleCard(id,'brief');
+}
 function quizView(){
   const q=S.q;
   if(q.done){
@@ -366,7 +677,7 @@ function quizView(){
   return card(`${q.title} <span class="muted">(${q.i+1}/${total})</span>`,
     `<div class="bar"><i style="width:${q.i/total*100}%"></i></div>
      <div class="mean en" style="font-size:19px;margin-top:14px">${it.q}</div>${opts}
-     ${speakPanel(q,it)}${q.picked!=null&&(q.kind!=='conv'||q.spoke!=null)?`<p class='muted' style='margin-top:10px'>💡 ${it.tip}</p><div class="row"><button class="btn" onclick="nextQ()">${q.i+1>=total?'النتيجة':'التالي ←'}</button></div>`:''}
+     ${speakPanel(q,it)}${q.picked!=null&&(q.kind!=='conv'||q.spoke!=null)?`<p class='muted' style='margin-top:10px'>💡 ${it.tip}</p>${itemRuleHtml(q,it)}<div class="row"><button class="btn" onclick="nextQ()">${q.i+1>=total?'النتيجة':'التالي ←'}</button></div>`:''}
      <div class="row"><button class="btn ghost" onclick="closeQ()">إلغاء</button></div>`);
 }
 
@@ -404,7 +715,12 @@ function mic(){
   if(c)c.innerHTML='<span class="muted">🎙️ تحدّث الآن...</span>';
   r.onresult=e=>show(e.results[0][0].transcript.trim());
   r.onerror=e=>{if(c)c.innerHTML='<span class="muted">تعذّر التسجيل ('+e.error+'). اكتب إجابتك في المربع أو راجع إذن الميكروفون</span>'};
-  try{r.start()}catch(x){}
+  /* الضغط المزدوج على الزر يجعل start() ترمي InvalidStateError.
+     كانت تُبتلع صامتة، فتبقى «تحدّث الآن» معروضة بينما لا أحد يستمع. */
+  try{r.start()}catch(x){
+    logError('بدء التسجيل',x);
+    if(c)c.innerHTML='<span class="muted">تعذّر بدء التسجيل. اضغط مرة واحدة فقط، أو اكتب إجابتك في المربع</span>';
+  }
 }
 
 const SCENES=[
@@ -463,36 +779,49 @@ function base(v){if(/ies$/.test(v))return v.replace(/ies$/,'y');if(/(sses|shes|c
 function s3(v){if(v==='have')return 'has';if(v==='do')return 'does';if(/[^aeiou]y$/.test(v))return v.slice(0,-1)+'ies';if(/(s|sh|ch|x|o)$/.test(v))return v+'es';return v+'s'}
 
 const GR=[
-{re:/\bi is\b/gi,f:()=>'I am',ar:'مع I نستخدم am وليس is'},
-{re:/\b(he|she|it) are\b/gi,f:(m,p)=>p+' is',ar:'مع he / she / it نستخدم is وليس are'},
-{re:/\b(we|you|they) is\b/gi,f:(m,p)=>p+' are',ar:'مع we / you / they نستخدم are وليس is'},
-{re:/\bthere is (two|three|four|five|many|some|several)\b/gi,f:(m,n)=>'there are '+n,ar:'مع الجمع نستخدم there are'},
-{re:/\bthere are (a|an|one)\b/gi,f:(m,n)=>'there is '+n,ar:'مع المفرد نستخدم there is'},
+{re:/\bi is\b/gi,f:()=>'I am',rid:'be-subject',ar:'مع I نستخدم am وليس is'},
+{re:/\b(he|she|it) are\b/gi,f:(m,p)=>p+' is',rid:'be-subject',ar:'مع he / she / it نستخدم is وليس are'},
+{re:/\b(we|you|they) is\b/gi,f:(m,p)=>p+' are',rid:'be-subject',ar:'مع we / you / they نستخدم are وليس is'},
+{re:/\bthere is (two|three|four|five|many|some|several)\b/gi,f:(m,n)=>'there are '+n,rid:'there-is-are',ar:'مع الجمع نستخدم there are'},
+{re:/\bthere are (a|an|one)\b/gi,f:(m,n)=>'there is '+n,rid:'there-is-are',ar:'مع المفرد نستخدم there is'},
 {re:/\bin my home\b/gi,f:()=>'at home',ar:'نقول at home وليس in my home'},
-{re:/(?<!\b(?:does|do|don't|doesn't|did) )\b(he|she|it) (go|like|work|study|live|stay|watch|play|want|need|speak|know|think|have|do|read|write|drink|eat|wake|get|come)\b/gi,f:(m,p,v)=>p+' '+s3(v.toLowerCase()),ar:'مع he / she / it نضيف s للفعل'},
-{re:/\b(i|you|we|they) (goes|likes|works|studies|lives|stays|watches|plays|wants|needs|speaks|knows|thinks|has|does|reads|writes|drinks|eats|wakes|gets|comes)\b/gi,f:(m,p,v)=>p+' '+base(v.toLowerCase()),ar:'مع I / you / we / they لا نضيف s للفعل'},
-{re:/\bdon't (he|she|it)\b/gi,f:(m,p)=>"doesn't "+p,ar:"مع he / she / it نستخدم doesn't"},
-{re:/\bdoesn't (i|you|we|they)\b/gi,f:(m,p)=>"don't "+p,ar:"مع I / you / we / they نستخدم don't"},
-{re:/\bdoes (i|you|we|they) /gi,f:(m,p)=>'do '+p+' ',ar:'مع I / you / we / they نستخدم do في السؤال'},
-{re:/\bdoes (he|she|it) (\w+s)\b/gi,f:(m,p,v)=>'does '+p+' '+base(v.toLowerCase()),ar:'بعد does نستخدم الفعل بدون s'},
-{re:/\bdo (he|she|it) /gi,f:(m,p)=>'does '+p+' ',ar:'مع he / she / it نستخدم does في السؤال'},
-{re:/\ba (?!(?:university|user|one|useful|unique|european|eu)\b)(?=[aeiou])/gi,f:()=>'an ',ar:'نستخدم an قبل الكلمة التي تبدأ بحرف متحرك'},
-{re:/\ban (?=[bcdfgjklmnpqrstvwxyz])/gi,f:()=>'a ',ar:'نستخدم a قبل الكلمة التي تبدأ بحرف ساكن'},
+{re:/(?<!\b(?:does|do|don't|doesn't|did) )\b(he|she|it) (go|like|work|study|live|stay|watch|play|want|need|speak|know|think|have|do|read|write|drink|eat|wake|get|come)\b/gi,f:(m,p,v)=>p+' '+s3(v.toLowerCase()),rid:'present-s',ar:'مع he / she / it نضيف s للفعل'},
+{re:/\b(i|you|we|they) (goes|likes|works|studies|lives|stays|watches|plays|wants|needs|speaks|knows|thinks|has|does|reads|writes|drinks|eats|wakes|gets|comes)\b/gi,f:(m,p,v)=>p+' '+base(v.toLowerCase()),rid:'present-base',ar:'مع I / you / we / they لا نضيف s للفعل'},
+{re:/\bdon't (he|she|it)\b/gi,f:(m,p)=>"doesn't "+p,rid:'present-neg',ar:"مع he / she / it نستخدم doesn't"},
+{re:/\bdoesn't (i|you|we|they)\b/gi,f:(m,p)=>"don't "+p,rid:'present-neg',ar:"مع I / you / we / they نستخدم don't"},
+{re:/\bdoes (i|you|we|they) /gi,f:(m,p)=>'do '+p+' ',rid:'present-neg',ar:'مع I / you / we / they نستخدم do في السؤال'},
+{re:/\bdoes (he|she|it) (\w+s)\b/gi,f:(m,p,v)=>'does '+p+' '+base(v.toLowerCase()),rid:'present-neg',ar:'بعد does نستخدم الفعل بدون s'},
+{re:/\bdo (he|she|it) /gi,f:(m,p)=>'does '+p+' ',rid:'present-neg',ar:'مع he / she / it نستخدم does في السؤال'},
+{re:/\ba (?!(?:university|user|one|useful|unique|european|eu)\b)(?=[aeiou])/gi,f:()=>'an ',rid:'article-a-an',ar:'نستخدم an قبل الكلمة التي تبدأ بحرف متحرك'},
+{re:/\ban (?=[bcdfgjklmnpqrstvwxyz])/gi,f:()=>'a ',rid:'article-a-an',ar:'نستخدم a قبل الكلمة التي تبدأ بحرف ساكن'},
 {re:/\bi am agree\b/gi,f:()=>'I agree',ar:'نقول I agree بدون am'},
 {re:/\bi am like\b/gi,f:()=>'I like',ar:'نقول I like بدون am'},
 {re:/\bi very\b/gi,f:()=>'I am very',ar:'بعد I نحتاج فعلاً، مثل I am very'},
 {re:/\bmore better\b/gi,f:()=>'better',ar:'better وحدها تكفي بدون more'},
-{re:/\bwhat you do\b/gi,f:()=>'what do you do',ar:'في السؤال نحتاج do: what do you do?'},
-{re:/\bwhere you from\b/gi,f:()=>'where are you from',ar:'في السؤال نحتاج are: where are you from?'},
-{re:/\bwhat your name\b/gi,f:()=>'what is your name',ar:'نقول what is your name?'}
+{re:/\bwhat you do\b/gi,f:()=>'what do you do',rid:'present-base',ar:'في السؤال نحتاج do: what do you do?'},
+{re:/\bwhere you from\b/gi,f:()=>'where are you from',rid:'be-question',ar:'في السؤال نحتاج are: where are you from?'},
+{re:/\bwhat your name\b/gi,f:()=>'what is your name',rid:'be-question',ar:'نقول what is your name?'}
 ];
 function fixText(t){let o=t;GR.forEach(r=>{o=o.replace(r.re,r.f)});return o.charAt(0).toUpperCase()+o.slice(1)}
-function checkGrammar(t){const out=[];GR.forEach(r=>{if(new RegExp(r.re.source,'i').test(t)&&!out.some(x=>x.ar===r.ar))out.push({ar:r.ar})});return out}
+function checkGrammar(t){const out=[];GR.forEach(r=>{if(new RegExp(r.re.source,'i').test(t)&&!out.some(x=>x.ar===r.ar))out.push({ar:r.ar,rid:r.rid})});return out}
 
 function lev(a,b){const m=a.length,n=b.length,d=[];for(let i=0;i<=m;i++)d[i]=[i];for(let j=0;j<=n;j++)d[0][j]=j;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[m][n]}
 function pronScore(target,heard){const T=words(target),H=words(heard);const miss=[],near=[];let ok=0;T.forEach(w=>{if(H.includes(w))ok++;else if(H.some(h=>lev(h,w)<=2))near.push(w);else miss.push(w)});const sc=Math.round(ok/T.length*100);const tips=[];if(T.some(w=>w.includes('th')))tips.push('الصوت th: ضع طرف لسانك بين أسنانك وانفخ بهدوء');if(T.some(w=>w.includes('v')))tips.push('الصوت v: ضع أسنانك العليا على شفتك السفلى');if(T.some(w=>w.includes('r')))tips.push('الصوت r: ارفع طرف لسانك قليلاً دون أن تلمس الحلق');return {sc,miss,near,tips,heard}}
 
-function chatTurn(){const c=S.chat;return SCENES[c.sc].turns[c.ti]}
+/* يعيد المؤشرين إلى الحدود إن تغيّر عدد المشاهد أو الأدوار بين إصدارين. */
+function chatClamp(){const c=S.chat;let moved=false;
+  if(!Number.isInteger(c.sc)||c.sc<0||c.sc>=SCENES.length){c.sc=0;c.ti=0;moved=true}
+  const t=SCENES[c.sc].turns;
+  if(!Number.isInteger(c.ti)||c.ti<0||c.ti>=t.length){c.ti=0;moved=true}
+  if(moved){
+    logError('ضبط مؤشر المحادثة',new Error('sc/ti خارج الحدود'));
+    /* التغذية الراجعة الباقية تخصّ سؤالاً آخر، وعرضها هنا يعلّم المتعلم خطأً. */
+    c.stage='reply';c.ok=null;c.g=null;c.fixed=null;c.pr=null;c.hint=false;
+    c.fb='تغيّرت المشاهد، فبدأنا من المشهد الأول.';
+    save();
+  }
+}
+function chatTurn(){chatClamp();return SCENES[S.chat.sc].turns[S.chat.ti]}
 function chatSay(){say(chatTurn().p)}
 function chatListen(cb){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R){cb(null,'التعرف على الصوت غير متاح هنا، اكتب الإجابة في المربع');return}const r=new R();r.lang='en-US';r.onresult=e=>cb(e.results[0][0].transcript.trim(),null);r.onerror=e=>cb(null,'تعذّر التسجيل ('+e.error+')');try{r.start()}catch(x){cb(null,'تعذّر بدء التسجيل')}}
 function chatMic(){chatListen((t,err)=>{if(err){S.chat.fb=err;render();return}chatReply(t)})}
@@ -509,7 +838,7 @@ function chatHint(){const c=S.chat;c.hint=!c.hint;save();render()}
 function chatFeedback(c,T){let h=`<div style='background:#F8FAFC;border-radius:14px;padding:14px;margin-top:14px;font-size:18px;line-height:1.9;color:#1e1b4b'>`;
 h+=c.ok?`<p style='font-size:22px;font-weight:700;color:#15803d'>✅ فهمت إجابتك</p>`:`<p style='font-size:22px;font-weight:700;color:#b45309'>⚠️ إجابتك لا تناسب هذا السؤال</p>`;
 h+=`<p style='margin-top:8px'>الإجابة النموذجية:</p><p class=en style='font-size:18px;font-weight:700'>${T.model}</p>`;
-if(c.g&&c.g.length){h+=`<p style='margin-top:8px'>ملاحظات الجرامر في إجابتك:</p>`+c.g.map(x=>`<div style='font-size:18px;color:#1e1b4b'>• ${x.ar}</div>`).join('')+`<p style='margin-top:6px'>صياغتك المصححة: <b class=en style='font-size:20px'>${c.fixed}</b></p>`}else h+=`<p style='font-size:18px;color:#1e1b4b' style='margin-top:8px'>جرامر إجابتك سليم ✅</p>`;
+if(c.g&&c.g.length){h+=`<p style='margin-top:8px'>ملاحظات الجرامر في إجابتك:</p>`+c.g.map(x=>`<div style='font-size:18px;color:#1e1b4b'>• ${x.ar}</div>`).join('')+`<p style='margin-top:6px'>صياغتك المصححة: <b class=en style='font-size:20px'>${c.fixed}</b></p>`+c.g.filter(x=>x.rid).map(x=>ruleCard(x.rid,'brief')).join('')}else h+=`<p style='font-size:18px;color:#1e1b4b' style='margin-top:8px'>جرامر إجابتك سليم ✅</p>`;
 h+=`<p style='margin-top:12px'><b>الخطوة التالية:</b> قل الإجابة النموذجية بصوتك لنقيّم نطقك.</p>`;
 if(c.pr)h+=pronHtml(c.pr);
 if(c.fb)h+=`<p style='font-size:18px;color:#1e1b4b'>${c.fb}</p>`;
@@ -517,7 +846,7 @@ h+=`<div class=row style='margin-top:10px'><button class=btn onclick='chatModel(
 h+=`<div class=row style='margin-top:8px'><input id=chatPr class=en placeholder='أو اكتب الإجابة النموذجية' style='direction:ltr;max-width:260px;margin:0;padding:10px;border:2px solid var(--line);border-radius:12px'><button class='btn ghost' onclick='chatModelTyped()'>✓</button></div>`;
 if(!c.ok)h+=`<div class=row style='margin-top:8px'><button class='btn ghost' onclick='chatRetry()'>أعد الإجابة على السؤال</button></div>`;
 return h+'</div>'}
-function speakView(){const c=S.chat||(S.chat={sc:0,ti:0,miss:0,stage:'reply'});const sc=SCENES[c.sc],T=sc.turns[c.ti];
+function speakView(){chatClamp();const c=S.chat,sc=SCENES[c.sc],T=sc.turns[c.ti];
 const top=Object.entries(S.errs||{}).sort((a,b)=>b[1]-a[1]).slice(0,3);
 const picker=`<div class=row>${SCENES.map((x,i)=>`<button class='btn ${i===c.sc?'':'ghost'}' onclick='chatPick(${i})'>${x.les?'درس '+x.les:x.t}</button>`).join('')}</div>`;
 let body;
