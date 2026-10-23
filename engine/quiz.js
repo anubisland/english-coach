@@ -15,7 +15,8 @@ export function _launch(kind,id){
   else if(kind==='ret'){Object.assign(q,{items:shuffle(itemsUpTo(id)).slice(0,4),title:'اختبار الاستبقاء (حتى الوحدة '+id+')',need:3})}
   else if(kind==='exam'){Object.assign(q,{items:shuffle(itemsUpTo(3)).slice(0,10),title:'الامتحان النهائي A1',need:8})}
   else if(kind==='conv'){const c=CONVO.find(x=>x.id===id);Object.assign(q,{title:'محادثة: '+c.t,items:c.turns.map(t=>({q:t.p,o:t.o,a:t.a,tip:t.tip})),need:c.turns.length})}
-  else if(kind==='place'){Object.assign(q,{title:'تحديد المستوى',items:[pickPlace(q)]})}
+  /* pickPlace تقرأ q.items لتتجنّب تكرار سؤال، فيجب أن توجد قبل أول نداء. */
+  else if(kind==='place'){q.title='تحديد المستوى';q.items=[];q.items.push(pickPlace(q))}
   S.q=q;hooks.render();window.scrollTo(0,0);
 }
 export function pickPlace(q){

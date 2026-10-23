@@ -425,5 +425,40 @@ const { run, report } = require('./harness.js');
       .forEach(n => { if (ev(n) === undefined) throw new Error('الاسم غير مُصدَّر: ' + n) });
   });
 
+  console.log('— اختبار تحديد المستوى —');
+
+  await run('اختبار تحديد المستوى يبدأ بلا انهيار', {}, (ctx, ev) => {
+    ctx.launch('place');
+    const q = ev('S').q;
+    if (!q) throw new Error('لم يبدأ الاختبار');
+    if (!q.items || q.items.length !== 1) throw new Error('لم يُسحب أول سؤال');
+    if (!q.items[0].q) throw new Error('السؤال فارغ');
+    if (!ctx.quizView().includes(q.items[0].q)) throw new Error('السؤال لا يظهر على الشاشة');
+  });
+
+  await run('المستخدم الجديد يُكمل الاختبار العشرة ويصل إلى النتيجة', {}, (ctx, ev) => {
+    ctx.launch('place');
+    for (let i = 0; i < 10; i++) {
+      const q = ev('S').q;
+      if (q.done) throw new Error('انتهى مبكراً عند ' + i);
+      ctx.pick(q.items[q.i].a);
+      ctx.nextQ();
+    }
+    const q = ev('S').q;
+    if (!q.done) throw new Error('لم ينتهِ بعد عشرة أسئلة');
+    if (!ev('S').placed) throw new Error('لم يُسجَّل تحديد المستوى');
+    if (!['A1','A2'].includes(ev('S').level)) throw new Error('مستوى غير صالح: ' + ev('S').level);
+    if (!ctx.quizView().includes('نتيجة تحديد المستوى')) throw new Error('لا شاشة نتيجة');
+    ctx.closeQ();
+    if (ev('S').q) throw new Error('لم تُغلق شاشة الاختبار');
+  });
+
+  await run('اختبار تحديد المستوى لا يكرر سؤالاً', {}, (ctx, ev) => {
+    ctx.launch('place');
+    for (let i = 0; i < 9; i++) { ctx.pick(ev('S').q.items[ev('S').q.i].a); ctx.nextQ() }
+    const qs = ev('S').q.items.map(x => x.q);
+    if (new Set(qs).size !== qs.length) throw new Error('تكرر سؤال داخل الاختبار');
+  });
+
   await report();
 })();
