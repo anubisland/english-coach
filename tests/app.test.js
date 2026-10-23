@@ -567,5 +567,33 @@ const { run, report } = require('./harness.js');
       .forEach(p => { if (!titles.includes(p)) throw new Error('لا مشهد عن: ' + p) });
   });
 
+  await run('كل مشهد مصنَّف، والتصنيفات معروفة', {}, (ctx, ev) => {
+    const known = ['درس','يومي','اجتماعي','تسوّق','سفر','صحة','عمل'];
+    ev('SCENES').forEach(sc => {
+      if (!sc.cat) throw new Error('مشهد بلا تصنيف: ' + sc.t);
+      if (!known.includes(sc.cat)) throw new Error(sc.t + ': تصنيف مجهول ' + sc.cat);
+    });
+  });
+
+  await run('شريط التصنيفات يرشّح المشاهد', {}, (ctx, ev) => {
+    ctx.go('speak');
+    const all = ctx.speakView();
+    ctx.chatCat('صحة');
+    const health = ctx.speakView();
+    if (!health.includes('عند الطبيب')) throw new Error('مشهد صحي مفقود بعد الترشيح');
+    if (health.includes('في البنك')) throw new Error('مشهد من تصنيف آخر ظهر');
+    if (all.length <= health.length) throw new Error('الترشيح لم يقلّل القائمة');
+    ctx.chatCat('الكل');
+    if (!ctx.speakView().includes('في البنك')) throw new Error('«الكل» لا يعرض كل المشاهد');
+  });
+
+  await run('اختيار مشهد لا يفقد المتعلم مكانه', {}, (ctx, ev) => {
+    ctx.chatCat('سفر');
+    const i = ev('SCENES').findIndex(x => x.t === 'في المطار');
+    ctx.chatPick(i);
+    if (ev('S').chat.sc !== i) throw new Error('لم يُختر المشهد');
+    if (!ctx.speakView().includes('في المطار')) throw new Error('المشهد المختار اختفى من الشريط');
+  });
+
   await report();
 })();

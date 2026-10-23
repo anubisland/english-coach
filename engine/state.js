@@ -17,7 +17,7 @@ export function defaultState(){return{
   ruleOpen:null,            // بطاقة القاعدة المفتوحة حالياً
   theme:'light',            // النهاري هو الافتراضي، والليلي اختيار
   goal:10,                  // هدف دقائق الكلام اليومي
-  chat:{sc:0,ti:0,miss:0,stage:'reply',ok:null,g:null,said:null,fixed:null,pr:null,fb:null,hint:false}
+  chat:{sc:0,ti:0,miss:0,stage:'reply',ok:null,g:null,said:null,fixed:null,pr:null,fb:null,hint:false,cat:'الكل'}
 }}
 
 /* هل في الحالة المحفوظة أثر عمل سابق؟ */

@@ -26,9 +26,11 @@ export function chatReply(text){const c=S.chat,T=chatTurn();c.said=text;c.ok=T.n
 export function chatRetry(){const c=S.chat;c.stage='reply';c.ok=null;c.g=null;c.pr=null;c.fb=null;save();hooks.render()}
 export function chatModel(){chatListen((t,err)=>{const c=S.chat;if(err){c.fb=err;hooks.render();return}c.pr=pronScore(chatTurn().model,t);c.fb=null;save();hooks.render()})}
 export function chatModelTyped(){const v=(document.getElementById('chatPr')||{}).value;if(!v||!v.trim())return;S.chat.pr=pronScore(chatTurn().model,v.trim());save();hooks.render()}
-export function chatPick(i){const c=S.chat;c.sc=i;c.ti=0;c.stage='reply';c.ok=null;c.g=null;c.fixed=null;c.pr=null;c.fb=null;c.hint=false;save();hooks.render();setTimeout(chatSay,300)}
+export function chatPick(i){const c=S.chat;c.sc=i;if(SCENES[i]&&SCENES[i].cat&&c.cat!=='الكل')c.cat=SCENES[i].cat;c.ti=0;c.stage='reply';c.ok=null;c.g=null;c.fixed=null;c.pr=null;c.fb=null;c.hint=false;save();hooks.render();setTimeout(chatSay,300)}
 export function chatNext(){const c=S.chat,sc=SCENES[c.sc];c.ti++;if(c.ti>=sc.turns.length){c.ti=0;c.sc=(c.sc+1)%SCENES.length}c.miss=0;c.stage='reply';c.ok=null;c.g=null;c.fixed=null;c.pr=null;c.fb=null;c.hint=false;save();hooks.render();setTimeout(chatSay,300)}
 
+/* تغيير التصنيف لا يغيّر المشهد الجاري، فلا يفقد المتعلم مكانه. */
+export function chatCat(k){S.chat.cat=k;save();hooks.render()}
 export function chatHint(){const c=S.chat;c.hint=!c.hint;save();hooks.render()}
 /* يقارن جملة المتعلّم بالمصححة كلمةً بكلمة (أطول تسلسل مشترك)،
    فيظهر الخطأ مشطوباً والصواب فوقه — كما يفعل المدرّس بالقلم. */

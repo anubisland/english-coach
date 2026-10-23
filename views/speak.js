@@ -4,6 +4,9 @@ import {S} from '../engine/state.js';
 import {chatClamp,penDiff} from '../engine/chat.js';
 import {card,svg,ar,pronHtml,ruleCard} from './ui.js';
 
+/* ترتيب العرض: الأقرب إلى درس المتعلم أولاً، ثم اتساعاً نحو الحياة العامة. */
+const CAT_ORDER=['درس','يومي','اجتماعي','تسوّق','سفر','صحة','عمل'];
+
 export function chatMeters(c){
   const gn=(c.g||[]).length;
   const m=[
@@ -60,9 +63,19 @@ export function speakView(){
   const c=S.chat,sc=SCENES[c.sc],T=sc.turns[c.ti];
   const top=Object.entries(S.errs||{}).sort((a,b)=>b[1]-a[1]).slice(0,3);
 
-  /* شرائط المشاهد: المشهد الحالي بارز، والبقية هادئة */
-  const picker=`<div style="display:flex;gap:7px;overflow-x:auto;padding:2px 0 4px;-webkit-overflow-scrolling:touch">${
-    SCENES.map((x,i)=>`<button class="btn${i===c.sc?'':' ghost'}" style="margin:0;padding:8px 14px;min-height:0;border-radius:999px;font-size:12.5px;white-space:nowrap${i===c.sc?'':';background:var(--surf2);color:var(--mute)'}" onclick="chatPick(${i})">${x.les?'درس '+x.les:x.t}</button>`).join('')}</div>`;
+  /* 38 مشهداً لا تُعرض في شريط واحد: نصنّفها، ثم نعرض مشاهد التصنيف المختار.
+     ويبقى تصنيف المشهد الحالي مختاراً تلقائياً حتى لا يختفي من أمام المتعلم. */
+  const cats=['الكل',...CAT_ORDER.filter(k=>SCENES.some(x=>x.cat===k))];
+  const pickedCat=cats.includes(c.cat)?c.cat:'الكل';
+  const chip=(on)=>'margin:0;padding:7px 13px;min-height:0;border-radius:999px;font-size:12px;white-space:nowrap'
+    +(on?'':';background:var(--surf2);color:var(--mute)');
+
+  const catBar=`<div style="display:flex;gap:6px;overflow-x:auto;padding:2px 0 6px">${
+    cats.map(k=>`<button class="btn${k===pickedCat?'':' ghost'}" style="${chip(k===pickedCat)}" onclick="chatCat('${k}')">${k}${k==='الكل'?' ('+ar(SCENES.length)+')':''}</button>`).join('')}</div>`;
+
+  const list=SCENES.map((x,i)=>({x,i})).filter(o=>pickedCat==='الكل'||o.x.cat===pickedCat);
+  const picker=catBar+`<div style="display:flex;gap:7px;overflow-x:auto;padding:2px 0 4px;-webkit-overflow-scrolling:touch">${
+    list.map(o=>`<button class="btn${o.i===c.sc?'':' ghost'}" style="${chip(o.i===c.sc)};font-size:12.5px;padding:8px 14px" onclick="chatPick(${o.i})">${o.x.les?'درس '+o.x.les:o.x.t}</button>`).join('')}</div>`;
 
   /* نقاط تقدّم المشهد */
   const dots=sc.turns.map((_,i)=>
