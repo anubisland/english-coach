@@ -26,7 +26,16 @@ function freshEls() {
 /* عناصر عامة ثابتة المرجع، ومحتواها يتبدّل — فالوحدات تستوردها مرة واحدة */
 const el = {
   documentElement: { attrs: {}, setAttribute(k, v) { this.attrs[k] = v } },
-  getElementById: id => cur.els[id] || null,
+  /* العناصر المرسومة ديناميكياً (محطات الرحلة) موجودة في الصفحة فعلاً،
+     فنعيد لها عنصراً وهمياً يسجّل طلب الانتقال إليه. */
+  getElementById(id) {
+    if (cur.els[id]) return cur.els[id];
+    const html = (cur.els.app && cur.els.app.innerHTML) || '';
+    if (html.includes('id="' + id + '"'))
+      return { id, scrollIntoView() { cur.scrolledTo = id } };
+    return null;
+  },
+  querySelector: () => null,
   querySelectorAll: () => []
 };
 global.document = el;
@@ -36,7 +45,7 @@ global.localStorage = {
   removeItem(k) { delete cur.store[k] }
 };
 global.window = {
-  scrollTo() {},
+  scrollTo() { cur.scrolledTo = 'top' },
   addEventListener(t, f) { (handlers[t] = handlers[t] || []).push(f) },
   get SpeechRecognition() {
     if (cur.opts.recognition === 'throws')
@@ -78,10 +87,17 @@ function makeScope(mod) {
 async function run(label, stored, steps, opts) {
   const mod = await load();
   cur = { els: freshEls(), store: Object.assign({}, stored), opts: opts || {}, logged: [], started: [], utterances: [] };
-  const ctx = Object.assign({}, global.window, {
-    get _els() { return cur.els }, get _store() { return cur.store },
-    get _logged() { return cur.logged }, get _started() { return cur.started },
-    get _handlers() { return handlers }, get _utterances() { return cur.utterances }
+  /* Object.assign ينسخ قيمة الـ getter لا الـ getter نفسه، فتتجمّد القيم
+     المفردة مثل scrolledTo عند لحظة الإنشاء. نُعرّفها كخصائص حيّة. */
+  const ctx = Object.assign({}, global.window);
+  Object.defineProperties(ctx, {
+    _els:        { get: () => cur.els },
+    _store:      { get: () => cur.store },
+    _logged:     { get: () => cur.logged },
+    _started:    { get: () => cur.started },
+    _utterances: { get: () => cur.utterances },
+    _scrolledTo: { get: () => cur.scrolledTo },
+    _handlers:   { get: () => handlers }
   });
   const scope = makeScope(mod);
   const ev = expr => new Function('__s', 'with(__s){return (' + expr + ')}')(scope);

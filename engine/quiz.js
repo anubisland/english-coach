@@ -58,5 +58,20 @@ export function endQ(){
 export function speakTurn(said){const q=S.q;if(!q||q.kind!=='conv'||q.spoke!=null||!said)return;const it=q.items[q.i];const T=words(it.o[it.a]),G=words(said);const sc=Math.round(T.filter(w=>G.includes(w)).length/T.length*100);q.heard=said;q.att=(q.att||0)+1;if(sc>=75||q.att>=2){q.spoke=sc;const pass=!!q.choiceOk&&sc>=75;q.got.push(pass);if(!pass)q.wrong.push(it);addXp(pass?10:2);save()}else{q.feedback='حاول مرة أخرى، لم أسمع: '+T.filter(w=>!G.includes(w)).join(' ')}hooks.render()}
 
 export function retryQ(){const q=S.q;launch(q.kind,q.id)}
-export function closeQ(){const q=S.q;const wasPlace=q&&q.kind==='place';if(wasPlace){S.q=null;S.tab='home';save();hooks.render();return}if(q&&q.kind==='lesson'){const i=LESSONS.findIndex(l=>l.id===q.id);const nx=LESSONS[i+1];S.open=q.pass?(nx&&lessonOpen(nx)?nx.id:null):q.id}else{S.open=null}S.q=null;S.tab='course';save();hooks.render();window.scrollTo(0,0)}
+/* بعد أي اختبار، الوجهة تأتي من nextStep — لا من قائمة الدروس.
+   الاعتماد على LESSONS[i+1] كان يفشل عند آخر درس في الوحدة، لأن الدرس
+   الذي يليه في وحدة مقفلة، فتُصفَّر S.open ويرتدّ المتعلم إلى أول المسار. */
+export function closeQ(){
+  const q=S.q;
+  if(q&&q.kind==='place'){S.q=null;S.tab='home';save();hooks.render();return}
+
+  const step=hooks.nextStep&&hooks.nextStep();
+  if(q&&q.kind==='lesson'&&!q.pass)S.open=q.id;                      // لم يجتز: أبقِ درسه مفتوحاً
+  else if(step&&step.anchor&&step.anchor.startsWith('st-l-'))         // الخطوة التالية درس: افتحه
+    S.open=step.anchor.slice(5);
+  else S.open=null;
+
+  S.q=null;S.tab='course';save();hooks.render();
+  if(hooks.goToStep)hooks.goToStep();
+}
 /* الخطأ هو لحظة التعليم: نفتح الشرح تلقائياً عنده، ونتركه زراً عند الإجابة الصحيحة. */

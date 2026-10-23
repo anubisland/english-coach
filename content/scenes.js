@@ -49,5 +49,67 @@ export const SCENES=[
 {t:'الاتجاهات',turns:[
 {p:'Excuse me, where is the bank?',need:/it is|it's|there|next|near|across|left|right|straight|corner|on the/i,model:'It is next to the park.'},
 {p:'Is it far from here?',need:/yes|no|far|close|near|walk|minutes|not/i,model:'No, it is very close.'},
-{p:'Thanks a lot! Have a nice day.',need:/thank|you too|bye|same|nice/i,model:'Thank you, you too!'}]}
+{p:'Thanks a lot! Have a nice day.',need:/thank|you too|bye|same|nice/i,model:'Thank you, you too!'}]},
+{t:'المواصلات العامة',turns:[
+{p:'Excuse me, does this bus go to the city center?',need:/yes|no|does|doesn't|it does|think|sure/i,model:'Yes, it does.'},
+{p:'How much is the ticket?',need:/pound|dollar|it is|it's|\d|two|three|five|ten|don't know/i,model:'It is ten pounds.'},
+{p:'Where do you get off?',need:/i get off|get off|at|station|stop|next|near/i,model:'I get off at the next stop.'},
+{p:'Thank you. Have a good trip!',need:/thank|you too|same|bye|nice/i,model:'Thank you, you too!'}]},
+
+{t:'في النادي',turns:[
+{p:'Hi! Do you come here every day?',need:/yes|no|i come|every|sometimes|twice|three|week|don't/i,model:'No, I come here three times a week.'},
+{p:'What do you usually do first?',need:/i |run|walk|swim|lift|start|warm|usually/i,model:'I usually run for twenty minutes.'},
+{p:'Do you like swimming?',need:/yes|no|i like|i love|don't|hate|can't swim|can/i,model:'Yes, I like swimming very much.'},
+{p:'Great. See you tomorrow!',need:/see you|bye|tomorrow|thank|too/i,model:'See you tomorrow!'}]},
+
+{t:'في المدرسة',turns:[
+{p:'Good morning! Are you a new student here?',need:/yes|no|i am|i'm|new|not/i,model:'Yes, I am a new student.'},
+{p:'What is your favorite subject?',need:/english|math|science|history|art|sport|favorite|i like|my favorite/i,model:'My favorite subject is English.'},
+{p:'Do you have homework today?',need:/yes|no|i have|i don't|homework|much|a lot/i,model:'Yes, I have a lot of homework today.'},
+{p:'Good luck with it!',need:/thank|thanks|you too|same/i,model:'Thank you!'}]},
+
+{t:'في السوبر ماركت',turns:[
+{p:'Excuse me, where is the milk?',need:/it is|it's|there|next|near|aisle|back|over|don't know/i,model:'It is in the back, next to the cheese.'},
+{p:'Do you have fresh bread?',need:/yes|no|we have|i think|there is|there are|sorry|don't/i,model:'Yes, there is fresh bread at the front.'},
+{p:'How much is this water?',need:/pound|dollar|it is|it's|\d|two|three|five/i,model:'It is five pounds.'},
+{p:'Thank you for your help.',need:/welcome|no problem|any time|pleasure|thank/i,model:"You're welcome."}]},
+
+{t:'عند الطبيب',turns:[
+{p:'Good morning. What is the problem?',need:/i have|my |hurt|pain|headache|cold|fever|sick|not feel/i,model:'I have a headache and a fever.'},
+{p:'How long have you felt like this?',need:/day|days|week|yesterday|since|two|three|today|morning/i,model:'Since yesterday morning.'},
+{p:'Do you take any medicine?',need:/yes|no|i take|i don't|medicine|nothing|only/i,model:"No, I don't take any medicine."},
+{p:'All right. Rest and drink water.',need:/thank|ok|okay|i will|all right|yes/i,model:'Thank you, doctor.'}]},
+
+{t:'في الفندق',turns:[
+{p:'Good evening. Do you have a reservation?',need:/yes|no|i have|my name|reservation|book|not/i,model:'Yes, I have a reservation. My name is Ahmed.'},
+{p:'How many nights are you staying?',need:/night|nights|\d|two|three|four|five|one|week/i,model:'Three nights, please.'},
+{p:'Is breakfast included?',need:/yes|no|included|it is|it's|extra|i think|ask/i,model:'Yes, breakfast is included.'},
+{p:'Here is your key. Enjoy your stay!',need:/thank|thanks|you too|great|nice/i,model:'Thank you very much!'}]},
+
+{t:'مع الجيران',turns:[
+{p:'Hello! Are you our new neighbor?',need:/yes|no|i am|i'm|new|move|not/i,model:'Yes, I am. I moved here last week.'},
+{p:'Welcome! Do you live alone?',need:/yes|no|i live|with|family|alone|wife|husband|brother/i,model:'No, I live with my family.'},
+{p:'If you need anything, just ask.',need:/thank|thanks|kind|nice|appreciate|sure/i,model:'Thank you, that is very kind.'}]},
+
+{t:'في العمل',turns:[
+{p:'Good morning! How is the new project?',need:/good|fine|well|hard|busy|it is|it's|going|difficult|easy/i,model:'It is going well, thank you.'},
+{p:'Do you need any help?',need:/yes|no|i need|i don't|help|fine|thank|maybe/i,model:'No thanks, I am fine for now.'},
+{p:'When do you finish it?',need:/today|tomorrow|week|monday|friday|finish|by|next|day/i,model:'I finish it on Thursday.'},
+{p:'Perfect. Keep up the good work!',need:/thank|thanks|sure|i will|ok/i,model:'Thank you!'}]},
+
+{t:'في المقهى مع صديق',turns:[
+{p:'What are you drinking?',need:/coffee|tea|juice|water|i am|i'm|drinking|having/i,model:'I am drinking coffee.'},
+{p:'How was your weekend?',need:/good|great|nice|quiet|busy|it was|boring|fine|bad/i,model:'It was very nice, thank you.'},
+{p:'What did you do?',need:/i |went|stayed|visited|watched|played|slept|read|nothing/i,model:'I visited my family.'},
+{p:'That sounds lovely.',need:/yes|thank|it was|indeed|true|really/i,model:'Yes, it was!'}]},
+
+{t:'في الشارع: تطلب المساعدة',turns:[
+{p:'You look lost. Can I help you?',need:/yes|no|please|i am|i'm|lost|looking|where|thank/i,model:'Yes please, I am looking for the station.'},
+{p:'It is not far. Do you want to walk?',need:/yes|no|i want|walk|taxi|bus|far|how long|prefer/i,model:'Yes, I want to walk.'},
+{p:'Go straight, then turn left.',need:/thank|straight|left|ok|got it|i see|understand/i,model:'Straight, then left. Thank you!'}]},
+{t:'في المطار',turns:[
+{p:'Good morning! Where are you flying today?',need:/i am|i'm|to |fly|going|cairo|london|dubai|home/i,model:'I am flying to Cairo.'},
+{p:'Do you have any bags to check in?',need:/yes|no|i have|one|two|bag|bags|only|just/i,model:'Yes, I have one bag.'},
+{p:'Is this your first time here?',need:/yes|no|it is|it's|first|second|not|been/i,model:'No, it is not my first time.'},
+{p:'Here is your boarding pass. Gate twelve.',need:/thank|thanks|gate|twelve|got it|ok/i,model:'Thank you very much!'}]}
 ];

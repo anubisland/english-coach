@@ -4,18 +4,20 @@ import {S,save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
 import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen,unitDone} from '../engine/progress.js';
 import {card,svg,ar,ruleCard} from './ui.js';
+import {nextStep} from './home.js';
 
 export function stop(o){
   const card=`<div class="stopCard ${o.cls||''}"><span style="flex:1;min-width:0">
       <b>${o.title}</b><span class="muted" style="display:block;font-size:11.5px">${o.meta}</span></span>
       ${o.act?`<span class="btn ghost" style="margin:0;padding:8px 13px;min-height:0;font-size:12px">${o.cls==='now'?'تابع':'افتح'}</span>`:''}</div>`;
-  return `<div class="unit"><div class="spine ${o.lit?'lit':''} ${o.first?'first':''} ${o.last?'last':''}"><i></i>${o.dot}</div>
+  return `<div class="unit"${o.id?` id="${o.id}"`:''}><div class="spine ${o.lit?'lit':''} ${o.first?'first':''} ${o.last?'last':''}"><i></i>${o.dot}</div>
     <div class="stop">${o.act?`<a href="javascript:void(0)" onclick="${o.act}" style="text-decoration:none;color:inherit;display:block">${card}</a>`:card}</div></div>`;
 }
 export function convoHtml(u){
   const L=convoList(u);
   return L.map(c=>{const ok=!!S.conv[c.id],av=convoOpen(c);
     return stop({
+      id:'st-c-'+c.id,
       lit:ok,
       dot:ok?`<div class="dot done mic">${svg('check',13,'var(--onGreen)')}</div>`
           :`<div class="dot mic">${svg('mic',12)}</div>`,
@@ -27,9 +29,20 @@ export function convoHtml(u){
 }
 
 export function unitStatus(n){if(unitDone(n))return '<span class=pill>✅ مكتملة</span>';if(unitOpen(n))return '<span class=pill style="background:#EEF2FF;color:var(--ind)">📍 الوحدة الحالية</span>';return '<span class=pill style="background:#F3F4F6;color:var(--mute)">🔒 مقفلة</span>'}
-export function courseView(){setTimeout(()=>{const p=[...document.querySelectorAll('.pill')].find(e=>e.textContent.includes('الوحدة الحالية'));if(p&&!S.open)p.scrollIntoView({block:'start'})},0);
+export function courseView(){
   if(!S.placed) return card('ابدأ بتحديد المستوى أولاً','<div class="row"><button class="btn" onclick="launch(\'place\')">اختبار تحديد المستوى</button></div>');
-  let h=card('اختبار تحديد المستوى (اختياري)',`<p class='muted'>يُنصح به لمعرفة مستواك قبل بدء الوحدات، ولا يلزم لبدء الدورة من A1.</p><div class='row'><button class='btn ghost' onclick="launch('place')">ابدأ الاختبار</button></div>`);
+  const nx=nextStep();
+  /* أعلى الصفحة يجيب عن «إلى أين الآن؟» قبل أي شيء آخر،
+     فلا يضطر المتعلم للتمرير بحثاً عن الوحدة التالية. */
+  let h=(nx?`<div class="card" style="background:var(--ind);border-color:var(--ind)">
+      <h2 style="color:#fff">الخطوة التالية</h2>
+      <p style="color:#fff;font-size:15px;font-weight:600;line-height:1.6">${nx.label}</p>
+      <div class="row" style="justify-content:flex-start">
+        <button class="btn" style="background:rgba(255,255,255,.22);color:#fff" onclick="${nx.act}">${nx.cta}</button>
+        <button class="btn" style="background:transparent;color:#E4E0FF" onclick="goToStep()">أرني مكانها</button>
+      </div></div>`
+    :card('🎉 أتممت المستوى','<p class="muted">لم يبقَ شيء مفتوح الآن. راجع ما شئت من المحطات بالأسفل.</p>'))
+    +card('اختبار تحديد المستوى (اختياري)',`<p class='muted'>يُنصح به لمعرفة مستواك قبل بدء الوحدات، ولا يلزم لبدء الدورة من A1.</p><div class='row'><button class='btn ghost' onclick="launch('place')">ابدأ الاختبار</button></div>`);
   const openLes=S.open?LESSONS.find(x=>x.id===S.open):null;
   if(S.open&&!openLes)S.open=null;
   if(openLes){const l=openLes;
@@ -40,6 +53,7 @@ export function courseView(){setTimeout(()=>{const p=[...document.querySelectorA
     const ls=LS.map((l,i)=>{const ok=!!S.lessons[l.id],av=lessonOpen(l);
       const now=av&&!ok;
       return stop({
+        id:'st-l-'+l.id,
         first:i===0,
         lit:ok||now,
         dot:ok?`<div class="dot done">${svg('check',13,'var(--onGreen)')}</div>`
@@ -52,6 +66,7 @@ export function courseView(){setTimeout(()=>{const p=[...document.querySelectorA
       })}).join('');
     const gate=`${cpBtn(u.n)}${retBtn(u.n)}`;
     const extra=unitOpen(u.n)?convoHtml(u.n)+stop({
+      id:'st-g-'+u.n,
       last:true,lit:!!S.cp[u.n],
       dot:S.cp[u.n]?`<div class="dot done">${svg('check',13,'var(--onGreen)')}</div>`:`<div class="dot mic">${svg('shield',13)}</div>`,
       cls:'locked',
@@ -62,6 +77,13 @@ export function courseView(){setTimeout(()=>{const p=[...document.querySelectorA
   }
   h+=card('الامتحان النهائي لـ A1', examOpen()&&!S.exam?'<div class="row"><button class="btn" onclick="launch(\'exam\')">ابدأ الامتحان النهائي</button></div>':(S.exam?'<p>🎉 أتممت A1</p>':'<p class="muted">🔒 يُفتح بعد اجتياز الوحدات الثلاث</p>'));
   return h;
+}
+/* ينقل الشاشة إلى محطة الخطوة التالية على الخط. */
+export function goToStep(){
+  const nx=nextStep();
+  if(!nx)return;
+  const el=document.getElementById&&document.getElementById(nx.anchor);
+  if(el&&el.scrollIntoView)el.scrollIntoView({block:'center',behavior:'smooth'});
 }
 export function openLesson(id){S.open=id;S.tab='course';save();hooks.render();window.scrollTo(0,0)}
 export function cpBtn(u){

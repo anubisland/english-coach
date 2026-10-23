@@ -481,5 +481,91 @@ const { run, report } = require('./harness.js');
     });
   });
 
+  const finishQuiz = (ctx, ev) => {
+    const n = ev('S').q.items.length;
+    for (let i = 0; i < n; i++) { ctx.pick(ev('S').q.items[ev('S').q.i].a); ctx.nextQ() }
+    ctx.closeQ();
+  };
+
+  console.log('— متابعة الرحلة —');
+
+  await run('بعد آخر درس في الوحدة، أعلى المسار يعرض الخطوة التالية لا أولها',
+    { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true, '1.2': true } }) },
+    (ctx, ev) => {
+      ctx.launch('lesson', '1.3'); finishQuiz(ctx, ev);
+      const html = ctx._els.app.innerHTML;
+      const iNext = html.indexOf('الخطوة التالية');
+      const iFirst = html.indexOf('1.1 —');
+      if (iNext < 0) throw new Error('لا بطاقة «الخطوة التالية» في المسار');
+      if (iFirst >= 0 && iFirst < iNext) throw new Error('أول الوحدة يسبق الخطوة التالية على الشاشة');
+    });
+
+  await run('nextStep تعطي مرساة موجودة فعلاً في صفحة المسار',
+    { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true } }) },
+    (ctx, ev) => {
+      const nx = ctx.nextStep();
+      if (!nx || !nx.anchor) throw new Error('nextStep بلا مرساة');
+      if (!ctx.courseView().includes('id="' + nx.anchor + '"'))
+        throw new Error('المرساة ' + nx.anchor + ' غير موجودة في الصفحة');
+    });
+
+  await run('إغلاق الاختبار ينقل إلى مرساة الخطوة التالية لا إلى الأعلى',
+    { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true, '1.2': true } }) },
+    (ctx, ev) => {
+      ctx.launch('lesson', '1.3'); finishQuiz(ctx, ev);
+      if (!ctx._scrolledTo) throw new Error('لم يُطلب أي انتقال');
+      if (ctx._scrolledTo === 'top') throw new Error('انتقل إلى أعلى الصفحة بدل الخطوة التالية');
+      if (!ctx._scrolledTo.startsWith('st-')) throw new Error('مرساة غير متوقعة: ' + ctx._scrolledTo);
+    });
+
+  await run('بعد اجتياز بوابة الوحدة واستبقائها، الخطوة التالية هي الوحدة التالية',
+    {
+      'eng-coach-v3': JSON.stringify({
+        placed: true,
+        lessons: { '1.1': true, '1.2': true, '1.3': true },
+        conv: { c1: true, c2: true },
+        cp: { 1: true }
+      })
+    },
+    (ctx, ev) => {
+      ctx.launch('ret', 1); finishQuiz(ctx, ev);
+      const nx = ctx.nextStep();
+      if (!nx) throw new Error('لا خطوة تالية بعد إتمام الوحدة 1');
+      if (!nx.label.includes('2.1')) throw new Error('الخطوة التالية ليست أول الوحدة 2: ' + nx.label);
+      const html = ctx._els.app.innerHTML;
+      if (!html.includes('الخطوة التالية')) throw new Error('لا بطاقة متابعة بعد إتمام الوحدة');
+    });
+
+  console.log('— مشاهد المحادثة —');
+
+  await run('كل إجابة نموذجية يقبلها شرطها', {}, (ctx, ev) => {
+    const bad = [];
+    ev('SCENES').forEach(sc => sc.turns.forEach((t, i) => {
+      if (!t.need.test(t.model)) bad.push(sc.t + ' #' + (i + 1) + ': «' + t.model + '»');
+    }));
+    if (bad.length) throw new Error('إجابة نموذجية يرفضها التطبيق: ' + bad.join(' / '));
+  });
+
+  await run('كل مشهد مكتمل البنية', {}, (ctx, ev) => {
+    const names = new Set();
+    ev('SCENES').forEach(sc => {
+      if (!sc.t) throw new Error('مشهد بلا عنوان');
+      if (names.has(sc.t)) throw new Error('عنوان مشهد مكرر: ' + sc.t);
+      names.add(sc.t);
+      if (!sc.turns || sc.turns.length < 3) throw new Error(sc.t + ': أقل من ثلاثة أدوار');
+      sc.turns.forEach((t, i) => {
+        if (!t.p) throw new Error(sc.t + ' #' + (i + 1) + ': لا سؤال');
+        if (!(t.need instanceof RegExp)) throw new Error(sc.t + ' #' + (i + 1) + ': need ليس regex');
+        if (!t.model) throw new Error(sc.t + ' #' + (i + 1) + ': لا إجابة نموذجية');
+      });
+    });
+  });
+
+  await run('تغطية أماكن الحياة اليومية', {}, (ctx, ev) => {
+    const titles = ev('SCENES').map(s => s.t).join(' | ');
+    ['المواصلات', 'النادي', 'المدرسة', 'السوبر ماركت', 'الطبيب', 'الفندق', 'الجيران', 'العمل', 'المقهى', 'المطعم', 'المطار']
+      .forEach(p => { if (!titles.includes(p)) throw new Error('لا مشهد عن: ' + p) });
+  });
+
   await report();
 })();

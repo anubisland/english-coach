@@ -76,7 +76,7 @@ Object.assign(window,{
 /* S مرتبط حيّاً لأنه يُعاد بناؤه عند كل إقلاع. */
 Object.defineProperty(window,'S',{get:()=>S,configurable:true});
 
-setHooks({render,toast:ui.toast,say:ui.say});
+setHooks({render,toast:ui.toast,say:ui.say,nextStep:home.nextStep,goToStep:course.goToStep});
 bootState();
 render();
 

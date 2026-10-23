@@ -5,17 +5,19 @@ import {hooks} from '../engine/bus.js';
 import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen} from '../engine/progress.js';
 import {card,svg,ar} from './ui.js';
 
+/* الخطوة التالية بالضبط، ومعها مرساة محطتها على خط الرحلة.
+   كل من يحتاج أن يعرف «إلى أين الآن؟» يسأل هذه الدالة — لا قائمة الدروس. */
 export function nextStep(){
   for(const u of [1,2,3]){
     if(!unitOpen(u))continue;
     const l=unitLessons(u).find(x=>lessonOpen(x)&&!S.lessons[x.id]);
-    if(l)return{label:`الدرس ${l.id}: ${l.t}`,act:`openLesson('${l.id}')`,cta:'تابع الدرس'};
+    if(l)return{label:`الدرس ${l.id}: ${l.t}`,act:`openLesson('${l.id}')`,cta:'تابع الدرس',anchor:'st-l-'+l.id,unit:u};
     const c=convoList(u).find(x=>convoOpen(x)&&!S.conv[x.id]);
-    if(c)return{label:`محادثة: ${c.t}`,act:`launch('conv','${c.id}')`,cta:'ابدأ المحادثة'};
-    if(!S.cp[u])return{label:`بوابة الوحدة ${u}`,act:`launch('cp',${u})`,cta:'ابدأ الاختبار'};
-    if(u!==3&&!S.ret[u])return{label:`اختبار الاستبقاء للوحدة ${u}`,act:`launch('ret',${u})`,cta:'ابدأ الاختبار'};
+    if(c)return{label:`محادثة: ${c.t}`,act:`launch('conv','${c.id}')`,cta:'ابدأ المحادثة',anchor:'st-c-'+c.id,unit:u};
+    if(!S.cp[u])return{label:`بوابة الوحدة ${u}`,act:`launch('cp',${u})`,cta:'ابدأ الاختبار',anchor:'st-g-'+u,unit:u};
+    if(u!==3&&!S.ret[u])return{label:`اختبار الاستبقاء للوحدة ${u}`,act:`launch('ret',${u})`,cta:'ابدأ الاختبار',anchor:'st-g-'+u,unit:u};
   }
-  if(examOpen()&&!S.exam)return{label:'الامتحان النهائي A1',act:"launch('exam')",cta:'ابدأ الامتحان'};
+  if(examOpen()&&!S.exam)return{label:'الامتحان النهائي A1',act:"launch('exam')",cta:'ابدأ الامتحان',anchor:'st-exam',unit:3};
   return null;
 }
 
