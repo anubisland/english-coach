@@ -1,0 +1,24 @@
+/* ألوان النظام ومقاساته. كل لون معرَّف هنا، ولا لون ثابت في الكود. */
+/* ============ نظام التصميم ============
+   داكن افتراضاً، ونهاري عبر [data-theme=light] على <html>.
+   أسماء الأصناف كما كانت، فما يعتمد عليها في الكود لم يتغيّر. */
+:root{
+  --bg:#0B0D1C; --surf:#15182E; --surf2:#1C2040; --line:#2A2F52;
+  --ink:#F2F3FA; --mute:#A3A8C3; --faint:#7D82A6;
+  --ind:#6D5BFF; --ind2:#8B7BFF; --soft:rgba(109,91,255,.16);
+  --blue:#4C8DFF; --green:#35D07F; --teal:#00C2A8; --amber:#FFB020; --coral:#FF7A59;
+  --onBlue:#06132B; --onGreen:#00241F; --onTeal:#002B25; --onAmber:#331F00;
+  --okBg:rgba(53,208,127,.12); --badBg:rgba(255,122,89,.12);
+  --warnBd:#B45309; --warnBg:#2B1B06; --warnInk:#FFC65C;
+  --shadow:0 6px 20px rgba(0,0,0,.28);
+}
+:root[data-theme=light]{
+  --bg:#F6F5FB; --surf:#FFFFFF; --surf2:#EFEDFB; --line:#E6E5F0;
+  --ink:#16142E; --mute:#5A5E84; --faint:#5A5E84;
+  --ind:#5B47F5; --ind2:#4635D6; --soft:#EFEDFB;
+  --blue:#2F6BD4; --green:#00806F; --teal:#00806F; --amber:#B06A00; --coral:#C23F22;
+  --onBlue:#fff; --onGreen:#fff; --onTeal:#fff; --onAmber:#fff;
+  --okBg:rgba(0,128,111,.10); --badBg:rgba(194,63,34,.10);
+  --warnBd:#B45309; --warnBg:#FFFBEB; --warnInk:#92400E;
+  --shadow:0 4px 14px rgba(30,27,75,.08);
+}

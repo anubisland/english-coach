@@ -1,88 +1,91 @@
-/* بيئة متصفح مبسّطة لتشغيل index.html خارج المتصفح، بلا أي مكتبة خارجية.
-   تستخرج محتوى <script> من الملف وتشغّله في سياق معزول لكل اختبار.
+/* بيئة متصفح مبسّطة لتشغيل وحدات التطبيق خارج المتصفح، بلا أي مكتبة.
 
-   كل مسارات الخطأ تحتاج حقن عطل، فالمتصفح الطبيعي لا ينتجها عند الطلب:
-   opts.throwOnRead / throwOnWrite  — تخزين محجوب أو ممتلئ
-   opts.recognition                 — 'missing' | 'throws' | 'works'
-   opts.synthesisThrows             — نطق غير متاح
+   بعد التقسيم صار التطبيق وحدات ES، فلا يمكن تشغيله في vm لكل اختبار.
+   بدلاً من ذلك نستورده مرة واحدة، ونجعل كل ما يلمس المتصفح (التخزين،
+   العناصر، التعرّف على الصوت) قابلاً للتبديل بين اختبار وآخر، ثم نعيد
+   بناء الحالة بـ bootState() في كل مرة.
+
+   opts.throwOnRead / throwOnWrite — تخزين محجوب أو ممتلئ
+   opts.recognition 'missing' | 'throws' | 'works'
+   opts.synthesisThrows — نطق غير متاح
 */
-const fs = require('fs'), path = require('path'), vm = require('vm');
+const path = require('path');
+const { pathToFileURL } = require('url');
 
-const FILE = path.join(__dirname, '..', 'index.html');
+/* الحالة الحيّة للاختبار الجاري، تُبدَّل قبل كل تشغيل */
+const handlers = {};   // تُسجَّل مرة عند استيراد app.js، فلا تُصفَّر بين الاختبارات
+let cur = { els: {}, store: {}, opts: {}, logged: [], started: [], utterances: [] };
 
-function appSource() {
-  const html = fs.readFileSync(FILE, 'utf8');
-  const open = html.indexOf('<script>'), close = html.indexOf('</script>');
-  if (open < 0 || close < 0) throw new Error('لم يُعثر على وسم <script> في index.html');
-  if (html.indexOf('<script>', open + 1) !== -1)
-    throw new Error('أكثر من وسم <script> في index.html — حدّث appSource');
-  return html.slice(open + '<script>'.length, close);
+function freshEls() {
+  const els = {};
+  ['app', 'nav', 'toast', 'cres', 'ctxt', 'ctxt2', 'chatTxt', 'chatPr', 'themeBtn', 'hTitle', 'hSub']
+    .forEach(id => { els[id] = { id, innerHTML: '', textContent: '', style: {}, value: '' } });
+  return els;
 }
 
-function makeContext(stored, opts) {
-  opts = opts || {};
-  const els = {};
-  ['app', 'nav', 'toast', 'cres', 'ctxt', 'ctxt2', 'chatTxt', 'chatPr'].forEach(id => {
-    els[id] = { id, innerHTML: '', textContent: '', style: {}, value: '' };
-  });
-
-  const store = Object.assign({}, stored);
-  const localStorage = {
-    getItem: k => { if (opts.throwOnRead) throw new Error('storage blocked'); return k in store ? store[k] : null },
-    setItem: (k, v) => { if (opts.throwOnWrite) throw new Error('quota exceeded'); store[k] = String(v) },
-    removeItem: k => { delete store[k] }
-  };
-
-  /* التعرّف على الصوت: غائب، أو يرمي عند البدء (ضغط مزدوج)، أو يعمل */
-  const started = [];
-  let Recognition;
-  if (opts.recognition === 'throws') {
-    Recognition = function () { this.start = () => { started.push(1); throw new Error('InvalidStateError') } };
-  } else if (opts.recognition === 'works') {
-    Recognition = function () { this.start = () => { started.push(1) } };
+/* عناصر عامة ثابتة المرجع، ومحتواها يتبدّل — فالوحدات تستوردها مرة واحدة */
+const el = {
+  documentElement: { attrs: {}, setAttribute(k, v) { this.attrs[k] = v } },
+  getElementById: id => cur.els[id] || null,
+  querySelectorAll: () => []
+};
+global.document = el;
+global.localStorage = {
+  getItem(k) { if (cur.opts.throwOnRead) throw new Error('storage blocked'); return k in cur.store ? cur.store[k] : null },
+  setItem(k, v) { if (cur.opts.throwOnWrite) throw new Error('quota exceeded'); cur.store[k] = String(v) },
+  removeItem(k) { delete cur.store[k] }
+};
+global.window = {
+  scrollTo() {},
+  addEventListener(t, f) { (handlers[t] = handlers[t] || []).push(f) },
+  get SpeechRecognition() {
+    if (cur.opts.recognition === 'throws')
+      return function () { this.start = () => { cur.started.push(1); throw new Error('InvalidStateError') } };
+    if (cur.opts.recognition === 'works')
+      return function () { this.start = () => { cur.started.push(1) } };
+    return undefined;
   }
+};
+global.speechSynthesis = {
+  cancel() { if (cur.opts.synthesisThrows) throw new Error('synthesis unavailable') },
+  speak(u) { cur.utterances.push(u) }
+};
+global.SpeechSynthesisUtterance = function () {};
+global.console = Object.assign(Object.create(console), {
+  error: (...a) => cur.logged.push(a.map(x => (x && x.message) ? x.message : String(x)).join(' '))
+});
 
-  const logged = [];
-  const quietConsole = Object.assign({}, console, {
-    error: (...a) => logged.push(a.map(x => (x && x.message) ? x.message : String(x)).join(' '))
-  });
-
-  const handlers = {};
-  const utterances = [];
-
-  const ctx = vm.createContext({
-    console: quietConsole, setTimeout, clearTimeout,
-    Math, JSON, Object, Array, String, Number, RegExp, Date, Error, Boolean,
-    document: { getElementById: id => els[id] || null, querySelectorAll: () => [] },
-    localStorage,
-    window: {
-      scrollTo() {},
-      addEventListener: (t, f) => { (handlers[t] = handlers[t] || []).push(f) },
-      SpeechRecognition: Recognition
-    },
-    speechSynthesis: {
-      cancel() { if (opts.synthesisThrows) throw new Error('synthesis unavailable') },
-      speak(u) { utterances.push(u) }
-    },
-    SpeechSynthesisUtterance: function () {},
-    _els: els, _store: store
-  });
-
-  ctx._logged = logged;
-  ctx._handlers = handlers;
-  ctx._started = started;
-  ctx._utterances = utterances;
-  return ctx;
+let app = null;
+async function load() {
+  if (app) return app;
+  app = await import(pathToFileURL(path.join(__dirname, '..', 'app.js')).href);
+  return app;
 }
 
 const results = { pass: 0, fail: 0 };
 
-/* يشغّل التطبيق من الصفر بحالة محفوظة معيّنة، ثم ينفّذ خطوات الاختبار.
-   ev('S') تقرأ المتغيرات المعرَّفة بـ let/const، فهي لا تظهر على كائن السياق. */
-function run(label, stored, steps, opts) {
-  const ctx = makeContext(stored, opts);
-  const ev = expr => vm.runInContext(expr, ctx);
-  try { vm.runInContext(appSource(), ctx, { filename: 'index.html' }) }
+/* نبني كائناً يُقرأ منه أي اسم كما لو كان متغيّراً عاماً في التطبيق،
+   فتبقى الاختبارات مكتوبة بأسماء الكود نفسها. */
+function makeScope(mod) {
+  const bag = Object.assign({}, mod, global.window);
+  return new Proxy(bag, {
+    has: () => true,
+    get: (t, k) => (k === 'S' ? mod.S : (k in t ? t[k] : undefined))
+  });
+}
+
+async function run(label, stored, steps, opts) {
+  const mod = await load();
+  cur = { els: freshEls(), store: Object.assign({}, stored), opts: opts || {}, logged: [], started: [], utterances: [] };
+  const ctx = Object.assign({}, global.window, {
+    get _els() { return cur.els }, get _store() { return cur.store },
+    get _logged() { return cur.logged }, get _started() { return cur.started },
+    get _handlers() { return handlers }, get _utterances() { return cur.utterances }
+  });
+  const scope = makeScope(mod);
+  const ev = expr => new Function('__s', 'with(__s){return (' + expr + ')}')(scope);
+
+  try { mod.bootState(); mod.render() }
   catch (e) { results.fail++; console.log('  ✗ ' + label + '\n      انهار عند الإقلاع: ' + e.message); return }
   try { steps(ctx, ev); results.pass++; console.log('  ✓ ' + label) }
   catch (e) { results.fail++; console.log('  ✗ ' + label + '\n      ' + e.constructor.name + ': ' + e.message) }
@@ -93,4 +96,4 @@ function report() {
   process.exit(results.fail === 0 ? 0 : 1);
 }
 
-module.exports = { run, report, appSource };
+module.exports = { run, report, load };
