@@ -69,8 +69,9 @@ const results = { pass: 0, fail: 0 };
 function makeScope(mod) {
   const bag = Object.assign({}, mod, global.window);
   return new Proxy(bag, {
-    has: () => true,
-    get: (t, k) => (k === 'S' ? mod.S : (k in t ? t[k] : undefined))
+    /* نلتقط أسماء التطبيق فقط؛ ما عداها (Error، Object، JSON) يمرّ إلى العام. */
+    has: (t, k) => k === 'S' || k in t,
+    get: (t, k) => (k === 'S' ? mod.S : t[k])
   });
 }
 

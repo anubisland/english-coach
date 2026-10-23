@@ -232,8 +232,11 @@ const { run, report } = require('./harness.js');
 
   await run('استثناء أثناء الرسم يعرض بطاقة خطأ لا شاشة بيضاء', {}, (ctx, ev) => {
     ctx.go('home');
-    ev('VIEWS.home=function(){throw new Error("عطل مُفتعل")}');
-    ctx.render();
+    const keep = ev('VIEWS.home');
+    try {
+      ev('VIEWS.home=function(){throw new Error("عطل مُفتعل")}');
+      ctx.render();
+    } finally { ev('VIEWS').home = keep }   // وإلا تعطّلت كل الاختبارات بعده
     const html = ctx._els.app.innerHTML;
     if (!html) throw new Error('الشاشة فارغة');
     if (!html.includes('تعذّر عرض هذه الشاشة')) throw new Error('لا بطاقة خطأ: ' + html.slice(0, 80));
@@ -458,6 +461,24 @@ const { run, report } = require('./harness.js');
     for (let i = 0; i < 9; i++) { ctx.pick(ev('S').q.items[ev('S').q.i].a); ctx.nextQ() }
     const qs = ev('S').q.items.map(x => x.q);
     if (new Set(qs).size !== qs.length) throw new Error('تكرر سؤال داخل الاختبار');
+  });
+
+  await run('render يرسم شاشة الاختبار فعلياً لا بطاقة خطأ', {}, (ctx, ev) => {
+    ctx.launch('place');
+    const html = ctx._els.app.innerHTML;
+    if (html.includes('تعذّر عرض هذه الشاشة')) throw new Error('render انهار داخل الاختبار');
+    if (!html.includes(ev('S').q.items[0].q)) throw new Error('السؤال لا يظهر في app بعد render');
+    if (ctx._logged.some(l => l.includes('رسم الشاشة'))) throw new Error('سُجّل خطأ رسم: ' + ctx._logged.join(' | '));
+  });
+
+  await run('render يرسم كل أنواع الاختبارات بلا انهيار',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    [['lesson','1.1'],['cp',1],['exam',null],['conv','c1']].forEach(([k,id]) => {
+      ctx.launch(k, id);
+      const html = ctx._els.app.innerHTML;
+      if (html.includes('تعذّر عرض هذه الشاشة')) throw new Error('انهار الرسم في النوع ' + k);
+      if (!html.length) throw new Error('شاشة فارغة في النوع ' + k);
+    });
   });
 
   await report();

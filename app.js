@@ -10,7 +10,7 @@ import * as chat from './engine/chat.js';
 import * as ui from './views/ui.js';
 import * as home from './views/home.js';
 import * as course from './views/course.js';
-import * as quizView from './views/quiz.js';
+import * as quizv from './views/quiz.js';   // ليس quizView: الاسم يحجب الدالة
 import * as speak from './views/speak.js';
 
 function toggleTheme(){
@@ -51,7 +51,7 @@ function render(){
     applyTheme();
     renderHead();
     renderNav();
-    app.innerHTML=ui.banners()+(S.q?quizView():VIEWS[S.tab]());
+    app.innerHTML=ui.banners()+(S.q?quizv.quizView():VIEWS[S.tab]());
   }catch(e){
     /* أي استثناء هنا كان يترك الصفحة فارغة بلا شريط تنقل ولا مخرج. */
     logError('رسم الشاشة',e);
@@ -70,7 +70,7 @@ const VIEWS={home:home.homeView,course:course.courseView,speak:speak.speakView};
 
 /* المعالجات داخل الـ HTML (onclick) تحتاج أسماءً عامة. */
 Object.assign(window,{
-  ...state,...grammar,...pronounce,...progress,...quiz,...chat,...ui,...home,...course,...quizView,...speak,
+  ...state,...grammar,...pronounce,...progress,...quiz,...chat,...ui,...home,...course,...quizv,...speak,
   render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme
 });
 /* S مرتبط حيّاً لأنه يُعاد بناؤه عند كل إقلاع. */
