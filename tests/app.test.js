@@ -1220,12 +1220,14 @@ const { run, report } = require('./harness.js');
   });
 
   await run('الرُبريك: الصلة والنحو والوضوح والطلاقة', {}, (ctx, ev) => {
-    const turn = {need: /yes|no/i, want: ['yes']};
+    const turn = {p: 'Do you have any bags?', need: /yes|no/i, want: ['yes']};
     const good = ctx.scoreTurn(turn, 'Yes, I have two bags', 0.95, 2000);
     if (good.rel !== 100) throw new Error('الصلة لم تُحتسب');
     if (good.fl < 80) throw new Error('طلاقة منخفضة لرد جيد سريع: ' + good.fl);
     const off = ctx.scoreTurn(turn, 'The weather is nice today', 0.9, 3000);
-    if (off.rel !== 10) throw new Error('رد خارج الموضوع لم يأخذ الدرجة الرمزية: ' + off.rel);
+    /* جملة تامّة لكنّها لا تمسّ السؤال: درجة قليلة لا صفر ولا نصف. */
+    if (off.rel > 30) throw new Error('رد خارج الموضوع أخذ أكثر ممّا يستحقّ: ' + off.rel);
+    if (off.rel >= good.rel) throw new Error('لم يُفرّق بين المجيب والخارج عن الموضوع');
     const slow = ctx.scoreTurn(turn, 'Yes', 0.9, 20000);
     if (slow.fl >= good.fl) throw new Error('البطء والاختصار لم يخفضا الطلاقة');
     const typed = ctx.scoreTurn(turn, 'Yes, two bags', null, 2000);
@@ -1988,7 +1990,124 @@ const { run, report } = require('./harness.js');
     });
   });
 
+  console.log('— قياس الصلة بالسؤال —');
+
+  await run('نوع السؤال يُستنتج من نصّه', {}, (ctx, ev) => {
+    const cases = [
+      ['How many bags do you have?', 'amount'],
+      ['How much is it?', 'amount'],
+      ['How long have you been here?', 'duration'],
+      ['How old are you?', 'duration'],
+      ['What time does it start?', 'time'],
+      ['When do you finish?', 'time'],
+      ['Where is the bank?', 'place'],
+      ['What is your name?', 'person'],
+      ['Who is that man?', 'person'],
+      ['Why are you late?', 'reason'],
+      ['How are you?', 'manner'],
+      ['What would you like?', 'thing'],
+      ['Do you like coffee?', 'yesno'],
+      ['Are you ready?', 'yesno'],
+      ['Nice day today, isn\'t it?', 'yesno'],
+      ['See you tomorrow. Bye!', 'open']
+    ];
+    cases.forEach(([p, want]) => {
+      const got = ctx.questionType(p);
+      if (got !== want) throw new Error(`«${p}» => ${got} والمطلوب ${want}`);
+    });
+  });
+
+  /* ردّ الصواب خطأً أسوأ من قبول الخطأ صواباً: يُشكّك المتعلّم فيما أحسن فيه. */
+  await run('كل إجابة نموذجية في البرنامج تُقبل', {}, (ctx, ev) => {
+    const turns = [];
+    ev('SCENES').forEach(s => s.turns.forEach(t => turns.push(t)));
+    ev('EXAM_SCENES').forEach(s => s.turns.forEach(t => turns.push(t)));
+    const bad = turns.filter(t => ctx.relevance(t.p, t.model, t.need).level !== 'on');
+    if (bad.length) throw new Error(bad.length + ' نموذجاً مرفوضاً، أولها: «'
+      + bad[0].p + '» ← «' + bad[0].model + '» — ' + ctx.relevance(bad[0].p, bad[0].model, bad[0].need).why);
+    if (turns.length < 150) throw new Error('عيّنة صغيرة: ' + turns.length);
+  });
+
+  await run('الإجابات التافهة لا تمرّ إلا نادراً', {}, (ctx, ev) => {
+    const turns = [];
+    ev('SCENES').forEach(s => s.turns.forEach(t => turns.push(t)));
+    ev('EXAM_SCENES').forEach(s => s.turns.forEach(t => turns.push(t)));
+    const junk = ['I like football', 'the sun is hot today', 'blah blah blah', 'from',
+                  'yes', 'ok', 'I like pizza very much', 'my car is red'];
+    let on = 0;
+    turns.forEach(t => junk.forEach(j => {
+      if (ctx.relevance(t.p, j, t.need).level === 'on') on++;
+    }));
+    const pc = on / (turns.length * junk.length) * 100;
+    /* كان ١١٪ قبل قياس شكل الجواب. */
+    if (pc > 8) throw new Error('تمرّ ' + Math.round(pc) + '٪ من التافه');
+  });
+
+  await run('صدى الكلمة المفتاحية وحده لا يُجيز الجواب', {}, (ctx, ev) => {
+    /* هذه هي الحالة التي بدأ منها العمل. */
+    const need = /from/i;
+    if (ctx.relevance('Where are you from?', 'from', need).level === 'on')
+      throw new Error('«from» وحدها مرّت');
+    if (ctx.relevance('Where are you from?', 'I am from Egypt.', need).level !== 'on')
+      throw new Error('الجواب الصحيح رُفض');
+  });
+
+  await run('سؤال العدد يطلب عدداً وسؤال الوقت يطلب وقتاً', {}, (ctx, ev) => {
+    const any = /./;
+    const amount = ctx.relevance('How many bags are you checking in?', 'I like football', any);
+    if (amount.level === 'on') throw new Error('جواب بلا عدد مرّ على سؤال «كم»');
+    if (!amount.why || !amount.why.includes('العدد')) throw new Error('لا تشخيص للعدد');
+    if (ctx.relevance('How many bags are you checking in?', 'two bags', any).level !== 'on')
+      throw new Error('«two bags» رُفضت');
+
+    const time = ctx.relevance('What time would you like to eat?', 'in the park', any);
+    if (time.level === 'on') throw new Error('جواب بلا وقت مرّ على سؤال «متى»');
+    if (ctx.relevance('What time would you like to eat?', 'at eight', any).level !== 'on')
+      throw new Error('«at eight» رُفضت');
+
+    /* المدّة جوابها زمن لا عدد مجرّد. */
+    if (ctx.relevance('How long have you had it?', 'Since yesterday morning.', any).level !== 'on')
+      throw new Error('جواب المدّة رُفض');
+  });
+
+  await run('المجاملة جواب تامّ في موضعها', {}, (ctx, ev) => {
+    const any = /./;
+    ['Goodbye!', 'Thank you!', "You're welcome.", 'Thank you, you too!'].forEach(a => {
+      if (ctx.relevance('See you tomorrow. Bye!', a, any).level !== 'on')
+        throw new Error('رُفضت مجاملة: ' + a);
+    });
+  });
+
+  await run('المحادثة تعرض سبب عدم المناسبة',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.chatPick(0);
+    const turn = ctx.chatTurn();
+    ctx.chatReply('blah');
+    const c = ev('S').chat;
+    if (c.ok) throw new Error('قبل جواباً تافهاً');
+    if (!c.rel) throw new Error('لم تُسجَّل درجة الصلة');
+    if (!c.relWhy) throw new Error('بلا سبب');
+    const html = ctx.speakView();
+    if (!html.includes(c.relWhy.slice(0, 15))) throw new Error('السبب لا يظهر على الشاشة');
+  });
+
+  await run('اختبار المحادثة يفرّق بين المجيب والخارج عن الموضوع',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    const sc = ev("EXAM_SCENE['x-air']");
+    const run1 = ans => {
+      ctx.examConvStart('x-air');
+      sc.turns.forEach((t, i) => ctx.examConvAnswer(ans(t, i), 0.92));
+      return ctx.examConvResult();
+    };
+    const good = run1(t => t.model);
+    const fluentOff = run1(() => 'I like football very much');
+    if (good.axes[0].sc <= fluentOff.axes[0].sc)
+      throw new Error('الصلة لم تفرّق: ' + good.axes[0].sc + ' مقابل ' + fluentOff.axes[0].sc);
+    if (fluentOff.pc > 50) throw new Error('الفصيح خارج الموضوع نال ' + fluentOff.pc + '٪');
+  });
+
   await report();
+
 
 
 

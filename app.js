@@ -17,6 +17,7 @@ import * as translate from './views/translate.js';
 import * as sounds from './views/sounds.js';
 import * as examScore from './engine/exam-score.js';
 import * as writeScore from './engine/write-score.js';
+import * as relevanceEng from './engine/relevance.js';
 import * as srs from './engine/srs.js';
 import * as readScore from './engine/read-score.js';
 import * as examRead from './engine/exam-read.js';
@@ -92,7 +93,7 @@ const VIEWS={home:home.homeView,course:course.courseView,speak:speak.speakView,s
 
 /* المعالجات داخل الـ HTML (onclick) تحتاج أسماءً عامة. */
 Object.assign(window,{
-  ...state,...grammar,...pronounce,...progress,...quiz,...chat,...ui,...home,...course,...quizv,...speak,...settings,...translate,...trEngine,...sounds,...examScore,...examConv,...examConvView,...writeScore,...examWrite,...examWriteView,...readScore,...examRead,...examReadView,...srs,
+  ...state,...grammar,...pronounce,...progress,...quiz,...chat,...ui,...home,...course,...quizv,...speak,...settings,...translate,...trEngine,...sounds,...examScore,...examConv,...examConvView,...writeScore,...examWrite,...examWriteView,...readScore,...examRead,...examReadView,...srs,...relevanceEng,
   render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme,setTheme
 });
 /* S مرتبط حيّاً لأنه يُعاد بناؤه عند كل إقلاع. */
@@ -135,6 +136,7 @@ export * from './content/write-tasks.js';
 export * from './engine/read-score.js';
 export * from './engine/exam-read.js';
 export * from './engine/srs.js';
+export * from './engine/relevance.js';
 export * from './views/exam-read.js';
 export * from './content/read-texts.js';
 export {render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme,setTheme,VIEWS};

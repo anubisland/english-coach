@@ -10,6 +10,8 @@
                فالغالب أنّ الإنجليزيّ لن يفهمك. وهو مؤشّر لا حُكم، ونقولها للمتعلّم.
      الطلاقة   من طول الرد وزمن التفكير قبله */
 
+import {relevance as relLevel} from './relevance.js';
+
 export const AXES = [
   {k:'rel', t:'الصلة بالسؤال', w:35, d:'هل أجبتَ عمّا سُئلت؟'},
   {k:'gr',  t:'سلامة النحو',   w:25, d:'أخطاء التركيب في ردودك'},
@@ -38,9 +40,13 @@ function fluency(n, ms) {
 
 /* من تكلّم ولم يُصب الموضوع أحسنُ ممّن سكت، لكنه لم يُجب: درجة رمزية لا ربع.
    الاختبار يقيس المحادثة، ومن يردّ بما لا صلة له بالسؤال لم يُحادِث. */
-function relevance(need, said, n) {
-  if (need instanceof RegExp && need.test(said)) return 100;
-  return n >= 3 ? 10 : 0;
+function relevance(turn, said) {
+  /* الحكم من engine/relevance.js: الكلمة المفتاحية وحدها كانت تُجيز
+     «x from y» جواباً عن «Where are you from؟»، فأُضيف إليها شرط شكل الجواب. */
+  const lv = relLevel(turn.p, said, turn.need).level;
+  /* الجملة التامّة التي لا تمسّ السؤال ليست ربع محادثة ولا خمسيها:
+     الفصاحة في غير موضعها لا تُحسب محادثة. */
+  return lv === 'on' ? 100 : lv === 'weak' ? 25 : 0;
 }
 
 export function scoreTurn(turn, said, conf, ms) {
@@ -48,7 +54,7 @@ export function scoreTurn(turn, said, conf, ms) {
   return {
     said, n, ms: typeof ms === 'number' ? ms : null,
     conf: typeof conf === 'number' ? conf : null,
-    rel: relevance(turn.need, said, n),
+    rel: relevance(turn, said),
     cl: clarity(conf, String(said || ''), turn.want),
     fl: fluency(n, ms),
     g: []

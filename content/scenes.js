@@ -169,7 +169,7 @@ export const SCENES=[
 
 {t:'عند الاستقبال',cat:'عمل',turns:[
 {p:'Good morning. Do you have an appointment?',need:/yes|no|i have|at |o'clock|appointment|with|not/i,model:'Yes, I have an appointment at ten.'},
-{p:'May I have your name, please?',need:/my name|i am|i'm|it is|it's|[A-Z][a-z]+/i,model:'My name is Ahmed Ali.'},
+{p:'May I have your name, please?',need:/\b(my name|i am|i'm|it is|it's)\b/i,model:'My name is Ahmed Ali.'},
 {p:'Please take a seat. She will come soon.',need:/thank|ok|sure|fine|thanks/i,model:'Thank you.'}]},
 
 {t:'عند الحلاق',cat:'يومي',turns:[

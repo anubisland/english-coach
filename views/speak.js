@@ -10,7 +10,9 @@ const CAT_ORDER=['درس','يومي','اجتماعي','تسوّق','سفر','ص�
 export function chatMeters(c){
   const gn=(c.g||[]).length;
   const m=[
-    {l:'صلة',  t:c.ok?'مناسبة':'لا تناسب', v:c.ok?100:12, c:c.ok?'var(--teal)':'var(--coral)'},
+    /* ثلاث درجات لا درجتان: «قريبة» تُنصف من أجاب بجملة تامّة أخطأ موضعها. */
+    {l:'صلة',  t:c.ok?'مناسبة':(c.rel==='weak'?'قريبة':'لا تناسب'),
+     v:c.ok?100:(c.rel==='weak'?45:12), c:c.ok?'var(--teal)':(c.rel==='weak'?'var(--amber)':'var(--coral)')},
     {l:'جرامر',t:gn?ar(gn)+' ملاحظة':'سليم', v:gn?Math.max(25,100-gn*30):100, c:gn?'var(--amber)':'var(--green)'}
   ];
   if(c.pr)m.push({l:'نطق',t:ar(c.pr.sc)+'٪',v:c.pr.sc,c:c.pr.sc>=75?'var(--green)':'var(--amber)'});
@@ -34,6 +36,8 @@ export function chatFeedback(c,T){
   h+=`<div class="card" style="margin-top:12px;border-right:3px solid ${c.ok?'var(--green)':'var(--amber)'}">`;
   h+=c.ok?'<h2 style="color:var(--green)">فهمت إجابتك</h2>'
          :'<h2 style="color:var(--amber)">إجابتك لا تناسب هذا السؤال</h2>';
+  /* لماذا لا تناسب؟ المتعلّم لا ينتفع بحكمٍ بلا سبب. */
+  if(!c.ok&&c.relWhy)h+=`<p class="muted" style="margin-top:4px">${esc(c.relWhy)}</p>`;
   if(!clean){
     h+=c.g.map(x=>`<p class="muted">• ${x.ar}</p>`).join('');
     h+=`<p style="margin-top:9px;font-size:13px;color:var(--mute)">والصحيح أن تقول:</p>
