@@ -23,6 +23,7 @@ export const GR=[
 {re:/\ban (?=[bcdfgjklmnpqrstvwxyz])/gi,f:()=>'a ',rid:'article-a-an',ar:'نستخدم a قبل الكلمة التي تبدأ بحرف ساكن'},
 {re:/\bi am agree\b/gi,f:()=>'I agree',ar:'نقول I agree بدون am'},
 {re:/\bi am like\b/gi,f:()=>'I like',ar:'نقول I like بدون am'},
+{re:/(?<!\b(?:is|was|are|were|got|get|take|took|hear|heard|away|apart|aside|and|or)\s)\b(i|we|they|he|she) from\b/gi,f:(m,p)=>p+' '+be(p)+' from',rid:'be-subject',ar:'قبل from نحتاج فعل الكينونة: I am from Egypt'},
 {re:/\bi very\b/gi,f:()=>'I am very',ar:'بعد I نحتاج فعلاً، مثل I am very'},
 {re:/\bmore better\b/gi,f:()=>'better',ar:'better وحدها تكفي بدون more'},
 {re:/\bwhat you do\b/gi,f:()=>'what do you do',rid:'present-base',ar:'في السؤال نحتاج do: what do you do?'},

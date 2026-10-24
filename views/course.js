@@ -85,6 +85,10 @@ export function courseView(){
     }).replace('</div></div>',`<div class="row" style="justify-content:flex-start">${gate}</div></div></div>`):'';
     h+=card(`الوحدة ${u.n}: ${u.t} ${unitStatus(u.n)}`, unitOpen(u.n)?(unitDone(u.n)?'<details><summary class=muted>عرض دروس الوحدة للمراجعة</summary>'+ls+extra+'</details>':ls+extra):'<p class="muted">🔒 تُفتح بعد اجتياز اختبار الوحدة السابقة واختبار استبقائها</p>');
   }
+  h+=card('اختبار الكتابة',
+    '<p class="muted">إحدى عشرة مسألة تكتبها بيدك: ترتيب كلمات، وإكمال ناقص، وكتابة جملة، وكتابة موجّهة. لا خيارات.</p>'
+    +(S.wxBest?'<p class="muted" style="margin-top:6px">أفضلك: <b style="color:var(--ind2)">'+ar(S.wxBest)+'٪</b></p>':'')
+    +'<div class="row" style="justify-content:flex-start"><button class="btn" onclick="examWriteStart(0)">ابدأ اختبار الكتابة</button></div>');
   h+=card('اختبار الترجمة',
     '<p class="muted">ست جمل عربية تكتب ترجمتها بنفسك — بلا خيارات ولا جملة أمامك تقلّدها. وهو أصدق مقياس لما تستطيع إنتاجه فعلاً.</p>'
     +'<div class="row" style="justify-content:flex-start"><button class="btn" onclick="startTranslation(3)">ابدأ اختبار الترجمة</button></div>');

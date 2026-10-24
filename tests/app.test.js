@@ -1362,5 +1362,147 @@ const { run, report } = require('./harness.js');
     if (res.axes.find(a => a.k === 'gr').sc !== null) throw new Error('مُنح النحو بلا كلام');
   });
 
+  console.log('— اختبار الكتابة —');
+
+  await run('بنك الكتابة سليم ولا خيارات فيه', {}, (ctx, ev) => {
+    const W = ev('WRITE');
+    if (W.length < 40) throw new Error('بنك صغير: ' + W.length);
+    const kinds = {};
+    W.forEach(t => {
+      kinds[t.k] = (kinds[t.k] || 0) + 1;
+      if (t.o || t.options) throw new Error('مسألة فيها خيارات: ' + t.ar);
+      if (!Array.isArray(t.ok) || !t.ok.length) throw new Error('بلا إجابة: ' + t.ar);
+      if (!/[؀-ۿ]/.test(t.ar)) throw new Error('التعليمات ليست بالعربية');
+      if (t.k === 'order' && t.w.length < 3) throw new Error('كلمات قليلة للترتيب');
+      if (t.k === 'free' && (!t.ask || t.ask.length < 3)) throw new Error('كتابة حرّة بلا شروط معلنة');
+    });
+    ['order', 'gap', 'build', 'free'].forEach(k => {
+      if (!kinds[k]) throw new Error('نوع غائب: ' + k);
+    });
+  });
+
+  /* لو لم ينل النموذج نفسه العلامة الكاملة فالميزان معطوب لا المتعلّم. */
+  await run('كل نموذج في البنك ينال العلامة الكاملة', {}, (ctx, ev) => {
+    const bad = ev('WRITE').filter(t => ctx.gradeWrite(t, t.ok[0]).sc < 100);
+    if (bad.length) throw new Error(bad.length + ' نموذجاً ناقصاً، أولها: ' + bad[0].ar
+      + ' => ' + ctx.gradeWrite(bad[0], bad[0].ok[0]).sc + '٪');
+  });
+
+  await run('كلمات الترتيب تكفي لتكوين الجملة', {}, (ctx, ev) => {
+    ev('WRITE').filter(t => t.k === 'order').forEach(t => {
+      const given = t.w.map(x => x.toLowerCase()).sort().join(' ');
+      const need = t.ok[0].toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/).sort().join(' ');
+      if (given !== need) throw new Error('الكلمات لا تطابق الجملة · معطى: ' + given + ' · مطلوب: ' + need);
+    });
+  });
+
+  await run('خطأ القاعدة لا يُعامَل زلّةَ إملاء', {}, (ctx, ev) => {
+    const gap = ev('WRITE').find(t => t.k === 'gap' && t.ok[0] === 'works');
+    const rule = ctx.gradeWrite(gap, 'work');       // صيغة صحيحة في غير موضعها
+    const typo = ctx.gradeWrite(gap, 'workes');     // ليست صيغة أصلاً
+    if (rule.sc >= 40) throw new Error('خطأ القاعدة أخذ درجة الإملاء: ' + rule.sc);
+    if (typo.sc <= rule.sc) throw new Error('زلّة الإملاء عوقبت كخطأ قاعدة');
+    if (ctx.gradeWrite(gap, 'is').sc !== 0) throw new Error('جواب خطأ تماماً أخذ درجة');
+  });
+
+  await run('الكتابة الحرّة تقيس الشروط والنحو معاً', {}, (ctx, ev) => {
+    const t = ev('WRITE').find(x => x.k === 'free');
+    const clean = ctx.gradeWrite(t, t.ok[0]);
+    /* نفس الشروط مستوفاة، لكن بإنجليزية مكسورة. */
+    const broken = ctx.gradeWrite(t, 'My name is Ali. I from Egypt. I am work in office. I healthy.');
+    if (clean.sc !== 100) throw new Error('النموذج لم ينل العلامة: ' + clean.sc);
+    if (broken.sc >= 80) throw new Error('نصّ مكسور نال ' + broken.sc + '٪');
+    if (!broken.g.length) throw new Error('لم تُرصد أخطاؤه');
+    if (!clean.asked.every(a => a.ok)) throw new Error('شروط النموذج لم تُستوفَ');
+    const short = ctx.gradeWrite(t, 'I like football.');
+    if (!short.short) throw new Error('لم يُنبّه على قلّة الجمل');
+    if (short.short.wrote >= short.short.need) throw new Error('عدّ الجمل خطأ');
+    /* العدد يُصاغ على الشاشة بمطابقة عربية سليمة وبأرقام عربية. */
+    ctx.examWriteStart(0);
+    const w = ev('S').wx;
+    while (w.items[w.i] && w.items[w.i].k !== 'free') w.i++;
+    ctx.examWriteAnswer('I like football.');
+    const html = ctx.examWriteView();
+    if (!html.includes('أربع جمل') && !html.includes('جمل')) throw new Error('لا تنبيه على الشاشة');
+    const line = (html.match(/كتبتَ[^<]*/) || [''])[0];
+    if (!line) throw new Error('لا تنبيه على الشاشة');
+    if (/[0-9]/.test(line)) throw new Error('أرقام غربية في التنبيه: ' + line);
+    if (line.includes('٢ جملة') || line.includes('٣ جملة')) throw new Error('مطابقة العدد خطأ: ' + line);
+  });
+
+  await run('الورقة متوازنة بين الأنواع',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    for (let i = 0; i < 5; i++) {
+      const paper = ctx.pickWrite(0);
+      const kinds = new Set(paper.map(t => t.k));
+      ['order', 'gap', 'build', 'free'].forEach(k => {
+        if (!kinds.has(k)) throw new Error('نوع غائب من الورقة: ' + k);
+      });
+      /* التكرار بالهوية لا بنص التعليمات: «رتّب الكلمات» واحدة لمسائل مختلفة. */
+      if (new Set(paper).size !== paper.length) throw new Error('مسألة مكررة في الورقة');
+    }
+  });
+
+  await run('اختبار الكتابة يمشي إلى النهاية',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.examWriteStart(0);
+    const n = ev('S').wx.items.length;
+    for (let i = 0; i < n; i++) {
+      ctx.examWriteAnswer(ctx.examWriteTask().ok[0]);
+      if (!ev('S').wx.shown) throw new Error('لا تصحيح للمسألة ' + i);
+      ctx.examWriteNext();
+    }
+    if (!ev('S').wx.finished) throw new Error('لم ينتهِ');
+    const r = ctx.examWriteResult();
+    if (r.pc !== 100) throw new Error('الإجابات النموذجية لم تنل العلامة: ' + r.pc);
+    const h = ctx.examWriteView();
+    if (!h.includes('٪')) throw new Error('لا نسبة');
+    if (!h.includes('رتّب الكلمات')) throw new Error('لا تفصيل حسب النوع');
+  });
+
+  await run('من ترك كل شيء فارغاً لا ينجح',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.examWriteStart(0);
+    const n = ev('S').wx.items.length;
+    for (let i = 0; i < n; i++) { ctx.examWriteAnswer(''); ctx.examWriteNext() }
+    const r = ctx.examWriteResult();
+    if (r.pc > 10) throw new Error('الفراغ نال ' + r.pc + '٪');
+    if (r.band.t !== 'تحتاج تدريباً') throw new Error('تقدير متساهل: ' + r.band.t);
+  });
+
+  await run('النتيجة تُحفظ وجلسة الكتابة لا تُستورد',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.examWriteStart(0);
+    const n = ev('S').wx.items.length;
+    for (let i = 0; i < n; i++) { ctx.examWriteAnswer(ctx.examWriteTask().ok[0]); ctx.examWriteNext() }
+    ctx.examWriteFinish();
+    if (ev('S').wx) throw new Error('الجلسة لم تُمحَ');
+    if (ev('S').wxBest !== 100) throw new Error('لم تُحفظ النتيجة');
+    ctx.applyImport(JSON.stringify({ placed: true, wx: { items: [], i: 0 }, wxBest: '<img src=x>' }));
+    if (ev('S').wx) throw new Error('استُوردت جلسة كتابة');
+    if (ev('S').wxBest !== 0) throw new Error('wxBest لم يُقسر عدداً');
+  });
+
+  await run('مسح الإنذار الكاذب يشمل بنوك الكتابة والترجمة', {}, (ctx, ev) => {
+    const good = [];
+    ev('WRITE').forEach(t => t.ok.forEach(o => good.push(o)));
+    ev('TRANSLATE').forEach(t => good.push(t.en[0]));
+    const bad = good.filter(x => ctx.checkGrammar(x).length);
+    if (bad.length) throw new Error('إنذار كاذب على «' + bad[0] + '» → '
+      + ctx.checkGrammar(bad[0]).map(g => g.ar).join(' · '));
+  });
+
+  await run('مطابقة العدد العربية في تقرير الكتابة',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.examWriteStart(0);
+    const n = ev('S').wx.items.length;
+    for (let i = 0; i < n; i++) { ctx.examWriteAnswer(ctx.examWriteTask().ok[0]); ctx.examWriteNext() }
+    const h = ctx.examWriteView();
+    /* الواحد مفرد والاثنان مثنّى وما بين ٣ و١٠ جمع: «١ مسائل» خطأ. */
+    ['١ مسائل', '٢ مسائل', '1 مسائل'].forEach(bad => {
+      if (h.includes(bad)) throw new Error('مطابقة العدد خطأ: «' + bad + '»');
+    });
+  });
+
   await report();
 })();
