@@ -92,5 +92,38 @@ check('الواجهة متمركزة ومحدودة العرض على الشاش
   if (!/header\{[^}]*max-width/.test(css)) throw new Error('الشريط العلوي يمتد بلا حدّ');
 });
 
+console.log('— التجاوب مع المقاسات —');
+
+check('ثلاث نقاط توقّف: هاتف وتابلت وكمبيوتر', () => {
+  if (!/@media \(min-width:700px\)/.test(css)) throw new Error('لا نقطة توقّف للتابلت');
+  if (!/@media \(min-width:1024px\)/.test(css)) throw new Error('لا نقطة توقّف للكمبيوتر');
+});
+
+check('شريط التنقل داخل الترويسة في الـ DOM', () => {
+  if (!/<header>[\s\S]*<nav id="nav">[\s\S]*<\/header>/.test(html))
+    throw new Error('شريط التنقل خارج الترويسة، فلا يمكن نقله بالأنماط وحدها');
+});
+
+check('على الكمبيوتر يترك الشريط أسفل الشاشة ويعود إلى الترويسة', () => {
+  const desktop = css.slice(css.indexOf('@media (min-width:1024px)'));
+  if (!/nav\{[^}]*position:\s*static/.test(desktop)) throw new Error('شريط التنقل ما زال مثبتاً أسفل الشاشة');
+  if (!/\.tab\{[^}]*flex-direction:\s*row/.test(desktop)) throw new Error('التبويبات ما زالت عمودية');
+});
+
+check('عرض المحتوى يتدرّج مع المقاس', () => {
+  const base = /\.wrap\{[^}]*max-width:\s*(\d+)px/.exec(css);
+  const tablet = /@media \(min-width:700px\)[\s\S]*?\.wrap\{[^}]*max-width:\s*(\d+)px/.exec(css);
+  const desktop = /@media \(min-width:1024px\)[\s\S]*?\.wrap\{[^}]*max-width:\s*(\d+)px/.exec(css);
+  if (!base || !tablet || !desktop) throw new Error('عرض المحتوى غير معرَّف لكل مقاس');
+  const [b, t, d] = [base[1], tablet[1], desktop[1]].map(Number);
+  if (!(b < t && t < d)) throw new Error('العرض لا يتدرّج: ' + b + ' / ' + t + ' / ' + d);
+});
+
+check('عمود القراءة محدود حتى على الشاشة العريضة جداً', () => {
+  if (!/@media \(min-width:1400px\)/.test(css)) throw new Error('لا حدّ للشاشة العريضة جداً');
+  const wide = /@media \(min-width:1400px\)[\s\S]*?max-width:\s*(\d+)px/.exec(css);
+  if (!wide || Number(wide[1]) > 900) throw new Error('السطر يطول أكثر مما يُقرأ بارتياح');
+});
+
 console.log('\n' + (fail === 0 ? '\u2713' : '\u2717') + ' نجح ' + pass + ' واخفق ' + fail);
 process.exit(fail === 0 ? 0 : 1);
