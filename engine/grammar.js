@@ -2,6 +2,7 @@
    وrid يربطها ببطاقة الشرح الكاملة. */
 
 export function base(v){if(/ies$/.test(v))return v.replace(/ies$/,'y');if(/(sses|shes|ches|xes|oes)$/.test(v))return v.replace(/es$/,'');if(/s$/.test(v))return v.slice(0,-1);return v}
+export function be(p){const x=p.toLowerCase();return x==='i'?'am':/^(he|she|it)$/.test(x)?'is':'are'}
 export function s3(v){if(v==='have')return 'has';if(v==='do')return 'does';if(/[^aeiou]y$/.test(v))return v.slice(0,-1)+'ies';if(/(s|sh|ch|x|o)$/.test(v))return v+'es';return v+'s'}
 
 export const GR=[
@@ -11,7 +12,7 @@ export const GR=[
 {re:/\bthere is (two|three|four|five|many|some|several)\b/gi,f:(m,n)=>'there are '+n,rid:'there-is-are',ar:'مع الجمع نستخدم there are'},
 {re:/\bthere are (a|an|one)\b/gi,f:(m,n)=>'there is '+n,rid:'there-is-are',ar:'مع المفرد نستخدم there is'},
 {re:/\bin my home\b/gi,f:()=>'at home',ar:'نقول at home وليس in my home'},
-{re:/(?<!\b(?:does|do|don't|doesn't|did) )\b(he|she|it) (go|like|work|study|live|stay|watch|play|want|need|speak|know|think|have|do|read|write|drink|eat|wake|get|come)\b/gi,f:(m,p,v)=>p+' '+s3(v.toLowerCase()),rid:'present-s',ar:'مع he / she / it نضيف s للفعل'},
+{re:/(?<!\b(?:does|do|don't|doesn't|did|can|can't|could|will|won't|would|should|must|may|might|shall|let|to) )\b(he|she|it) (go|like|work|study|live|stay|watch|play|want|need|speak|know|think|have|do|read|write|drink|eat|wake|get|come)\b/gi,f:(m,p,v)=>p+' '+s3(v.toLowerCase()),rid:'present-s',ar:'مع he / she / it نضيف s للفعل'},
 {re:/\b(i|you|we|they) (goes|likes|works|studies|lives|stays|watches|plays|wants|needs|speaks|knows|thinks|has|does|reads|writes|drinks|eats|wakes|gets|comes)\b/gi,f:(m,p,v)=>p+' '+base(v.toLowerCase()),rid:'present-base',ar:'مع I / you / we / they لا نضيف s للفعل'},
 {re:/\bdon't (he|she|it)\b/gi,f:(m,p)=>"doesn't "+p,rid:'present-neg',ar:"مع he / she / it نستخدم doesn't"},
 {re:/\bdoesn't (i|you|we|they)\b/gi,f:(m,p)=>"don't "+p,rid:'present-neg',ar:"مع I / you / we / they نستخدم don't"},
@@ -26,7 +27,24 @@ export const GR=[
 {re:/\bmore better\b/gi,f:()=>'better',ar:'better وحدها تكفي بدون more'},
 {re:/\bwhat you do\b/gi,f:()=>'what do you do',rid:'present-base',ar:'في السؤال نحتاج do: what do you do?'},
 {re:/\bwhere you from\b/gi,f:()=>'where are you from',rid:'be-question',ar:'في السؤال نحتاج are: where are you from?'},
-{re:/\bwhat your name\b/gi,f:()=>'what is your name',rid:'be-question',ar:'نقول what is your name?'}
+{re:/\bwhat your name\b/gi,f:()=>'what is your name',rid:'be-question',ar:'نقول what is your name?'},
+
+/* أخطاء المستوى الأول التي كان المحرّك يمرّرها صامتاً، وهي أكثر ما يقع فيه
+   المتعلّم العربي: «I healthy» و«I have bad headache» و«she dont like».
+   مرورها كان يجعل اختبار المحادثة يقول «متمكّن» لمن لا يُتقن، فيسقط معناه.
+
+   وكل قاعدة هنا ضيّقة عمداً — قائمة كلمات مغلقة لا نمط عام — لأن الإنذار
+   الكاذب أسوأ من الصمت: الصمت يفوّت خطأً، والإنذار الكاذب يُعلّم خطأً. */
+{re:/(?<!\b(?:am|is|are|was|were|be|been|feel|feels|look|looks|get|gets|got|very|so|too|not|and|or|but|that|if|when)\s)\b(i|we|they|he|she|it) (happy|sad|tired|ready|fine|healthy|hungry|thirsty|late|early|busy|sick|ill|angry|afraid|sure|married|student|teacher|doctor|engineer|nurse|driver)\b/gi,f:(m,p,w)=>p+' '+be(p)+' '+w,rid:'be-subject',ar:'الجملة بلا فعل كينونة: نحتاج am / is / are'},
+{re:/\b(he|she|it) (?:don't|dont)\b/gi,f:(m,p)=>p+" doesn't",rid:'present-neg',ar:"مع he / she / it نستخدم doesn't"},
+{re:/\b(i|you|we|they) (?:doesn't|doesnt)\b/gi,f:(m,p)=>p+" don't",rid:'present-neg',ar:"مع I / you / we / they نستخدم don't"},
+{re:/\b(dont|doesnt|didnt|isnt|arent|wasnt|cant|wont|havent|hasnt|im|youre|theyre)\b/gi,f:m=>({dont:"don't",doesnt:"doesn't",didnt:"didn't",isnt:"isn't",arent:"aren't",wasnt:"wasn't",cant:"can't",wont:"won't",havent:"haven't",hasnt:"hasn't",im:"I'm",youre:"you're",theyre:"they're"})[m.toLowerCase()],ar:'الاختصار يحتاج فاصلة عليا: don’t لا dont'},
+{re:/\bi am (go|work|study|live|want|need|have|like|eat|drink|play|read|write|speak|know|come|stay)\b/gi,f:(m,v)=>'I '+v,rid:'present-base',ar:'بعد am لا يأتي فعل مجرّد: قل I go لا I am go'},
+{re:/\b(have|has|want|wants|need|needs|buy|see)\s+((?:bad|good|big|small|new|old|nice|long|short|young|free)\s+)?(headache|car|book|pen|bag|house|room|job|problem|question|brother|sister|friend|dog|cat|phone|ticket|appointment|fever|meeting|shower|idea|minute|seat|bottle|table)\b/gi,f:(m,v,adj,n)=>v+' '+(/^[aeiou]/i.test(adj||n)?'an ':'a ')+(adj||'')+n,rid:'article-a-an',ar:'الاسم المفرد المعدود يحتاج a أو an قبله'},
+{re:/\bi have (\d+) years?\b/gi,f:(m,n)=>'I am '+n+' years old',ar:'العمر: I am 20 years old لا I have 20 years'},
+{re:/\bto (goes|works|likes|studies|wants|needs|lives|eats|drinks|comes|gets|makes|takes)\b/gi,f:(m,v)=>'to '+base(v.toLowerCase()),rid:'present-base',ar:'بعد to يأتي الفعل مجرّداً بلا s'},
+{re:/\b(peoples|informations|advices|moneys|furnitures|homeworks|luggages)\b/gi,f:m=>m.toLowerCase().slice(0,-1),ar:'هذه الأسماء لا تُجمع: people وinformation بلا s'},
+{re:/\bthe most (\w+est)\b/gi,f:(m,w)=>'the '+w,ar:'لا نجمع most مع est: the biggest لا the most biggest'}
 ];
 export function fixText(t){let o=t;GR.forEach(r=>{o=o.replace(r.re,r.f)});return o.charAt(0).toUpperCase()+o.slice(1)}
 export function checkGrammar(t){const out=[];GR.forEach(r=>{if(new RegExp(r.re.source,'i').test(t)&&!out.some(x=>x.ar===r.ar))out.push({ar:r.ar,rid:r.rid})});return out}

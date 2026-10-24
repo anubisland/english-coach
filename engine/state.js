@@ -20,6 +20,9 @@ export function defaultState(){return{
   attempts:{},              // عدد محاولات كل اختبار: النجاح من السابعة ليس كالأولى
   drill:null,               // تدريب موجَّه إلزامي بعد الرسوب في بوابة
   tr:null,                  // اختبار الترجمة الجاري (لحظي، لا يُستورد)
+  snd:null,                 // تدريب الأصوات الجاري (لحظي)
+  cx:null,                  // اختبار المحادثة الجاري (لحظي)
+  cxBest:0,                 // أفضل نسبة في اختبار المحادثة
   ruleOpen:null,            // بطاقة القاعدة المفتوحة حالياً
   theme:'light',            // النهاري هو الافتراضي، والليلي اختيار
   goal:10,                  // هدف دقائق الكلام اليومي
@@ -124,13 +127,15 @@ export function migrate(saved){
   if(saved.attempts&&typeof saved.attempts==='object')S.attempts=cleanAttempts(saved.attempts);
   if(saved.chat&&typeof saved.chat==='object')Object.assign(S.chat,cleanChat(saved.chat));
   /* اختبار الترجمة جلسة لحظية: لا يُستورد ولا يُستعاد. */
-  S.tr=null;
+  S.tr=null;S.snd=null;S.cx=null;
+  /* نسبة وحدها تُستورد، بعد قسرها عدداً في مداها. */
+  S.cxBest=Math.max(0,Math.min(100,Math.round(Number(saved.cxBest))||0));
   S.v=SCHEMA;
   return S;
 }
 
 export const LEVELS=['A1','A2'];
-export const VIEWS_KEYS=['home','course','speak','settings','translate'];   // يجب أن يطابق مفاتيح VIEWS في app.js
+export const VIEWS_KEYS=['home','course','speak','settings','translate','sounds','examconv'];   // يجب أن يطابق مفاتيح VIEWS في app.js
 export let S,bootWarn=null;
 
 /* يُستدعى مرة عند الإقلاع، ومرة لكل اختبار، فالحالة تُبنى لا تُستورد جاهزة. */

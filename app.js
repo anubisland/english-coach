@@ -14,6 +14,10 @@ import * as quizv from './views/quiz.js';   // ليس quizView: الاسم يح�
 import * as speak from './views/speak.js';
 import * as settings from './views/settings.js';
 import * as translate from './views/translate.js';
+import * as sounds from './views/sounds.js';
+import * as examScore from './engine/exam-score.js';
+import * as examConv from './engine/exam-convo.js';
+import * as examConvView from './views/exam-convo.js';
 import * as trEngine from './engine/translate.js';
 
 function toggleTheme(){setTheme(S.theme==='light'?'dark':'light')}
@@ -43,7 +47,9 @@ const HEAD={
   course:['خريطة الرحلة','محطة بعد محطة حتى تتقن المستوى'],
   speak:['المحادثة الحيّة','تكلّم، وسنصحّح لك بالعربية'],
   settings:['الإعدادات','المظهر، والهدف، ونقل تقدّمك'],
-  translate:['اختبار الترجمة','من العربية إلى الإنجليزية، بلا خيارات']
+  translate:['اختبار الترجمة','من العربية إلى الإنجليزية، بلا خيارات'],
+  sounds:['تدريب الأصوات','الأصوات التي يصعب على العربي نطقها'],
+  examconv:['اختبار المحادثة','ثمانية أدوار في موقف لم تتدرّب عليه']
 };
 function renderHead(){
   const h=HEAD[S.tab]||HEAD.home;
@@ -73,11 +79,11 @@ if(window.addEventListener)window.addEventListener('error',ev=>{
   ui.toast('حدث خطأ غير متوقع. أعد تحميل الصفحة إن توقّف التطبيق');
 });
 
-const VIEWS={home:home.homeView,course:course.courseView,speak:speak.speakView,settings:settings.settingsView,translate:translate.translateView};
+const VIEWS={home:home.homeView,course:course.courseView,speak:speak.speakView,settings:settings.settingsView,translate:translate.translateView,sounds:sounds.soundsView,examconv:examConvView.examConvView};
 
 /* المعالجات داخل الـ HTML (onclick) تحتاج أسماءً عامة. */
 Object.assign(window,{
-  ...state,...grammar,...pronounce,...progress,...quiz,...chat,...ui,...home,...course,...quizv,...speak,...settings,...translate,...trEngine,
+  ...state,...grammar,...pronounce,...progress,...quiz,...chat,...ui,...home,...course,...quizv,...speak,...settings,...translate,...trEngine,...sounds,...examScore,...examConv,...examConvView,
   render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme,setTheme
 });
 /* S مرتبط حيّاً لأنه يُعاد بناؤه عند كل إقلاع. */
@@ -91,6 +97,7 @@ render();
 export * from './content/lessons.js';
 export * from './content/rules.js';
 export * from './content/scenes.js';
+export * from './content/convo.js';
 export * from './engine/state.js';
 export * from './engine/grammar.js';
 export * from './engine/pronounce.js';
@@ -104,6 +111,12 @@ export * from './views/quiz.js';
 export * from './views/speak.js';
 export * from './views/settings.js';
 export * from './views/translate.js';
+export * from './views/sounds.js';
+export * from './engine/exam-convo.js';
+export * from './views/exam-convo.js';
 export * from './engine/translate.js';
 export * from './content/translate.js';
+export * from './content/sounds.js';
+export * from './content/exam-scenes.js';
+export * from './engine/exam-score.js';
 export {render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme,setTheme,VIEWS};

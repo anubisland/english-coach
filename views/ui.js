@@ -41,10 +41,40 @@ export function banners(){
   return h;
 }
 
+/* يعرض التحليل لا الرقم وحده: أي كلمة سُمعت، وأي صوت هو المشتبه به،
+   وكيف يُنطق — مع مدخل مباشر إلى تدريب ذلك الصوت. */
 export function pronHtml(p){
   if(p.typed)return `<div style='margin-top:10px'><p class=muted>كُتبت ولم تُنطق — <b style="color:var(--amber)">لم يُقَس النطق</b></p>`
-    +(p.miss.length?`<p class=muted>كلمات ناقصة: ${esc(p.miss.join('، '))}</p>`:'')+'</div>';
-  return `<div style='margin-top:10px'><p>دقة النطق: <b>${p.sc}%</b></p>`+(p.heard?`<p class=muted>سمعتُ: «${p.heard}»</p>`:'')+(p.miss.length?`<p class=muted>كلمات لم تُسمع: ${p.miss.join('، ')}</p>`:'')+(p.near.length?`<p class=muted>كلمات قريبة تحتاج ضبطاً: ${p.near.join('، ')}</p>`:'')+p.tips.map(t=>`<p class=muted>💡 ${t}</p>`).join('')+'</div>'}
+    +(p.miss&&p.miss.length?`<p class=muted>كلمات ناقصة: ${esc(p.miss.join('، '))}</p>`:'')+'</div>';
+
+  /* لم يصل صوت: نقول ذلك ولا نعرض صفراً. الصفر هنا كذب واثق. */
+  if(p.nothing)return `<div style="margin-top:10px;background:var(--surf2);border-radius:14px;padding:12px">
+    <span class=muted>${esc(p.nothing)}</span></div>`;
+
+  const tone=p.sc>=80?'var(--green)':p.sc>=55?'var(--amber)':'var(--coral)';
+  const chips=(p.items||[]).map(i=>{
+    const c=i.state==='ok'?'var(--green)':i.state==='near'?'var(--amber)':'var(--coral)';
+    const mark=i.state==='ok'?'':i.state==='near'?'≈':'✗';
+    return `<span class="en" style="display:inline-block;margin:3px 3px 0 0;padding:4px 9px;border-radius:9px;
+      background:var(--surf2);border:1.5px solid ${c};font-size:13px">${esc(i.w)}${mark?' '+mark:''}</span>`;
+  }).join('');
+
+  const sus=(p.suspects||[]).map(x=>`<div style="background:var(--surf2);border-radius:14px;padding:12px;margin-top:9px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <b style="flex:1;font-size:13.5px;color:var(--ind2)">${esc(x.sound.t)}</b>
+        <span class="muted" style="font-size:11.5px">${esc(x.sound.bad)}</span></div>
+      <p class="muted" style="margin-top:6px">${emph(x.sound.fix)}</p>
+      <button class="btn ghost" style="background:var(--surf);margin-top:8px"
+        onclick="startSound('${x.id}')">درّبني على هذا الصوت</button></div>`).join('');
+
+  return `<div style="margin-top:10px">
+    <p>دقة النطق: <b style="color:${tone};font-size:19px">${ar(p.sc)}٪</b></p>
+    ${p.heard?`<p class=muted style="font-size:12px">سمعتُ: «${esc(p.heard)}»</p>`:''}
+    ${chips?`<div style="margin-top:8px;direction:ltr;text-align:left">${chips}</div>`:''}
+    ${sus||(p.sc<100?`<p class=muted style="margin-top:9px">لم أستطع ردّ الخطأ إلى صوت بعينه —
+      استمع إلى الجملة وكرّرها كلمةً كلمة.</p>`:'')}
+  </div>`;
+}
 
 export function ruleCard(id,mode){
   const r=RULE[id];if(!r)return '';
@@ -74,6 +104,10 @@ export function ruleCard(id,mode){
 export function toggleRule(id){S.ruleOpen=S.ruleOpen===id?null:id;save();hooks.render()}
 
 /* أي نصّ قد يأتي من حالة محفوظة يمرّ من هنا قبل أن يدخل الصفحة. */
+/* تشديد خفيف داخل نصوص الشرح: يُهرَّب النص كاملاً أولاً، ثم تُحوَّل **…** وحدها
+   إلى <b>. آمن لأن أي وسم في المصدر صار بالفعل &lt;. */
+export function emph(s){return esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')}
+
 export function esc(t){
   return String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }

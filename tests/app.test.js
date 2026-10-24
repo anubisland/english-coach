@@ -404,12 +404,33 @@ const { run, report } = require('./harness.js');
 
   console.log('— البنية بعد التقسيم —');
 
-  await run('تقييم النطق يحسب درجة ونصائح', {}, (ctx, ev) => {
+  await run('تقييم النطق يحسب درجة ويشخّص الصوت', {}, (ctx, ev) => {
     const p = ctx.pronScore('I am a teacher', 'I am a teacher');
     if (p.sc !== 100) throw new Error('جملة مطابقة لم تُعطَ 100: ' + p.sc);
+    if (p.suspects.length) throw new Error('شخّص خطأً في نطق سليم');
+
     const q = ctx.pronScore('three brothers', 'tree brothers');
     if (q.sc === 100) throw new Error('كلمة خاطئة لم تُرصد');
-    if (!q.tips.some(t => t.includes('th'))) throw new Error('لا نصيحة لصوت th');
+    if (!q.suspects.some(x => x.id.startsWith('th'))) throw new Error('لم يُشخَّص صوت th');
+    if (!q.items.length) throw new Error('لا تحليل لكل كلمة');
+  });
+
+  await run('التشخيص يقدّم الصوت الدقيق على القاعدة الواسعة', {}, (ctx, ev) => {
+    const p = ctx.pronScore('I think this is very good', 'I sink dis is fery good');
+    const ids = p.suspects.map(x => x.id);
+    if (!ids.includes('th-voiceless')) throw new Error('لم يُشخَّص th');
+    const broadAt = p.suspects.findIndex(x => x.sound.broad);
+    const narrowAt = p.suspects.findIndex(x => !x.sound.broad);
+    if (broadAt >= 0 && narrowAt >= 0 && broadAt < narrowAt)
+      throw new Error('قاعدة واسعة سبقت صوتاً دقيقاً');
+  });
+
+  await run('القواعد الواسعة لا تُطلق إنذاراً على كل كلمة', {}, (ctx, ev) => {
+    /* كانت قاعدة ship/sheep تُطابق أي كلمة فيها حرف i فتزاحم التشخيص. */
+    const p = ctx.pronScore('I will sit in it', 'I will sit in it');
+    if (p.suspects.length) throw new Error('إنذار كاذب على جملة سليمة');
+    const q = ctx.pronScore('I have a big dog', 'I have a big dug');
+    if (q.suspects.some(x => x.id === 'vowel-i')) throw new Error('ship/sheep أُطلقت بلا داعٍ');
   });
 
   await run('الكتابة لا تُحتسب نطقاً في المحادثة', {}, (ctx, ev) => {
@@ -1036,6 +1057,309 @@ const { run, report } = require('./harness.js');
     if (a.cp1 !== 4) throw new Error('ضاع عدد صحيح');
     if ('hack' in a) throw new Error('قُبل مفتاح مجهول');
     if ('cp2' in a) throw new Error('قُبلت قيمة غير عددية');
+  });
+
+  console.log('— تدريب الأصوات —');
+
+  await run('بنك الأصوات مكتمل', {}, (ctx, ev) => {
+    const S2 = ev('SOUNDS');
+    if (S2.length < 8) throw new Error('بنك صغير: ' + S2.length);
+    const ids = new Set();
+    S2.forEach(s => {
+      ['id','t','why','fix','bad'].forEach(k => { if (!s[k]) throw new Error(s.id + ': الحقل ' + k + ' ناقص') });
+      if (!/[؀-ۿ]/.test(s.why)) throw new Error(s.id + ': الشرح ليس بالعربية');
+      if (!(s.test instanceof RegExp)) throw new Error(s.id + ': test ليس regex');
+      if (!Array.isArray(s.pairs) || s.pairs.length < 4) throw new Error(s.id + ': أزواج قليلة');
+      s.pairs.forEach(p => { if (!Array.isArray(p) || p.length !== 2 || p[0] === p[1]) throw new Error(s.id + ': زوج غير صالح') });
+      if (ids.has(s.id)) throw new Error('معرّف مكرر: ' + s.id);
+      ids.add(s.id);
+    });
+  });
+
+  await run('كل صوت يُطابق كلماته هو', {}, (ctx, ev) => {
+    ev('SOUNDS').forEach(s => {
+      const first = s.pairs[0][0];
+      if (!s.test.test(first)) throw new Error(s.id + ': لا يُطابق كلمته «' + first + '»');
+    });
+  });
+
+  await run('التدريب يميّز الكلمة المنطوقة من أختها',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.startSound('p');
+    const pair = ev("SOUND['p'].pairs")[0];      // ['pen','Ben']
+    ctx.soundHeard(pair[0]);
+    if (ev('S').snd.slots['0:0'] !== 'ok') throw new Error('لم يُحتسب الصحيح');
+    ctx.soundNext();
+    ctx.soundHeard(pair[0]);                     // والمطلوب الآن الأخرى
+    if (ev('S').snd.slots['0:1'] !== 'swapped') throw new Error('لم يرصد نطق الكلمة الأخرى');
+    if (!ctx.soundsView().includes('سمعتُ')) throw new Error('لا تغذية راجعة على الشاشة');
+  });
+
+  await run('العبارة حول الكلمة لا تُحسب خطأ',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.startSound('p');
+    const want = ev("SOUND['p'].pairs")[0][0];
+    ctx.soundHeard('a ' + want + ' please');     // المحرّك يردّ عبارة أحياناً
+    if (ev('S').snd.slots['0:0'] !== 'ok') throw new Error('عُوقب نطق سليم داخل عبارة');
+  });
+
+  await run('الصمت يُفرَّق عن النطق غير الواضح',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.startSound('p');
+    ctx.soundHeard('   ');
+    if (ev('S').snd.slots['0:0'] !== 'silent') throw new Error('الصمت حُسب نطقاً خاطئاً');
+    const h = ctx.soundsView();
+    if (!h.includes('لم يصل صوت')) throw new Error('لا رسالة عن غياب الصوت');
+    if (h.includes('«»')) throw new Error('عرض اقتباساً فارغاً');
+  });
+
+  await run('الإعادة تستبدل ولا تخفض النتيجة',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.startSound('p');
+    const pairs = ev("SOUND['p'].pairs");
+    ctx.soundHeard(pairs[0][1]);                 // أخطأ
+    ctx.soundHeard(pairs[0][1]);                 // وأخطأ
+    ctx.soundHeard(pairs[0][0]);                 // ثم أصاب
+    const d = ev('S').snd;
+    if (Object.keys(d.slots).length !== 1) throw new Error('المحاولات تُجمع: ' + Object.keys(d.slots).length);
+    if (d.slots['0:0'] !== 'ok') throw new Error('الإعادة لم تستبدل');
+    const r = ctx.soundResult(d);
+    if (r.total !== pairs.length * 2) throw new Error('المقام ليس عدد المطالبات');
+    if (r.ok !== 1) throw new Error('عدّ الصحيح خطأ');
+  });
+
+  await run('نتيجة متأخّرة بعد إنهاء التدريب تُهمَل',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.startSound('p');
+    ctx.closeSound();
+    ctx.startSound('v');                         // جلسة جديدة
+    ctx.soundHeard('pen', 0);                    // نتيجة الجلسة القديمة تصل الآن
+    const d = ev('S').snd;
+    if (d.id !== 'v') throw new Error('تغيّر الصوت');
+    if (Object.keys(d.slots).length) throw new Error('سُجّلت نتيجة جلسة منتهية');
+  });
+
+  await run('التدريب ينتهي بنسبة',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.startSound('v');
+    const pairs = ev("SOUND['v'].pairs");
+    for (let i = 0; i < pairs.length * 2; i++) {
+      const d = ev('S').snd;
+      ctx.soundHeard(pairs[d.i][d.side]);
+      ctx.soundNext();
+    }
+    if (!ev('S').snd.done) throw new Error('لم ينتهِ');
+    const h = ctx.soundsView();
+    if (!h.includes('٪')) throw new Error('لا نسبة');
+    if (!h.includes('أعد التدريب')) throw new Error('لا إعادة');
+  });
+
+  await run('الصمت لا يُعرض كصفر في تقييم النطق', {}, (ctx, ev) => {
+    const p = ctx.pronScore('I am a teacher', '');
+    if (!p.nothing) throw new Error('لم يُعلَّم الصمت');
+    const h = ctx.pronHtml(p);
+    if (h.includes('٪')) throw new Error('عرض نسبة على صمت: ' + h);
+    if (!h.includes('لم يصل صوت')) throw new Error('لا رسالة');
+  });
+
+  await run('th المهموس والمجهور لا يختلطان', {}, (ctx, ev) => {
+    const voiceless = ev("SOUND['th-voiceless'].test"), voiced = ev("SOUND['th-voiced'].test");
+    [['think', true, false], ['path', true, false], ['this', false, true],
+     ['father', false, true], ['with', false, true]].forEach(([w, a, b]) => {
+      if (voiceless.test(w) !== a) throw new Error(w + ': المهموس خطأ');
+      if (voiced.test(w) !== b) throw new Error(w + ': المجهور خطأ');
+    });
+    const sus = ctx.pronScore('I think this is good', 'I sink dis is good').suspects.map(x => x.id);
+    if (!sus.includes('th-voiceless') || !sus.includes('th-voiced')) throw new Error('لم يفصل: ' + sus);
+  });
+
+  await run('تدريب الأصوات لا يُستورد من ملف', {}, (ctx, ev) => {
+    ctx.applyImport(JSON.stringify({ placed: true, snd: { id: 'p', i: 0, results: [] } }));
+    if (ev('S').snd) throw new Error('استُوردت جلسة تدريب');
+  });
+
+  await run('التشديد يُشدّد ولا يسمح بوسم', {}, (ctx, ev) => {
+    const out = ctx.emph('قل **ب** بلا صوت');
+    if (!out.includes('<b>ب</b>')) throw new Error('لم يُشدّد: ' + out);
+    if (out.includes('**')) throw new Error('بقيت النجمات');
+    const bad = ctx.emph('<img src=x onerror=alert(1)> و**كذا**');
+    if (bad.includes('<img')) throw new Error('نفذ وسم: ' + bad);
+    if (!bad.includes('<b>كذا</b>')) throw new Error('فقد التشديد بعد التهريب');
+  });
+
+  console.log('— اختبار المحادثة الكاملة —');
+
+  await run('مشاهد الاختبار محجوزة ولا تتداخل مع التدريب', {}, (ctx, ev) => {
+    const X = ev('EXAM_SCENES'), trained = ev('SCENES');
+    if (X.length < 5) throw new Error('مشاهد قليلة: ' + X.length);
+    const prompts = new Set();
+    trained.forEach(s => s.turns.forEach(t => prompts.add(t.p)));
+    X.forEach(x => {
+      if (x.turns.length < 8) throw new Error(x.id + ': أدوار قليلة ' + x.turns.length);
+      x.turns.forEach(t => {
+        if (prompts.has(t.p)) throw new Error(x.id + ': سؤال مكرر من التدريب «' + t.p + '»');
+        if (!(t.need instanceof RegExp)) throw new Error(x.id + ': need ليس regex');
+        if (!t.need.test(t.model)) throw new Error(x.id + ': النموذج نفسه لا يمرّ «' + t.model + '»');
+      });
+    });
+  });
+
+  await run('الرُبريك: الصلة والنحو والوضوح والطلاقة', {}, (ctx, ev) => {
+    const turn = {need: /yes|no/i, want: ['yes']};
+    const good = ctx.scoreTurn(turn, 'Yes, I have two bags', 0.95, 2000);
+    if (good.rel !== 100) throw new Error('الصلة لم تُحتسب');
+    if (good.fl < 80) throw new Error('طلاقة منخفضة لرد جيد سريع: ' + good.fl);
+    const off = ctx.scoreTurn(turn, 'The weather is nice today', 0.9, 3000);
+    if (off.rel !== 10) throw new Error('رد خارج الموضوع لم يأخذ الدرجة الرمزية: ' + off.rel);
+    const slow = ctx.scoreTurn(turn, 'Yes', 0.9, 20000);
+    if (slow.fl >= good.fl) throw new Error('البطء والاختصار لم يخفضا الطلاقة');
+    const typed = ctx.scoreTurn(turn, 'Yes, two bags', null, 2000);
+    if (typed.cl !== null) throw new Error('قيس النطق على نصّ مكتوب');
+  });
+
+  await run('الكلمات المتوقّعة ترفع ولا تخفض', {}, (ctx, ev) => {
+    const turn = {need: /yes/i, want: ['passport', 'here']};
+    const withWords = ctx.scoreTurn(turn, 'yes here is my passport', 0.6, 2000).cl;
+    const without = ctx.scoreTurn(turn, 'yes of course take it', 0.6, 2000).cl;
+    if (withWords < without) throw new Error('الكلمات المتوقّعة خفضت الدرجة');
+    if (without < 60) throw new Error('عوقب من أجاب بكلمات أخرى: ' + without);
+  });
+
+  await run('الأوزان تُعاد قسمتها حين يسقط محور', {}, (ctx, ev) => {
+    const turn = {need: /yes/i, want: ['yes']};
+    const typed = [0, 1, 2].map(() => {
+      const r = ctx.scoreTurn(turn, 'yes I do', null, 2000); r.g = []; return r;
+    });
+    const res = ctx.examTotals(typed);
+    const cl = res.axes.find(a => a.k === 'cl');
+    if (cl.sc !== null) throw new Error('قيس النطق بلا صوت');
+    if (cl.share !== 0) throw new Error('محور ساقط ما زال له وزن');
+    const sum = res.axes.reduce((s, a) => s + a.share, 0);
+    if (Math.abs(sum - 100) > 2) throw new Error('الأوزان لا تساوي ١٠٠: ' + sum);
+    if (res.pc < 60) throw new Error('عوقب من اختبر بالكتابة: ' + res.pc);
+  });
+
+  await run('النحو يخفض النتيجة', {}, (ctx, ev) => {
+    const mk = errs => [0, 1, 2, 3].map(() => {
+      const r = ctx.scoreTurn({need: /yes/i, want: []}, 'yes I am going', 0.9, 2000);
+      r.g = errs; return r;
+    });
+    const clean = ctx.examTotals(mk([])).pc;
+    const dirty = ctx.examTotals(mk(['خطأ', 'خطأ'])).pc;
+    if (dirty >= clean) throw new Error('الأخطاء لم تخفض: ' + dirty + ' مقابل ' + clean);
+  });
+
+  await run('اختبار المحادثة يمشي إلى النهاية ويعطي تقريراً',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.examConvStart('x-air');
+    const sc = ev("EXAM_SCENE['x-air']");
+    sc.turns.forEach(t => ctx.examConvAnswer(t.model, 0.9));
+    const c = ev('S').cx;
+    if (!c.done) throw new Error('لم ينتهِ');
+    const r = ctx.examConvResult();
+    if (r.n !== sc.turns.length) throw new Error('عدد الأدوار');
+    if (r.pc < 70) throw new Error('الإجابات النموذجية نفسها رسبت: ' + r.pc);
+    const h = ctx.examConvView();
+    if (!h.includes('٪')) throw new Error('لا نسبة في التقرير');
+    if (!h.includes(r.band.t)) throw new Error('لا تقدير');
+    ['الصلة بالسؤال', 'سلامة النحو', 'وضوح النطق', 'الطلاقة'].forEach(a => {
+      if (!h.includes(a)) throw new Error('محور ناقص من التقرير: ' + a);
+    });
+  });
+
+  await run('الاختبار لا يسرّب الإجابة قبل أن تُجيب',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.examConvStart('x-bank');
+    const h = ctx.examConvView();
+    const sc = ev("EXAM_SCENE['x-bank']");
+    if (h.includes(sc.turns[0].model)) throw new Error('الإجابة النموذجية ظاهرة أثناء الاختبار');
+    if (h.includes('تلميح')) throw new Error('يوجد تلميح');
+  });
+
+  await run('النتيجة تُحفظ والجلسة تُمحى',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.examConvStart('x-shop');
+    ev("EXAM_SCENE['x-shop']").turns.forEach(t => ctx.examConvAnswer(t.model, 0.9));
+    const pc = ctx.examConvResult().pc;
+    ctx.examConvFinish();
+    if (ev('S').cx) throw new Error('الجلسة لم تُمحَ');
+    if (ev('S').cxBest !== pc) throw new Error('لم تُحفظ أفضل نتيجة');
+  });
+
+  await run('جلسة الاختبار لا تُستورد من ملف', {}, (ctx, ev) => {
+    ctx.applyImport(JSON.stringify({ placed: true, cx: { id: 'x-air', ti: 0, turns: [] }, cxBest: '<img src=x>' }));
+    if (ev('S').cx) throw new Error('استُوردت جلسة اختبار');
+    if (ev('S').cxBest !== 0) throw new Error('cxBest لم يُقسر عدداً: ' + JSON.stringify(ev('S').cxBest));
+  });
+
+  console.log('— قواعد المستوى الأول —');
+
+  await run('المحرّك يمسك أخطاء A1 الشائعة', {}, (ctx, ev) => {
+    [['No I healthy', 'am'], ['I have bad headache', 'a bad headache'],
+     ['she dont like fish', "doesn't"], ['I am go to school', 'I go'],
+     ['I have 20 years', 'years old'], ['I want car', 'a car'],
+     ['peoples are nice', 'People']].forEach(([bad, want]) => {
+      if (!ctx.checkGrammar(bad).length) throw new Error('مرّ صامتاً: ' + bad);
+      const fixed = ctx.fixText(bad);
+      if (!fixed.includes(want)) throw new Error(bad + ' -> ' + fixed + ' (ينقصه ' + want + ')');
+    });
+  });
+
+  /* الحارس الأهم: الإنذار الكاذب يُعلّم خطأً، وهو أسوأ من تفويت خطأ.
+     كل جملة سليمة في بنوك المحتوى يجب أن تمرّ بلا ملاحظة واحدة. */
+  await run('لا إنذار كاذب على أي جملة سليمة في البرنامج', {}, (ctx, ev) => {
+    const good = [];
+    ev('SCENES').forEach(s => s.turns.forEach(t => { good.push(t.model); good.push(t.p) }));
+    ev('EXAM_SCENES').forEach(s => s.turns.forEach(t => { good.push(t.model); good.push(t.p) }));
+    ev('CONVO').forEach(s => s.turns.forEach(t => { good.push(t.p); good.push(t.o[t.a]) }));
+    const bad = good.filter(Boolean).filter(x => ctx.checkGrammar(x).length);
+    if (bad.length) throw new Error(bad.length + ' إنذار كاذب، أولها: «' + bad[0] + '» → '
+      + ctx.checkGrammar(bad[0]).map(g => g.ar).join(' · '));
+    if (good.length < 300) throw new Error('عيّنة صغيرة: ' + good.length);
+  });
+
+  await run('الفعل بعد modal يبقى مجرّداً', {}, (ctx, ev) => {
+    ['Can he go?', 'She will come tomorrow', 'He must study', 'I would like to go'].forEach(t => {
+      if (ctx.checkGrammar(t).length) throw new Error('إنذار كاذب على: ' + t);
+    });
+    if (!ctx.checkGrammar('He go to work').length) throw new Error('فات الخطأ الحقيقي');
+  });
+
+  await run('الصلة تضع سقفاً: لا نجاح بكلام سليم خارج الموضوع',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.examConvStart('x-clinic');
+    /* نحو سليم ونطق واضح، ولا إجابة واحدة عن السؤال المطروح. */
+    ['I like football very much', 'The sun is hot today', 'My car is red', 'I like pizza',
+     'The sky is blue', 'Cars are fast', 'I like tea', 'My house is big']
+      .forEach(a => ctx.examConvAnswer(a, 0.95));
+    const r = ctx.examConvResult();
+    if (r.axes[1].sc < 90) throw new Error('المفترض أن نحوه سليم');
+    if (!r.capped) throw new Error('لم يُطبَّق سقف الصلة');
+    if (r.pc > 50) throw new Error('نجح بكلام لا صلة له: ' + r.pc + '٪');
+    if (r.band.t === 'متمكّن' || r.band.t === 'جيد') throw new Error('تقدير مرتفع: ' + r.band.t);
+  });
+
+  await run('الترتيب بين المتعلّمين صادق',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    const runOne = ans => {
+      ctx.examConvStart('x-clinic');
+      ans.forEach(a => ctx.examConvAnswer(a, 0.9));
+      return ctx.examConvResult().pc;
+    };
+    const sc = ev("EXAM_SCENE['x-clinic']");
+    const perfect = runOne(sc.turns.map(t => t.model));
+    const broken = runOne(['Yes I have appointment at four', 'My name is Ahmed', 'I have bad headache',
+      'three days', 'The weather is nice', 'No I healthy', 'Yes thank you', 'No thank you']);
+    const silent = runOne(['', '', '', '', '', '', '', '']);
+    if (!(perfect > broken && broken > silent)) throw new Error(`الترتيب خطأ: ${perfect} / ${broken} / ${silent}`);
+    if (perfect < 90) throw new Error('الإجابات النموذجية لم تبلغ التمكّن: ' + perfect);
+    if (broken >= 90) throw new Error('«I healthy» نال لقب متمكّن: ' + broken);
+  });
+
+  await run('من لم ينطق لا يُمنح نحواً سليماً', {}, (ctx, ev) => {
+    const mute = [0, 1, 2].map(() => { const r = ctx.scoreTurn({need: /yes/i, want: []}, '', 0.1, 3000); r.g = []; return r });
+    const res = ctx.examTotals(mute);
+    if (res.axes.find(a => a.k === 'gr').sc !== null) throw new Error('مُنح النحو بلا كلام');
   });
 
   await report();

@@ -109,6 +109,14 @@ export function speakView(){
   }
 
   out=picker+out;
+  out+=card('اختبار المحادثة الكاملة',
+    '<p class="muted">ثمانية أدوار متّصلة في موقف لم تتدرّب عليه — بالصوت وبلا تلميح — '
+    +'ثم نسبة على أربعة محاور: الصلة بالسؤال، وسلامة النحو، ووضوح النطق، والطلاقة.</p>'
+    +(S.cxBest?'<p class="muted" style="margin-top:6px">أفضلك حتى الآن: <b style="color:var(--ind2)">'+ar(S.cxBest)+'٪</b></p>':'')
+    +'<div class="row" style="justify-content:flex-start"><button class="btn" onclick="examConvStart()">ابدأ الاختبار</button></div>');
+  out+=card('تدريب الأصوات',
+    '<p class="muted">الأصوات التي لا توجد في العربية — p و v و th وغيرها — مع أزواج كلمات لا تختلف إلا فيها.</p>'
+    +'<div class="row" style="justify-content:flex-start"><button class="btn ghost" onclick="startSound(\'p\')">ابدأ التدريب</button></div>');
   if(top.length)out+=card('أخطاؤك المتكررة',
     top.map(([k,v])=>`<p class="muted">• ${esc(k)} <span style="color:var(--coral)">(${ar(v)})</span></p>`).join(''));
   return out;
