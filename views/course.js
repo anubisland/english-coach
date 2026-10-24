@@ -85,6 +85,10 @@ export function courseView(){
     }).replace('</div></div>',`<div class="row" style="justify-content:flex-start">${gate}</div></div></div>`):'';
     h+=card(`الوحدة ${u.n}: ${u.t} ${unitStatus(u.n)}`, unitOpen(u.n)?(unitDone(u.n)?'<details><summary class=muted>عرض دروس الوحدة للمراجعة</summary>'+ls+extra+'</details>':ls+extra):'<p class="muted">🔒 تُفتح بعد اجتياز اختبار الوحدة السابقة واختبار استبقائها</p>');
   }
+  h+=card('اختبار القراءة',
+    '<p class="muted">نصّ قصير من الحياة اليومية ثم أسئلة عليه، ويُقاس زمن قراءتك معه.</p>'
+    +(S.rxBest?'<p class="muted" style="margin-top:6px">أفضلك: <b style="color:var(--ind2)">'+ar(S.rxBest)+'٪</b></p>':'')
+    +'<div class="row" style="justify-content:flex-start"><button class="btn" onclick="examReadStart()">ابدأ اختبار القراءة</button></div>');
   h+=card('اختبار الكتابة',
     '<p class="muted">إحدى عشرة مسألة تكتبها بيدك: ترتيب كلمات، وإكمال ناقص، وكتابة جملة، وكتابة موجّهة. لا خيارات.</p>'
     +(S.wxBest?'<p class="muted" style="margin-top:6px">أفضلك: <b style="color:var(--ind2)">'+ar(S.wxBest)+'٪</b></p>':'')

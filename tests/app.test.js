@@ -1504,5 +1504,165 @@ const { run, report } = require('./harness.js');
     });
   });
 
+  console.log('— اختبار القراءة —');
+
+  await run('بنك القراءة سليم ولا اختيار من متعدّد فيه', {}, (ctx, ev) => {
+    const R = ev('READS');
+    if (R.length < 5) throw new Error('نصوص قليلة: ' + R.length);
+    R.forEach(t => {
+      const n = ctx.countWords(t.text);
+      if (n < 40 || n > 140) throw new Error(t.id + ': طول غير مناسب لـ A1: ' + n);
+      if (t.qs.length < 5) throw new Error(t.id + ': أسئلة قليلة');
+      t.qs.forEach((q, i) => {
+        if (!['tf', 'short', 'word'].includes(q.k)) throw new Error(t.id + ': نوع غريب ' + q.k);
+        if (q.o || q.options) throw new Error(t.id + ': سؤال اختيار من متعدّد');
+        if (q.k === 'tf' && typeof q.a !== 'boolean') throw new Error(t.id + ':' + i + ' بلا إجابة');
+        if (q.k === 'tf' && !q.why) throw new Error(t.id + ':' + i + ' بلا تعليل');
+        if (q.k !== 'tf' && (!q.ok || !q.ok.length)) throw new Error(t.id + ':' + i + ' بلا إجابة');
+        if (q.k !== 'tf' && !/[؀-ۿ]/.test(q.ar)) throw new Error(t.id + ': السؤال ليس بالعربية');
+      });
+      if (!t.qs.some(q => q.k === 'word')) throw new Error(t.id + ': لا سؤال مفردات');
+      if (!t.qs.some(q => q.k === 'short')) throw new Error(t.id + ': لا سؤال كتابي');
+    });
+  });
+
+  /* سؤال «استخرج الكلمة» لا يُستخرج جوابه إن لم يكن في النصّ أصلاً. */
+  await run('كل كلمة مطلوبة موجودة في نصّها', {}, (ctx, ev) => {
+    ev('READS').forEach(t => {
+      const low = t.text.toLowerCase();
+      t.qs.filter(q => q.k === 'word').forEach(q => {
+        if (!q.ok.some(o => low.includes(o.toLowerCase())))
+          throw new Error(t.id + ': «' + q.ok[0] + '» ليست في النصّ');
+      });
+    });
+  });
+
+  await run('كل إجابة نموذجية تنال العلامة الكاملة', {}, (ctx, ev) => {
+    ev('READS').forEach(t => t.qs.forEach((q, i) => {
+      const sc = ctx.gradeRead(q, q.k === 'tf' ? q.a : q.ok[0]).sc;
+      if (sc !== 100) throw new Error(t.id + ':' + i + ' نموذج ينال ' + sc);
+    }));
+  });
+
+  await run('الإجابة القصيرة تقبل المعنى لا الصيغة وحدها', {}, (ctx, ev) => {
+    const q = {k: 'short', ar: 'س', ok: ['in a big park']};
+    if (ctx.gradeRead(q, 'in a big park').sc !== 100) throw new Error('النموذج');
+    if (ctx.gradeRead(q, 'They are in a big park.').sc < 80) throw new Error('جملة أطول تحوي الجواب رُفضت');
+    if (ctx.gradeRead(q, 'in a big prak').sc < 80) throw new Error('زلّة حرف واحد عوقبت كخطأ');
+    if (ctx.gradeRead(q, 'at the hotel').sc !== 0) throw new Error('جواب خطأ نال درجة');
+    if (ctx.gradeRead(q, '').sc !== 0) throw new Error('الفراغ نال درجة');
+  });
+
+  await run('السرعة مؤشّر خفيف لا حَكَم', {}, (ctx, ev) => {
+    if (ctx.speedScore(85) !== 100) throw new Error('السرعة المعتادة لم تنل العلامة');
+    if (ctx.speedScore(30) >= 70) throw new Error('البطء الشديد لم يُرصد');
+    if (ctx.speedScore(200) >= 40) throw new Error('من قلّب الصفحة نال درجة السرعة');
+    if (ctx.wpm(100, 60000) !== 100) throw new Error('حساب الكلمات في الدقيقة خطأ');
+  });
+
+  /* المقصد كلّه: من لم يفهم لم يقرأ، مهما أسرع ومهما عرف من مفردات. */
+  await run('الفهم سقفٌ على السرعة والمفردات', {}, (ctx, ev) => {
+    const t = ev('READS')[0];
+    const items = t.qs.map((q, i) => ({
+      ...ctx.gradeRead(q, q.k === 'word' ? q.ok[0] : (q.k === 'tf' ? !q.a : 'xyz')), q, i}));
+    const r = ctx.readTotals(items, 85);
+    if (r.axes.find(a => a.k === 'vocab').sc !== 100) throw new Error('المفردات المفترض كاملة');
+    if (r.axes.find(a => a.k === 'speed').sc !== 100) throw new Error('السرعة المفترض كاملة');
+    if (!r.capped) throw new Error('لم يُطبَّق سقف الفهم');
+    if (r.pc > 40) throw new Error('نجح بلا فهم: ' + r.pc + '٪');
+  });
+
+  await run('البطيء الفاهم أعلى من السريع غير الفاهم', {}, (ctx, ev) => {
+    const t = ev('READS')[0];
+    const make = (pick, rate) => ctx.readTotals(
+      t.qs.map((q, i) => ({...ctx.gradeRead(q, pick(q)), q, i})), rate);
+    const slowGood = make(q => q.k === 'tf' ? q.a : q.ok[0], 35);
+    const fastBad = make(q => q.k === 'tf' ? !q.a : 'xyz', 150);
+    if (slowGood.pc <= fastBad.pc) throw new Error('الترتيب مقلوب: ' + slowGood.pc + ' / ' + fastBad.pc);
+    if (slowGood.pc < 85) throw new Error('عوقب الفاهم على بطئه: ' + slowGood.pc);
+  });
+
+  await run('اختبار القراءة يمشي إلى النهاية',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.examReadStart('r-note');
+    if (ev('S').rx.stage !== 'read') throw new Error('لم يبدأ بالقراءة');
+    const html = ctx.examReadView();
+    if (!html.includes('Sami')) throw new Error('النصّ غير معروض');
+    if (html.includes('صح أم خطأ')) throw new Error('الأسئلة ظهرت قبل القراءة');
+    /* نؤخّر لحظة البدء لنحاكي قراءة في زمن معقول (نحو ٨٥ كلمة/دقيقة). */
+    ev('S').rx.began = Date.now() - 47000;
+    ctx.examReadDone();
+    if (!ev('S').rx.ms) throw new Error('لم يُقَس زمن القراءة');
+    const t = ev("READ['r-note']");
+    t.qs.forEach(q => ctx.examReadAnswer(q.k === 'tf' ? q.a : q.ok[0]));
+    const r = ctx.examReadResult();
+    if (r.pc < 90) throw new Error('الإجابات النموذجية نالت ' + r.pc);
+    const rep = ctx.examReadView();
+    if (!rep.includes('٪')) throw new Error('لا نسبة');
+    if (!rep.includes('كلمة في الدقيقة')) throw new Error('لا قياس للسرعة');
+    if (r.rate < 60 || r.rate > 110) throw new Error('حساب السرعة غير معقول: ' + r.rate);
+
+    /* من ضغط «انتهيتُ» فوراً لم يقرأ، فلا ينال درجة السرعة. */
+    ctx.examReadStart('r-note');
+    ctx.examReadDone();
+    if (!ev('S').rx.ms) throw new Error('الضغطة الفورية لم تُسجّل');
+    if (ctx.speedScore(ctx.examReadRate()) !== 0) throw new Error('من لم يقرأ نال درجة السرعة');
+  });
+
+  await run('النصّ يبقى متاحاً أثناء الأسئلة',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.examReadStart('r-note');
+    ctx.examReadDone();
+    const h = ctx.examReadView();
+    if (!h.includes('Sami')) throw new Error('النصّ اختفى — صار اختبار حفظ لا قراءة');
+    if (!h.includes('اعرض النصّ مرّة أخرى')) throw new Error('لا مدخل لمراجعة النصّ');
+  });
+
+  await run('«لا أعرف» تُحتسب خطأ لا تُتجاهَل',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.examReadStart('r-note');
+    ctx.examReadDone();
+    const n = ev("READ['r-note']").qs.length;
+    for (let i = 0; i < n; i++) ctx.examReadSkip();
+    const r = ctx.examReadResult();
+    if (r.pc !== 0) throw new Error('من لم يُجب نال ' + r.pc + '٪');
+    if (r.right !== 0) throw new Error('عُدّت إجابات صحيحة');
+  });
+
+  await run('النتيجة تُحفظ وجلسة القراءة لا تُستورد',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.examReadStart('r-note');
+    ctx.examReadDone();
+    ev("READ['r-note']").qs.forEach(q => ctx.examReadAnswer(q.k === 'tf' ? q.a : q.ok[0]));
+    const pc = ctx.examReadResult().pc;
+    ctx.examReadFinish();
+    if (ev('S').rx) throw new Error('الجلسة لم تُمحَ');
+    if (ev('S').rxBest !== pc) throw new Error('لم تُحفظ النتيجة');
+    ctx.applyImport(JSON.stringify({ placed: true, rx: { id: 'r-note', i: 0 }, rxBest: '<img src=x>' }));
+    if (ev('S').rx) throw new Error('استُوردت جلسة قراءة');
+    if (ev('S').rxBest !== 0) throw new Error('rxBest لم يُقسر عدداً');
+  });
+
+  await run('مطابقة العدد العربية صحيحة مع المؤنث والمذكّر', {}, (ctx, ev) => {
+    const c = ctx.count;
+    const cases = [
+      [1, 'كلمة', 'كلمات', 'كلمة'],
+      [2, 'كلمة', 'كلمات', 'كلمتان'],
+      [2, 'درس', 'دروس', 'درسان'],
+      [3, 'كلمة', 'كلمات', '٣ كلمات'],
+      [10, 'درس', 'دروس', '١٠ دروس'],
+      [15, 'درس', 'دروس', '١٥ درساً'],
+      [64, 'كلمة', 'كلمات', '٦٤ كلمةً']
+    ];
+    cases.forEach(([n, s, p, want]) => {
+      const got = c(n, s, p);
+      if (got !== want) throw new Error(n + ' ' + s + ' => «' + got + '» والمطلوب «' + want + '»');
+    });
+    /* الأرقام في واجهة عربية تُكتب بالأرقام العربية. */
+    if (/[0-9]/.test(c(64, 'كلمة', 'كلمات'))) throw new Error('رقم غربي');
+  });
+
   await report();
+
+
 })();

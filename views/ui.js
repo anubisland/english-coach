@@ -116,8 +116,11 @@ export function esc(t){
 export function count(n, singular, plural) {
   const x = Number(n) || 0;
   if (x === 1) return singular;
-  if (x === 2) return singular + 'ان';
+  /* المثنّى: التاء المربوطة تصير مفتوحة — «كلمتان» لا «كلمةان». */
+  if (x === 2) return /ة$/.test(singular) ? singular.slice(0, -1) + 'تان' : singular + 'ان';
   if (x >= 3 && x <= 10) return ar(x) + ' ' + plural;
-  return ar(x) + ' ' + singular + 'اً';
+  /* تمييز العدد من ١١ فصاعداً مفرد منصوب، والمنتهي بتاء مربوطة ينونُ عليها:
+     «٣ دروس» ثم «١٥ درساً»، لكن «١٥ كلمةً» لا «كلمةاً». */
+  return ar(x) + ' ' + (/ة$/.test(singular) ? singular + 'ً' : singular + 'اً');
 }
 export function ar(n){return String(n).replace(/[0-9]/g,c=>'٠١٢٣٤٥٦٧٨٩'[+c])}

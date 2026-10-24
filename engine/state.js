@@ -23,8 +23,10 @@ export function defaultState(){return{
   snd:null,                 // تدريب الأصوات الجاري (لحظي)
   cx:null,                  // اختبار المحادثة الجاري (لحظي)
   wx:null,                  // اختبار الكتابة الجاري (لحظي)
+  rx:null,                  // اختبار القراءة الجاري (لحظي)
   cxBest:0,                 // أفضل نسبة في اختبار المحادثة
   wxBest:0,                 // أفضل نسبة في اختبار الكتابة
+  rxBest:0,                 // أفضل نسبة في اختبار القراءة
   ruleOpen:null,            // بطاقة القاعدة المفتوحة حالياً
   theme:'light',            // النهاري هو الافتراضي، والليلي اختيار
   goal:10,                  // هدف دقائق الكلام اليومي
@@ -129,16 +131,17 @@ export function migrate(saved){
   if(saved.attempts&&typeof saved.attempts==='object')S.attempts=cleanAttempts(saved.attempts);
   if(saved.chat&&typeof saved.chat==='object')Object.assign(S.chat,cleanChat(saved.chat));
   /* اختبار الترجمة جلسة لحظية: لا يُستورد ولا يُستعاد. */
-  S.tr=null;S.snd=null;S.cx=null;S.wx=null;
+  S.tr=null;S.snd=null;S.cx=null;S.wx=null;S.rx=null;
   /* نسبة وحدها تُستورد، بعد قسرها عدداً في مداها. */
   S.cxBest=Math.max(0,Math.min(100,Math.round(Number(saved.cxBest))||0));
   S.wxBest=Math.max(0,Math.min(100,Math.round(Number(saved.wxBest))||0));
+  S.rxBest=Math.max(0,Math.min(100,Math.round(Number(saved.rxBest))||0));
   S.v=SCHEMA;
   return S;
 }
 
 export const LEVELS=['A1','A2'];
-export const VIEWS_KEYS=['home','course','speak','settings','translate','sounds','examconv','examwrite'];   // يجب أن يطابق مفاتيح VIEWS في app.js
+export const VIEWS_KEYS=['home','course','speak','settings','translate','sounds','examconv','examwrite','examread'];   // يجب أن يطابق مفاتيح VIEWS في app.js
 export let S,bootWarn=null;
 
 /* يُستدعى مرة عند الإقلاع، ومرة لكل اختبار، فالحالة تُبنى لا تُستورد جاهزة. */
