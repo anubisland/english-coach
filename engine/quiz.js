@@ -7,6 +7,7 @@ import {hooks} from './bus.js';
 import {unitItems,itemsUpTo,shuffle,PLACE,lessonOpen,unitOf,skillOf} from './progress.js';
 import {words,lev} from './pronounce.js';
 import {normalize} from './translate.js';
+import {record,dueKeys,dueSoon,boxCounts,masteredCount,BOXES} from './srs.js';
 
 /* 12 سؤالاً: ثلاثة لكل وحدة ليكون حكمها ذا معنى، وثلاثة لجسّ A2.
    النتيجة تقرر تخطي وحدات كاملة، فدقتها أهم من قِصَرها. */
@@ -27,6 +28,13 @@ export function _launch(kind,id){
     const pool=itemsUpTo(3).filter(it=>d.skills.indexOf(skillOf(it))>=0);
     const items=shuffle(pool).slice(0,Math.min(6,pool.length));
     Object.assign(q,{items,title:'تدريب موجَّه',need:items.length});
+  }
+  /* المراجعة: ما استحقّ من صناديق لايتنر، الأقدم استحقاقاً أولاً.
+     ولا نضع أكثر من اثني عشر في الجلسة الواحدة: من غاب شهراً لا يصحّ أن
+     يُستقبل بمائة سؤال، فيترك البرنامج من ثقلها. الباقي ينتظر الغد. */
+  else if(kind==='review'){
+    const items=reviewQueue();
+    Object.assign(q,{items,title:'مراجعة اليوم',need:items.length});
   }
   else if(kind==='place'){q.title='تحديد المستوى';q.items=[];q.items.push(pickPlace(q))}
   S.q=q;hooks.render();window.scrollTo(0,0);
@@ -60,7 +68,7 @@ export function pickPlace(q){
 export function pick(k){
   const q=S.q;if(q.picked!=null)return;
   const it=q.items[q.i],ok=k===it.a;
-  q.picked=k;q.choiceOk=ok;if(q.kind!=='conv'){q.got.push(ok);if(!ok)q.wrong.push(it)}
+  q.picked=k;q.choiceOk=ok;if(q.kind!=='conv'){q.got.push(ok);if(!ok)q.wrong.push(it);remember(it,ok)}
   if(q.kind==='place')q.theta=Math.min(2,Math.max(1,q.theta+(ok?0.5:-0.5)));
   hooks.render();
 }
@@ -85,7 +93,7 @@ export function answerTyped(text){
   const said=String(text===undefined?typedField():text||'').trim();
   if(!said)return;
   const ok=typedOk(said,it.ok);
-  q.picked=-1;q.typedAns=said;q.choiceOk=ok;
+  q.picked=-1;q.typedAns=said;q.choiceOk=ok;remember(it,ok);
   q.got.push(ok);if(!ok)q.wrong.push(it);
   if(q.kind==='place')q.theta=Math.min(2,Math.max(1,q.theta+(ok?0.5:-0.5)));
   hooks.render();
@@ -96,9 +104,35 @@ export function revealTyped(){
   const q=S.q;if(!q||q.picked!=null)return;
   const it=q.items[q.i];
   if(!itemTyped(it))return;
-  q.picked=-1;q.typedAns='';q.choiceOk=false;
+  q.picked=-1;q.typedAns='';q.choiceOk=false;remember(it,false);
   q.got.push(false);q.wrong.push(it);
   hooks.render();
+}
+
+/* كل إجابة تُحرّك السؤال بين الصناديق. والمحادثة مستثناة لأن أدوارها
+   ليست تمارين مستقلّة، وتحديد المستوى مستثنى لأنّه قياس قبل التعلّم لا بعده. */
+function remember(it,ok){
+  if(!it||!it.q||!S.q)return;
+  const k=S.q.kind;
+  if(k==='conv'||k==='place')return;
+  record(S.srs,it.q,ok);
+  /* نحفظ عند كل إجابة لا عند نهاية الاختبار: من أغلق الصفحة في منتصف
+     الدرس لا يصحّ أن تضيع مواعيد مراجعته، وهي أصل الفائدة هنا. */
+  save();
+}
+
+/* الطابور يُبنى من نصوص الأسئلة إلى التمارين نفسها، وما لم نعد نجده
+   يُتجاهل بلا ضجيج: قد يكون سؤالاً حُذف من البنك بعد أن درسه. */
+const BY_Q=new Map(LESSONS.flatMap(l=>l.items).map(i=>[i.q,i]));
+
+export function reviewQueue(n){
+  return dueKeys(S.srs).map(k=>BY_Q.get(k)).filter(Boolean).slice(0,n||12);
+}
+
+export function reviewStats(){
+  return {due:reviewQueue(999).length, soon:dueSoon(S.srs,1),
+    boxes:boxCounts(S.srs), mastered:masteredCount(S.srs),
+    tracked:Object.keys(S.srs).length, top:BOXES.length};
 }
 
 export const itemTyped=it=>!!it&&it.k!=null&&it.k!=='mcq';
@@ -129,7 +163,8 @@ export function endQ(){
      وأي تقرير أداء بلا هذا الرقم يبالغ. */
   const key=attemptKey(q);
   if(key){S.attempts[key]=(S.attempts[key]||0)+1;q.attempt=S.attempts[key]}
-  if(q.kind==='lesson'){q.pass=q.score===q.items.length;if(q.pass){S.lessons[q.id]=true;addXp(20)}}
+  if(q.kind==='review'){q.pass=q.score>=Math.ceil(q.items.length*0.7);addXp(q.score*3)}
+  else if(q.kind==='lesson'){q.pass=q.score===q.items.length;if(q.pass){S.lessons[q.id]=true;addXp(20)}}
   else if(q.kind==='cp'){
     q.pass=q.score>=q.need;
     if(q.pass){S.cp[q.id]=true;addXp(50);if(S.drill&&S.drill.unit===q.id)S.drill=null}

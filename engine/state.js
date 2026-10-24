@@ -26,6 +26,7 @@ export function defaultState(){return{
   rx:null,                  // اختبار القراءة الجاري (لحظي)
   cxBest:0,                 // أفضل نسبة في اختبار المحادثة
   wxBest:0,                 // أفضل نسبة في اختبار الكتابة
+  srs:{},                   // صناديق المراجعة المتباعدة: نصّ السؤال -> {b,due,seen}
   rxBest:0,                 // أفضل نسبة في اختبار القراءة
   ruleOpen:null,            // بطاقة القاعدة المفتوحة حالياً
   theme:'light',            // النهاري هو الافتراضي، والليلي اختيار
@@ -36,6 +37,10 @@ export function defaultState(){return{
 /* الحالة المحفوظة قد تأتي من ملف يستورده المتعلم من شخص آخر، فهي مدخل
    غير موثوق لا مجرد ذاكرة متصفحه. لا ننسخ منها إلا ما نعرفه بالاسم:
    المفاتيح المعروفة، والأنواع المتوقعة، والقيم ضمن حدودها. */
+/* مفاتيح srs نصوصُ أسئلة، والملفّ المستورد غير موثوق، فلا نقبل إلا
+   ما يطابق سؤالاً موجوداً عندنا حرفاً بحرف. ما عداه يُطرح. */
+const QKEYS=new Set(LESSONS.flatMap(l=>l.items.map(i=>i.q)).filter(Boolean));
+
 const KNOWN={
   lessons:LESSONS.map(l=>l.id),
   conv:['c1','c2','c3','c4','c5','c6'],
@@ -136,11 +141,27 @@ export function migrate(saved){
   S.cxBest=Math.max(0,Math.min(100,Math.round(Number(saved.cxBest))||0));
   S.wxBest=Math.max(0,Math.min(100,Math.round(Number(saved.wxBest))||0));
   S.rxBest=Math.max(0,Math.min(100,Math.round(Number(saved.rxBest))||0));
+  S.srs=cleanSrs(saved.srs);
   S.v=SCHEMA;
   return S;
 }
 
 export const LEVELS=['A1','A2'];
+/* كل حقل يُقسر إلى مداه: صندوق خارج ١..٥ أو موعد غير عدد يُفسد الطابور. */
+function cleanSrs(o){
+  const out={};
+  if(!o||typeof o!=='object')return out;
+  Object.keys(o).forEach(k=>{
+    if(!QKEYS.has(k))return;
+    const e=o[k];
+    if(!e||typeof e!=='object')return;
+    const b=Math.max(1,Math.min(5,Math.round(Number(e.b))||1));
+    const due=Number(e.due), seen=Number(e.seen);
+    out[k]={b,due:Number.isFinite(due)?due:Date.now(),seen:Number.isFinite(seen)?seen:Date.now()};
+  });
+  return out;
+}
+
 export const VIEWS_KEYS=['home','course','speak','settings','translate','sounds','examconv','examwrite','examread'];   // يجب أن يطابق مفاتيح VIEWS في app.js
 export let S,bootWarn=null;
 

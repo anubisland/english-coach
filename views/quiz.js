@@ -21,7 +21,23 @@ export function itemRuleHtml(q,it){
   return ruleCard(id,'brief');
 }
 /* الرسوب في بوابة لا يعرض «أعد المحاولة»، بل يوجّه إلى تدريب ما أخطأ فيه. */
+
+/* المراجعة ليست بوابة تُجتاز، فلا يصحّ أن يُقال فيها «المطلوب كذا إجابات»:
+   المقصود منها تحريك الصناديق، وما أخطأ فيه سيعود إليه غداً وحده. */
+function resultNote(q){
+  if(q.kind==='review'){
+    const miss=q.items.length-q.score;
+    return miss?'ما أخطأت فيه رجع إلى صندوق اليوم وسيعود غداً، وما أصبتَ طال أجله.'
+      :'أصبتَ في كلّها، فطالت آجالها جميعاً. لن تعود قريباً.';
+  }
+  return q.pass?'أحسنت، تابع إلى الخطوة التالية':'المطلوب '+ar(q.need)+' إجابات صحيحة';
+}
+
 function resultActions(q){
+  /* المراجعة لا تُعاد: ما أخطأت فيه رجع إلى صندوق اليوم وسيعود غداً وحده،
+     وإعادته الآن تقيس الذاكرة القريبة لا المحفوظ — وهذا ينقض المقصود. */
+  if(q.kind==='review')
+    return '<button class="btn" onclick="goHome()">تمام</button>';
   if(q.pass)
     return q.kind==='drill'
       ? '<button class="btn" onclick="launch(\'cp\','+q.id+')">أعد اختبار الوحدة</button>'
@@ -68,7 +84,7 @@ export function quizView(){
         <div class="dsp" style="font-size:52px;line-height:1;color:${q.pass?'var(--green)':'var(--amber)'}">${ar(q.score)}<span style="font-size:24px;color:var(--mute)">/${ar(q.items.length)}</span></div>
         <div class="bar" style="max-width:220px;margin:14px auto 0"><i style="width:${pc}%;background:${q.pass?'var(--green)':'var(--amber)'}"></i></div>
         <h2 style="margin-top:14px">${q.pass?'🎉 اجتزت '+q.title:'لم تجتز بعد'}</h2>
-        <p class="muted">${q.pass?'أحسنت، تابع إلى الخطوة التالية':'المطلوب '+ar(q.need)+' إجابات صحيحة'}${
+        <p class="muted">${resultNote(q)}${
           q.attempt&&q.attempt>1?' · المحاولة '+ar(q.attempt):''}</p>
         <div class="row" style="margin-top:6px">${resultActions(q)}</div>
       </div>${tips?card('ما تحتاج مراجعته',tips):''}`;

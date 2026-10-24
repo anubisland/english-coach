@@ -1816,12 +1816,180 @@ const { run, report } = require('./harness.js');
     ctx.examReadStart('r-note');
     ctx.examReadDone();
     screens.push(['القراءة', ctx.examReadView()]);
+    /* شاشة النتيجة أيضاً: وهي التي كان فيها «٤/٥». */
+    ctx.launch('lesson', '1.3');
+    const lq = ev('S').q;
+    for (let i = 0; i < lq.items.length; i++) {
+      const it = lq.items[lq.i];
+      if (ctx.itemTyped(it)) ctx.answerTyped(it.ok[0]); else ctx.pick(it.a);
+      ctx.nextQ();
+    }
+    screens.push(['النتيجة', ctx.quizView()]);
+
+    /* الممنوع هو الشرطة بين مسافتين: هي التي تكسر مجرى العدد فينعكس.
+       أمّا «٤/٥» ملتصقة فتبقى مجرى عددياً واحداً ولا تنعكس. */
     screens.forEach(([name, html]) => {
-      if (/[٠-٩]\s*\/\s*[٠-٩]/.test(html)) throw new Error('عدّاد بشرطة في شاشة ' + name);
+      if (/[٠-٩]\s+\/|\/\s+[٠-٩]/.test(html)) throw new Error('عدّاد بشرطة مفصولة في شاشة ' + name);
+    });
+  });
+
+  console.log('— المراجعة المتباعدة —');
+
+  await run('الصندوق يرتفع بالإصابة ويرجع للأول بالخطأ', {}, (ctx, ev) => {
+    const DAY = ev('DAY'), t0 = 1700000000000;
+    const srs = {};
+    ctx.record(srs, 'a', false, t0);
+    ctx.record(srs, 'b', true, t0);
+    if (srs.a.b !== 1) throw new Error('الخطأ لم يرجع للصندوق الأول: ' + srs.a.b);
+    /* لو بدأت الإصابة الأولى من الصندوق الأول لاستوى المصيب والمخطئ. */
+    if (srs.b.b !== 2) throw new Error('الإصابة الأولى لم تبدأ من الثاني: ' + srs.b.b);
+    if (srs.b.due <= srs.a.due) throw new Error('أجل المصيب ليس أطول من أجل المخطئ');
+
+    for (let i = 0; i < 9; i++) ctx.record(srs, 'b', true, t0);
+    if (srs.b.b !== ev('BOXES').length) throw new Error('لم يبلغ الصندوق الأخير');
+    ctx.record(srs, 'b', false, t0);
+    if (srs.b.b !== 1) throw new Error('الخطأ لم يُرجعه من الصندوق الأخير إلى الأول');
+  });
+
+  await run('لا يستحقّ شيء قبل أجله', {}, (ctx, ev) => {
+    const DAY = ev('DAY'), t0 = 1700000000000;
+    const srs = {};
+    ctx.record(srs, 'wrong', false, t0);
+    ctx.record(srs, 'right', true, t0);
+    if (ctx.dueKeys(srs, t0).length) throw new Error('استحقّ شيء في لحظة الإجابة');
+    const d1 = ctx.dueKeys(srs, t0 + DAY + 1000);
+    if (d1.length !== 1 || d1[0] !== 'wrong') throw new Error('بعد يوم: ' + d1.join(','));
+    const d3 = ctx.dueKeys(srs, t0 + 3 * DAY + 1000);
+    if (d3.length !== 2) throw new Error('بعد ثلاثة أيام: ' + d3.join(','));
+    /* الأقدم استحقاقاً أولاً. */
+    if (d3[0] !== 'wrong') throw new Error('الترتيب ليس بالأقدم استحقاقاً');
+  });
+
+  await run('الأجل يُحسب من لحظة الإجابة فلا تتراكم الديون', {}, (ctx, ev) => {
+    const DAY = ev('DAY'), t0 = 1700000000000;
+    const srs = {};
+    ctx.record(srs, 'x', true, t0);
+    /* غاب شهراً ثم أجاب: الموعد التالي من اليوم لا من موعد فائت. */
+    const late = t0 + 30 * DAY;
+    ctx.record(srs, 'x', true, late);
+    if (srs.x.due <= late) throw new Error('الموعد التالي في الماضي');
+    if (srs.x.due - late > 40 * DAY) throw new Error('أجل غير معقول');
+  });
+
+  await run('الإجابة في الدرس تُسجَّل في المراجعة',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    if (Object.keys(ev('S').srs).length) throw new Error('بدأ غير فارغ');
+    ctx.launch('lesson', '1.1');
+    const q = ev('S').q;
+    const it = q.items[0];
+    if (ctx.itemTyped(it)) ctx.answerTyped(it.ok[0]); else ctx.pick(it.a);
+    const e = ev('S').srs[it.q];
+    if (!e) throw new Error('لم تُسجَّل الإجابة');
+    if (e.b !== 2) throw new Error('الإجابة الصحيحة لم ترفع الصندوق: ' + e.b);
+    ctx.nextQ();
+    const it2 = q.items[1];
+    if (ctx.itemTyped(it2)) ctx.answerTyped('zzz'); else ctx.pick((it2.a + 1) % it2.o.length);
+    if (ev('S').srs[it2.q].b !== 1) throw new Error('الخطأ لم يُسجَّل في الصندوق الأول');
+  });
+
+  /* المحادثة أدوارها ليست تمارين مستقلّة، وتحديد المستوى قياس قبل التعلّم. */
+  await run('المحادثة وتحديد المستوى لا يدخلان المراجعة',
+    { 'eng-coach-v3': JSON.stringify({ placed: false }) }, (ctx, ev) => {
+    ctx.launch('place');
+    for (let i = 0; i < 4; i++) { ctx.pick(0); ctx.nextQ() }
+    if (Object.keys(ev('S').srs).length) throw new Error('تحديد المستوى دخل المراجعة');
+  });
+
+  await run('جلسة المراجعة تبني طابورها من المستحقّ',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    const S = ev('S'), DAY = ev('DAY');
+    const items = ev('LESSONS')[0].items.slice(0, 3);
+    items.forEach(it => { S.srs[it.q] = { b: 1, due: Date.now() - DAY, seen: Date.now() - 2 * DAY } });
+    const queue = ctx.reviewQueue();
+    if (queue.length !== 3) throw new Error('الطابور: ' + queue.length);
+    ctx.launch('review');
+    if (ev('S').q.items.length !== 3) throw new Error('جلسة المراجعة لم تأخذ المستحقّ');
+    if (!ev('S').q.title.includes('مراجعة')) throw new Error('لا عنوان');
+  });
+
+  await run('المراجعة لا تتجاوز اثني عشر في الجلسة',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    const S = ev('S'), DAY = ev('DAY');
+    ev('LESSONS').flatMap(l => l.items).forEach(it => {
+      S.srs[it.q] = { b: 1, due: Date.now() - DAY, seen: Date.now() - 2 * DAY };
+    });
+    const stats = ctx.reviewStats();
+    if (stats.due < 100) throw new Error('المستحقّ قليل: ' + stats.due);
+    if (ctx.reviewQueue().length !== 12) throw new Error('الجلسة: ' + ctx.reviewQueue().length);
+  });
+
+  await run('بطاقة المراجعة تظهر في الصفحة الأولى',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    const S = ev('S'), DAY = ev('DAY');
+    if (ctx.homeView().includes('مراجعة اليوم')) throw new Error('ظهرت بلا أي سجلّ');
+    const it = ev('LESSONS')[0].items[0];
+    /* مستحقّ الآن */
+    S.srs[it.q] = { b: 1, due: Date.now() - 1000, seen: Date.now() - DAY };
+    const h = ctx.homeView();
+    if (!h.includes('مراجعة اليوم')) throw new Error('لم تظهر مع وجود مستحقّ');
+    if (!h.includes('ابدأ المراجعة')) throw new Error('لا زر');
+    /* لم يحن بعد */
+    S.srs[it.q] = { b: 2, due: Date.now() + 2 * DAY, seen: Date.now() };
+    const h2 = ctx.homeView();
+    if (h2.includes('ابدأ المراجعة')) throw new Error('عرضت زراً بلا مستحقّ');
+    if (!h2.includes('لا شيء مستحقّ اليوم')) throw new Error('لا طمأنة');
+  });
+
+  await run('المراجعة لا تُستورد إلا لأسئلة موجودة', {}, (ctx, ev) => {
+    const real = ev('LESSONS')[0].items[0].q;
+    ctx.applyImport(JSON.stringify({
+      placed: true,
+      srs: {
+        [real]: { b: 3, due: 123, seen: 1 },
+        '<img src=x onerror=alert(1)>': { b: 1, due: 1, seen: 1 },
+        'سؤال غير موجود': { b: 2, due: 1, seen: 1 },
+        'آخر': 'ليس كائناً'
+      }
+    }));
+    const srs = ev('S').srs;
+    const keys = Object.keys(srs);
+    if (keys.length !== 1 || keys[0] !== real) throw new Error('قبل مفاتيح غريبة: ' + keys.join(' | '));
+    if (srs[real].b !== 3) throw new Error('لم يُحفظ الصندوق الصحيح');
+    if (!ctx.homeView || ctx.homeView().includes('<img src=x')) throw new Error('وسم وصل إلى الشاشة');
+  });
+
+  await run('قيم المراجعة الفاسدة تُقسر إلى مداها', {}, (ctx, ev) => {
+    const real = ev('LESSONS')[0].items[0].q;
+    ctx.applyImport(JSON.stringify({
+      placed: true, srs: { [real]: { b: 999, due: 'غداً', seen: null } }
+    }));
+    const e = ev('S').srs[real];
+    if (e.b !== 5) throw new Error('الصندوق لم يُقسر: ' + e.b);
+    if (!Number.isFinite(e.due)) throw new Error('الموعد ليس عدداً');
+  });
+
+  await run('المراجعة لا تعرض «أعد المحاولة»',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    const S = ev('S'), DAY = ev('DAY');
+    const items = ev('LESSONS')[0].items.filter(i => !ctx.itemTyped(i)).slice(0, 2);
+    items.forEach(it => { S.srs[it.q] = { b: 1, due: Date.now() - DAY, seen: Date.now() } });
+    ctx.launch('review');
+    const q = ev('S').q;
+    for (let i = 0; i < q.items.length; i++) {
+      const it = q.items[q.i];
+      ctx.pick((it.a + 1) % it.o.length);          // أخطأ في الكل
+      ctx.nextQ();
+    }
+    const html = ctx.quizView();
+    if (html.includes('أعد المحاولة')) throw new Error('عرضت إعادة المحاولة');
+    /* ما أخطأ فيه رجع إلى الصندوق الأول ليعود غداً وحده. */
+    items.forEach(it => {
+      if (ev('S').srs[it.q].b !== 1) throw new Error('الخطأ لم يُرجع السؤال للصندوق الأول');
     });
   });
 
   await report();
+
 
 
 
