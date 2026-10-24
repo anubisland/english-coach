@@ -2,7 +2,7 @@
 import {LESSONS} from '../content/lessons.js';
 import {S,logError} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
-import {ITEM_RULE} from '../engine/progress.js';
+import {ITEM_RULE,UNIT_NS} from '../engine/progress.js';
 import {speakTurn,startFrom,itemTyped} from '../engine/quiz.js';
 import {card,svg,ar,ruleCard,toggleRule,esc} from './ui.js';
 
@@ -52,7 +52,7 @@ export function quizView(){
   const q=S.q;
   if(q.done){
     if(q.kind==='place'){const p=S.place;
-      const bars=[1,2,3].map(u=>{
+      const bars=UNIT_NS.map(u=>{
         const a=p.acc&&p.acc[u];
         const pc=a===null||a===undefined?0:Math.round(a*100);
         return `<div style="margin-top:9px">
@@ -62,7 +62,7 @@ export function quizView(){
           <div class="bar" style="margin-top:4px"><i style="width:${pc}%;background:${a>=0.75?'var(--green)':'var(--amber)'}"></i></div></div>`;
       }).join('');
 
-      const sug=[1,2,3].includes(Number(p.suggest))?Number(p.suggest):1;
+      const sug=UNIT_NS.includes(Number(p.suggest))?Number(p.suggest):1;
       return `<div class="card" style="text-align:center;padding-top:22px">
           <span class="muted" style="font-size:12px">من أين تبدأ</span>
           <div class="dsp" style="font-size:42px;line-height:1.15">الوحدة ${ar(sug)}</div>

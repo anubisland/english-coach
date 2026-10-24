@@ -1,6 +1,6 @@
 /* حالة التطبيق: تعريفها الكامل، وترقية المحفوظ القديم، وحفظها.
    أي حقل جديد يُضاف إلى defaultState أولاً، وإلا انهار التطبيق عند أول استخدام. */
-import {LESSONS} from '../content/lessons.js';
+import {LESSONS,UNITS} from '../content/lessons.js';
 import {RULE} from '../content/rules.js';
 import {GR} from './grammar.js';
 import {hooks} from './bus.js';
@@ -39,6 +39,9 @@ export function defaultState(){return{
    المفاتيح المعروفة، والأنواع المتوقعة، والقيم ضمن حدودها. */
 /* مفاتيح srs نصوصُ أسئلة، والملفّ المستورد غير موثوق، فلا نقبل إلا
    ما يطابق سؤالاً موجوداً عندنا حرفاً بحرف. ما عداه يُطرح. */
+/* أرقام الوحدات من المحتوى: لا تُكتب يدوياً فتتخلّف عند إضافة وحدة. */
+const UNIT_NS=UNITS.map(u=>u.n).sort((a,b)=>a-b);
+
 const QKEYS=new Set(LESSONS.flatMap(l=>l.items.map(i=>i.q)).filter(Boolean));
 
 const KNOWN={
@@ -72,7 +75,7 @@ function cleanAttempts(obj){
 function cleanDrill(d){
   if(!d||typeof d!=='object')return null;
   const unit=Number(d.unit);
-  if(![1,2,3].includes(unit))return null;
+  if(!UNIT_NS.includes(unit))return null;
   const skills=Array.isArray(d.skills)?d.skills.filter(s=>KNOWN.skills.includes(s)):[];
   if(!skills.length)return null;
   return {unit,skills,from:d.from==='ret'?'ret':'cp'};
@@ -80,12 +83,12 @@ function cleanDrill(d){
 function cleanPlace(p){
   const num=v=>Number.isFinite(v)?v:null;
   const acc={};
-  if(p.acc&&typeof p.acc==='object')[1,2,3].forEach(u=>{acc[u]=num(p.acc[u])});
+  if(p.acc&&typeof p.acc==='object')UNIT_NS.forEach(u=>{acc[u]=num(p.acc[u])});
   const sug=Number(p.suggest);
   return {
     a1:num(p.a1)||0,a2:num(p.a2)||0,
     n1:num(p.n1)||0,n2:num(p.n2)||0,
-    acc,suggest:[1,2,3].includes(sug)?sug:1
+    acc,suggest:UNIT_NS.includes(sug)?sug:1
   };
 }
 function cleanChat(c){

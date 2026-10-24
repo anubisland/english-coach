@@ -2401,7 +2401,62 @@ const { run, report } = require('./harness.js');
       throw new Error('العدد لا يظهر على الشاشة');
   });
 
+  console.log('— المحرّك يتّسع للوحدات الجديدة —');
+
+  /* كانت [1,2,3] مكتوبة في خمسة عشر موضعاً، فإضافة وحدة رابعة تُسقطها
+     من الامتحان النهائي وتحديد المستوى وفتح الوحدات — صامتةً بلا خطأ. */
+  await run('أرقام الوحدات مشتقّة من المحتوى لا مكتوبة', {}, (ctx, ev) => {
+    const ns = ev('UNIT_NS'), units = ev('UNITS');
+    if (ns.length !== units.length) throw new Error('العدد لا يطابق المحتوى');
+    units.forEach(u => { if (!ns.includes(u.n)) throw new Error('وحدة غائبة: ' + u.n) });
+    if (ev('LAST_UNIT') !== Math.max(...units.map(u => u.n))) throw new Error('آخر وحدة خطأ');
+  });
+
+  await run('الامتحان النهائي يسحب من كل الوحدات',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    const last = ev('LAST_UNIT');
+    const all = ctx.itemsUpTo(last).length;
+    const allItems = ev('LESSONS').flatMap(l => l.items).length;
+    if (all !== allItems) throw new Error('itemsUpTo لا يشمل الكل: ' + all + ' من ' + allItems);
+    /* ولا يسحب من وحدة لم تُفتح بعد حين نطلب ما دونها. */
+    const upTo1 = ctx.itemsUpTo(1).length;
+    if (upTo1 >= all) throw new Error('itemsUpTo(1) يشمل أكثر ممّا ينبغي');
+  });
+
+  await run('تحديد المستوى يقيس كل الوحدات',
+    { 'eng-coach-v3': JSON.stringify({ placed: false }) }, (ctx, ev) => {
+    ctx.launch('place');
+    const n = ev('PLACE_N') || 12;
+    for (let i = 0; i < n + 2 && ev('S').q; i++) {
+      const q = ev('S').q;
+      if (q.done) break;
+      const it = q.items[q.i];
+      if (!it) break;
+      if (ctx.itemTyped(it)) ctx.answerTyped(it.ok[0]); else ctx.pick(it.a);
+      ctx.nextQ();
+    }
+    const acc = ev('S').place && ev('S').place.acc;
+    if (!acc) throw new Error('لا قياس');
+    ev('UNIT_NS').forEach(u => {
+      if (!(u in acc)) throw new Error('الوحدة ' + u + ' لم تدخل القياس');
+    });
+  });
+
+  await run('الامتحان النهائي لا يُفتح قبل اجتياز كل الوحدات',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    const S = ev('S'), ns = ev('UNIT_NS'), last = ev('LAST_UNIT');
+    S.cp = {}; S.ret = {};
+    if (ctx.examOpen()) throw new Error('مفتوح بلا اجتياز شيء');
+    ns.forEach(u => { S.cp[u] = true });
+    ns.filter(u => u < last).forEach(u => { S.ret[u] = true });
+    if (!ctx.examOpen()) throw new Error('لم يُفتح بعد اجتياز الكل');
+    /* إسقاط وحدة واحدة يُغلقه. */
+    delete S.cp[last];
+    if (ctx.examOpen()) throw new Error('مفتوح والوحدة الأخيرة لم تُجتَز');
+  });
+
   await report();
+
 
 
 

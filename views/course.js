@@ -2,7 +2,7 @@
 import {UNITS,LESSONS} from '../content/lessons.js';
 import {S,save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
-import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen,unitDone} from '../engine/progress.js';
+import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen,unitDone,LAST_UNIT} from '../engine/progress.js';
 import {RULE} from '../content/rules.js';
 import {card,svg,ar,ruleCard,esc,count,resultLine} from './ui.js';
 import {nextStep} from './home.js';
@@ -126,7 +126,7 @@ export function drillBtn(){
     <button class="btn" onclick="launch('drill',${Number(S.drill.unit)||1})">درّبني على ما أخطأت فيه</button></div>`;
 }
 export function retBtn(u){
-  if(!S.cp[u]||u===3) return '';
+  if(!S.cp[u]||u===LAST_UNIT) return '';
   if(S.ret[u]) return '<span class="pill">✓ الاستبقاء مُجتاز</span>';
   if(S.drill&&S.drill.unit===u) return '';          // التدريب أولاً، ويظهر عند البوابة
   return `<button class="btn ghost" onclick="launch('ret',${u})">اختبار الاستبقاء</button>`;

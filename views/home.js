@@ -2,7 +2,7 @@
 import {LESSONS} from '../content/lessons.js';
 import {S,save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
-import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen} from '../engine/progress.js';
+import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen,UNIT_NS} from '../engine/progress.js';
 import {reviewStats} from '../engine/quiz.js';
 import {cefrReport} from '../engine/cefr.js';
 import {BOXES} from '../engine/srs.js';
@@ -11,7 +11,7 @@ import {card,svg,ar,count,esc} from './ui.js';
 /* الخطوة التالية بالضبط، ومعها مرساة محطتها على خط الرحلة.
    كل من يحتاج أن يعرف «إلى أين الآن؟» يسأل هذه الدالة — لا قائمة الدروس. */
 export function nextStep(){
-  for(const u of [1,2,3]){
+  for(const u of UNIT_NS){
     if(!unitOpen(u))continue;
     if(S.skipped[u])continue;            // تخطّاها اختبار المستوى: لا تقترحها
     const l=unitLessons(u).find(x=>lessonOpen(x)&&!S.lessons[x.id]);

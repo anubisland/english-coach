@@ -4,7 +4,7 @@ import {LESSONS} from '../content/lessons.js';
 import {CONVO} from '../content/convo.js';
 import {S,save,addXp} from './state.js';
 import {hooks} from './bus.js';
-import {unitItems,itemsUpTo,shuffle,PLACE,lessonOpen,unitOf,skillOf} from './progress.js';
+import {unitItems,itemsUpTo,shuffle,PLACE,lessonOpen,unitOf,skillOf,UNIT_NS,LAST_UNIT} from './progress.js';
 import {words,lev} from './pronounce.js';
 import {normalize} from './translate.js';
 import {record,dueKeys,dueSoon,boxCounts,masteredCount,BOXES} from './srs.js';
@@ -19,13 +19,13 @@ export function _launch(kind,id){
   if(kind==='lesson'){const l=LESSONS.find(x=>x.id===id);Object.assign(q,{items:l.items,title:'درس '+l.id,need:l.items.length})}
   else if(kind==='cp'){Object.assign(q,{items:shuffle(unitItems(id)).slice(0,8),title:'اختبار الوحدة '+id,need:7})}
   else if(kind==='ret'){Object.assign(q,{items:shuffle(itemsUpTo(id)).slice(0,4),title:'اختبار الاستبقاء (حتى الوحدة '+id+')',need:3})}
-  else if(kind==='exam'){Object.assign(q,{items:shuffle(itemsUpTo(3)).slice(0,10),title:'الامتحان النهائي A1',need:8})}
+  else if(kind==='exam'){Object.assign(q,{items:shuffle(itemsUpTo(LAST_UNIT)).slice(0,10),title:'الامتحان النهائي A1',need:8})}
   else if(kind==='conv'){const c=CONVO.find(x=>x.id===id);Object.assign(q,{title:'محادثة: '+c.t,items:c.turns.map(t=>({q:t.p,o:t.o,a:t.a,tip:t.tip})),need:c.turns.length})}
   /* pickPlace تقرأ q.items لتتجنّب تكرار سؤال، فيجب أن توجد قبل أول نداء. */
   /* تدريب من المهارات التي أخطأ فيها في البوابة وحدها — لا الوحدة كلها. */
   else if(kind==='drill'){
     const d=S.drill||{skills:[]};
-    const pool=itemsUpTo(3).filter(it=>d.skills.indexOf(skillOf(it))>=0);
+    const pool=itemsUpTo(LAST_UNIT).filter(it=>d.skills.indexOf(skillOf(it))>=0);
     const items=shuffle(pool).slice(0,Math.min(6,pool.length));
     Object.assign(q,{items,title:'تدريب موجَّه',need:items.length});
   }
@@ -52,14 +52,14 @@ export function pickPlace(q){
 
   /* لا نجسّ A2 قبل أن تأخذ كل وحدة ثلاثة أسئلة، وإلا جاءت دقتها من سؤالين
      فلا تكفي للحكم عليها. */
-  if(q.theta>=1.5&&[1,2,3].every(u=>seen[u]>=3)){
+  if(q.theta>=1.5&&UNIT_NS.every(u=>seen[u]>=3)){
     const a2=pool.filter(x=>x.lv===2);
     if(a2.length)return shuffle(a2)[0];
   }
 
   const a1=pool.filter(x=>x.lv===1);
   if(!a1.length)return shuffle(pool)[0];
-  for(const u of [1,2,3].sort((p,r)=>seen[p]-seen[r])){
+  for(const u of UNIT_NS.slice().sort((p,r)=>seen[p]-seen[r])){
     const c=a1.filter(x=>unitOf(x)===u);
     if(c.length)return shuffle(c)[0];
   }
@@ -203,12 +203,12 @@ export function endQ(){
       units[u]=units[u]||{ok:0,n:0};
       units[u].n++;if(q.got[i])units[u].ok++;
     });
-    const acc={};[1,2,3].forEach(u=>{acc[u]=units[u]&&units[u].n>=2?units[u].ok/units[u].n:null});
+    const acc={};UNIT_NS.forEach(u=>{acc[u]=units[u]&&units[u].n>=2?units[u].ok/units[u].n:null});
 
     /* أول وحدة لم يُتقنها، أو لم نقِسها أصلاً. لا نتخطى ما لم نقِسه. */
     let suggest=1;
-    for(const u of [1,2,3]){ if(acc[u]!==null&&acc[u]>=0.75)suggest=u+1; else break }
-    if(suggest>3)suggest=3;
+    for(const u of UNIT_NS){ if(acc[u]!==null&&acc[u]>=0.75)suggest=u+1; else break }
+    if(suggest>LAST_UNIT)suggest=LAST_UNIT;
 
     /* لا نكتب مستوىً لا محتوى خلفه. كان يُكتب «A2» لمن أجاد أسئلة الجسّ،
        وليس في البرنامج درس واحد من A2 — فهو رقم يُعرض على المستخدم بلا سند.

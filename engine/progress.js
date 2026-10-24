@@ -4,14 +4,23 @@ import {CONVO} from '../content/convo.js';
 import {PLACE2} from '../content/place.js';   // تُستخدم في PLACE وفي وسم المهارات
 import {S} from './state.js';
 
+/* أرقام الوحدات تُشتقّ من المحتوى لا تُكتب يدوياً.
+
+   كانت مكتوبة [1,2,3] في خمسة عشر موضعاً، فإضافة وحدة رابعة كانت
+   تُسقطها من الامتحان النهائي ومن تحديد المستوى ومن فتح الوحدات،
+   صامتةً بلا خطأ يظهر. */
+export const UNIT_NS=UNITS.map(u=>u.n).sort((a,b)=>a-b);
+export const LAST_UNIT=UNIT_NS[UNIT_NS.length-1];
+
 export const unitLessons=u=>LESSONS.filter(l=>l.u===u);
 export const unitItems=u=>unitLessons(u).flatMap(l=>l.items);
-export const itemsUpTo=u=>[1,2,3].filter(x=>x<=u).flatMap(unitItems);
+export const itemsUpTo=u=>UNIT_NS.filter(x=>x<=u).flatMap(unitItems);
 export const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
 /* الوحدة تُفتح بإتمام ما قبلها، أو بتخطّيها بناءً على اختبار تحديد المستوى. */
 export const unitOpen=u=>u===1||!!S.skipped[u-1]||(!!S.cp[u-1]&&!!S.ret[u-1]);
 export const lessonOpen=l=>{if(!unitOpen(l.u))return false;const ls=unitLessons(l.u);const i=ls.indexOf(l);return i===0||!!S.lessons[ls[i-1].id]};
-export const examOpen=()=>[1,2,3].every(u=>S.cp[u])&&[1,2].every(u=>S.ret[u]);
+/* الامتحان النهائي يحتاج اجتياز كل الوحدات، واستبقاء ما قبل الأخيرة. */
+export const examOpen=()=>UNIT_NS.every(u=>S.cp[u])&&UNIT_NS.filter(u=>u<LAST_UNIT).every(u=>S.ret[u]);
 export const convoList=u=>CONVO.filter(c=>c.u===u);
 export const convoOpen=c=>{const L=convoList(c.u),i=L.indexOf(c);return unitOpen(c.u)&&unitLessons(c.u).every(l=>S.lessons[l.id])&&(i===0||!!S.conv[L[i-1].id])};
 
