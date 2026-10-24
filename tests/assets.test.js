@@ -55,13 +55,16 @@ console.log('— هيكل الصفحة —');
 
 const css = R('styles/app.css').toString();
 
-check('الصفحة لا تتمرّر أفقياً', () => {
-  if (!/html\{[^}]*overflow-x:\s*hidden/.test(css)) throw new Error('html بلا overflow-x:hidden');
-  if (!/body\{[^}]*overflow-x:\s*hidden/.test(css)) throw new Error('body بلا overflow-x:hidden');
+check('الصفحة لا تتمرّر أفقياً ولا يثقل تمريرها رأسياً', () => {
+  if (!/body\{[^}]*overflow-x:\s*clip/.test(css)) throw new Error('body بلا overflow-x:clip');
+  /* hidden على html يجعله حاوية تمرير تنافس body، فيثقل التمرير على الهاتف
+     أو يتوقف. clip على body يمنع الفيض بلا إنشاء حاوية. */
+  const h = /^html\{([^}]*)\}/m.exec(css);
+  if (h && /overflow/.test(h[1])) throw new Error('html يحمل overflow فيصير حاوية تمرير');
 });
 
-check('الارتداد المطاطي مقفل', () => {
-  if (!/overscroll-behavior:\s*none/.test(css)) throw new Error('لا overscroll-behavior على الصفحة');
+check('الارتداد مضبوط بلا تعطيل التمرير', () => {
+  if (!/overscroll-behavior-y:\s*contain/.test(css)) throw new Error('لا ضبط للارتداد الرأسي');
   if (!/overscroll-behavior-x:\s*contain/.test(css)) throw new Error('الأشرطة الأفقية تجرّ الصفحة معها');
 });
 
@@ -88,8 +91,8 @@ check('عنوان الشاشة داخل المحتوى لا في الشريط', 
 
 check('الواجهة متمركزة ومحدودة العرض على الشاشات العريضة', () => {
   if (!/\.wrap\{[^}]*max-width/.test(css)) throw new Error('المحتوى بلا حدّ عرض');
-  if (!/nav\{[^}]*max-width/.test(css)) throw new Error('شريط التنقل يمتد بلا حدّ');
-  if (!/header\{[^}]*max-width/.test(css)) throw new Error('الشريط العلوي يمتد بلا حدّ');
+  if (!/nav \.inner\{[^}]*max-width/.test(css)) throw new Error('شريط التنقل يمتد بلا حدّ');
+  if (!/header \.inner\{[^}]*max-width/.test(css)) throw new Error('الشريط العلوي يمتد بلا حدّ');
 });
 
 console.log('— التجاوب مع المقاسات —');
@@ -127,16 +130,35 @@ check('عمود القراءة محدود حتى على الشاشة العري�
 
 console.log('— هوية الشريط —');
 
-check('الشريط متدرّج من الطرفين إلى الوسط', () => {
+check('الشريط متدرّج متناظر من الطرفين إلى الوسط', () => {
   const m = /header\{[\s\S]*?linear-gradient\(90deg([\s\S]*?)\);/.exec(css);
   if (!m) throw new Error('لا تدرّج أفقي في الشريط');
-  const stops = m[1].match(/var\(--bar[ABC]/g) || [];
+  const stops = m[1].match(/#[0-9A-Fa-f]{6}/g) || [];
   if (stops.length < 5) throw new Error('التدرّج ليس متناظراً: ' + stops.length + ' محطات');
+  if (stops[0].toUpperCase() !== stops[stops.length - 1].toUpperCase())
+    throw new Error('الطرفان مختلفان فالتدرّج غير متناظر');
 });
 
-check('ألوان الشريط لها قيم احتياطية', () => {
-  if (!/var\(--barA,\s*#/.test(css)) throw new Error('لا قيمة احتياطية للتدرّج');
-  if (!/var\(--brand,\s*#/.test(css)) throw new Error('لا قيمة احتياطية للون الاسم');
+/* ظهر الاسم مرة على خلفية بيضاء لأن ملف المتغيّرات لم يصل.
+   لا يصحّ أن تتوقف قراءة اسم البرنامج على تحميل ملف ثانٍ. */
+check('الشريط لا يعتمد على متغيّرات CSS', () => {
+  const h = /header\{([\s\S]*?)\}/.exec(css)[1];
+  if (/var\(/.test(h)) throw new Error('خلفية الشريط تعتمد على متغيّر قد لا يصل');
+  const h1 = /header h1\{([\s\S]*?)\}/.exec(css)[1];
+  if (/var\(/.test(h1)) throw new Error('لون الاسم يعتمد على متغيّر قد لا يصل');
+  if (!/color:\s*#FFFFFF/i.test(h1)) throw new Error('الاسم ليس أبيض');
+});
+
+check('حواف الشريط دائرية من الأسفل', () => {
+  const h = /header\{([\s\S]*?)\}/.exec(css)[1];
+  if (!/border-radius:\s*0 0 \d+px \d+px/.test(h)) throw new Error('لا حواف دائرية سفلية');
+});
+
+check('العلم مرسوم لا إيموجي', () => {
+  /* ويندوز وأندرويد لا يرسمان أعلام الإيموجي فتظهر حرفين GB. */
+  if (/🇬🇧/.test(html)) throw new Error('العلم إيموجي، وسيظهر GB على ويندوز وأندرويد');
+  if (!/<svg class="flag"/.test(html)) throw new Error('لا علم مرسوم');
+  if (!/aria-label="الإنجليزية"/.test(html)) throw new Error('العلم بلا وصف للقارئ الصوتي');
 });
 
 check('اسم التطبيق بخط Cairo وأكبر من عنوان الشاشة', () => {
@@ -144,7 +166,6 @@ check('اسم التطبيق بخط Cairo وأكبر من عنوان الشاش�
   if (!h1m) throw new Error('لا قاعدة لاسم التطبيق');
   const h1 = h1m[1];
   if (!/Cairo/.test(h1)) throw new Error('ليس بخط Cairo');
-  if (!/--brand/.test(h1)) throw new Error('بلا لون مخصّص');
   const size = Number(/font:\s*\d+\s+(\d+)px/.exec(h1)[1]);
   const screen = Number(/\.screenTitle b\{[^}]*?(\d+)px/.exec(css)[1]);
   if (!(size > screen)) throw new Error('الاسم ' + size + 'px وعنوان الشاشة ' + screen + 'px');
@@ -157,6 +178,16 @@ check('خط Cairo محمَّل بالوزن العريض', () => {
 check('الرئيسية لا تكرر اسم البرنامج', () => {
   const app = R('app.js').toString();
   if (/home:\['مدرب الإنجليزية'/.test(app)) throw new Error('الاسم مكرر في عنوان الشاشة');
+});
+
+/* .bar هو صنف شريط التقدّم. استُعمل مرة غلافاً للترويسة فورث خلفيته
+   الرمادية وحوافه الدائرية، واختفى اسم البرنامج عليها. */
+check('غلاف الشريطين لا يصطدم بصنف شريط التقدّم', () => {
+  if (/class="bar"/.test(html)) throw new Error('الترويسة تستخدم .bar وهو صنف شريط التقدّم');
+  const app = R('app.js').toString();
+  if (/class=\\"bar\\"/.test(app)) throw new Error('شريط التنقل يستخدم .bar');
+  if (!/class="inner"/.test(html)) throw new Error('لا غلاف باسم مستقل');
+  if (!/header \.inner\{/.test(css)) throw new Error('لا قاعدة لغلاف الترويسة');
 });
 
 console.log('\n' + (fail === 0 ? '\u2713' : '\u2717') + ' نجح ' + pass + ' واخفق ' + fail);

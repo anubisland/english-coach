@@ -24,10 +24,20 @@
 
 </head>
 <body>
-<header><div class="bar">
+<header><div class="inner">
   <span class="brand">
     <img src="icon.svg" alt="" width="32" height="32">
     <h1>مدرب الإنجليزية</h1>
+    <svg class="flag" viewBox="0 0 60 40" role="img" aria-label="الإنجليزية">
+      <clipPath id="fl"><rect width="60" height="40" rx="5"/></clipPath>
+      <g clip-path="url(#fl)">
+        <rect width="60" height="40" fill="#012169"/>
+        <path d="M0 0 60 40M60 0 0 40" stroke="#fff" stroke-width="8"/>
+        <path d="M0 0 60 40M60 0 0 40" stroke="#C8102E" stroke-width="4"/>
+        <path d="M30 0V40M0 20H60" stroke="#fff" stroke-width="13"/>
+        <path d="M30 0V40M0 20H60" stroke="#C8102E" stroke-width="7"/>
+      </g>
+    </svg>
   </span>
   <nav id="nav"></nav>
   <button class="themeBtn" onclick="go('settings')" aria-label="الإعدادات">⚙️</button>

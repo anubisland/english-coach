@@ -3,11 +3,14 @@
 
 /* الصفحة تتمرّر رأسياً فقط. الفيض الأفقي مقفل، والارتداد المطاطي ممنوع،
    فلا تهتزّ الواجهة يميناً ويساراً عند السحب. */
-html{overflow-x:hidden;overscroll-behavior:none}
+/* clip لا ينشئ حاوية تمرير، بخلاف hidden الذي كان يجعل html حاوية
+   تنافس body فيصير التمرير ثقيلاً أو يتوقف على الهاتف. */
+html{overscroll-behavior-y:contain}
 body{
   font-family:'IBM Plex Sans Arabic',Cairo,system-ui,sans-serif;
   background:var(--bg);color:var(--ink);
-  min-height:100vh;min-height:100dvh;overflow-x:hidden;overscroll-behavior-y:none;
+  min-height:100vh;min-height:100dvh;
+  overflow-x:hidden;overflow-x:clip;
   -webkit-font-smoothing:antialiased;
   /* مساحة للشريط العلوي الثابت وشريط التنقل السفلي */
   padding-top:calc(64px + env(safe-area-inset-top,0px));
@@ -24,35 +27,39 @@ body{
 header{
   position:fixed;top:0;left:0;right:0;z-index:9;
   padding-top:env(safe-area-inset-top,0px);
-  /* أزرق غامق عند الطرفين يتدرّج نحو وسط أفتح، متناظر من اليمين واليسار.
-     القيم الاحتياطية مقصودة: لو لم يُحمّل ملف المتغيّرات بقي الشريط ملوّناً
-     ولم يصر الاسم أبيض على أبيض. */
-  background:var(--ind,#1549BE);
-  background:linear-gradient(90deg,
-    var(--barA,#061B52) 0%,
-    var(--barB,#0D3A9E) 28%,
-    var(--barC,#1549BE) 50%,
-    var(--barB,#0D3A9E) 72%,
-    var(--barA,#061B52) 100%);
-  box-shadow:0 2px 14px rgba(6,27,82,.34);
+  /* ألوان صريحة لا متغيّرات: ظهر الاسم مرة على خلفية بيضاء لأن ملف
+     المتغيّرات لم يصل، ولا يصحّ أن تتوقف قراءة اسم البرنامج على ملف ثانٍ. */
+  background:#1E3A8A;
+  background:linear-gradient(90deg,#0B2567 0%,#1D4ED8 30%,#2563EB 50%,#1D4ED8 70%,#0B2567 100%);
+  border-radius:0 0 22px 22px;
+  overflow:hidden;
+  box-shadow:0 4px 18px rgba(11,37,103,.32);
   max-width:100%;
 }
 /* الخلفية تملأ عرض الشاشة، والمحتوى يبقى بعرض الواجهة نفسها فلا يتناثر
    على الشاشات العريضة. */
-header .bar{
+header .inner{
   max-width:560px;margin:auto;height:64px;padding:0 16px;
   display:flex;align-items:center;gap:11px
 }
 header .brand{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
 header img{width:32px;height:32px;border-radius:9px;flex:0 0 32px;display:block}
-/* الاسم عنوان البرنامج، فهو أكبر من عنوان الشاشة لا أصغر منه. */
+/* الاسم عنوان البرنامج، فهو أكبر من عنوان الشاشة لا أصغر منه.
+   وأبيض لأنه أعلى تباين ممكن على الأزرق (11.9:1) فلا يلتبس على أي شاشة. */
 header h1{
   font:800 23px Cairo,'IBM Plex Sans Arabic',sans-serif;
-  color:var(--brand,#FFD86B);
+  color:#FFFFFF;
   line-height:1.25;letter-spacing:.2px;
-  text-shadow:0 1px 2px rgba(0,0,0,.28);
+  text-shadow:0 1px 3px rgba(0,0,0,.35);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis
 }
+/* علم مرسوم لا إيموجي: ويندوز وأندرويد لا يرسمان أعلام الإيموجي
+   فتظهر حرفين «GB» بدل العلم. */
+header .flag{width:26px;height:18px;flex:0 0 26px;display:block;
+  box-shadow:0 0 0 1px rgba(255,255,255,.35)}
+/* خط ذهبي رفيع أسفل الشريط: التمييز البصري بلا المساس بوضوح الاسم. */
+header::after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;
+  background:linear-gradient(90deg,transparent,#FFD86B,transparent)}
 .themeBtn{background:rgba(255,255,255,.18);border:0;color:#fff;
   width:38px;height:38px;flex:0 0 38px;border-radius:12px;display:grid;place-items:center;cursor:pointer;font-size:16px}
 
@@ -139,13 +146,13 @@ header h1{
 nav{position:fixed;bottom:0;left:0;right:0;z-index:8;max-width:100%;
   background:var(--surf);border-top:1px solid var(--line);
   padding-bottom:env(safe-area-inset-bottom,0px)}
-nav .bar{max-width:560px;margin:auto;display:grid;grid-template-columns:repeat(3,1fr);padding:8px 10px 14px}
+nav .inner{max-width:560px;margin:auto;display:grid;grid-template-columns:repeat(3,1fr);padding:8px 10px 14px}
 
 /* ============ التابلت ============
    مساحة أوسع، ونصّ أكبر قليلاً، وبطاقات أرحب. */
 @media (min-width:700px){
   .wrap{max-width:680px;padding:0 20px}
-  header .bar,nav .bar{max-width:720px}
+  header .inner,nav .inner{max-width:720px}
   body{font-size:15.5px}
   .card{padding:20px;border-radius:24px}
   .screenTitle b{font-size:24px}
@@ -159,7 +166,7 @@ nav .bar{max-width:560px;margin:auto;display:grid;grid-template-columns:repeat(3
    فلا معنى لشريط إبهام على شاشة تُستخدم بالفأرة. */
 @media (min-width:1024px){
   nav{position:static;background:none;border:0;padding:0;flex:1;min-width:0}
-  nav .bar{max-width:none;display:flex;justify-content:center;gap:4px;padding:0}
+  nav .inner{max-width:none;display:flex;justify-content:center;gap:4px;padding:0}
   .tab{flex-direction:row;gap:7px;padding:9px 15px;border-radius:12px;font-size:13.5px;color:#D9D4FF}
   .tab svg{width:18px;height:18px}
   .tab svg *{stroke:currentColor}
@@ -168,7 +175,7 @@ nav .bar{max-width:560px;margin:auto;display:grid;grid-template-columns:repeat(3
   :root[data-theme=light] .tab.on{color:#fff}
   .tab:hover{color:#fff}
 
-  header .bar{max-width:1100px;height:70px}
+  header .inner{max-width:1100px;height:70px}
   header h1{font-size:26px}
   body{padding-bottom:40px;padding-top:calc(70px + env(safe-area-inset-top,0px))}
   .wrap{max-width:760px;padding:0 24px}

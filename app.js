@@ -31,7 +31,7 @@ function applyTheme(){
 
 function renderNav(){
   const T=[['home','home','اليوم'],['course','map','الرحلة'],['speak','mic','التحدث']];
-  document.getElementById('nav').innerHTML='<div class="bar">'+T.map(t=>
+  document.getElementById('nav').innerHTML='<div class="inner">'+T.map(t=>
     `<button class="tab ${S.tab===t[0]?'on':''}" onclick="go('${t[0]}')">${ui.svg(t[1],21)}<span>${t[2]}</span></button>`).join('')+'</div>';
 }
 
