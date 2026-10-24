@@ -747,5 +747,13 @@ const { run, report } = require('./harness.js');
       if (!ev('S').cp[1]) throw new Error('لم تُسجَّل البوابة');
     });
 
+  console.log('— الأيقونة والتثبيت —');
+
+  await run('لون شريط المتصفح يتبع الوضع', {}, (ctx, ev) => {
+    if (ctx._meta.content !== '#F6F5FB') throw new Error('لون نهاري خاطئ: ' + ctx._meta.content);
+    ctx.toggleTheme();
+    if (ctx._meta.content !== '#0B0D1C') throw new Error('لم يتبدّل مع الوضع الليلي: ' + ctx._meta.content);
+  });
+
   await report();
 })();

@@ -14,7 +14,7 @@ const { pathToFileURL } = require('url');
 
 /* الحالة الحيّة للاختبار الجاري، تُبدَّل قبل كل تشغيل */
 const handlers = {};   // تُسجَّل مرة عند استيراد app.js، فلا تُصفَّر بين الاختبارات
-let cur = { els: {}, store: {}, opts: {}, logged: [], started: [], utterances: [] };
+let cur = { els: {}, store: {}, opts: {}, logged: [], started: [], utterances: [], meta: {} };
 
 function freshEls() {
   const els = {};
@@ -35,7 +35,7 @@ const el = {
       return { id, scrollIntoView() { cur.scrolledTo = id } };
     return null;
   },
-  querySelector: () => null,
+  querySelector: sel => (sel.includes('theme-color') ? cur.meta : null),
   querySelectorAll: () => []
 };
 global.document = el;
@@ -86,7 +86,8 @@ function makeScope(mod) {
 
 async function run(label, stored, steps, opts) {
   const mod = await load();
-  cur = { els: freshEls(), store: Object.assign({}, stored), opts: opts || {}, logged: [], started: [], utterances: [] };
+  const meta = { content: '', setAttribute(k, v) { this[k] = v } };
+  cur = { els: freshEls(), store: Object.assign({}, stored), opts: opts || {}, logged: [], started: [], utterances: [], meta };
   /* Object.assign ينسخ قيمة الـ getter لا الـ getter نفسه، فتتجمّد القيم
      المفردة مثل scrolledTo عند لحظة الإنشاء. نُعرّفها كخصائص حيّة. */
   const ctx = Object.assign({}, global.window);
@@ -97,7 +98,8 @@ async function run(label, stored, steps, opts) {
     _started:    { get: () => cur.started },
     _utterances: { get: () => cur.utterances },
     _scrolledTo: { get: () => cur.scrolledTo },
-    _handlers:   { get: () => handlers }
+    _handlers:   { get: () => handlers },
+    _meta:       { get: () => cur.meta }
   });
   const scope = makeScope(mod);
   const ev = expr => new Function('__s', 'with(__s){return (' + expr + ')}')(scope);

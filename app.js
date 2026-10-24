@@ -21,6 +21,9 @@ function applyTheme(){
   const el=document.documentElement;
   if(el&&el.setAttribute)el.setAttribute('data-theme',S.theme==='dark'?'dark':'light');
   const b=document.getElementById('themeBtn');
+  /* لون شريط المتصفح يتبع الوضع، وإلا بدا التطبيق المثبَّت مقطوعاً عن ترويسته. */
+  const tc=document.querySelector&&document.querySelector('meta[name="theme-color"]');
+  if(tc&&tc.setAttribute)tc.setAttribute('content',S.theme==='dark'?'#0B0D1C':'#F6F5FB');
   /* الزر يعرض ما سينتقل إليه، لا ما هو فيه. */
   if(b){b.textContent=S.theme==='light'?'🌙':'☀️';b.setAttribute&&b.setAttribute('aria-label',S.theme==='light'?'التبديل إلى الوضع الليلي':'التبديل إلى الوضع النهاري')}
 }

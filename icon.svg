@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="مدرب الإنجليزية">
+  <title>مدرب الإنجليزية</title>
+
+  <!-- الخلفية بلون الهوية. كل المحتوى داخل المربع 51..461
+       أي الـ 80% الوسطى، فتصلح أيقونةً مقنَّعة على أندرويد. -->
+  <rect width="512" height="512" rx="114" fill="#5B47F5"/>
+
+  <!-- فقاعة حوار بذيل: هذا تطبيق كلام قبل أي شيء -->
+  <path fill="#FFFFFF"
+        d="M172 84h168a60 60 0 0 1 60 60v96a60 60 0 0 1-60 60h-92l-54 42a9 9 0 0 1-14.5-7V300H172a60 60 0 0 1-60-60v-96a60 60 0 0 1 60-60Z"/>
+
+  <!-- حرف A مرسوم بالخطوط لا بخط طباعي، فلا يعتمد على خط مثبَّت على الجهاز -->
+  <g fill="none" stroke="#5B47F5" stroke-width="28" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M216 246 256 136l40 110"/>
+    <path d="M233 212h46"/>
+  </g>
+
+  <!-- موجة الصوت: الصدى البصري لحلقة «دقائق الكلام» في الشاشة الرئيسية -->
+  <g fill="#FFFFFF">
+    <rect x="170" y="402" width="20" height="28" rx="10" opacity=".75"/>
+    <rect x="208" y="384" width="20" height="46" rx="10" opacity=".88"/>
+    <rect x="246" y="366" width="20" height="64" rx="10"/>
+    <rect x="284" y="388" width="20" height="42" rx="10" opacity=".88"/>
+    <rect x="322" y="404" width="20" height="26" rx="10" opacity=".75"/>
+  </g>
+</svg>
