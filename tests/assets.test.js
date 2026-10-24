@@ -125,5 +125,39 @@ check('عمود القراءة محدود حتى على الشاشة العري�
   if (!wide || Number(wide[1]) > 900) throw new Error('السطر يطول أكثر مما يُقرأ بارتياح');
 });
 
+console.log('— هوية الشريط —');
+
+check('الشريط متدرّج من الطرفين إلى الوسط', () => {
+  const m = /header\{[\s\S]*?linear-gradient\(90deg([\s\S]*?)\);/.exec(css);
+  if (!m) throw new Error('لا تدرّج أفقي في الشريط');
+  const stops = m[1].match(/var\(--bar[ABC]/g) || [];
+  if (stops.length < 5) throw new Error('التدرّج ليس متناظراً: ' + stops.length + ' محطات');
+});
+
+check('ألوان الشريط لها قيم احتياطية', () => {
+  if (!/var\(--barA,\s*#/.test(css)) throw new Error('لا قيمة احتياطية للتدرّج');
+  if (!/var\(--brand,\s*#/.test(css)) throw new Error('لا قيمة احتياطية للون الاسم');
+});
+
+check('اسم التطبيق بخط Cairo وأكبر من عنوان الشاشة', () => {
+  const h1m = /header h1\{([\s\S]*?)\}/.exec(css);
+  if (!h1m) throw new Error('لا قاعدة لاسم التطبيق');
+  const h1 = h1m[1];
+  if (!/Cairo/.test(h1)) throw new Error('ليس بخط Cairo');
+  if (!/--brand/.test(h1)) throw new Error('بلا لون مخصّص');
+  const size = Number(/font:\s*\d+\s+(\d+)px/.exec(h1)[1]);
+  const screen = Number(/\.screenTitle b\{[^}]*?(\d+)px/.exec(css)[1]);
+  if (!(size > screen)) throw new Error('الاسم ' + size + 'px وعنوان الشاشة ' + screen + 'px');
+});
+
+check('خط Cairo محمَّل بالوزن العريض', () => {
+  if (!/family=Cairo:wght@[\d;]*800/.test(html)) throw new Error('Cairo غير محمَّل بالوزن 800');
+});
+
+check('الرئيسية لا تكرر اسم البرنامج', () => {
+  const app = R('app.js').toString();
+  if (/home:\['مدرب الإنجليزية'/.test(app)) throw new Error('الاسم مكرر في عنوان الشاشة');
+});
+
 console.log('\n' + (fail === 0 ? '\u2713' : '\u2717') + ' نجح ' + pass + ' واخفق ' + fail);
 process.exit(fail === 0 ? 0 : 1);
