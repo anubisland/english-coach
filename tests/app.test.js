@@ -871,5 +871,118 @@ const { run, report } = require('./harness.js');
     if (!out.includes('&amp;')) throw new Error('لم تُهرَّب &');
   });
 
+  console.log('— اختبار الترجمة —');
+
+  const TR_ITEM = ctx => ctx.TRANSLATE ? null : null;
+
+  await run('كل جملة لها صيغة مقبولة واحدة على الأقل، والأولى نموذجية', {}, (ctx, ev) => {
+    ev('TRANSLATE').forEach((t, i) => {
+      if (!t.ar || !/[؀-ۿ]/.test(t.ar)) throw new Error('#' + i + ': لا جملة عربية');
+      if (!Array.isArray(t.en) || !t.en.length) throw new Error(t.ar + ': لا ترجمة مقبولة');
+      if (![1,2,3].includes(t.u)) throw new Error(t.ar + ': وحدة خاطئة');
+      if (!Object.keys(ev('RULE')).includes(t.skill)) throw new Error(t.ar + ': مهارة مجهولة ' + t.skill);
+    });
+  });
+
+  await run('كل صيغة مقبولة تحصل على 100٪', {}, (ctx, ev) => {
+    ev('TRANSLATE').forEach(t => t.en.forEach(acc => {
+      const g = ctx.gradeOne(t, acc);
+      if (g.score !== 100) throw new Error(t.ar + ' / «' + acc + '» → ' + g.score + '٪ وهي صيغة مقبولة');
+    }));
+  });
+
+  await run('الدرجة تميّز بين درجات الخطأ', {}, (ctx, ev) => {
+    const it = ev('TRANSLATE').find(t => t.ar === 'أنا طالب.');
+    const sc = x => ctx.gradeOne(it, x).score;
+    const exact = sc('I am a student.'), article = sc('I am student.');
+    const copula = sc('I student.'), other = sc('He is a teacher.'), empty = sc('');
+    if (exact !== 100) throw new Error('التطابق التام ليس 100: ' + exact);
+    if (!(exact > article)) throw new Error('نقص الأداة لم يُخصم');
+    if (!(article > copula)) throw new Error('حذف فعل الكون ليس أسوأ من نقص الأداة');
+    if (!(copula > other)) throw new Error('جملة أخرى تماماً ليست أسوأ من حذف الفعل');
+    if (empty !== 0) throw new Error('الفارغة ليست صفراً');
+  });
+
+  await run('جملة سليمة لكنها ليست المطلوبة لا تُنقَذ بالجرامر', {}, (ctx, ev) => {
+    const it = ev('TRANSLATE').find(t => t.ar === 'أنا طالب.');
+    const g = ctx.gradeOne(it, 'He is a teacher.');
+    if (g.grammar < 90) throw new Error('الجملة سليمة جرامرياً فعلاً');
+    if (g.score > 35) throw new Error('الجرامر أنقذ جملة خاطئة: ' + g.score + '٪');
+  });
+
+  await run('الاختبار يوزّع الجمل على الوحدات', {}, (ctx, ev) => {
+    const items = ctx.pickTranslation(6, 3);
+    if (items.length !== 6) throw new Error('عدد خاطئ: ' + items.length);
+    if (new Set(items.map(i => i.ar)).size !== 6) throw new Error('جملة مكررة');
+    if (new Set(items.map(i => i.u)).size < 3) throw new Error('لم تُغطَّ الوحدات الثلاث');
+  });
+
+  await run('دورة الاختبار كاملة حتى النسبة',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.startTranslation(3);
+    for (let i = 0; i < ctx.TRANSLATE_N; i++) {
+      const t = ev('S').tr;
+      ctx._els.trInput.value = t.items[t.i].en[0];     // أجب صحيحاً
+      ctx.submitTranslation();
+      if (!ev('S').tr.graded) throw new Error('لم تُقيَّم الجملة ' + i);
+      ctx.nextTranslation();
+    }
+    const t = ev('S').tr;
+    if (!t.done) throw new Error('لم ينتهِ الاختبار');
+    if (t.summary.percent !== 100) throw new Error('إجابات صحيحة ونسبتها ' + t.summary.percent);
+    const html = ctx.translateView();
+    if (!html.includes('نتيجة الترجمة')) throw new Error('لا شاشة نتيجة');
+    if (!html.includes('حسب المهارة')) throw new Error('لا تفصيل بالمهارة');
+  });
+
+  await run('جملة فارغة لا تُقبل', {}, (ctx, ev) => {
+    ctx.startTranslation(3);
+    ctx._els.trInput.value = '   ';
+    ctx.submitTranslation();
+    if (ev('S').tr.graded) throw new Error('قُيّمت جملة فارغة');
+    if (!ctx.translateView().includes('اكتب ترجمتك أولاً')) throw new Error('لا تنبيه');
+  });
+
+  await run('اختبار الترجمة لا يُستورد من ملف', {}, (ctx, ev) => {
+    ctx.applyImport(JSON.stringify({ placed: true, tr: { items: [], results: [], done: true } }));
+    if (ev('S').tr) throw new Error('استُوردت جلسة اختبار');
+  });
+
+  await run('قلم المصحّح يظهر للجملة القريبة فقط',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.startTranslation(3);
+    const t = ev('S').tr, it = t.items[0];
+    // قريبة: نحذف كلمة واحدة من الصيغة المقبولة
+    ctx._els.trInput.value = it.en[0].split(' ').slice(1).join(' ');
+    ctx.submitTranslation();
+    if (!ctx.translateView().includes('class="fix"')) throw new Error('لا تصحيح لجملة قريبة');
+    ev('S.tr.graded=null');
+    // بعيدة تماماً
+    ctx._els.trInput.value = 'zzz qqq www';
+    ctx.submitTranslation();
+    const h = ctx.translateView();
+    if (h.includes('class="fix"')) throw new Error('عُرض تصحيح متراكم لجملة لا تشترك مع الصواب');
+    if (!h.includes('zzz qqq www')) throw new Error('لم تُعرض محاولته');
+  });
+
+  await run('المسار لا يسأل عن تحديد المستوى بعد أدائه',
+    { 'eng-coach-v3': JSON.stringify({ placed: true, skipped: { 1: true, 2: true }, place: { suggest: 3, acc: {} } }) },
+    (ctx, ev) => {
+      const h = ctx.courseView();
+      if (h.includes('تحديد المستوى')) throw new Error('ما زال يعرض اختبار تحديد المستوى في المسار');
+      if (!ctx.settingsView().includes('أعد تحديد مستواي')) throw new Error('لا إعادة في الإعدادات');
+    });
+
+  await run('الوحدة المتخطّاة بلا محطة حالية',
+    { 'eng-coach-v3': JSON.stringify({ placed: true, skipped: { 1: true, 2: true } }) },
+    (ctx, ev) => {
+      const h = ctx.courseView();
+      const nows = (h.match(/dot now/g) || []).length;
+      if (nows !== 1) throw new Error('عدد المحطات الحالية ' + nows + ' والمتوقع واحدة فقط');
+      const nx = ctx.nextStep();
+      if (!nx.anchor.includes('3.1')) throw new Error('المحطة الحالية ليست في الوحدة 3: ' + nx.anchor);
+      if (!h.includes('متاح للمراجعة')) throw new Error('لا توضيح أن دروس الوحدة المتخطّاة للمراجعة');
+    });
+
   await report();
 })();

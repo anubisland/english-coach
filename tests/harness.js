@@ -18,7 +18,7 @@ let cur = { els: {}, store: {}, opts: {}, logged: [], started: [], utterances: [
 
 function freshEls() {
   const els = {};
-  ['app', 'nav', 'toast', 'cres', 'ctxt', 'ctxt2', 'chatTxt', 'chatPr', 'themeBtn', 'hTitle', 'hSub']
+  ['app', 'nav', 'toast', 'cres', 'ctxt', 'ctxt2', 'chatTxt', 'chatPr', 'themeBtn', 'hTitle', 'hSub', 'trInput', 'impFile']
     .forEach(id => { els[id] = { id, innerHTML: '', textContent: '', style: {}, value: '' } });
   return els;
 }

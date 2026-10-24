@@ -18,6 +18,7 @@ export function defaultState(){return{
   errs:{},                  // عدّاد أخطاء الجرامر المتكررة
   skipped:{},               // وحدات تخطّاها اختبار تحديد المستوى
   drill:null,               // تدريب موجَّه إلزامي بعد الرسوب في بوابة
+  tr:null,                  // اختبار الترجمة الجاري (لحظي، لا يُستورد)
   ruleOpen:null,            // بطاقة القاعدة المفتوحة حالياً
   theme:'light',            // النهاري هو الافتراضي، والليلي اختيار
   goal:10,                  // هدف دقائق الكلام اليومي
@@ -112,12 +113,14 @@ export function migrate(saved){
     if(saved[k]&&typeof saved[k]==='object')S[k]=pickKeys(saved[k],['1','2','3']);
   if(saved.errs&&typeof saved.errs==='object')S.errs=cleanErrs(saved.errs);
   if(saved.chat&&typeof saved.chat==='object')Object.assign(S.chat,cleanChat(saved.chat));
+  /* اختبار الترجمة جلسة لحظية: لا يُستورد ولا يُستعاد. */
+  S.tr=null;
   S.v=SCHEMA;
   return S;
 }
 
 export const LEVELS=['A1','A2'];
-export const VIEWS_KEYS=['home','course','speak','settings'];   // يجب أن يطابق مفاتيح VIEWS في app.js
+export const VIEWS_KEYS=['home','course','speak','settings','translate'];   // يجب أن يطابق مفاتيح VIEWS في app.js
 export let S,bootWarn=null;
 
 /* يُستدعى مرة عند الإقلاع، ومرة لكل اختبار، فالحالة تُبنى لا تُستورد جاهزة. */

@@ -13,6 +13,8 @@ import * as course from './views/course.js';
 import * as quizv from './views/quiz.js';   // ليس quizView: الاسم يحجب الدالة
 import * as speak from './views/speak.js';
 import * as settings from './views/settings.js';
+import * as translate from './views/translate.js';
+import * as trEngine from './engine/translate.js';
 
 function toggleTheme(){setTheme(S.theme==='light'?'dark':'light')}
 function setTheme(k){S.theme=k==='dark'?'dark':'light';applyTheme();save();render()}
@@ -39,7 +41,8 @@ const HEAD={
   home:['مدرب الإنجليزية','الكلام أولاً: شرح، تمرين، ثم محادثة حقيقية'],
   course:['خريطة الرحلة','محطة بعد محطة حتى تتقن المستوى'],
   speak:['المحادثة الحيّة','تكلّم، وسنصحّح لك بالعربية'],
-  settings:['الإعدادات','المظهر، والهدف، ونقل تقدّمك']
+  settings:['الإعدادات','المظهر، والهدف، ونقل تقدّمك'],
+  translate:['اختبار الترجمة','من العربية إلى الإنجليزية، بلا خيارات']
 };
 function renderHead(){
   const h=HEAD[S.tab]||HEAD.home;
@@ -69,11 +72,11 @@ if(window.addEventListener)window.addEventListener('error',ev=>{
   ui.toast('حدث خطأ غير متوقع. أعد تحميل الصفحة إن توقّف التطبيق');
 });
 
-const VIEWS={home:home.homeView,course:course.courseView,speak:speak.speakView,settings:settings.settingsView};
+const VIEWS={home:home.homeView,course:course.courseView,speak:speak.speakView,settings:settings.settingsView,translate:translate.translateView};
 
 /* المعالجات داخل الـ HTML (onclick) تحتاج أسماءً عامة. */
 Object.assign(window,{
-  ...state,...grammar,...pronounce,...progress,...quiz,...chat,...ui,...home,...course,...quizv,...speak,...settings,
+  ...state,...grammar,...pronounce,...progress,...quiz,...chat,...ui,...home,...course,...quizv,...speak,...settings,...translate,...trEngine,
   render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme,setTheme
 });
 /* S مرتبط حيّاً لأنه يُعاد بناؤه عند كل إقلاع. */
@@ -99,4 +102,7 @@ export * from './views/course.js';
 export * from './views/quiz.js';
 export * from './views/speak.js';
 export * from './views/settings.js';
+export * from './views/translate.js';
+export * from './engine/translate.js';
+export * from './content/translate.js';
 export {render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme,setTheme,VIEWS};

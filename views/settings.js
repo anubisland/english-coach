@@ -94,6 +94,13 @@ export function settingsView() {
      </div>`)
   + card('تقدّمك الآن',
     `<p class="muted">${ar(done)} من ${ar(LESSONS.length)} دروس · ${ar(Object.keys(S.cp).length)} وحدات مجتازة · ${ar(S.xp)} نقطة</p>`)
+  + card('مستواك',
+    `<p class="muted">مستواك الحالي <span class="en">${S.level}</span>${
+      S.place && S.place.suggest > 1 ? ' · بدأت من الوحدة ' + ar(S.place.suggest) : ''}.
+      أعد الاختبار إن شعرت أن نقطة البداية لم تناسبك.</p>
+     <div class="row" style="justify-content:flex-start;margin-top:4px">
+       <button class="btn ghost" onclick="launch('place')">أعد تحديد مستواي</button>
+     </div>`)
   + card('إعادة البداية',
     `<p class="muted">يمحو كل تقدّمك ويعيدك إلى اختبار تحديد المستوى. لا يمكن التراجع.</p>
      <div class="row" style="justify-content:flex-start;margin-top:4px">

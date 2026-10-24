@@ -4,7 +4,7 @@ import {S,save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
 import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen,unitDone} from '../engine/progress.js';
 import {RULE} from '../content/rules.js';
-import {card,svg,ar,ruleCard,esc} from './ui.js';
+import {card,svg,ar,ruleCard,esc,count} from './ui.js';
 import {nextStep} from './home.js';
 
 export function stop(o){
@@ -48,7 +48,7 @@ export function courseView(){
         <button class="btn" style="background:transparent;color:#E4E0FF" onclick="goToStep()">أرني مكانها</button>
       </div></div>`
     :card('🎉 أتممت المستوى','<p class="muted">لم يبقَ شيء مفتوح الآن. راجع ما شئت من المحطات بالأسفل.</p>'))
-    +card('اختبار تحديد المستوى (اختياري)',`<p class='muted'>يُنصح به لمعرفة مستواك قبل بدء الوحدات، ولا يلزم لبدء الدورة من A1.</p><div class='row'><button class='btn ghost' onclick="launch('place')">ابدأ الاختبار</button></div>`);
+;
   const openLes=S.open?LESSONS.find(x=>x.id===S.open):null;
   if(S.open&&!openLes)S.open=null;
   if(openLes){const l=openLes;
@@ -56,18 +56,22 @@ export function courseView(){
       <div class="row"><button class="btn" onclick="launch(\'lesson\',\'${l.id}\')">ابدأ تمارين الدرس</button><button class="btn ghost" onclick="S.open=null;hooks.render()">إغلاق</button></div>`);}
   for(const u of UNITS){
     const LS=unitLessons(u.n);
+    const skipped=!!S.skipped[u.n];
     const ls=LS.map((l,i)=>{const ok=!!S.lessons[l.id],av=lessonOpen(l);
-      const now=av&&!ok;
+      /* في وحدة تخطّاها اختبار المستوى لا توجد «محطة حالية»: كلها متاحة
+         للمراجعة، وإبراز أولها يناقض وسم «تخطّيتها». */
+      const now=av&&!ok&&!skipped;
       return stop({
         id:'st-l-'+l.id,
         first:i===0,
         lit:ok||now,
         dot:ok?`<div class="dot done">${svg('check',13,'var(--onGreen)')}</div>`
             :now?'<div class="dot now"></div>'
+            :skipped?'<div class="dot"></div>'
             :`<div class="dot">${svg('lock',11)}</div>`,
         cls:now?'now':(av?'':'locked'),
         title:`${l.id} — ${l.t}`,
-        meta:av?(ok?'متقن · اضغط للمراجعة':`${ar(l.items.length)} تمارين`):'يفتح بعد الدرس السابق',
+        meta:av?(ok?'متقن · اضغط للمراجعة':(skipped?'متاح للمراجعة · '+count(l.items.length,'تمرين','تمارين'):count(l.items.length,'تمرين','تمارين'))):'يفتح بعد الدرس السابق',
         act:av?`openLesson('${l.id}')`:''
       })}).join('');
     const gate=`${cpBtn(u.n)}${retBtn(u.n)}`;
@@ -81,6 +85,9 @@ export function courseView(){
     }).replace('</div></div>',`<div class="row" style="justify-content:flex-start">${gate}</div></div></div>`):'';
     h+=card(`الوحدة ${u.n}: ${u.t} ${unitStatus(u.n)}`, unitOpen(u.n)?(unitDone(u.n)?'<details><summary class=muted>عرض دروس الوحدة للمراجعة</summary>'+ls+extra+'</details>':ls+extra):'<p class="muted">🔒 تُفتح بعد اجتياز اختبار الوحدة السابقة واختبار استبقائها</p>');
   }
+  h+=card('اختبار الترجمة',
+    '<p class="muted">ست جمل عربية تكتب ترجمتها بنفسك — بلا خيارات ولا جملة أمامك تقلّدها. وهو أصدق مقياس لما تستطيع إنتاجه فعلاً.</p>'
+    +'<div class="row" style="justify-content:flex-start"><button class="btn" onclick="startTranslation(3)">ابدأ اختبار الترجمة</button></div>');
   h+=card('الامتحان النهائي لـ A1', examOpen()&&!S.exam?'<div class="row"><button class="btn" onclick="launch(\'exam\')">ابدأ الامتحان النهائي</button></div>':(S.exam?'<p>🎉 أتممت A1</p>':'<p class="muted">🔒 يُفتح بعد اجتياز الوحدات الثلاث</p>'));
   return h;
 }

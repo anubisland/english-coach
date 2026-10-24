@@ -74,4 +74,13 @@ export function toggleRule(id){S.ruleOpen=S.ruleOpen===id?null:id;save();hooks.r
 export function esc(t){
   return String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
+/* تمييز العدد في العربية: 3–10 جمع مجرور، و11 فأكثر مفرد منصوب.
+   «12 تمارين» خطأ في تطبيق لتعليم اللغة. */
+export function count(n, singular, plural) {
+  const x = Number(n) || 0;
+  if (x === 1) return singular;
+  if (x === 2) return singular + 'ان';
+  if (x >= 3 && x <= 10) return ar(x) + ' ' + plural;
+  return ar(x) + ' ' + singular + 'اً';
+}
 export function ar(n){return String(n).replace(/[0-9]/g,c=>'٠١٢٣٤٥٦٧٨٩'[+c])}
