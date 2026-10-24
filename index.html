@@ -24,14 +24,17 @@
 
 </head>
 <body>
-<header>
-  <div>
-    <h1 id="hTitle">مدرب الإنجليزية</h1>
-    <p id="hSub">الكلام أولاً: شرح، تمرين، ثم محادثة حقيقية</p>
-  </div>
+<header><div class="bar">
+  <span class="brand">
+    <img src="icon.svg" alt="" width="32" height="32">
+    <h1>مدرب الإنجليزية</h1>
+  </span>
   <button class="themeBtn" onclick="go('settings')" aria-label="الإعدادات">⚙️</button>
-</header>
-<main class="wrap" id="app"></main>
+</div></header>
+<main class="wrap">
+  <div class="screenTitle"><b id="hTitle"></b><span id="hSub"></span></div>
+  <div id="app"></div>
+</main>
 <nav id="nav"></nav>
 <div class="toast" id="toast"></div>
 <script type="module" src="app.js"></script>

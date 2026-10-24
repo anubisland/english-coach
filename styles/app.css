@@ -1,19 +1,50 @@
 /* مكوّنات الواجهة: البطاقات، الأزرار، خط الرحلة، فقاعات المحادثة. */
 *{box-sizing:border-box;margin:0;padding:0}
+
+/* الصفحة تتمرّر رأسياً فقط. الفيض الأفقي مقفل، والارتداد المطاطي ممنوع،
+   فلا تهتزّ الواجهة يميناً ويساراً عند السحب. */
+html{overflow-x:hidden;overscroll-behavior:none}
 body{
   font-family:'IBM Plex Sans Arabic',Cairo,system-ui,sans-serif;
-  background:var(--bg);color:var(--ink);min-height:100vh;padding-bottom:96px;
+  background:var(--bg);color:var(--ink);
+  min-height:100vh;min-height:100dvh;overflow-x:hidden;overscroll-behavior-y:none;
   -webkit-font-smoothing:antialiased;
-  padding-top:env(safe-area-inset-top,0px);
+  /* مساحة للشريط العلوي الثابت وشريط التنقل السفلي */
+  padding-top:calc(60px + env(safe-area-inset-top,0px));
+  padding-bottom:calc(96px + env(safe-area-inset-bottom,0px));
 }
+
+/* الأشرطة الأفقية (المشاهد، التصنيفات) تتمرّر في نفسها ولا تجرّ الصفحة. */
+.hscroll{overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.hscroll::-webkit-scrollbar{display:none}
 .en{font-family:Inter,'IBM Plex Sans Arabic',sans-serif;direction:ltr;unicode-bidi:isolate}
 .dsp{font-family:'Readex Pro','IBM Plex Sans Arabic',sans-serif;font-weight:600}
 
-header{padding:20px 20px 10px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
-header h1{font:600 21px 'Readex Pro','IBM Plex Sans Arabic',sans-serif;line-height:1.3}
-header p{color:var(--mute);font-size:12.5px;margin-top:4px;line-height:1.6}
-.themeBtn{background:var(--surf);border:1px solid var(--line);color:var(--mute);
-  width:38px;height:38px;flex:0 0 38px;border-radius:13px;display:grid;place-items:center;cursor:pointer;font-size:16px}
+/* شريط التطبيق: ثابت أعلى الشاشة، لا يهرب مع التمرير، ويحمل هوية البرنامج. */
+header{
+  position:fixed;top:0;left:0;right:0;z-index:9;
+  padding-top:env(safe-area-inset-top,0px);
+  background:var(--ind);
+  box-shadow:0 2px 12px rgba(0,0,0,.14);
+  max-width:100%;
+}
+/* الخلفية تملأ عرض الشاشة، والمحتوى يبقى بعرض الواجهة نفسها فلا يتناثر
+   على الشاشات العريضة. */
+header .bar{
+  max-width:560px;margin:auto;height:60px;padding:0 16px;
+  display:flex;align-items:center;gap:11px
+}
+header .brand{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+header img{width:32px;height:32px;border-radius:9px;flex:0 0 32px;display:block}
+header h1{font:600 17px 'Readex Pro','IBM Plex Sans Arabic',sans-serif;color:#fff;line-height:1.3;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.themeBtn{background:rgba(255,255,255,.18);border:0;color:#fff;
+  width:38px;height:38px;flex:0 0 38px;border-radius:12px;display:grid;place-items:center;cursor:pointer;font-size:16px}
+
+/* عنوان الشاشة داخل المحتوى، لا في الشريط، فيبقى الشريط هوية ثابتة. */
+.screenTitle{padding:16px 4px 2px}
+.screenTitle b{font:600 20px 'Readex Pro','IBM Plex Sans Arabic',sans-serif;display:block;line-height:1.35}
+.screenTitle span{color:var(--mute);font-size:12.5px;display:block;margin-top:3px;line-height:1.6}
 
 .wrap{padding:0 16px;max-width:560px;margin:auto}
 
@@ -89,8 +120,10 @@ header p{color:var(--mute);font-size:12.5px;margin-top:4px;line-height:1.6}
 .meter u{display:block;height:5px;border-radius:3px;background:var(--line);margin-top:5px;overflow:hidden;text-decoration:none}
 .meter u i{display:block;height:100%;border-radius:3px}
 
-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surf);border-top:1px solid var(--line);
-  display:grid;grid-template-columns:repeat(3,1fr);padding:8px 10px calc(14px + env(safe-area-inset-bottom,0px));z-index:8}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:8;max-width:100%;
+  background:var(--surf);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom,0px)}
+nav .bar{max-width:560px;margin:auto;display:grid;grid-template-columns:repeat(3,1fr);padding:8px 10px 14px}
 .tab{background:none;border:0;font:600 10.5px 'IBM Plex Sans Arabic',sans-serif;color:var(--faint);
   display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 4px;min-height:44px}
 .tab.on{color:var(--ind2)}

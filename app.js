@@ -31,8 +31,8 @@ function applyTheme(){
 
 function renderNav(){
   const T=[['home','home','اليوم'],['course','map','الرحلة'],['speak','mic','التحدث']];
-  document.getElementById('nav').innerHTML=T.map(t=>
-    `<button class="tab ${S.tab===t[0]?'on':''}" onclick="go('${t[0]}')">${ui.svg(t[1],21)}<span>${t[2]}</span></button>`).join('');
+  document.getElementById('nav').innerHTML='<div class="bar">'+T.map(t=>
+    `<button class="tab ${S.tab===t[0]?'on':''}" onclick="go('${t[0]}')">${ui.svg(t[1],21)}<span>${t[2]}</span></button>`).join('')+'</div>';
 }
 
 function go(t){S.tab=t;S.q=null;save();render()}

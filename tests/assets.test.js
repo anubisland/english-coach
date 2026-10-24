@@ -51,5 +51,46 @@ check('ألوان manifest تطابق ألوان التطبيق', () => {
     throw new Error('theme_color ' + man.theme_color + ' ليس من ألوان النظام');
 });
 
+console.log('— هيكل الصفحة —');
+
+const css = R('styles/app.css').toString();
+
+check('الصفحة لا تتمرّر أفقياً', () => {
+  if (!/html\{[^}]*overflow-x:\s*hidden/.test(css)) throw new Error('html بلا overflow-x:hidden');
+  if (!/body\{[^}]*overflow-x:\s*hidden/.test(css)) throw new Error('body بلا overflow-x:hidden');
+});
+
+check('الارتداد المطاطي مقفل', () => {
+  if (!/overscroll-behavior:\s*none/.test(css)) throw new Error('لا overscroll-behavior على الصفحة');
+  if (!/overscroll-behavior-x:\s*contain/.test(css)) throw new Error('الأشرطة الأفقية تجرّ الصفحة معها');
+});
+
+check('الشريط العلوي ثابت ويحمل هوية التطبيق', () => {
+  if (!/header\{[^}]*position:\s*fixed/.test(css)) throw new Error('الشريط ليس ثابتاً');
+  if (!html.includes('مدرب الإنجليزية</h1>')) throw new Error('لا اسم للتطبيق في الشريط');
+  if (!/<header>[\s\S]*icon\.svg[\s\S]*<\/header>/.test(html)) throw new Error('لا أيقونة في الشريط');
+});
+
+check('شريط التنقل ثابت أسفل الشاشة', () => {
+  if (!/nav\{[^}]*position:\s*fixed/.test(css)) throw new Error('شريط التنقل ليس ثابتاً');
+});
+
+check('المحتوى لا يختفي تحت الشريطين', () => {
+  if (!/body\{[^}]*padding-top:/.test(css)) throw new Error('لا مساحة للشريط العلوي');
+  if (!/body\{[^}]*padding-bottom:/.test(css)) throw new Error('لا مساحة لشريط التنقل');
+  if (!/safe-area-inset-top/.test(css)) throw new Error('لا مراعاة لنتوء الشاشة');
+});
+
+check('عنوان الشاشة داخل المحتوى لا في الشريط', () => {
+  if (!html.includes('class="screenTitle"')) throw new Error('لا عنوان شاشة');
+  if (!html.includes('id="hTitle"') || !html.includes('id="hSub"')) throw new Error('عناصر العنوان مفقودة');
+});
+
+check('الواجهة متمركزة ومحدودة العرض على الشاشات العريضة', () => {
+  if (!/\.wrap\{[^}]*max-width/.test(css)) throw new Error('المحتوى بلا حدّ عرض');
+  if (!/nav\{[^}]*max-width/.test(css)) throw new Error('شريط التنقل يمتد بلا حدّ');
+  if (!/header\{[^}]*max-width/.test(css)) throw new Error('الشريط العلوي يمتد بلا حدّ');
+});
+
 console.log('\n' + (fail === 0 ? '\u2713' : '\u2717') + ' نجح ' + pass + ' واخفق ' + fail);
 process.exit(fail === 0 ? 0 : 1);
