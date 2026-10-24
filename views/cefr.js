@@ -39,7 +39,7 @@ export function cefrView() {
       + `<p class="muted" style="margin-top:10px;font-size:11.5px">ولذلك نقول «أساسيات A1»
           ولا نقول «A1 كامل».</p>`)}
 
-    <div class="row"><button class="btn ghost" onclick="goHome()">رجوع</button></div>`;
+    <div class="row"><button class="btn" onclick='go("roadmap")'>خريطة المنهج كاملة</button><button class="btn ghost" onclick="goHome()">رجوع</button></div>`;
 }
 
 function row(c) {

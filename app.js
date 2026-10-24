@@ -21,6 +21,8 @@ import * as relevanceEng from './engine/relevance.js';
 import * as srs from './engine/srs.js';
 import * as readScore from './engine/read-score.js';
 import * as examRead from './engine/exam-read.js';
+import * as roadmapContent from './content/roadmap.js';
+import * as roadmapView from './views/roadmap.js';
 import * as cefrEng from './engine/cefr.js';
 import * as cefrView from './views/cefr.js';
 import * as examDict from './engine/exam-dictation.js';
@@ -65,7 +67,8 @@ const HEAD={
   examwrite:['اختبار الكتابة','تكتب بيدك، بلا خيارات'],
   examread:['اختبار القراءة','نصّ قصير ثم أسئلة عليه'],
   examdict:['اختبار الإملاء','تسمع وتكتب'],
-  cefr:['أين أنت من A1','قياسك على الإطار الأوروبي']
+  cefr:['أين أنت من A1','قياسك على الإطار الأوروبي'],
+  roadmap:['خريطة المنهج','المستويات الستّة وما بُني منها']
 };
 function renderHead(){
   const h=HEAD[S.tab]||HEAD.home;
@@ -95,11 +98,11 @@ if(window.addEventListener)window.addEventListener('error',ev=>{
   ui.toast('حدث خطأ غير متوقع. أعد تحميل الصفحة إن توقّف التطبيق');
 });
 
-const VIEWS={home:home.homeView,course:course.courseView,speak:speak.speakView,settings:settings.settingsView,translate:translate.translateView,sounds:sounds.soundsView,examconv:examConvView.examConvView,examwrite:examWriteView.examWriteView,examread:examReadView.examReadView,examdict:examDictView.examDictView,cefr:cefrView.cefrView};
+const VIEWS={home:home.homeView,course:course.courseView,speak:speak.speakView,settings:settings.settingsView,translate:translate.translateView,sounds:sounds.soundsView,examconv:examConvView.examConvView,examwrite:examWriteView.examWriteView,examread:examReadView.examReadView,examdict:examDictView.examDictView,cefr:cefrView.cefrView,roadmap:roadmapView.roadmapView};
 
 /* المعالجات داخل الـ HTML (onclick) تحتاج أسماءً عامة. */
 Object.assign(window,{
-  ...state,...grammar,...pronounce,...progress,...quiz,...chat,...ui,...home,...course,...quizv,...speak,...settings,...translate,...trEngine,...sounds,...examScore,...examConv,...examConvView,...writeScore,...examWrite,...examWriteView,...readScore,...examRead,...examReadView,...examDict,...examDictView,...cefrEng,...cefrView,...srs,...relevanceEng,
+  ...state,...grammar,...pronounce,...progress,...quiz,...chat,...ui,...home,...course,...quizv,...speak,...settings,...translate,...trEngine,...sounds,...examScore,...examConv,...examConvView,...writeScore,...examWrite,...examWriteView,...readScore,...examRead,...examReadView,...examDict,...examDictView,...cefrEng,...cefrView,...roadmapContent,...roadmapView,...srs,...relevanceEng,
   render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme,setTheme
 });
 /* S مرتبط حيّاً لأنه يُعاد بناؤه عند كل إقلاع. */
@@ -145,6 +148,8 @@ export * from './engine/exam-dictation.js';
 export * from './engine/cefr.js';
 export * from './views/cefr.js';
 export * from './content/cefr.js';
+export * from './content/roadmap.js';
+export * from './views/roadmap.js';
 export * from './views/exam-dictation.js';
 export * from './engine/srs.js';
 export * from './engine/relevance.js';

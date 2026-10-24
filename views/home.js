@@ -80,7 +80,7 @@ export function ringCard(pct){
       </svg>
       <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
         <span class="dsp" style="font-size:44px;line-height:1">${ar(pct)}<span style="font-size:20px">٪</span></span>
-        <span class="muted" style="font-size:12px">من مستوى <span class="en">${S.level}</span></span>
+        <span class="muted" style="font-size:12px">من أساسيات <span class="en">A1</span></span>
       </div>
     </div>
     <div class="muted" style="font-size:12px;margin-top:10px">هدف الكلام اليومي</div>
@@ -132,5 +132,6 @@ function cefrCard(){
     +'</b> من قدرات A1 التي يغطّيها البرنامج، وهو يغطّي '+ar(r.coverage)+'٪ من A1 الكامل.</p>'
     +'<div class="bar" style="margin-top:9px"><i style="width:'+Math.round(r.proven/r.total*100)+'%"></i></div>'
     +'<div class="row" style="justify-content:flex-start;margin-top:10px">'
-    +'<button class="btn ghost" onclick=\'go("cefr")\'>اعرض التفصيل</button></div>');
+    +'<button class="btn ghost" onclick=\'go("cefr")\'>اعرض التفصيل</button>'
+    +'<button class="btn ghost" onclick=\'go("roadmap")\'>خريطة المنهج</button></div>');
 }

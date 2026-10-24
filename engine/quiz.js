@@ -210,7 +210,10 @@ export function endQ(){
     for(const u of [1,2,3]){ if(acc[u]!==null&&acc[u]>=0.75)suggest=u+1; else break }
     if(suggest>3)suggest=3;
 
-    S.level=(r2.length>=2&&a2>=0.75)?'A2':'A1';
+    /* لا نكتب مستوىً لا محتوى خلفه. كان يُكتب «A2» لمن أجاد أسئلة الجسّ،
+       وليس في البرنامج درس واحد من A2 — فهو رقم يُعرض على المستخدم بلا سند.
+       ودقّة أسئلة الجسّ تُحفظ في S.place للاستئناس بها، لا لتُعلن مستوىً. */
+    S.level='A1';
     S.placed=true;
     S.place={a1,a2,n1:r1.length,n2:r2.length,acc,suggest};
     q.pass=true;

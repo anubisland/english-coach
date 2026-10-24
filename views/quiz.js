@@ -64,8 +64,10 @@ export function quizView(){
 
       const sug=[1,2,3].includes(Number(p.suggest))?Number(p.suggest):1;
       return `<div class="card" style="text-align:center;padding-top:22px">
-          <span class="muted" style="font-size:12px">مستواك</span>
-          <div class="dsp en" style="font-size:52px;line-height:1.1">${S.level}</div>
+          <span class="muted" style="font-size:12px">من أين تبدأ</span>
+          <div class="dsp" style="font-size:42px;line-height:1.15">الوحدة ${ar(sug)}</div>
+          <p class="muted" style="margin-top:6px;font-size:12px">هذا الاختبار يحدّد نقطة بدايتك داخل
+            أساسيات A1 — لا مستواك في الإنجليزية عموماً.</p>
         </div>
         ${card('أين أنت من كل وحدة؟',bars)}
         ${sug>1

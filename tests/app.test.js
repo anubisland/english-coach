@@ -1010,7 +1010,7 @@ const { run, report } = require('./harness.js');
     (ctx, ev) => {
       const h = ctx.courseView();
       if (h.includes('تحديد المستوى')) throw new Error('ما زال يعرض اختبار تحديد المستوى في المسار');
-      if (!ctx.settingsView().includes('أعد تحديد مستواي')) throw new Error('لا إعادة في الإعدادات');
+      if (!ctx.settingsView().includes('أعد تحديد نقطة البداية')) throw new Error('لا إعادة في الإعدادات');
     });
 
   await run('الوحدة المتخطّاة بلا محطة حالية',
@@ -2358,7 +2358,51 @@ const { run, report } = require('./harness.js');
     });
   });
 
+  console.log('— صدق الخريطة —');
+
+  /* السبب الذي من أجله وُجدت هذه الشاشة: ألّا يُكتشف النقص بالسؤال. */
+  await run('الخريطة تعرض المستويات الستّة لا مستوانا وحده', {}, (ctx, ev) => {
+    const ids = ev('LEVELS').map(l => l.id);
+    ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].forEach(id => {
+      if (!ids.includes(id)) throw new Error('مستوى غائب: ' + id);
+    });
+    const html = ctx.roadmapView();
+    ['A2', 'B1', 'C2'].forEach(id => {
+      if (!html.includes(id)) throw new Error('لا يظهر ' + id + ' على الشاشة');
+    });
+    if (!html.includes('ستّة مستويات')) throw new Error('لا يذكر أنّ السلّم ستّة');
+  });
+
+  await run('لا يُعلَن مستوى لا محتوى خلفه', {}, (ctx, ev) => {
+    /* عُرض «A2» يوماً بلا درس واحد خلفه. */
+    ev('LEVELS').filter(l => l.state === 'done' || l.state === 'doing').forEach(l => {
+      const built = ev('STAGES').filter(s => s.level === l.id)
+        .flatMap(s => s.units).flatMap(u => u.lessons).filter(x => x.state === 'done');
+      if (!built.length) throw new Error('المستوى ' + l.id + ' معلَن بلا دروس مبنيّة');
+    });
+    const future = ev('LEVELS').filter(l => l.state === 'todo').map(l => l.id);
+    if (!future.includes('A2')) throw new Error('A2 ليس معلَّماً كغير مبنيّ');
+  });
+
+  await run('خريطة الشاشة تطابق الدروس الموجودة فعلاً', {}, (ctx, ev) => {
+    const real = ev('LESSONS').map(l => l.id).sort();
+    const claimedDone = ev('STAGES').flatMap(s => s.units).flatMap(u => u.lessons)
+      .filter(l => l.state === 'done').map(l => l.id).sort();
+    if (claimedDone.join() !== real.join())
+      throw new Error('الخريطة تدّعي: ' + claimedDone.join('،') + ' والموجود: ' + real.join('،'));
+  });
+
+  await run('الخريطة تعدّ المبنيّ من المخطَّط', {}, (ctx, ev) => {
+    const c = ctx.roadmapCounts();
+    if (c.done !== ev('LESSONS').length) throw new Error('العدّ لا يطابق الواقع');
+    if (c.total <= c.done) throw new Error('الخطة لا تتجاوز المُنجَز — لا خريطة إذن');
+    const html = ctx.roadmapView();
+    if (!html.includes(ctx.ar(c.done)) || !html.includes(ctx.ar(c.total)))
+      throw new Error('العدد لا يظهر على الشاشة');
+  });
+
   await report();
+
 
 
 

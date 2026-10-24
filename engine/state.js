@@ -188,7 +188,7 @@ function cleanSrs(o){
   return out;
 }
 
-export const VIEWS_KEYS=['home','course','speak','settings','translate','sounds','examconv','examwrite','examread','examdict','cefr'];   // يجب أن يطابق مفاتيح VIEWS في app.js
+export const VIEWS_KEYS=['home','course','speak','settings','translate','sounds','examconv','examwrite','examread','examdict','cefr','roadmap'];   // يجب أن يطابق مفاتيح VIEWS في app.js
 export let S,bootWarn=null;
 
 /* يُستدعى مرة عند الإقلاع، ومرة لكل اختبار، فالحالة تُبنى لا تُستورد جاهزة. */
