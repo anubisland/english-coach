@@ -2,7 +2,7 @@
 import {SCENES} from '../content/scenes.js';
 import {S} from '../engine/state.js';
 import {chatClamp,penDiff} from '../engine/chat.js';
-import {card,svg,ar,pronHtml,ruleCard,esc} from './ui.js';
+import {card,svg,ar,pronHtml,ruleCard,esc,resultLine} from './ui.js';
 
 /* ترتيب العرض: الأقرب إلى درس المتعلم أولاً، ثم اتساعاً نحو الحياة العامة. */
 const CAT_ORDER=['درس','يومي','اجتماعي','تسوّق','سفر','صحة','عمل'];
@@ -116,7 +116,7 @@ export function speakView(){
   out+=card('اختبار المحادثة الكاملة',
     '<p class="muted">ثمانية أدوار متّصلة في موقف لم تتدرّب عليه — بالصوت وبلا تلميح — '
     +'ثم نسبة على أربعة محاور: الصلة بالسؤال، وسلامة النحو، ووضوح النطق، والطلاقة.</p>'
-    +(S.cxBest?'<p class="muted" style="margin-top:6px">أفضلك حتى الآن: <b style="color:var(--ind2)">'+ar(S.cxBest)+'٪</b></p>':'')
+    +resultLine('conv')
     +'<div class="row" style="justify-content:flex-start"><button class="btn" onclick="examConvStart()">ابدأ الاختبار</button></div>');
   out+=card('تدريب الأصوات',
     '<p class="muted">الأصوات التي لا توجد في العربية — p و v و th وغيرها — مع أزواج كلمات لا تختلف إلا فيها.</p>'

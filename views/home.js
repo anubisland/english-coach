@@ -4,6 +4,7 @@ import {S,save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
 import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen} from '../engine/progress.js';
 import {reviewStats} from '../engine/quiz.js';
+import {cefrReport} from '../engine/cefr.js';
 import {BOXES} from '../engine/srs.js';
 import {card,svg,ar,count,esc} from './ui.js';
 
@@ -40,6 +41,7 @@ export function homeView(){
     <div class="stat s1"><b>${ar(done)}<span style="font-size:14px">/${ar(LESSONS.length)}</span></b><span>دروس متقنة</span></div>
     <div class="stat s2"><b>${ar(Object.keys(S.cp).length)}<span style="font-size:14px">/٣</span></b><span>وحدات مجتازة</span></div>
     <div class="stat s3"><b>${ar(S.xp)}</b><span>نقاط XP</span></div></div>`+
+  cefrCard()+
   reviewCard()+
   (nx?card('تابع من حيث توقفت',
     `<p style="font-size:15px;font-weight:600;line-height:1.6">${nx.label}</p>
@@ -120,4 +122,15 @@ function boxBar(r){
     +'</div>'
     +'<p class="muted" style="font-size:11.5px;margin-top:5px">من صندوق اليوم إلى صندوق '
     +ar(BOXES[BOXES.length-1])+' يوماً · أتقنت '+ar(r.mastered)+' من '+ar(r.tracked)+'</p>';
+}
+
+/* بطاقة «أين أنت من A1»: المستوى منسوباً إلى مرجع لا إلى أنفسنا. */
+function cefrCard(){
+  const r=cefrReport();
+  return card('أين أنت من A1',
+    '<p class="muted">أثبتَ <b style="color:var(--ind2)">'+ar(r.proven)+' من '+ar(r.total)
+    +'</b> من قدرات A1 التي يغطّيها البرنامج، وهو يغطّي '+ar(r.coverage)+'٪ من A1 الكامل.</p>'
+    +'<div class="bar" style="margin-top:9px"><i style="width:'+Math.round(r.proven/r.total*100)+'%"></i></div>'
+    +'<div class="row" style="justify-content:flex-start;margin-top:10px">'
+    +'<button class="btn ghost" onclick=\'go("cefr")\'>اعرض التفصيل</button></div>');
 }

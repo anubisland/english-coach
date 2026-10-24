@@ -6,7 +6,7 @@
 import {S} from '../engine/state.js';
 import {examConvScene, examConvTurn, examConvSay, examConvResult} from '../engine/exam-convo.js';
 import {EXAM_SCENES} from '../content/exam-scenes.js';
-import {card, svg, ar, esc} from './ui.js';
+import {card, svg, ar, esc, resultLine} from './ui.js';
 
 export function examConvView() {
   const c = S.cx;
@@ -22,8 +22,7 @@ function pickView() {
        ووضوح النطق، والطلاقة.</p>
      <p class="muted" style="margin-top:6px"><b>المواقف محجوزة للاختبار</b>، لم تتدرّب على أيٍّ منها،
        ويُختار واحد منها بالقرعة — فالمقصود قياس كلامك لا ذاكرتك.</p>
-     ${S.cxBest ? `<p class="muted" style="margin-top:8px">أفضل نتيجة لك حتى الآن:
-        <b style="color:var(--ind2)">${ar(S.cxBest)}٪</b></p>` : ''}
+     ${resultLine('conv')}
      <div class="row" style="justify-content:flex-start;margin-top:12px">
        <button class="btn" onclick="examConvStart()">${svg('mic', 18, '#fff')} ابدأ الاختبار</button>
      </div>

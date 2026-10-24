@@ -8,7 +8,7 @@ import {S} from '../engine/state.js';
 import {examReadText, examReadQ, examReadResult, examReadRate} from '../engine/exam-read.js';
 import {countWords, rateNote} from '../engine/read-score.js';
 import {READS} from '../content/read-texts.js';
-import {card, ar, esc, count} from './ui.js';
+import {card, ar, esc, count, resultLine} from './ui.js';
 
 export function examReadView() {
   const r = S.rx;
@@ -24,8 +24,7 @@ function introHtml() {
        ثم أسئلة عليه: صح وخطأ، وإجابات قصيرة تكتبها بيدك، واستخراج كلمات من النصّ.</p>
      <p class="muted" style="margin-top:6px">ويُقاس معه <b>زمن قراءتك</b>، فاقرأ على طبيعتك
        لا مسرعاً ولا متمهّلاً. النصّ يبقى أمامك أثناء الأسئلة — هذا اختبار فهم لا حفظ.</p>
-     ${S.rxBest ? `<p class="muted" style="margin-top:8px">أفضل نتيجة لك:
-        <b style="color:var(--ind2)">${ar(S.rxBest)}٪</b></p>` : ''}
+     ${resultLine('read')}
      <div class="row" style="justify-content:flex-start;margin-top:12px">
        <button class="btn" onclick="examReadStart()">ابدأ بنصّ عشوائي</button></div>
      <p class="muted" style="margin-top:12px;font-size:11.5px">النصوص:

@@ -124,3 +124,18 @@ export function count(n, singular, plural) {
   return ar(x) + ' ' + (/ة$/.test(singular) ? singular + 'ً' : singular + 'اً');
 }
 export function ar(n){return String(n).replace(/[0-9]/g,c=>'٠١٢٣٤٥٦٧٨٩'[+c])}
+
+/* النتيجة المعروضة هي الأخيرة لا الأفضل، ومعها عدد المحاولات.
+   إخفاء عدد المحاولات يجعل «٨٨٪» من العاشرة كـ«٨٨٪» من الأولى،
+   وليستا سواءً. ونعرض الأفضل بجانبها حين تختلف، للتشجيع لا للتوثيق. */
+export function resultLine(slot) {
+  const r = (S.res || {})[slot];
+  if (!r || !r.n) return '';
+  const many = r.n > 1;
+  const diff = many && r.best > r.last;
+  return '<p class="muted" style="margin-top:6px">نتيجتك الأخيرة: '
+    + '<b style="color:var(--ind2)">' + ar(r.last) + '٪</b>'
+    + (many ? ' <span style="font-size:11.5px">(' + count(r.n, 'محاولة', 'محاولات') + ')</span>' : '')
+    + (diff ? ' <span class="muted" style="font-size:11.5px">· أفضلك ' + ar(r.best) + '٪</span>' : '')
+    + '</p>';
+}

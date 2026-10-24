@@ -1,7 +1,7 @@
 /* إدارة اختبار القراءة: اختيار النصّ، وقياس زمن القراءة، وجمع الإجابات.
    الميزان في engine/read-score.js. */
 import {READS, READ} from '../content/read-texts.js';
-import {S, save} from './state.js';
+import {S, save, keepResult} from './state.js';
 import {hooks} from './bus.js';
 import {gradeRead, readTotals, countWords, wpm} from './read-score.js';
 
@@ -72,7 +72,7 @@ export function examReadResult() {
 
 export function examReadFinish() {
   const res = examReadResult();
-  if (res) { S.rxBest = Math.max(S.rxBest || 0, res.pc); S.xp += Math.round(res.pc / 5) }
+  if (res) { keepResult('read', res.pc); S.xp += Math.round(res.pc / 5) }
   S.rx = null; S.tab = 'course';
   save(); hooks.render();
 }

@@ -23,11 +23,11 @@ export function defaultState(){return{
   snd:null,                 // تدريب الأصوات الجاري (لحظي)
   cx:null,                  // اختبار المحادثة الجاري (لحظي)
   wx:null,                  // اختبار الكتابة الجاري (لحظي)
+  dx:null,                  // اختبار الإملاء الجاري (لحظي)
   rx:null,                  // اختبار القراءة الجاري (لحظي)
-  cxBest:0,                 // أفضل نسبة في اختبار المحادثة
-  wxBest:0,                 // أفضل نسبة في اختبار الكتابة
+  cxSeen:[],                // مشاهد المحادثة التي جرّبها، فلا تتكرّر
+  res:{},                   // سجلّ الاختبارات: {last,best,n,at} لكل اختبار
   srs:{},                   // صناديق المراجعة المتباعدة: نصّ السؤال -> {b,due,seen}
-  rxBest:0,                 // أفضل نسبة في اختبار القراءة
   ruleOpen:null,            // بطاقة القاعدة المفتوحة حالياً
   theme:'light',            // النهاري هو الافتراضي، والليلي اختيار
   goal:10,                  // هدف دقائق الكلام اليومي
@@ -136,18 +136,44 @@ export function migrate(saved){
   if(saved.attempts&&typeof saved.attempts==='object')S.attempts=cleanAttempts(saved.attempts);
   if(saved.chat&&typeof saved.chat==='object')Object.assign(S.chat,cleanChat(saved.chat));
   /* اختبار الترجمة جلسة لحظية: لا يُستورد ولا يُستعاد. */
-  S.tr=null;S.snd=null;S.cx=null;S.wx=null;S.rx=null;
+  S.tr=null;S.snd=null;S.cx=null;S.wx=null;S.rx=null;S.dx=null;
   /* نسبة وحدها تُستورد، بعد قسرها عدداً في مداها. */
-  S.cxBest=Math.max(0,Math.min(100,Math.round(Number(saved.cxBest))||0));
-  S.wxBest=Math.max(0,Math.min(100,Math.round(Number(saved.wxBest))||0));
-  S.rxBest=Math.max(0,Math.min(100,Math.round(Number(saved.rxBest))||0));
   S.srs=cleanSrs(saved.srs);
+  S.res=cleanRes(saved.res);
+  S.cxSeen=Array.isArray(saved.cxSeen)?saved.cxSeen.filter(x=>typeof x==='string'&&x.length<32).slice(0,50):[];
   S.v=SCHEMA;
   return S;
 }
 
 export const LEVELS=['A1','A2'];
 /* كل حقل يُقسر إلى مداه: صندوق خارج ١..٥ أو موعد غير عدد يُفسد الطابور. */
+/* سجلّ النتائج يُستورد من ملفّ غير موثوق، فلا يُقبل إلا ما عرفنا مفتاحه،
+   وتُقسر أرقامه إلى مداها. */
+const RES_SLOTS=['conv','write','read','translate','dictation'];
+function cleanRes(o){
+  const out={};
+  if(!o||typeof o!=='object')return out;
+  RES_SLOTS.forEach(k=>{
+    const e=o[k]; if(!e||typeof e!=='object')return;
+    const num=(v,hi)=>Math.max(0,Math.min(hi,Math.round(Number(v))||0));
+    out[k]={last:num(e.last,100),best:num(e.best,100),n:num(e.n,9999),
+      at:Number.isFinite(Number(e.at))?Number(e.at):0};
+  });
+  return out;
+}
+
+/* النتيجة الأخيرة هي المعتمدة، والمحاولات تُعرض معها.
+
+   وكان يُحفظ أفضلها وحده، فمن أعاد عشر مرّات واتّفق له ٨٨٪ في التاسعة
+   يُسجَّل له ٨٨٪ كأنّها قدرته — وهي وصفٌ لأحسن حظّه لا لقدرته، وذلك
+   يُفسد مصداقية الرقم من جذره. */
+export function keepResult(slot, pc) {
+  const r = S.res[slot] || {};
+  S.res[slot] = {last: pc, best: Math.max(r.best || 0, pc), n: (r.n || 0) + 1, at: Date.now()};
+  save();
+  return S.res[slot];
+}
+
 function cleanSrs(o){
   const out={};
   if(!o||typeof o!=='object')return out;
@@ -162,7 +188,7 @@ function cleanSrs(o){
   return out;
 }
 
-export const VIEWS_KEYS=['home','course','speak','settings','translate','sounds','examconv','examwrite','examread'];   // يجب أن يطابق مفاتيح VIEWS في app.js
+export const VIEWS_KEYS=['home','course','speak','settings','translate','sounds','examconv','examwrite','examread','examdict','cefr'];   // يجب أن يطابق مفاتيح VIEWS في app.js
 export let S,bootWarn=null;
 
 /* يُستدعى مرة عند الإقلاع، ومرة لكل اختبار، فالحالة تُبنى لا تُستورد جاهزة. */

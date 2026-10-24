@@ -2,7 +2,7 @@
    التصحيح نفسه في engine/write-score.js، لأن تعديل الميزان شأن،
    وإدارة الجلسة شأن آخر. */
 import {WRITE} from '../content/write-tasks.js';
-import {S, save} from './state.js';
+import {S, save, keepResult} from './state.js';
 import {hooks} from './bus.js';
 import {gradeWrite, writeTotals} from './write-score.js';
 
@@ -82,7 +82,7 @@ export function examWriteResult() {
 
 export function examWriteFinish() {
   const r = examWriteResult();
-  if (r) { S.wxBest = Math.max(S.wxBest || 0, r.pc); S.xp += Math.round(r.pc / 5) }
+  if (r) { keepResult('write', r.pc); S.xp += Math.round(r.pc / 5) }
   S.wx = null; S.tab = 'course';
   save(); hooks.render();
 }

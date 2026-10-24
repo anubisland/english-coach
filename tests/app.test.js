@@ -1300,13 +1300,15 @@ const { run, report } = require('./harness.js');
     const pc = ctx.examConvResult().pc;
     ctx.examConvFinish();
     if (ev('S').cx) throw new Error('الجلسة لم تُمحَ');
-    if (ev('S').cxBest !== pc) throw new Error('لم تُحفظ أفضل نتيجة');
+    const rc = ev('S').res.conv;
+    if (!rc || rc.last !== pc) throw new Error('لم تُحفظ النتيجة الأخيرة');
+    if (rc.n !== 1) throw new Error('عدد المحاولات خطأ');
   });
 
   await run('جلسة الاختبار لا تُستورد من ملف', {}, (ctx, ev) => {
-    ctx.applyImport(JSON.stringify({ placed: true, cx: { id: 'x-air', ti: 0, turns: [] }, cxBest: '<img src=x>' }));
+    ctx.applyImport(JSON.stringify({ placed: true, cx: { id: 'x-air', ti: 0, turns: [] } }));
     if (ev('S').cx) throw new Error('استُوردت جلسة اختبار');
-    if (ev('S').cxBest !== 0) throw new Error('cxBest لم يُقسر عدداً: ' + JSON.stringify(ev('S').cxBest));
+    if (Object.keys(ev('S').res).length) throw new Error('استُورد سجلّ نتائج مزروع');
   });
 
   console.log('— قواعد المستوى الأول —');
@@ -1505,10 +1507,10 @@ const { run, report } = require('./harness.js');
     for (let i = 0; i < n; i++) { ctx.examWriteAnswer(ctx.examWriteTask().ok[0]); ctx.examWriteNext() }
     ctx.examWriteFinish();
     if (ev('S').wx) throw new Error('الجلسة لم تُمحَ');
-    if (ev('S').wxBest !== 100) throw new Error('لم تُحفظ النتيجة');
-    ctx.applyImport(JSON.stringify({ placed: true, wx: { items: [], i: 0 }, wxBest: '<img src=x>' }));
+    if (!ev('S').res.write || ev('S').res.write.last !== 100) throw new Error('لم تُحفظ النتيجة');
+    ctx.applyImport(JSON.stringify({ placed: true, wx: { items: [], i: 0 } }));
     if (ev('S').wx) throw new Error('استُوردت جلسة كتابة');
-    if (ev('S').wxBest !== 0) throw new Error('wxBest لم يُقسر عدداً');
+    if (Object.keys(ev('S').res).length) throw new Error('استُورد سجلّ نتائج مزروع');
   });
 
   await run('مسح الإنذار الكاذب يشمل بنوك الكتابة والترجمة', {}, (ctx, ev) => {
@@ -1665,10 +1667,10 @@ const { run, report } = require('./harness.js');
     const pc = ctx.examReadResult().pc;
     ctx.examReadFinish();
     if (ev('S').rx) throw new Error('الجلسة لم تُمحَ');
-    if (ev('S').rxBest !== pc) throw new Error('لم تُحفظ النتيجة');
-    ctx.applyImport(JSON.stringify({ placed: true, rx: { id: 'r-note', i: 0 }, rxBest: '<img src=x>' }));
+    if (!ev('S').res.read || ev('S').res.read.last !== pc) throw new Error('لم تُحفظ النتيجة');
+    ctx.applyImport(JSON.stringify({ placed: true, rx: { id: 'r-note', i: 0 } }));
     if (ev('S').rx) throw new Error('استُوردت جلسة قراءة');
-    if (ev('S').rxBest !== 0) throw new Error('rxBest لم يُقسر عدداً');
+    if (Object.keys(ev('S').res).length) throw new Error('استُورد سجلّ نتائج مزروع');
   });
 
   await run('مطابقة العدد العربية صحيحة مع المؤنث والمذكّر', {}, (ctx, ev) => {
@@ -2220,7 +2222,145 @@ const { run, report } = require('./harness.js');
     if (seen.size < 550) throw new Error('عيّنة صغيرة: ' + seen.size);
   });
 
+  console.log('— صدق النتائج —');
+
+  /* الرقم المعروض يجب أن يصف القدرة لا أحسن الحظّ. */
+  await run('المعروض هو النتيجة الأخيرة لا أفضلها',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.keepResult('conv', 40);
+    ctx.keepResult('conv', 90);
+    ctx.keepResult('conv', 55);
+    const r = ev('S').res.conv;
+    if (r.last !== 55) throw new Error('الأخيرة ليست ٥٥: ' + r.last);
+    if (r.n !== 3) throw new Error('المحاولات ليست ٣: ' + r.n);
+    if (r.best !== 90) throw new Error('الأفضل لم يُحفظ للتشجيع');
+    const line = ctx.resultLine('conv');
+    if (!line.includes('٥٥')) throw new Error('الأخيرة لا تظهر');
+    if (!line.includes('٣')) throw new Error('عدد المحاولات لا يظهر');
+    if (line.indexOf('٩٠') >= 0 && line.indexOf('٩٠') < line.indexOf('٥٥'))
+      throw new Error('الأفضل معروض قبل الأخيرة');
+  });
+
+  await run('المحاولة الأولى لا تعرض عدّاداً',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.keepResult('read', 70);
+    const line = ctx.resultLine('read');
+    if (!line.includes('٧٠')) throw new Error('لا نتيجة');
+    if (line.includes('محاول')) throw new Error('عدّاد في المحاولة الأولى');
+    if (ctx.resultLine('write')) throw new Error('عرض نتيجة لاختبار لم يُخض');
+  });
+
+  await run('سجلّ النتائج يُنقّى عند الاستيراد', {}, (ctx, ev) => {
+    ctx.applyImport(JSON.stringify({ placed: true, res: {
+      conv: {last: 77, best: 88, n: 4, at: 123},
+      '<img src=x onerror=alert(1)>': {last: 99, best: 99, n: 1},
+      write: {last: 'كثير', best: 999, n: -5, at: 'أمس'}
+    }}));
+    const res = ev('S').res;
+    const keys = Object.keys(res);
+    if (keys.some(k => /img|script|</.test(k))) throw new Error('مفتاح غريب: ' + keys.join('|'));
+    if (!res.conv || res.conv.last !== 77 || res.conv.n !== 4) throw new Error('السجلّ الصحيح لم يُحفظ');
+    if (!res.write) throw new Error('السجلّ الفاسد حُذف بدل أن يُقسر');
+    if (res.write.last !== 0) throw new Error('نصّ لم يُقسر صفراً: ' + res.write.last);
+    if (res.write.best > 100) throw new Error('تجاوز المئة: ' + res.write.best);
+    if (res.write.n < 0) throw new Error('محاولات سالبة');
+    /* ولا يصل شيء من ذلك إلى الشاشة. */
+    if (/<img|onerror/.test(ctx.courseView())) throw new Error('وسم وصل إلى الشاشة');
+  });
+
+  console.log('— الإملاء والمعيار الدولي —');
+
+  await run('اختبار الإملاء يمشي إلى النهاية',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    if (ctx.dictationPool().length < 30) throw new Error('مخزون قليل');
+    ctx.examDictStart();
+    const d = ev('S').dx;
+    if (d.items.length !== 10) throw new Error('عدد الجمل: ' + d.items.length);
+    for (let i = 0; i < d.items.length; i++) {
+      const it = ctx.examDictItem();
+      /* النصّ لا يظهر قبل الإجابة. */
+      if (ctx.examDictView().includes(it.ok[0])) throw new Error('نصّ الإملاء مكشوف');
+      ctx.examDictAnswer(i < 8 ? it.ok[0] : 'zzz');
+      ctx.examDictNext();
+    }
+    const r = ctx.examDictResult();
+    if (r.right !== 8 || r.pc !== 80) throw new Error('الحساب: ' + r.right + '/' + r.n + ' = ' + r.pc);
+    if (!ctx.examDictView().includes('٪')) throw new Error('لا نسبة');
+    ctx.examDictFinish();
+    if (ev('S').dx) throw new Error('الجلسة لم تُمحَ');
+    if (ev('S').res.dictation.last !== 80) throw new Error('لم تُحفظ النتيجة');
+  });
+
+  await run('مرّات السماع تُحصى وتُعرض',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.examDictStart();
+    ctx.examDictPlay(); ctx.examDictPlay(); ctx.examDictPlay();
+    if (ev('S').dx.plays !== 3) throw new Error('العدّ: ' + ev('S').dx.plays);
+    if (!ctx.examDictView().includes('سمعتَها')) throw new Error('لا يظهر العدّ');
+    ctx.examDictAnswer(ctx.examDictItem().ok[0]);
+    if (ev('S').dx.shown.plays !== 3) throw new Error('لم يُسجَّل مع الإجابة');
+  });
+
+  /* إعادة الاختبار على مشهدٍ جُرّب تقيس الحفظ لا القدرة. */
+  await run('مشهد المحادثة لا يتكرّر قبل أن تدور المواقف',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    const total = ev('EXAM_SCENES').length;
+    const seen = [];
+    for (let i = 0; i < total; i++) {
+      ctx.examConvStart();
+      const id = ev('S').cx.id;
+      if (seen.includes(id)) throw new Error('تكرّر «' + id + '» في الدورة الأولى');
+      seen.push(id);
+    }
+    if (seen.length !== total) throw new Error('لم تدر كلها');
+    /* وبعد أن دارت كلّها تبدأ دورة جديدة. */
+    ctx.examConvStart();
+    if (!ev('S').cx) throw new Error('توقّف بعد نفاد المشاهد');
+  });
+
+  await run('القدرة لا تُحتسب مُثبَتة بالدرس وحده',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    const cap = ev('CEFR_A1').find(c => c.exam === 'read');
+    let st = ctx.capabilityState(cap);
+    if (st.level !== 'locked') throw new Error('بدأ غير مقفل: ' + st.level);
+    cap.lessons.forEach(id => { ev('S').lessons[id] = true });
+    st = ctx.capabilityState(cap);
+    if (st.level !== 'untested') throw new Error('الدرس وحده أثبت القدرة: ' + st.level);
+    /* نتيجة دون العتبة لا تُثبت. */
+    ctx.keepResult('read', 50);
+    if (ctx.capabilityState(cap).level !== 'weak') throw new Error('٥٠٪ أثبتت القدرة');
+    ctx.keepResult('read', 80);
+    if (ctx.capabilityState(cap).level !== 'proven') throw new Error('٨٠٪ لم تُثبتها');
+  });
+
+  /* المصداقية في إعلان النقص لا إخفائه. */
+  await run('شاشة المعيار تعرض ما لا يغطّيه البرنامج', {}, (ctx, ev) => {
+    const r = ctx.cefrReport();
+    if (!r.gaps.length) throw new Error('لا نواقص معلنة');
+    if (r.coverage >= 100) throw new Error('يدّعي تغطية كاملة: ' + r.coverage);
+    const html = ctx.cefrView();
+    if (!html.includes('ما لا يغطّيه')) throw new Error('النواقص لا تظهر');
+    if (!html.includes('أساسيات A1')) throw new Error('لا يوضّح أنّه أساسيات لا A1 كامل');
+    r.gaps.slice(0, 3).forEach(g => {
+      if (!html.includes(g.t)) throw new Error('نقص غائب عن الشاشة: ' + g.t);
+    });
+    if (!html.includes(String(ctx.ar(r.coverage)))) throw new Error('نسبة التغطية لا تظهر');
+  });
+
+  await run('كل قدرة مرتبطة بدروس واختبار موجودين', {}, (ctx, ev) => {
+    const slots = ['conv', 'write', 'read', 'dictation', 'translate'];
+    const ids = ev('LESSONS').map(l => l.id);
+    ev('CEFR_A1').forEach(c => {
+      if (!c.lessons || !c.lessons.length) throw new Error(c.id + ': بلا دروس');
+      c.lessons.forEach(id => { if (!ids.includes(id)) throw new Error(c.id + ': درس غير موجود ' + id) });
+      if (!slots.includes(c.exam)) throw new Error(c.id + ': اختبار غير معروف ' + c.exam);
+      if (!/[\u0600-\u06FF]/.test(c.t)) throw new Error(c.id + ': الوصف ليس بالعربية');
+    });
+  });
+
   await report();
+
+
 
 
 

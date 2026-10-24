@@ -4,7 +4,7 @@ import {S,save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
 import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen,unitDone} from '../engine/progress.js';
 import {RULE} from '../content/rules.js';
-import {card,svg,ar,ruleCard,esc,count} from './ui.js';
+import {card,svg,ar,ruleCard,esc,count,resultLine} from './ui.js';
 import {nextStep} from './home.js';
 
 export function stop(o){
@@ -85,13 +85,17 @@ export function courseView(){
     }).replace('</div></div>',`<div class="row" style="justify-content:flex-start">${gate}</div></div></div>`):'';
     h+=card(`الوحدة ${u.n}: ${u.t} ${unitStatus(u.n)}`, unitOpen(u.n)?(unitDone(u.n)?'<details><summary class=muted>عرض دروس الوحدة للمراجعة</summary>'+ls+extra+'</details>':ls+extra):'<p class="muted">🔒 تُفتح بعد اجتياز اختبار الوحدة السابقة واختبار استبقائها</p>');
   }
+  h+=card('اختبار الإملاء',
+    '<p class="muted">عشر جمل تسمعها وتكتبها — أصدق قياس للاستماع في البرنامج.</p>'
+    +resultLine('dictation')
+    +'<div class="row" style="justify-content:flex-start"><button class="btn" onclick="examDictStart()">ابدأ اختبار الإملاء</button></div>');
   h+=card('اختبار القراءة',
     '<p class="muted">نصّ قصير من الحياة اليومية ثم أسئلة عليه، ويُقاس زمن قراءتك معه.</p>'
-    +(S.rxBest?'<p class="muted" style="margin-top:6px">أفضلك: <b style="color:var(--ind2)">'+ar(S.rxBest)+'٪</b></p>':'')
+    +resultLine('read')
     +'<div class="row" style="justify-content:flex-start"><button class="btn" onclick="examReadStart()">ابدأ اختبار القراءة</button></div>');
   h+=card('اختبار الكتابة',
     '<p class="muted">إحدى عشرة مسألة تكتبها بيدك: ترتيب كلمات، وإكمال ناقص، وكتابة جملة، وكتابة موجّهة. لا خيارات.</p>'
-    +(S.wxBest?'<p class="muted" style="margin-top:6px">أفضلك: <b style="color:var(--ind2)">'+ar(S.wxBest)+'٪</b></p>':'')
+    +resultLine('write')
     +'<div class="row" style="justify-content:flex-start"><button class="btn" onclick="examWriteStart(0)">ابدأ اختبار الكتابة</button></div>');
   h+=card('اختبار الترجمة',
     '<p class="muted">ست جمل عربية تكتب ترجمتها بنفسك — بلا خيارات ولا جملة أمامك تقلّدها. وهو أصدق مقياس لما تستطيع إنتاجه فعلاً.</p>'

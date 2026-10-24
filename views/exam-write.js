@@ -6,7 +6,7 @@
 import {S} from '../engine/state.js';
 import {examWriteTask, examWriteBag, examWriteResult} from '../engine/exam-write.js';
 import {WRITE_KINDS} from '../content/write-tasks.js';
-import {card, ar, esc, count} from './ui.js';
+import {card, ar, esc, count, resultLine} from './ui.js';
 
 export function examWriteView() {
   const w = S.wx;
@@ -21,8 +21,7 @@ function introHtml() {
        وكتابة جملة تؤدّي معنى عربياً، وكتابة موجّهة في آخرها.</p>
      <p class="muted" style="margin-top:6px"><b>لا خيارات في هذا الاختبار.</b>
        تكتب كل إجابة بيدك، لأن اختيار الصواب حين تراه غير إنشائه من فراغ.</p>
-     ${S.wxBest ? `<p class="muted" style="margin-top:8px">أفضل نتيجة لك:
-        <b style="color:var(--ind2)">${ar(S.wxBest)}٪</b></p>` : ''}
+     ${resultLine('write')}
      <div class="row" style="justify-content:flex-start;margin-top:12px">
        <button class="btn" onclick="examWriteStart(0)">ابدأ الاختبار</button></div>
      <div class="row" style="justify-content:flex-start;margin-top:8px">
