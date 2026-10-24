@@ -755,5 +755,46 @@ const { run, report } = require('./harness.js');
     if (ctx._meta.content !== '#0B0D1C') throw new Error('لم يتبدّل مع الوضع الليلي: ' + ctx._meta.content);
   });
 
+  console.log('— الإعدادات —');
+
+  await run('شاشة الإعدادات تعرض كل الأقسام',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.go('settings');
+    const h = ctx._els.app.innerHTML;
+    ['المظهر','هدف الكلام','نقل تقدّمك','إعادة البداية','عن التطبيق']
+      .forEach(t => { if (!h.includes(t)) throw new Error('قسم مفقود: ' + t) });
+  });
+
+  await run('تبديل الوضع من الإعدادات يُحفظ', {}, (ctx, ev) => {
+    ctx.setTheme('dark');
+    if (ev('S').theme !== 'dark') throw new Error('لم يتبدّل');
+    if (!ctx._store['eng-coach-v3'].includes('"theme":"dark"')) throw new Error('لم يُحفظ');
+  });
+
+  await run('الاستيراد يستعيد تقدّماً كاملاً', {}, (ctx, ev) => {
+    const file = JSON.stringify({ placed: true, xp: 340, lessons: { '1.1': true, '1.2': true }, cp: { 1: true }, level: 'A1' });
+    if (!ctx.applyImport(file)) throw new Error('رُفض ملف سليم');
+    const S = ev('S');
+    if (S.xp !== 340) throw new Error('ضاعت النقاط: ' + S.xp);
+    if (!S.lessons['1.2']) throw new Error('ضاع تقدّم الدروس');
+    if (!ctx._store['eng-coach-v3'].includes('340')) throw new Error('لم يُحفظ المستورَد');
+  });
+
+  await run('الاستيراد يرفض ملفاً تالفاً ولا يمسح التقدّم',
+    { 'eng-coach-v3': JSON.stringify({ placed: true, xp: 120 }) }, (ctx, ev) => {
+    if (ctx.applyImport('{ليس JSON')) throw new Error('قبل ملفاً تالفاً');
+    if (ev('S').xp !== 120) throw new Error('مُحي التقدّم بسبب ملف تالف');
+    if (!ctx._els.toast.textContent.includes('غير صالح')) throw new Error('لا رسالة للمستخدم');
+  });
+
+  await run('الاستيراد يمرّ بالتحقق كأي حالة محفوظة', {}, (ctx, ev) => {
+    ctx.applyImport(JSON.stringify({ xp: 'كثير', level: '<img src=x>', open: '9.9', tab: 'hacked' }));
+    const S = ev('S');
+    if (S.xp !== 0) throw new Error('قَبِل xp غير رقمي');
+    if (S.level !== 'A1') throw new Error('قَبِل مستوى مجهول');
+    if (S.open !== null) throw new Error('قَبِل درساً غير موجود');
+    if (S.tab !== 'home') throw new Error('قَبِل تبويباً غير صالح');
+  });
+
   await report();
 })();

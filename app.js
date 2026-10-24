@@ -12,11 +12,10 @@ import * as home from './views/home.js';
 import * as course from './views/course.js';
 import * as quizv from './views/quiz.js';   // ليس quizView: الاسم يحجب الدالة
 import * as speak from './views/speak.js';
+import * as settings from './views/settings.js';
 
-function toggleTheme(){
-  S.theme=S.theme==='light'?'dark':'light';
-  applyTheme();save();
-}
+function toggleTheme(){setTheme(S.theme==='light'?'dark':'light')}
+function setTheme(k){S.theme=k==='dark'?'dark':'light';applyTheme();save();render()}
 function applyTheme(){
   const el=document.documentElement;
   if(el&&el.setAttribute)el.setAttribute('data-theme',S.theme==='dark'?'dark':'light');
@@ -39,7 +38,8 @@ function go(t){S.tab=t;S.q=null;save();render()}
 const HEAD={
   home:['مدرب الإنجليزية','الكلام أولاً: شرح، تمرين، ثم محادثة حقيقية'],
   course:['خريطة الرحلة','محطة بعد محطة حتى تتقن المستوى'],
-  speak:['المحادثة الحيّة','تكلّم، وسنصحّح لك بالعربية']
+  speak:['المحادثة الحيّة','تكلّم، وسنصحّح لك بالعربية'],
+  settings:['الإعدادات','المظهر، والهدف، ونقل تقدّمك']
 };
 function renderHead(){
   const h=HEAD[S.tab]||HEAD.home;
@@ -69,12 +69,12 @@ if(window.addEventListener)window.addEventListener('error',ev=>{
   ui.toast('حدث خطأ غير متوقع. أعد تحميل الصفحة إن توقّف التطبيق');
 });
 
-const VIEWS={home:home.homeView,course:course.courseView,speak:speak.speakView};
+const VIEWS={home:home.homeView,course:course.courseView,speak:speak.speakView,settings:settings.settingsView};
 
 /* المعالجات داخل الـ HTML (onclick) تحتاج أسماءً عامة. */
 Object.assign(window,{
-  ...state,...grammar,...pronounce,...progress,...quiz,...chat,...ui,...home,...course,...quizv,...speak,
-  render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme
+  ...state,...grammar,...pronounce,...progress,...quiz,...chat,...ui,...home,...course,...quizv,...speak,...settings,
+  render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme,setTheme
 });
 /* S مرتبط حيّاً لأنه يُعاد بناؤه عند كل إقلاع. */
 Object.defineProperty(window,'S',{get:()=>S,configurable:true});
@@ -98,4 +98,5 @@ export * from './views/home.js';
 export * from './views/course.js';
 export * from './views/quiz.js';
 export * from './views/speak.js';
-export {render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme,VIEWS};
+export * from './views/settings.js';
+export {render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme,setTheme,VIEWS};

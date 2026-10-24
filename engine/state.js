@@ -59,7 +59,7 @@ export function migrate(saved){
 }
 
 export const LEVELS=['A1','A2'];
-export const VIEWS_KEYS=['home','course','speak'];   // يجب أن يطابق مفاتيح VIEWS في آخر الملف
+export const VIEWS_KEYS=['home','course','speak','settings'];   // يجب أن يطابق مفاتيح VIEWS في app.js
 export let S,bootWarn=null;
 
 /* يُستدعى مرة عند الإقلاع، ومرة لكل اختبار، فالحالة تُبنى لا تُستورد جاهزة. */
