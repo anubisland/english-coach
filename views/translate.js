@@ -108,7 +108,7 @@ export function translateView() {
   return `<div class="card">
     <div style="display:flex;align-items:center;gap:11px">
       <div class="bar" style="flex:1;margin:0"><i style="width:${t.i / t.items.length * 100}%"></i></div>
-      <span class="muted" style="font-size:12px;font-weight:700">${ar(t.i + 1)} / ${ar(t.items.length)}</span></div>
+      <span class="muted" style="font-size:12px;font-weight:700">${ar(t.i + 1)} من ${ar(t.items.length)}</span></div>
 
     <p class="muted" style="margin-top:12px;font-size:12px">ترجم إلى الإنجليزية</p>
     <p style="font-size:19px;font-weight:600;line-height:1.7;margin-top:4px">${esc(it.ar)}</p>

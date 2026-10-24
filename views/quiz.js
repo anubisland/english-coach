@@ -3,7 +3,7 @@ import {LESSONS} from '../content/lessons.js';
 import {S,logError} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
 import {ITEM_RULE} from '../engine/progress.js';
-import {speakTurn,startFrom} from '../engine/quiz.js';
+import {speakTurn,startFrom,itemTyped} from '../engine/quiz.js';
 import {card,svg,ar,ruleCard,toggleRule,esc} from './ui.js';
 
 export function speakPanel(q,it){if(q.kind!=='conv'||q.picked==null)return '';if(q.typed)return `<p class=muted style='margin-top:8px'>كُتبت ولم تُنطق — <b style="color:var(--amber)">لم يُقَس النطق</b>${q.heard?'<br>ما كتبته: «'+esc(q.heard)+'»':''}</p>`;
@@ -15,7 +15,8 @@ export function typed2(){const el=document.getElementById('ctxt2');speakTurn(el?
 
 export function itemRuleHtml(q,it){
   const id=ITEM_RULE.get(it);if(!id)return '';
-  if(q.picked===it.a&&S.ruleOpen!==id)
+  /* المعيار هو صحّة الإجابة لا مطابقة فهرس الخيار: التمرين المكتوب لا فهرس له. */
+  if(q.choiceOk&&S.ruleOpen!==id)
     return `<div class="row" style="margin-top:8px"><button class='btn ghost' onclick="toggleRule('${id}')">راجع القاعدة</button></div>`;
   return ruleCard(id,'brief');
 }
@@ -73,16 +74,52 @@ export function quizView(){
       </div>${tips?card('ما تحتاج مراجعته',tips):''}`;
   }
   const it=q.items[q.i],total=q.kind==='place'?10:q.items.length;
-  const opts=it.o.map((o,k)=>{let c='';if(q.picked!=null){if(k===it.a)c='ok';else if(k===q.picked)c='bad'}
-    return `<button class="opt en ${c}" ${q.picked!=null?'disabled':''} onclick="pick(${k})">${o}</button>`}).join('');
+  const opts=itemTyped(it)?typedPanel(q,it)
+    :it.o.map((o,k)=>{let c='';if(q.picked!=null){if(k===it.a)c='ok';else if(k===q.picked)c='bad'}
+      return `<button class="opt en ${c}" ${q.picked!=null?'disabled':''} onclick="pick(${k})">${o}</button>`}).join('');
   return `<div class="card">
      <div style="display:flex;align-items:center;gap:11px">
        <div class="bar" style="flex:1;margin:0"><i style="width:${q.i/total*100}%"></i></div>
-       <span class="muted" style="font-size:12px;font-weight:700;flex:0 0 auto">${ar(q.i+1)} / ${ar(total)}</span></div>
+       <span class="muted" style="font-size:12px;font-weight:700;flex:0 0 auto">${ar(q.i+1)} من ${ar(total)}</span></div>
      <p class="muted" style="margin-top:12px;font-size:12px">${q.title}</p>
-     <div class="mean en" style="font-size:19px;margin-top:6px;line-height:1.7;font-weight:500">${it.q}</div>${opts}
+     ${itemTyped(it)?askHtml(it):`<div class="mean en" style="font-size:19px;margin-top:6px;line-height:1.7;font-weight:500">${it.q}</div>`}${opts}
      ${speakPanel(q,it)}${q.picked!=null&&(q.kind!=='conv'||q.spoke!=null)?`<p class='muted' style='margin-top:10px'>💡 ${it.tip}</p>${itemRuleHtml(q,it)}<div class="row"><button class="btn" onclick="nextQ()">${q.i+1>=total?'النتيجة':'التالي ←'}</button></div>`:''}
      <div class="row" style="margin-top:4px"><button class="btn ghost" style="background:transparent;color:var(--faint)" onclick="closeQ()">إلغاء</button></div></div>`;
+}
+
+
+/* ================= التمارين المكتوبة ================= */
+
+/* تعليمات التمرين المكتوب بالعربية، والمعروض منه إنجليزي معزول الاتجاه. */
+function askHtml(it){
+  const label={type:'أكمل الناقص',order:'رتّب ثم اكتب',correct:'صحّح الجملة'}[it.k]||'';
+  const body=it.k==='order'
+    ? `<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;direction:ltr">${
+        (it.w||[]).map(w=>`<span class="en" style="padding:6px 11px;border-radius:10px;background:var(--surf2);
+          border:1.5px solid var(--line);font-size:14px;font-weight:600">${esc(w)}</span>`).join('')}</div>`
+    : `<div class="mean en" dir="ltr" style="text-align:left;font-size:19px;margin-top:8px;line-height:1.7;font-weight:500">${esc(it.q)}</div>`;
+  return `<p class="muted" style="margin-top:10px;font-size:12px">${label}</p>
+    ${it.ar?`<p style="margin-top:3px;font-weight:700">${esc(it.ar)}</p>`:''}${body}`;
+}
+
+function typedPanel(q,it){
+  if(q.picked!=null){
+    const ok=q.choiceOk;
+    return `<div style="margin-top:12px;background:var(--surf2);border-radius:14px;padding:12px">
+        <p class="muted" style="font-size:12px">إجابتك</p>
+        <p class="en" dir="ltr" style="text-align:left;margin-top:3px;font-weight:700;
+          color:${ok?'var(--green)':'var(--coral)'}">${esc(q.typedAns)||'— لم تكتب —'}</p>
+        ${ok?'':`<p class="muted" style="margin-top:6px;font-size:12.5px">الصواب:
+          <span class="en" dir="ltr" style="font-weight:700">${esc(it.ok[0])}</span></p>`}
+      </div>`;
+  }
+  return `<input id="qtxt" class="en" dir="ltr" placeholder="${it.k==='type'?'the missing word':'write it here'}"
+      style="width:100%;box-sizing:border-box;margin-top:12px;padding:12px 13px;border-radius:13px;
+      border:2px solid var(--line);background:var(--surf2);color:inherit;font-size:16px">
+    <div class="row" style="justify-content:flex-start;margin-top:10px">
+      <button class="btn" onclick="answerTyped()">تحقّق</button>
+      <button class="btn ghost" style="background:transparent;color:var(--faint)"
+        onclick="revealTyped()">لا أعرف</button></div>`;
 }
 
 /* ================= التحدث ================= */

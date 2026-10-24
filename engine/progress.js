@@ -35,7 +35,11 @@ PLACE2.forEach(it=>{ITEM_SKILL.set(it,'a2');ITEM_UNIT.set(it,0)});
 /* اختبار تحديد المستوى يعمل على نُسخ من التمارين (لإضافة lv)، والنسخة
    كائن جديد لا تعرفه الخرائط. نسجّلها هنا، وإلا فقدنا مهارة كل سؤال
    ووحدته — وهو ما يُبنى عليه اقتراح نقطة البداية. */
-export const PLACE=LESSONS.flatMap(l=>l.items.map(i=>{
+/* تحديد المستوى يقتصر على الاختيار والكلمة الواحدة: أوّل شاشة يراها
+   القادم الجديد لا تطالبه بإنشاء جملة قبل أن نعرف مستواه — والمقصود
+   قياسه سريعاً لا إجهاده. أمّا دروسه ففيها الأنواع كلّها. */
+const PLACE_KINDS=it=>!it.k||it.k==='mcq'||it.k==='type';
+export const PLACE=LESSONS.flatMap(l=>l.items.filter(PLACE_KINDS).map(i=>{
   const copy=Object.assign({},i,{lv:1});
   ITEM_SKILL.set(copy,ITEM_SKILL.get(i));
   ITEM_UNIT.set(copy,l.u);

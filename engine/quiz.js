@@ -5,7 +5,8 @@ import {CONVO} from '../content/convo.js';
 import {S,save,addXp} from './state.js';
 import {hooks} from './bus.js';
 import {unitItems,itemsUpTo,shuffle,PLACE,lessonOpen,unitOf,skillOf} from './progress.js';
-import {words} from './pronounce.js';
+import {words,lev} from './pronounce.js';
+import {normalize} from './translate.js';
 
 /* 12 سؤالاً: ثلاثة لكل وحدة ليكون حكمها ذا معنى، وثلاثة لجسّ A2.
    النتيجة تقرر تخطي وحدات كاملة، فدقتها أهم من قِصَرها. */
@@ -63,6 +64,46 @@ export function pick(k){
   if(q.kind==='place')q.theta=Math.min(2,Math.max(1,q.theta+(ok?0.5:-0.5)));
   hooks.render();
 }
+
+/* التمارين المكتوبة: لا خيارات تُضغط، بل جواب يُنشَأ.
+
+   والحكم هنا ثنائي لا درجات بينهما، لأن الدرس لا يُجتاز إلا بإصابة كل التمارين —
+   ولكنّا نغفر زلّة حرف في الجواب الطويل: التمرين يقيس القاعدة لا الإملاء. */
+export function typedOk(said,list){
+  const a=normalize(said);
+  if(!a)return false;
+  return (list||[]).some(o=>{
+    const b=normalize(o);
+    return b===a||(b.split(' ').length>1&&lev(b,a)<=1);
+  });
+}
+
+export function answerTyped(text){
+  const q=S.q;if(!q||q.picked!=null)return;
+  const it=q.items[q.i];
+  if(!itemTyped(it))return;
+  const said=String(text===undefined?typedField():text||'').trim();
+  if(!said)return;
+  const ok=typedOk(said,it.ok);
+  q.picked=-1;q.typedAns=said;q.choiceOk=ok;
+  q.got.push(ok);if(!ok)q.wrong.push(it);
+  if(q.kind==='place')q.theta=Math.min(2,Math.max(1,q.theta+(ok?0.5:-0.5)));
+  hooks.render();
+}
+
+/* من عجز عن الكتابة يرى الجواب، وتُحتسب خطأ: التعلّم لا يمنعه التعثّر. */
+export function revealTyped(){
+  const q=S.q;if(!q||q.picked!=null)return;
+  const it=q.items[q.i];
+  if(!itemTyped(it))return;
+  q.picked=-1;q.typedAns='';q.choiceOk=false;
+  q.got.push(false);q.wrong.push(it);
+  hooks.render();
+}
+
+export const itemTyped=it=>!!it&&it.k!=null&&it.k!=='mcq';
+
+function typedField(){const el=document.getElementById('qtxt');return el?el.value:''}
 export function nextQ(){window.scrollTo(0,0);
   const q=S.q;q.i++;q.picked=null;q.spoke=null;q.att=0;q.feedback=null;q.choiceOk=null;
   const total=q.kind==='place'?PLACE_N:q.items.length;

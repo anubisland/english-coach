@@ -168,8 +168,23 @@ const { run, report } = require('./harness.js');
     const dup = qs.length - new Set(qs).size;
     if (dup) throw new Error(`${dup} تمرين مكرر`);
     L.forEach(l => l.items.forEach((it, i) => {
-      if (!(it.a >= 0 && it.a < it.o.length)) throw new Error(`${l.id}#${i + 1}: فهرس إجابة خاطئ`);
-      if (new Set(it.o).size !== it.o.length) throw new Error(`${l.id}#${i + 1}: خيار مكرر`);
+      /* لكل نوع شرطه: الاختيار له فهرس صحيح، والمكتوب له إجابات مقبولة. */
+      if (ctx.itemTyped(it)) {
+        if (!Array.isArray(it.ok) || !it.ok.length) throw new Error(`${l.id}#${i + 1}: بلا إجابة مقبولة`);
+        if (it.ok.some(o => !ctx.typedOk(o, it.ok))) throw new Error(`${l.id}#${i + 1}: صيغة مقبولة تُرفض`);
+        if (it.k === 'order') {
+          const given = it.w.map(x => x.toLowerCase()).sort().join(' ');
+          const need = it.ok[0].toLowerCase().replace(/[^\w\s']/g, '').split(/\s+/).sort().join(' ');
+          if (given !== need) throw new Error(`${l.id}#${i + 1}: الكلمات لا تكوّن الجملة`);
+        }
+        if (it.k === 'type' && !/___/.test(it.q)) throw new Error(`${l.id}#${i + 1}: بلا فراغ`);
+        /* جملة «صحّح» الصحيحة يجب ألّا يرصدها محرّك النحو خطأً. */
+        if (it.k === 'correct' && ctx.checkGrammar(it.ok[0]).length)
+          throw new Error(`${l.id}#${i + 1}: النموذج يُرصد خطأً`);
+      } else {
+        if (!(it.a >= 0 && it.a < it.o.length)) throw new Error(`${l.id}#${i + 1}: فهرس إجابة خاطئ`);
+        if (new Set(it.o).size !== it.o.length) throw new Error(`${l.id}#${i + 1}: خيار مكرر`);
+      }
       if (!it.tip || !/[؀-ۿ]/.test(it.tip)) throw new Error(`${l.id}#${i + 1}: tip ليس بالعربية`);
     }));
   });
@@ -1312,10 +1327,21 @@ const { run, report } = require('./harness.js');
     ev('SCENES').forEach(s => s.turns.forEach(t => { good.push(t.model); good.push(t.p) }));
     ev('EXAM_SCENES').forEach(s => s.turns.forEach(t => { good.push(t.model); good.push(t.p) }));
     ev('CONVO').forEach(s => s.turns.forEach(t => { good.push(t.p); good.push(t.o[t.a]) }));
+    ev('WRITE').forEach(t => t.ok.forEach(o => good.push(o)));
+    ev('TRANSLATE').forEach(t => good.push(t.en[0]));
+    ev('READS').forEach(t => t.qs.filter(q => q.k === 'tf').forEach(q => good.push(q.q)));
+    /* وأقوى شبكة: جمل الدروس نفسها بعد ملء الفراغ بالإجابة الصحيحة. */
+    ev('LESSONS').forEach(l => {
+      l.s.forEach(x => good.push(x));
+      l.items.forEach(it => {
+        if (it.ok) good.push(it.ok[0]);
+        else if (it.o) good.push(it.q.replace('___', it.o[it.a]));
+      });
+    });
     const bad = good.filter(Boolean).filter(x => ctx.checkGrammar(x).length);
     if (bad.length) throw new Error(bad.length + ' إنذار كاذب، أولها: «' + bad[0] + '» → '
       + ctx.checkGrammar(bad[0]).map(g => g.ar).join(' · '));
-    if (good.length < 300) throw new Error('عيّنة صغيرة: ' + good.length);
+    if (good.length < 650) throw new Error('عيّنة صغيرة: ' + good.length);
   });
 
   await run('الفعل بعد modal يبقى مجرّداً', {}, (ctx, ev) => {
@@ -1662,7 +1688,142 @@ const { run, report } = require('./harness.js');
     if (/[0-9]/.test(c(64, 'كلمة', 'كلمات'))) throw new Error('رقم غربي');
   });
 
+  console.log('— التمارين المكتوبة —');
+
+  await run('بنك الدروس فيه أنواع لا نوع واحد', {}, (ctx, ev) => {
+    const items = ev('LESSONS').flatMap(l => l.items);
+    const kinds = {};
+    items.forEach(i => { kinds[i.k || 'mcq'] = (kinds[i.k || 'mcq'] || 0) + 1 });
+    if (items.length < 150) throw new Error('البنك صغير: ' + items.length);
+    ['type', 'order', 'correct'].forEach(k => {
+      if (!kinds[k]) throw new Error('نوع غائب من الدروس: ' + k);
+    });
+    const typed = items.length - kinds.mcq;
+    if (typed / items.length < 0.3) throw new Error('المكتوب أقلّ من الثلث: ' + typed + '/' + items.length);
+    /* كل درس فيه نوع مكتوب واحد على الأقل، وإلا بقي درسٌ كلّه ضغط أزرار. */
+    ev('LESSONS').forEach(l => {
+      if (!l.items.some(i => ctx.itemTyped(i))) throw new Error('الدرس ' + l.id + ' كلّه اختيار');
+    });
+  });
+
+  /* التنويع لا يفيد إن جاء كتلةً واحدة في الآخر. */
+  await run('الأنواع موزّعة لا مكدّسة في آخر الدرس', {}, (ctx, ev) => {
+    ev('LESSONS').forEach(l => {
+      const half = Math.floor(l.items.length / 2);
+      const early = l.items.slice(0, half).filter(i => ctx.itemTyped(i)).length;
+      if (!early) throw new Error('الدرس ' + l.id + ': لا تمرين مكتوب في نصفه الأول');
+    });
+  });
+
+  await run('التمرين المكتوب يُصحَّح بلا خيارات',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.launch('lesson', '1.1');
+    const q = ev('S').q;
+    while (q.i < q.items.length && !ctx.itemTyped(q.items[q.i])) { ctx.pick(q.items[q.i].a); ctx.nextQ() }
+    const it = q.items[q.i];
+    if (!it) throw new Error('لا تمرين مكتوب في الدرس');
+    const html = ctx.quizView();
+    if (html.includes('class="opt')) throw new Error('ظهرت خيارات في تمرين مكتوب');
+    if (!html.includes('qtxt')) throw new Error('لا مربع كتابة');
+    ctx.answerTyped(it.ok[0]);
+    if (!ev('S').q.choiceOk) throw new Error('الإجابة الصحيحة حُسبت خطأ');
+    if (!ctx.quizView().includes('التالي') && !ctx.quizView().includes('النتيجة'))
+      throw new Error('لا زر انتقال بعد التصحيح');
+  });
+
+  await run('الإجابة الخطأ تعرض الصواب ولا تُقبل',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.launch('lesson', '1.1');
+    const q = ev('S').q;
+    while (q.i < q.items.length && !ctx.itemTyped(q.items[q.i])) { ctx.pick(q.items[q.i].a); ctx.nextQ() }
+    const it = q.items[q.i];
+    ctx.answerTyped('zzz');
+    if (ev('S').q.choiceOk) throw new Error('جواب خطأ قُبل');
+    const html = ctx.quizView();
+    if (!html.includes(it.ok[0])) throw new Error('لم يُعرض الصواب');
+    if (!html.includes('zzz')) throw new Error('لم تُعرض إجابة المتعلّم');
+  });
+
+  await run('«لا أعرف» تُحتسب خطأ وتكشف الصواب',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.launch('lesson', '1.1');
+    const q = ev('S').q;
+    while (q.i < q.items.length && !ctx.itemTyped(q.items[q.i])) { ctx.pick(q.items[q.i].a); ctx.nextQ() }
+    const it = q.items[q.i];
+    ctx.revealTyped();
+    if (ev('S').q.choiceOk) throw new Error('حُسبت صحيحة');
+    if (!ctx.quizView().includes(it.ok[0])) throw new Error('لم يُكشف الصواب');
+  });
+
+  await run('لا يُحتسب الجواب مرّتين ولا يُقبل الفراغ',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.launch('lesson', '1.1');
+    const q = ev('S').q;
+    while (q.i < q.items.length && !ctx.itemTyped(q.items[q.i])) { ctx.pick(q.items[q.i].a); ctx.nextQ() }
+    const it = q.items[q.i];
+    ctx.answerTyped('');                       // الفراغ لا يُنهي السؤال
+    if (ev('S').q.picked != null) throw new Error('الفراغ احتُسب جواباً');
+    ctx.answerTyped(it.ok[0]);
+    const before = ev('S').q.got.length;
+    ctx.answerTyped('zzz');                    // ضغطة ثانية
+    if (ev('S').q.got.length !== before) throw new Error('احتُسب الجواب مرّتين');
+  });
+
+  await run('درس كامل يُجتاز بالكتابة والاختيار معاً',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.launch('lesson', '2.2');
+    const q = ev('S').q;
+    const n = q.items.length;
+    for (let i = 0; i < n; i++) {
+      const it = q.items[q.i];
+      if (ctx.itemTyped(it)) ctx.answerTyped(it.ok[0]); else ctx.pick(it.a);
+      ctx.nextQ();
+    }
+    if (!ev('S').q.done) throw new Error('لم ينتهِ');
+    if (!ev('S').q.pass) throw new Error('كل الإجابات صحيحة ولم يُجتز: ' + ev('S').q.score + '/' + n);
+    if (!ev('S').lessons['2.2']) throw new Error('لم يُسجَّل الدرس');
+  });
+
+  await run('تمارين الترتيب تُقبل بعلامات الترقيم وبدونها', {}, (ctx, ev) => {
+    const orders = ev('LESSONS').flatMap(l => l.items).filter(i => i.k === 'order');
+    if (!orders.length) throw new Error('لا تمارين ترتيب');
+    orders.forEach(it => {
+      const plain = it.ok[0];
+      if (!ctx.typedOk(plain + '.', it.ok)) throw new Error('نقطة في آخر الجملة رُفضت: ' + plain);
+      if (!ctx.typedOk(plain.toLowerCase(), it.ok)) throw new Error('حالة الأحرف رُفضت: ' + plain);
+    });
+  });
+
+  await run('تحديد المستوى لا يطلب إنشاء جملة', {}, (ctx, ev) => {
+    const heavy = ev('PLACE').filter(i => i.k === 'order' || i.k === 'correct');
+    if (heavy.length) throw new Error(heavy.length + ' سؤال إنشاء في تحديد المستوى');
+  });
+
+  /* «١٣ / ٢١» في سياق عربي تنعكس فتُقرأ ٢١ من ١٣. الفاصل كلمةٌ لا شرطة. */
+  await run('عدّادات التقدّم لا تنعكس في الاتجاه العربي', {}, (ctx, ev) => {
+    const screens = [];
+    ctx.launch('lesson', '1.1');
+    screens.push(['الاختبار', ctx.quizView()]);
+    ctx.closeQ();
+    ctx.startTranslation(3);
+    screens.push(['الترجمة', ctx.translateView()]);
+    ctx.startSound('p');
+    screens.push(['الأصوات', ctx.soundsView()]);
+    ctx.examConvStart('x-air');
+    screens.push(['المحادثة', ctx.examConvView()]);
+    ctx.examWriteStart(0);
+    screens.push(['الكتابة', ctx.examWriteView()]);
+    ctx.examReadStart('r-note');
+    ctx.examReadDone();
+    screens.push(['القراءة', ctx.examReadView()]);
+    screens.forEach(([name, html]) => {
+      if (/[٠-٩]\s*\/\s*[٠-٩]/.test(html)) throw new Error('عدّاد بشرطة في شاشة ' + name);
+    });
+  });
+
   await report();
+
+
 
 
 })();
