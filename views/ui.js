@@ -41,7 +41,10 @@ export function banners(){
   return h;
 }
 
-export function pronHtml(p){return `<div style='margin-top:10px'><p>دقة النطق: <b>${p.sc}%</b></p>`+(p.heard?`<p class=muted>سمعتُ: «${p.heard}»</p>`:'')+(p.miss.length?`<p class=muted>كلمات لم تُسمع: ${p.miss.join('، ')}</p>`:'')+(p.near.length?`<p class=muted>كلمات قريبة تحتاج ضبطاً: ${p.near.join('، ')}</p>`:'')+p.tips.map(t=>`<p class=muted>💡 ${t}</p>`).join('')+'</div>'}
+export function pronHtml(p){
+  if(p.typed)return `<div style='margin-top:10px'><p class=muted>كُتبت ولم تُنطق — <b style="color:var(--amber)">لم يُقَس النطق</b></p>`
+    +(p.miss.length?`<p class=muted>كلمات ناقصة: ${esc(p.miss.join('، '))}</p>`:'')+'</div>';
+  return `<div style='margin-top:10px'><p>دقة النطق: <b>${p.sc}%</b></p>`+(p.heard?`<p class=muted>سمعتُ: «${p.heard}»</p>`:'')+(p.miss.length?`<p class=muted>كلمات لم تُسمع: ${p.miss.join('، ')}</p>`:'')+(p.near.length?`<p class=muted>كلمات قريبة تحتاج ضبطاً: ${p.near.join('، ')}</p>`:'')+p.tips.map(t=>`<p class=muted>💡 ${t}</p>`).join('')+'</div>'}
 
 export function ruleCard(id,mode){
   const r=RULE[id];if(!r)return '';

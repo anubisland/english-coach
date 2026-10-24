@@ -412,13 +412,17 @@ const { run, report } = require('./harness.js');
     if (!q.tips.some(t => t.includes('th'))) throw new Error('لا نصيحة لصوت th');
   });
 
-  await run('كتابة الإجابة النموذجية تُظهر تقييم النطق', {}, (ctx, ev) => {
+  await run('الكتابة لا تُحتسب نطقاً في المحادثة', {}, (ctx, ev) => {
     ctx.go('speak');
     ctx.chatReply('I am a teacher');
     ctx._els.chatPr.value = 'My name is Ahmed';
     ctx.chatModelTyped();
-    if (!ev('S').chat.pr) throw new Error('لم يُحسب تقييم النطق');
-    if (!ctx.speakView().includes('دقة النطق')) throw new Error('التقييم لا يظهر على الشاشة');
+    const pr = ev('S').chat.pr;
+    if (!pr) throw new Error('لم تُسجَّل المحاولة أصلاً');
+    if (!pr.typed) throw new Error('لم تُعلَّم المحاولة بأنها مكتوبة');
+    const h = ctx.speakView();
+    if (!h.includes('لم يُقَس النطق')) throw new Error('الشاشة لا توضّح أن النطق لم يُقَس');
+    if (h.includes('دقة النطق')) throw new Error('ادّعت الشاشة قياس نطق لنصّ مكتوب');
   });
 
   await run('كل وحدة تصدّر ما تستورده الوحدات الأخرى', {}, (ctx, ev) => {
@@ -983,6 +987,56 @@ const { run, report } = require('./harness.js');
       if (!nx.anchor.includes('3.1')) throw new Error('المحطة الحالية ليست في الوحدة 3: ' + nx.anchor);
       if (!h.includes('متاح للمراجعة')) throw new Error('لا توضيح أن دروس الوحدة المتخطّاة للمراجعة');
     });
+
+  console.log('— صدق القياس —');
+
+  await run('الكتابة في اختبار المحادثة لا تُسجَّل درجة نطق',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.launch('conv', 'c1');
+    ctx.pick(ev('S').q.items[0].a);
+    ctx._els.ctxt2.value = ev('S').q.items[0].o[ev('S').q.items[0].a];
+    ctx.typed2();
+    const q = ev('S').q;
+    if (q.spoke !== null) throw new Error('سُجّلت درجة نطق لنصّ مكتوب: ' + q.spoke);
+    if (!q.typed) throw new Error('لم تُعلَّم المحاولة بأنها مكتوبة');
+    if (!ctx.quizView().includes('لم يُقَس النطق')) throw new Error('الشاشة لا توضّح ذلك');
+  });
+
+  await run('النطق الحقيقي يُسجَّل درجةً',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.launch('conv', 'c1');
+    const it = ev('S').q.items[0];
+    ctx.pick(it.a);
+    ctx.speakTurn(it.o[it.a]);          // كما لو نطقها
+    const q = ev('S').q;
+    if (q.spoke !== 100) throw new Error('لم تُسجَّل درجة النطق: ' + q.spoke);
+    if (q.typed) throw new Error('عُلّمت كمكتوبة وهي منطوقة');
+  });
+
+  await run('كل محاولة في البوابة تُسجَّل',
+    { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true, '1.2': true, '1.3': true }, conv: { c1: true, c2: true } }) },
+    (ctx, ev) => {
+      const fail = () => {
+        ctx.launch('cp', 1);
+        const n = ev('S').q.items.length;
+        for (let i = 0; i < n; i++) { const it = ev('S').q.items[ev('S').q.i]; ctx.pick(it.a === 0 ? 1 : 0); ctx.nextQ() }
+      };
+      fail();
+      if (ev('S').attempts.cp1 !== 1) throw new Error('لم تُسجَّل المحاولة الأولى');
+      if (ev('S').q.attempt !== 1) throw new Error('رقم المحاولة لا يظهر في النتيجة');
+      ctx.closeQ();
+      fail();
+      if (ev('S').attempts.cp1 !== 2) throw new Error('لم تُسجَّل المحاولة الثانية: ' + ev('S').attempts.cp1);
+      if (!ctx.quizView().includes('المحاولة')) throw new Error('رقم المحاولة لا يُعرض');
+    });
+
+  await run('عدد المحاولات يُستورد محقَّقاً', {}, (ctx, ev) => {
+    ctx.applyImport(JSON.stringify({ placed: true, attempts: { cp1: 4, hack: 9, cp2: 'كثير' } }));
+    const a = ev('S').attempts;
+    if (a.cp1 !== 4) throw new Error('ضاع عدد صحيح');
+    if ('hack' in a) throw new Error('قُبل مفتاح مجهول');
+    if ('cp2' in a) throw new Error('قُبلت قيمة غير عددية');
+  });
 
   await report();
 })();

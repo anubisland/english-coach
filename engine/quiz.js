@@ -76,8 +76,18 @@ function missedSkills(q){
   q.wrong.forEach(it=>{const s=skillOf(it);if(s&&s!=='a2'&&out.indexOf(s)<0)out.push(s)});
   return out;
 }
+/* مفتاح الاختبار في سجل المحاولات. */
+function attemptKey(q){
+  if(q.kind==='cp'||q.kind==='ret')return q.kind+q.id;
+  if(q.kind==='exam')return 'exam';
+  return null;
+}
 export function endQ(){
   const q=S.q;q.done=true;q.score=q.got.filter(Boolean).length;
+  /* نسجّل كل محاولة: النجاح من المحاولة السابعة ليس كالنجاح من الأولى،
+     وأي تقرير أداء بلا هذا الرقم يبالغ. */
+  const key=attemptKey(q);
+  if(key){S.attempts[key]=(S.attempts[key]||0)+1;q.attempt=S.attempts[key]}
   if(q.kind==='lesson'){q.pass=q.score===q.items.length;if(q.pass){S.lessons[q.id]=true;addXp(20)}}
   else if(q.kind==='cp'){
     q.pass=q.score>=q.need;
@@ -125,7 +135,34 @@ export function endQ(){
   save();
 }
 
-export function speakTurn(said){const q=S.q;if(!q||q.kind!=='conv'||q.spoke!=null||!said)return;const it=q.items[q.i];const T=words(it.o[it.a]),G=words(said);const sc=Math.round(T.filter(w=>G.includes(w)).length/T.length*100);q.heard=said;q.att=(q.att||0)+1;if(sc>=75||q.att>=2){q.spoke=sc;const pass=!!q.choiceOk&&sc>=75;q.got.push(pass);if(!pass)q.wrong.push(it);addXp(pass?10:2);save()}else{q.feedback='حاول مرة أخرى، لم أسمع: '+T.filter(w=>!G.includes(w)).join(' ')}hooks.render()}
+/* النصّ المكتوب ليس نطقاً. كان يُمرَّر إلى الحساب نفسه فيُحتسب «دقة نطق»
+   لمن لم ينطق حرفاً — وهو ما يُفقد أي نسبة لاحقة معناها.
+   نُبقي الكتابة متاحة (متصفح لا يدعم الصوت، أو مكان لا يُتكلَّم فيه)
+   لكن نُعلّمها typed، ولا نعدّها قياساً للنطق. */
+export function speakTurn(said,typed){
+  const q=S.q;
+  if(!q||q.kind!=='conv'||q.spoke!=null||!said)return;
+  const it=q.items[q.i];
+  const T=words(it.o[it.a]),G=words(said);
+  const sc=Math.round(T.filter(w=>G.includes(w)).length/T.length*100);
+  q.heard=said;q.att=(q.att||0)+1;
+
+  if(typed){
+    /* الكتابة تُجيز الانتقال ولا تُسجَّل درجة نطق. */
+    q.spoke=null;q.typed=true;
+    const pass=!!q.choiceOk&&sc>=75;
+    q.got.push(pass);if(!pass)q.wrong.push(it);
+    addXp(pass?5:1);save();hooks.render();return;
+  }
+
+  if(sc>=75||q.att>=2){
+    q.spoke=sc;q.typed=false;
+    const pass=!!q.choiceOk&&sc>=75;
+    q.got.push(pass);if(!pass)q.wrong.push(it);
+    addXp(pass?10:2);save();
+  } else q.feedback='حاول مرة أخرى، لم أسمع: '+T.filter(w=>!G.includes(w)).join(' ');
+  hooks.render();
+}
 
 /* يبدأ الدورة من وحدة معيّنة: يفتح ما قبلها بالتخطي، ولا يدّعي إتمامه.
    الوحدات المتخطّاة تبقى معروضة ومتاحة للمراجعة. */

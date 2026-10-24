@@ -17,6 +17,7 @@ export function defaultState(){return{
   tab:'home',q:null,open:null,place:null,
   errs:{},                  // عدّاد أخطاء الجرامر المتكررة
   skipped:{},               // وحدات تخطّاها اختبار تحديد المستوى
+  attempts:{},              // عدد محاولات كل اختبار: النجاح من السابعة ليس كالأولى
   drill:null,               // تدريب موجَّه إلزامي بعد الرسوب في بوابة
   tr:null,                  // اختبار الترجمة الجاري (لحظي، لا يُستورد)
   ruleOpen:null,            // بطاقة القاعدة المفتوحة حالياً
@@ -45,6 +46,14 @@ function cleanErrs(obj){
   KNOWN.errs.forEach(k=>{
     const v=obj[k];
     if(Number.isFinite(v)&&v>0)out[k]=Math.min(v,99999);
+  });
+  return out;
+}
+function cleanAttempts(obj){
+  const out={};
+  ['cp1','cp2','cp3','ret1','ret2','exam','translate'].forEach(k=>{
+    const v=obj[k];
+    if(Number.isInteger(v)&&v>0)out[k]=Math.min(v,999);
   });
   return out;
 }
@@ -112,6 +121,7 @@ export function migrate(saved){
   for(const k of ['cp','ret','skipped'])
     if(saved[k]&&typeof saved[k]==='object')S[k]=pickKeys(saved[k],['1','2','3']);
   if(saved.errs&&typeof saved.errs==='object')S.errs=cleanErrs(saved.errs);
+  if(saved.attempts&&typeof saved.attempts==='object')S.attempts=cleanAttempts(saved.attempts);
   if(saved.chat&&typeof saved.chat==='object')Object.assign(S.chat,cleanChat(saved.chat));
   /* اختبار الترجمة جلسة لحظية: لا يُستورد ولا يُستعاد. */
   S.tr=null;
