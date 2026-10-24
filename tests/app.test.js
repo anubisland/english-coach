@@ -2157,7 +2157,71 @@ const { run, report } = require('./harness.js');
     if (!ctx.quizView().includes(found.ok[0])) throw new Error('لم يُعرض النصّ بعد الإجابة');
   });
 
+  console.log('— حراسة الملل —');
+
+  /* الملل لا يأتي من التطابق بل من التشابه والتكتّل. هذه الاختبارات
+     تقيس الثلاثة التي قِيست فعلاً قبل الإصلاح: السلاسل، والمتشابهات
+     المتجاورة، والشرح المكرّر. */
+  await run('لا نوعان متتاليان من جنس واحد', {}, (ctx, ev) => {
+    let worst = 0, where = '';
+    ev('LESSONS').forEach(l => {
+      let run = 1;
+      for (let i = 1; i < l.items.length; i++) {
+        const same = (l.items[i].k || 'mcq') === (l.items[i - 1].k || 'mcq');
+        run = same ? run + 1 : 1;
+        if (run > worst) { worst = run; where = l.id }
+      }
+    });
+    if (worst > 2) throw new Error(`${worst} تمارين متتالية من نوع واحد في الدرس ${where}`);
+  });
+
+  await run('المتشابهان لا يتجاوران', {}, (ctx, ev) => {
+    const txt = i => i.q || (i.ok && i.ok[0]) || '';
+    const norm = s => String(s).toLowerCase().replace(/[^a-z0-9_ ]/g, '').split(/\s+/).filter(Boolean);
+    let close = 0, sample = '';
+    ev('LESSONS').forEach(l => {
+      for (let a = 0; a < l.items.length; a++)
+        for (let b = a + 1; b < Math.min(l.items.length, a + 5); b++) {
+          const A = l.items[a], B = l.items[b];
+          if ((A.k || 'mcq') !== (B.k || 'mcq')) continue;
+          const x = norm(txt(A)), y = norm(txt(B));
+          if (x.length !== y.length || x.length < 3) continue;
+          let d = 0;
+          for (let k = 0; k < x.length; k++) if (x[k] !== y[k]) d++;
+          if (d === 1) { close++; if (!sample) sample = l.id + ': «' + txt(A) + '» ثم «' + txt(B) + '»' }
+        }
+    });
+    if (close > 6) throw new Error(close + ' زوجاً متشابهاً متجاوراً، منها ' + sample);
+  });
+
+  await run('الشروح مخصّصة لا مكرّرة', {}, (ctx, ev) => {
+    const items = ev('LESSONS').flatMap(l => l.items);
+    const tips = {};
+    items.forEach(i => { tips[i.tip] = (tips[i.tip] || 0) + 1 });
+    const unique = Object.keys(tips).length;
+    if (unique / items.length < 0.7)
+      throw new Error('الشروح الفريدة ' + unique + ' من ' + items.length);
+    const top = Math.max(...Object.values(tips));
+    if (top > 8) throw new Error('شرح واحد يتكرّر ' + top + ' مرّة');
+  });
+
+  /* التطابق الحرفي عبر البنوك كلّها لا تمارين الدروس وحدها. */
+  await run('لا تكرار حرفي في أي بنك', {}, (ctx, ev) => {
+    const seen = new Map();
+    const add = (bank, text) => {
+      if (!text) return;
+      if (seen.has(text)) throw new Error('مكرر بين ' + seen.get(text) + ' و' + bank + ': «' + text + '»');
+      seen.set(text, bank);
+    };
+    ev('LESSONS').forEach(l => l.items.forEach(i => add('الدروس', i.q || (i.ok && i.ok[0]))));
+    ev('WRITE').forEach(t => add('الكتابة', t.ar + '|' + t.ok[0]));
+    ev('TRANSLATE').forEach(t => add('الترجمة', t.ar));
+    ev('READS').forEach(t => t.qs.forEach(q => add('القراءة', (q.q || q.ar) + '|' + t.id)));
+    if (seen.size < 550) throw new Error('عيّنة صغيرة: ' + seen.size);
+  });
+
   await report();
+
 
 
 
