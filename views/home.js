@@ -3,7 +3,7 @@ import {LESSONS} from '../content/lessons.js';
 import {S,save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
 import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen} from '../engine/progress.js';
-import {card,svg,ar} from './ui.js';
+import {card,svg,ar,esc} from './ui.js';
 
 /* الخطوة التالية بالضبط، ومعها مرساة محطتها على خط الرحلة.
    كل من يحتاج أن يعرف «إلى أين الآن؟» يسأل هذه الدالة — لا قائمة الدروس. */
@@ -44,7 +44,7 @@ export function homeView(){
   (top?card('خطؤك المتكرر',
     `<div style="display:flex;align-items:center;gap:11px">
        <span style="width:40px;height:40px;flex:0 0 40px;display:grid;place-items:center;background:var(--badBg);border-radius:13px;color:var(--coral)">${svg('alert',19)}</span>
-       <span style="flex:1;min-width:0"><span class="muted" style="display:block">${top[0]}</span>
+       <span style="flex:1;min-width:0"><span class="muted" style="display:block">${esc(top[0])}</span>
        <span class="muted" style="display:block;font-size:12px">تكرر ${ar(top[1])} مرة</span></span>
        <button class="btn ghost" style="margin:0" onclick="go('speak')">درّبني</button></div>`):'')+
   card('الامتحان النهائي',

@@ -4,7 +4,7 @@ import {S,save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
 import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen,unitDone} from '../engine/progress.js';
 import {RULE} from '../content/rules.js';
-import {card,svg,ar,ruleCard} from './ui.js';
+import {card,svg,ar,ruleCard,esc} from './ui.js';
 import {nextStep} from './home.js';
 
 export function stop(o){
@@ -101,10 +101,10 @@ export function cpBtn(u){
 
 /* الرسوب لا يُعيدك إلى الاختبار نفسه، بل إلى ما أخطأت فيه منه. */
 export function drillBtn(){
-  const names=(S.drill.skills||[]).map(s=>(RULE[s]&&RULE[s].t)||s).join(' · ');
+  const names=(S.drill.skills||[]).map(s=>esc((RULE[s]&&RULE[s].t)||s)).join(' · ');
   return `<div style="width:100%">
     <p class="muted" style="margin-bottom:6px">تحتاج تثبيت: <b style="color:var(--amber)">${names||'ما أخطأت فيه'}</b></p>
-    <button class="btn" onclick="launch('drill',${S.drill.unit})">درّبني على ما أخطأت فيه</button></div>`;
+    <button class="btn" onclick="launch('drill',${Number(S.drill.unit)||1})">درّبني على ما أخطأت فيه</button></div>`;
 }
 export function retBtn(u){
   if(!S.cp[u]||u===3) return '';

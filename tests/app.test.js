@@ -796,5 +796,80 @@ const { run, report } = require('./harness.js');
     if (S.tab !== 'home') throw new Error('قَبِل تبويباً غير صالح');
   });
 
+  console.log('— ملف مستورَد خبيث —');
+
+  /* الاستيراد حوّل الحالة المحفوظة من ذاكرة المتصفح إلى ملف قد يصل المتعلم
+     من شخص آخر. كل حقل يُعرض في الصفحة صار مدخلاً غير موثوق. */
+  const EVIL = '<img src=x onerror=alert(1)>';
+
+  const renderedAll = ctx => [
+    ctx.homeView(), ctx.courseView(), ctx.speakView(), ctx._els.app.innerHTML
+  ].join(' ');
+
+  await run('مفاتيح errs المُلفَّقة لا تصل إلى الصفحة', {}, (ctx, ev) => {
+    ctx.applyImport(JSON.stringify({ placed: true, errs: { [EVIL]: 9 } }));
+    if (Object.keys(ev('S').errs).includes(EVIL)) throw new Error('قُبل مفتاح مجهول في errs');
+    if (renderedAll(ctx).includes('<img src=x')) throw new Error('وسم خام وصل إلى الصفحة');
+  });
+
+  await run('مهارات drill المُلفَّقة لا تصل إلى الصفحة',
+    { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true, '1.2': true, '1.3': true }, conv: { c1: true, c2: true } }) },
+    (ctx, ev) => {
+      ctx.applyImport(JSON.stringify({
+        placed: true,
+        lessons: { '1.1': true, '1.2': true, '1.3': true }, conv: { c1: true, c2: true },
+        drill: { unit: 1, skills: [EVIL, 'be-subject'] }
+      }));
+      const d = ev('S').drill;
+      if (d && d.skills.includes(EVIL)) throw new Error('قُبلت مهارة مجهولة');
+      if (renderedAll(ctx).includes('<img src=x')) throw new Error('وسم خام وصل إلى الصفحة');
+    });
+
+  await run('drill.unit المُلفَّق لا يُحقن في onclick', {}, (ctx, ev) => {
+    ctx.applyImport(JSON.stringify({
+      placed: true, drill: { unit: "1);alert(1)//", skills: ['be-subject'] }
+    }));
+    const d = ev('S').drill;
+    if (d && typeof d.unit !== 'number') throw new Error('unit ليس رقماً: ' + JSON.stringify(d.unit));
+    if (renderedAll(ctx).includes('alert(1)')) throw new Error('حُقنت شيفرة في معالج مضمَّن');
+  });
+
+  await run('place.suggest المُلفَّق لا يُحقن في onclick', {}, (ctx, ev) => {
+    ctx.applyImport(JSON.stringify({ placed: true, place: { suggest: "2);alert(1)//", acc: {} } }));
+    ctx.launch('place');
+    ev('S.q.done=true');
+    if (ctx.quizView().includes('alert(1)')) throw new Error('حُقنت شيفرة في شاشة النتيجة');
+  });
+
+  await run('نصوص المحادثة اللحظية لا تُستورد إطلاقاً', {}, (ctx, ev) => {
+    ctx.applyImport(JSON.stringify({
+      placed: true, tab: 'speak',
+      chat: { sc: 0, ti: 0, stage: 'fb', fb: EVIL, said: EVIL, fixed: EVIL, g: [{ ar: EVIL }] }
+    }));
+    const c = ev('S').chat;
+    if (c.fb || c.said || c.fixed || c.g) throw new Error('استُورد نصّ لحظي');
+    if (c.stage !== 'reply') throw new Error('استُوردت مرحلة تغذية راجعة بلا بياناتها');
+    if (renderedAll(ctx).includes('<img src=x')) throw new Error('وسم خام وصل إلى الصفحة');
+  });
+
+  await run('مفاتيح التقدّم المجهولة تُسقَط', {}, (ctx, ev) => {
+    ctx.applyImport(JSON.stringify({
+      placed: true,
+      lessons: { '1.1': true, '9.9': true, [EVIL]: true },
+      cp: { 1: true, 99: true }, skipped: { 2: true, 77: true }
+    }));
+    const S = ev('S');
+    if (S.lessons['9.9'] || S.lessons[EVIL]) throw new Error('قُبل درس مجهول');
+    if (!S.lessons['1.1']) throw new Error('ضاع درس صحيح');
+    if (S.cp['99'] || S.skipped['77']) throw new Error('قُبلت وحدة مجهولة');
+    if (!S.cp['1'] || !S.skipped['2']) throw new Error('ضاعت وحدة صحيحة');
+  });
+
+  await run('esc يهرّب كل المحارف الخطرة', {}, (ctx, ev) => {
+    const out = ctx.esc('<a href="x" onclick=\'y\'>&</a>');
+    ['<', '>', '"', "'"].forEach(ch => { if (out.includes(ch)) throw new Error('لم يُهرَّب: ' + ch) });
+    if (!out.includes('&amp;')) throw new Error('لم تُهرَّب &');
+  });
+
   await report();
 })();

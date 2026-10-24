@@ -70,4 +70,8 @@ export function ruleCard(id,mode){
 }
 export function toggleRule(id){S.ruleOpen=S.ruleOpen===id?null:id;save();hooks.render()}
 
+/* أي نصّ قد يأتي من حالة محفوظة يمرّ من هنا قبل أن يدخل الصفحة. */
+export function esc(t){
+  return String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
 export function ar(n){return String(n).replace(/[0-9]/g,c=>'٠١٢٣٤٥٦٧٨٩'[+c])}

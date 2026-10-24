@@ -26,7 +26,7 @@ function resultActions(q){
         +'<button class="btn ghost" onclick="closeQ()">لاحقاً</button>'
       : '<button class="btn" onclick="closeQ()">متابعة</button>';
   if((q.kind==='cp'||q.kind==='ret')&&S.drill&&S.drill.skills&&S.drill.skills.length)
-    return `<button class="btn" onclick="launch('drill',${S.drill.unit})">درّبني على ما أخطأت فيه</button>
+    return `<button class="btn" onclick="launch('drill',${Number(S.drill.unit)||1})">درّبني على ما أخطأت فيه</button>
             <button class="btn ghost" onclick="closeQ()">لاحقاً</button>`;
   return '<button class="btn" onclick="retryQ()">أعد المحاولة</button><button class="btn ghost" onclick="closeQ()">رجوع</button>';
 }
@@ -44,7 +44,7 @@ export function quizView(){
           <div class="bar" style="margin-top:4px"><i style="width:${pc}%;background:${a>=0.75?'var(--green)':'var(--amber)'}"></i></div></div>`;
       }).join('');
 
-      const sug=p.suggest||1;
+      const sug=[1,2,3].includes(Number(p.suggest))?Number(p.suggest):1;
       return `<div class="card" style="text-align:center;padding-top:22px">
           <span class="muted" style="font-size:12px">مستواك</span>
           <div class="dsp en" style="font-size:52px;line-height:1.1">${S.level}</div>

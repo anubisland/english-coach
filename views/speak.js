@@ -2,7 +2,7 @@
 import {SCENES} from '../content/scenes.js';
 import {S} from '../engine/state.js';
 import {chatClamp,penDiff} from '../engine/chat.js';
-import {card,svg,ar,pronHtml,ruleCard} from './ui.js';
+import {card,svg,ar,pronHtml,ruleCard,esc} from './ui.js';
 
 /* ترتيب العرض: الأقرب إلى درس المتعلم أولاً، ثم اتساعاً نحو الحياة العامة. */
 const CAT_ORDER=['درس','يومي','اجتماعي','تسوّق','سفر','صحة','عمل'];
@@ -110,6 +110,6 @@ export function speakView(){
 
   out=picker+out;
   if(top.length)out+=card('أخطاؤك المتكررة',
-    top.map(([k,v])=>`<p class="muted">• ${k} <span style="color:var(--coral)">(${ar(v)})</span></p>`).join(''));
+    top.map(([k,v])=>`<p class="muted">• ${esc(k)} <span style="color:var(--coral)">(${ar(v)})</span></p>`).join(''));
   return out;
 }
