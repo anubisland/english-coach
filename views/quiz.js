@@ -108,7 +108,15 @@ export function quizView(){
 
 /* تعليمات التمرين المكتوب بالعربية، والمعروض منه إنجليزي معزول الاتجاه. */
 function askHtml(it){
-  const label={type:'أكمل الناقص',order:'رتّب ثم اكتب',correct:'صحّح الجملة'}[it.k]||'';
+  const label={type:'أكمل الناقص',order:'رتّب ثم اكتب',correct:'صحّح الجملة',listen:'استمع واكتب'}[it.k]||'';
+  /* الإملاء: لا يُعرض النصّ ألبتة — عرضه يجعله نقلاً لا استماعاً.
+     والإعادة مباحة بلا حدّ: المقصود أن يسمع حتى يتبيّن، لا أن يلتقط من أوّل مرّة. */
+  if(it.k==='listen')
+    return `<p class="muted" style="margin-top:10px;font-size:12px">${label}</p>
+      <p style="margin-top:3px;font-weight:700">${esc(it.ar)}</p>
+      <div class="row" style="justify-content:flex-start;margin-top:12px">
+        <button class="btn" onclick="sayItem()">${svg('sound',18,'#fff')} استمع</button>
+        <button class="btn ghost" onclick="sayItem(0.6)">ببطء</button></div>`;
   const body=it.k==='order'
     ? `<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;direction:ltr">${
         (it.w||[]).map(w=>`<span class="en" style="padding:6px 11px;border-radius:10px;background:var(--surf2);

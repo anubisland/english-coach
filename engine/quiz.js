@@ -135,6 +135,13 @@ export function reviewStats(){
     tracked:Object.keys(S.srs).length, top:BOXES.length};
 }
 
+/* ينطق جملة تمرين الإملاء — من الحالة لا من سمة onclick، لئلا يُزرع النصّ في الصفحة فيُقرأ بدل أن يُسمع. */
+export function sayItem(rate){
+  const q=S.q;
+  const it=q&&q.items[q.i];
+  if(it&&it.k==='listen'&&it.ok&&it.ok[0])hooks.say(it.ok[0],rate||1);
+}
+
 export const itemTyped=it=>!!it&&it.k!=null&&it.k!=='mcq';
 
 function typedField(){const el=document.getElementById('qtxt');return el?el.value:''}

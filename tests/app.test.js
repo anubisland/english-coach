@@ -2106,7 +2106,59 @@ const { run, report } = require('./harness.js');
     if (fluentOff.pc > 50) throw new Error('الفصيح خارج الموضوع نال ' + fluentOff.pc + '٪');
   });
 
+  await run('بنك التمارين بلغ الحجم المتّفق عليه وأنواعه الخمسة', {}, (ctx, ev) => {
+    const items = ev('LESSONS').flatMap(l => l.items);
+    if (items.length < 480) throw new Error('البنك ' + items.length + ' والمتّفق عليه ~٤٨٠');
+    const kinds = {};
+    items.forEach(i => { kinds[i.k || 'mcq'] = (kinds[i.k || 'mcq'] || 0) + 1 });
+    ['mcq', 'type', 'order', 'correct', 'listen'].forEach(k => {
+      if (!kinds[k] || kinds[k] < 20) throw new Error('النوع ' + k + ': ' + (kinds[k] || 0));
+    });
+    const typed = items.length - kinds.mcq;
+    if (typed / items.length < 0.5) throw new Error('المكتوب أقلّ من النصف');
+  });
+
+  /* الموضع الثابت يُعلّم المتعلّم الخانة لا القاعدة. */
+  await run('مواضع الإجابة الصحيحة موزّعة', {}, (ctx, ev) => {
+    const mcq = ev('LESSONS').flatMap(l => l.items).filter(i => !i.k || i.k === 'mcq');
+    const pos = {};
+    mcq.forEach(i => { pos[i.a] = (pos[i.a] || 0) + 1 });
+    const top = Math.max(...Object.values(pos)) / mcq.length;
+    if (top > 0.5) throw new Error('موضع واحد يحوي ' + Math.round(top * 100) + '٪ من الإجابات');
+  });
+
+  await run('تمارين الإملاء سليمة ولا تكشف نصّها', {}, (ctx, ev) => {
+    const items = ev('LESSONS').flatMap(l => l.items).filter(i => i.k === 'listen');
+    if (items.length < 30) throw new Error('إملاء قليل: ' + items.length);
+    items.forEach(it => {
+      if (!it.ok || !it.ok[0]) throw new Error('إملاء بلا نصّ');
+      if (ctx.checkGrammar(it.ok[0]).length) throw new Error('جملة إملاء تُرصد خطأً: ' + it.ok[0]);
+      if (!/[\u0600-\u06FF]/.test(it.ar || '')) throw new Error('بلا تعليمات عربية');
+    });
+  });
+
+  await run('شاشة الإملاء تُسمع ولا تعرض الجملة',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    let found = null, lesson = null;
+    ev('LESSONS').forEach(l => l.items.forEach((it, i) => {
+      if (!found && it.k === 'listen') { found = it; lesson = {id: l.id, i} }
+    }));
+    if (!found) throw new Error('لا تمرين إملاء');
+    ctx.launch('lesson', lesson.id);
+    ev('S').q.i = lesson.i;
+    const html = ctx.quizView();
+    /* عرض النصّ يحوّل الإملاء إلى نقل. */
+    if (html.includes(found.ok[0])) throw new Error('نصّ الإملاء ظاهر على الشاشة');
+    if (!html.includes('sayItem')) throw new Error('لا زرّ استماع');
+    if (!html.includes('qtxt')) throw new Error('لا مربع كتابة');
+    ctx.answerTyped(found.ok[0]);
+    if (!ev('S').q.choiceOk) throw new Error('الإجابة الصحيحة حُسبت خطأ');
+    /* وبعد التصحيح يُعرض النصّ ليتعلّم منه. */
+    if (!ctx.quizView().includes(found.ok[0])) throw new Error('لم يُعرض النصّ بعد الإجابة');
+  });
+
   await report();
+
 
 
 
