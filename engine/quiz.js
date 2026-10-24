@@ -4,8 +4,12 @@ import {LESSONS} from '../content/lessons.js';
 import {CONVO} from '../content/convo.js';
 import {S,save,addXp} from './state.js';
 import {hooks} from './bus.js';
-import {unitItems,itemsUpTo,shuffle,PLACE,lessonOpen} from './progress.js';
+import {unitItems,itemsUpTo,shuffle,PLACE,lessonOpen,unitOf,skillOf} from './progress.js';
 import {words} from './pronounce.js';
+
+/* 12 سؤالاً: ثلاثة لكل وحدة ليكون حكمها ذا معنى، وثلاثة لجسّ A2.
+   النتيجة تقرر تخطي وحدات كاملة، فدقتها أهم من قِصَرها. */
+export const PLACE_N=12;
 
 export function launch(kind,id){window.scrollTo(0,0);_launch(kind,id)}
 export function _launch(kind,id){
@@ -16,13 +20,41 @@ export function _launch(kind,id){
   else if(kind==='exam'){Object.assign(q,{items:shuffle(itemsUpTo(3)).slice(0,10),title:'الامتحان النهائي A1',need:8})}
   else if(kind==='conv'){const c=CONVO.find(x=>x.id===id);Object.assign(q,{title:'محادثة: '+c.t,items:c.turns.map(t=>({q:t.p,o:t.o,a:t.a,tip:t.tip})),need:c.turns.length})}
   /* pickPlace تقرأ q.items لتتجنّب تكرار سؤال، فيجب أن توجد قبل أول نداء. */
+  /* تدريب من المهارات التي أخطأ فيها في البوابة وحدها — لا الوحدة كلها. */
+  else if(kind==='drill'){
+    const d=S.drill||{skills:[]};
+    const pool=itemsUpTo(3).filter(it=>d.skills.indexOf(skillOf(it))>=0);
+    const items=shuffle(pool).slice(0,Math.min(6,pool.length));
+    Object.assign(q,{items,title:'تدريب موجَّه',need:items.length});
+  }
   else if(kind==='place'){q.title='تحديد المستوى';q.items=[];q.items.push(pickPlace(q))}
   S.q=q;hooks.render();window.scrollTo(0,0);
 }
+/* السحب العشوائي كان يترك وحدةً بسؤال واحد أو بلا أسئلة، فتصبح دقتها
+   بلا معنى ويتعذّر اقتراح نقطة بداية. نوزّع الأسئلة على الوحدات الثلاث،
+   ونجسّ A2 فقط بعد أن يثبت الإتقان. */
 export function pickPlace(q){
-  const used=q.items.map(x=>x.q);const pool=PLACE.filter(x=>!used.includes(x.q));
-  const want=q.theta>=1.5?2:1;let c=pool.filter(x=>x.lv===want);if(!c.length)c=pool;
-  return shuffle(c)[0];
+  const used=q.items.map(x=>x.q);
+  const pool=PLACE.filter(x=>!used.includes(x.q));
+  if(!pool.length)return null;
+
+  const seen={1:0,2:0,3:0};
+  q.items.forEach(x=>{const u=unitOf(x);if(u)seen[u]++});
+
+  /* لا نجسّ A2 قبل أن تأخذ كل وحدة ثلاثة أسئلة، وإلا جاءت دقتها من سؤالين
+     فلا تكفي للحكم عليها. */
+  if(q.theta>=1.5&&[1,2,3].every(u=>seen[u]>=3)){
+    const a2=pool.filter(x=>x.lv===2);
+    if(a2.length)return shuffle(a2)[0];
+  }
+
+  const a1=pool.filter(x=>x.lv===1);
+  if(!a1.length)return shuffle(pool)[0];
+  for(const u of [1,2,3].sort((p,r)=>seen[p]-seen[r])){
+    const c=a1.filter(x=>unitOf(x)===u);
+    if(c.length)return shuffle(c)[0];
+  }
+  return shuffle(a1)[0];
 }
 export function pick(k){
   const q=S.q;if(q.picked!=null)return;
@@ -33,16 +65,35 @@ export function pick(k){
 }
 export function nextQ(){window.scrollTo(0,0);
   const q=S.q;q.i++;q.picked=null;q.spoke=null;q.att=0;q.feedback=null;q.choiceOk=null;
-  const total=q.kind==='place'?10:q.items.length;
+  const total=q.kind==='place'?PLACE_N:q.items.length;
   if(q.i>=total)endQ();
   else if(q.kind==='place')q.items.push(pickPlace(q));
   hooks.render();
 }
+/* المهارات التي سقط فيها في هذا الاختبار، بلا تكرار. */
+function missedSkills(q){
+  const out=[];
+  q.wrong.forEach(it=>{const s=skillOf(it);if(s&&s!=='a2'&&out.indexOf(s)<0)out.push(s)});
+  return out;
+}
 export function endQ(){
   const q=S.q;q.done=true;q.score=q.got.filter(Boolean).length;
   if(q.kind==='lesson'){q.pass=q.score===q.items.length;if(q.pass){S.lessons[q.id]=true;addXp(20)}}
-  else if(q.kind==='cp'){q.pass=q.score>=q.need;if(q.pass){S.cp[q.id]=true;addXp(50)}}
-  else if(q.kind==='ret'){q.pass=q.score>=q.need;if(q.pass){S.ret[q.id]=true;addXp(30)}}
+  else if(q.kind==='cp'){
+    q.pass=q.score>=q.need;
+    if(q.pass){S.cp[q.id]=true;addXp(50);if(S.drill&&S.drill.unit===q.id)S.drill=null}
+    else S.drill={unit:q.id,from:'cp',skills:missedSkills(q)};
+  }
+  else if(q.kind==='ret'){
+    q.pass=q.score>=q.need;
+    if(q.pass){S.ret[q.id]=true;addXp(30);if(S.drill&&S.drill.unit===q.id)S.drill=null}
+    else S.drill={unit:q.id,from:'ret',skills:missedSkills(q)};
+  }
+  else if(q.kind==='drill'){
+    /* التدريب علاجي، فلا يُجتاز إلا كاملاً. */
+    q.pass=q.score===q.items.length;
+    if(q.pass){S.drill=null;addXp(25)}
+  }
   else if(q.kind==='conv'){q.pass=q.score===q.items.length;if(q.pass){S.conv[q.id]=true;addXp(40)}}
   else if(q.kind==='exam'){q.pass=q.score>=q.need;if(q.pass){S.exam=true;addXp(100)}}
   else if(q.kind==='place'){
@@ -50,13 +101,40 @@ export function endQ(){
     const r1=rows.filter(r=>r.lv===1),r2=rows.filter(r=>r.lv===2);
     const a1=r1.length?r1.filter(r=>r.ok).length/r1.length:0;
     const a2=r2.length?r2.filter(r=>r.ok).length/r2.length:0;
-    S.level=(r2.length>=2&&a2>=0.75)?'A2':'A1';S.placed=true;S.place={a1,a2,n1:r1.length,n2:r2.length};q.pass=true;
+
+    /* دقة كل وحدة على حدة: منها نقترح نقطة البداية بدل البدء من الصفر دائماً. */
+    const units={};
+    q.items.forEach((x,i)=>{
+      const u=unitOf(x);
+      if(!u)return;
+      units[u]=units[u]||{ok:0,n:0};
+      units[u].n++;if(q.got[i])units[u].ok++;
+    });
+    const acc={};[1,2,3].forEach(u=>{acc[u]=units[u]&&units[u].n>=2?units[u].ok/units[u].n:null});
+
+    /* أول وحدة لم يُتقنها، أو لم نقِسها أصلاً. لا نتخطى ما لم نقِسه. */
+    let suggest=1;
+    for(const u of [1,2,3]){ if(acc[u]!==null&&acc[u]>=0.75)suggest=u+1; else break }
+    if(suggest>3)suggest=3;
+
+    S.level=(r2.length>=2&&a2>=0.75)?'A2':'A1';
+    S.placed=true;
+    S.place={a1,a2,n1:r1.length,n2:r2.length,acc,suggest};
+    q.pass=true;
   }
   save();
 }
 
 export function speakTurn(said){const q=S.q;if(!q||q.kind!=='conv'||q.spoke!=null||!said)return;const it=q.items[q.i];const T=words(it.o[it.a]),G=words(said);const sc=Math.round(T.filter(w=>G.includes(w)).length/T.length*100);q.heard=said;q.att=(q.att||0)+1;if(sc>=75||q.att>=2){q.spoke=sc;const pass=!!q.choiceOk&&sc>=75;q.got.push(pass);if(!pass)q.wrong.push(it);addXp(pass?10:2);save()}else{q.feedback='حاول مرة أخرى، لم أسمع: '+T.filter(w=>!G.includes(w)).join(' ')}hooks.render()}
 
+/* يبدأ الدورة من وحدة معيّنة: يفتح ما قبلها بالتخطي، ولا يدّعي إتمامه.
+   الوحدات المتخطّاة تبقى معروضة ومتاحة للمراجعة. */
+export function startFrom(u){
+  S.skipped={};
+  for(let i=1;i<u;i++)S.skipped[i]=true;
+  S.q=null;S.tab='course';S.open=null;save();hooks.render();
+  if(hooks.goToStep)hooks.goToStep();
+}
 export function retryQ(){const q=S.q;launch(q.kind,q.id)}
 /* بعد أي اختبار، الوجهة تأتي من nextStep — لا من قائمة الدروس.
    الاعتماد على LESSONS[i+1] كان يفشل عند آخر درس في الوحدة، لأن الدرس

@@ -3,6 +3,7 @@ import {UNITS,LESSONS} from '../content/lessons.js';
 import {S,save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
 import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen,unitDone} from '../engine/progress.js';
+import {RULE} from '../content/rules.js';
 import {card,svg,ar,ruleCard} from './ui.js';
 import {nextStep} from './home.js';
 
@@ -28,7 +29,12 @@ export function convoHtml(u){
     })}).join('');
 }
 
-export function unitStatus(n){if(unitDone(n))return '<span class=pill>✅ مكتملة</span>';if(unitOpen(n))return '<span class=pill style="background:#EEF2FF;color:var(--ind)">📍 الوحدة الحالية</span>';return '<span class=pill style="background:#F3F4F6;color:var(--mute)">🔒 مقفلة</span>'}
+export function unitStatus(n){
+  if(unitDone(n))return '<span class="pill">✅ مكتملة</span>';
+  if(S.skipped[n])return '<span class="pill" style="background:var(--surf2);color:var(--mute)">⏭️ تخطّيتها بالاختبار</span>';
+  if(unitOpen(n))return '<span class="pill" style="background:var(--soft);color:var(--ind2)">📍 الوحدة الحالية</span>';
+  return '<span class="pill" style="background:var(--surf2);color:var(--faint)">🔒 مقفلة</span>';
+}
 export function courseView(){
   if(!S.placed) return card('ابدأ بتحديد المستوى أولاً','<div class="row"><button class="btn" onclick="launch(\'place\')">اختبار تحديد المستوى</button></div>');
   const nx=nextStep();
@@ -89,10 +95,20 @@ export function openLesson(id){S.open=id;S.tab='course';save();hooks.render();wi
 export function cpBtn(u){
   if(!unitLessons(u).every(l=>S.lessons[l.id])||!convoList(u).every(c=>S.conv[c.id])) return '';
   if(S.cp[u]) return '<span class="pill">✓ اختبار الوحدة مُجتاز</span>';
-  return `<button class="btn" onclick="launch('cp',${u})">اختبار الوحدة ${u}</button>`;
+  if(S.drill&&S.drill.unit===u) return drillBtn();
+  return `<button class="btn" onclick="launch('cp',${u})">اختبار الوحدة ${ar(u)}</button>`;
+}
+
+/* الرسوب لا يُعيدك إلى الاختبار نفسه، بل إلى ما أخطأت فيه منه. */
+export function drillBtn(){
+  const names=(S.drill.skills||[]).map(s=>(RULE[s]&&RULE[s].t)||s).join(' · ');
+  return `<div style="width:100%">
+    <p class="muted" style="margin-bottom:6px">تحتاج تثبيت: <b style="color:var(--amber)">${names||'ما أخطأت فيه'}</b></p>
+    <button class="btn" onclick="launch('drill',${S.drill.unit})">درّبني على ما أخطأت فيه</button></div>`;
 }
 export function retBtn(u){
   if(!S.cp[u]||u===3) return '';
   if(S.ret[u]) return '<span class="pill">✓ الاستبقاء مُجتاز</span>';
+  if(S.drill&&S.drill.unit===u) return '';          // التدريب أولاً، ويظهر عند البوابة
   return `<button class="btn ghost" onclick="launch('ret',${u})">اختبار الاستبقاء</button>`;
 }

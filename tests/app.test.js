@@ -439,26 +439,28 @@ const { run, report } = require('./harness.js');
     if (!ctx.quizView().includes(q.items[0].q)) throw new Error('السؤال لا يظهر على الشاشة');
   });
 
-  await run('المستخدم الجديد يُكمل الاختبار العشرة ويصل إلى النتيجة', {}, (ctx, ev) => {
+  await run('المستخدم الجديد يُكمل اختبار تحديد المستوى ويصل إلى النتيجة', {}, (ctx, ev) => {
     ctx.launch('place');
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < ctx.PLACE_N; i++) {
       const q = ev('S').q;
       if (q.done) throw new Error('انتهى مبكراً عند ' + i);
       ctx.pick(q.items[q.i].a);
       ctx.nextQ();
     }
     const q = ev('S').q;
-    if (!q.done) throw new Error('لم ينتهِ بعد عشرة أسئلة');
+    if (!q.done) throw new Error('لم ينتهِ بعد ' + ctx.PLACE_N + ' أسئلة');
     if (!ev('S').placed) throw new Error('لم يُسجَّل تحديد المستوى');
     if (!['A1','A2'].includes(ev('S').level)) throw new Error('مستوى غير صالح: ' + ev('S').level);
-    if (!ctx.quizView().includes('نتيجة تحديد المستوى')) throw new Error('لا شاشة نتيجة');
-    ctx.closeQ();
+    const res = ctx.quizView();
+    if (!res.includes('أين أنت من كل وحدة؟')) throw new Error('لا تفصيل لكل وحدة في النتيجة');
+    if (!res.includes('startFrom(')) throw new Error('لا زر لبدء الدورة');
+    ctx.startFrom(1);
     if (ev('S').q) throw new Error('لم تُغلق شاشة الاختبار');
   });
 
   await run('اختبار تحديد المستوى لا يكرر سؤالاً', {}, (ctx, ev) => {
     ctx.launch('place');
-    for (let i = 0; i < 9; i++) { ctx.pick(ev('S').q.items[ev('S').q.i].a); ctx.nextQ() }
+    for (let i = 0; i < ctx.PLACE_N - 1; i++) { ctx.pick(ev('S').q.items[ev('S').q.i].a); ctx.nextQ() }
     const qs = ev('S').q.items.map(x => x.q);
     if (new Set(qs).size !== qs.length) throw new Error('تكرر سؤال داخل الاختبار');
   });
@@ -594,6 +596,156 @@ const { run, report } = require('./harness.js');
     if (ev('S').chat.sc !== i) throw new Error('لم يُختر المشهد');
     if (!ctx.speakView().includes('في المطار')) throw new Error('المشهد المختار اختفى من الشريط');
   });
+
+  console.log('— اقتراح نقطة البداية —');
+
+  await run('إتقان الوحدات الأولى يقترح البدء من بعدها', {}, (ctx, ev) => {
+    ctx.launch('place');
+    for (let i = 0; i < ctx.PLACE_N; i++) {
+      const q = ev('S').q, it = q.items[q.i], u = ctx.unitOf(it);
+      ctx.pick(u === 1 || u === 2 ? it.a : (it.a === 0 ? 1 : 0));   // أتقن 1 و2 وأخطأ الباقي
+      ctx.nextQ();
+    }
+    const p = ev('S').place;
+    if (!p.acc) throw new Error('لا دقة لكل وحدة');
+    if (!p.suggest || p.suggest < 2) throw new Error('لم يُقترح تخطٍّ رغم الإتقان: ' + p.suggest);
+    if (!ctx.quizView().includes('نقترح أن تبدأ من الوحدة')) throw new Error('لا اقتراح على الشاشة');
+  });
+
+  await run('الضعف في الوحدة الأولى يبدأ من الأول', {}, (ctx, ev) => {
+    ctx.launch('place');
+    for (let i = 0; i < ctx.PLACE_N; i++) {
+      const q = ev('S').q, it = q.items[q.i];
+      ctx.pick(it.a === 0 ? 1 : 0);   // أخطئ في كل شيء
+      ctx.nextQ();
+    }
+    if (ev('S').place.suggest !== 1) throw new Error('اقترح تخطياً رغم الضعف');
+    if (!ctx.quizView().includes('نبدأ من البداية')) throw new Error('لا رسالة بدء من الأول');
+  });
+
+  await run('التخطي يفتح الوحدة ولا يدّعي إتمامها',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ctx.startFrom(2);
+    const S = ev('S');
+    if (!S.skipped[1]) throw new Error('لم تُسجَّل الوحدة 1 متخطّاة');
+    if (S.cp[1] || S.lessons['1.1']) throw new Error('ادّعى إتمام ما لم يُنجَز');
+    if (!ctx.unitOpen(2)) throw new Error('الوحدة 2 ما زالت مقفلة');
+    const nx = ctx.nextStep();
+    if (!nx || !nx.label.includes('2.1')) throw new Error('الخطوة التالية ليست أول الوحدة 2: ' + (nx && nx.label));
+    const html = ctx.courseView();
+    if (!html.includes('تخطّيتها بالاختبار')) throw new Error('لا توضيح أن الوحدة متخطّاة');
+    if (!html.includes('1.1 —')) throw new Error('الوحدة المتخطّاة اختفت، والمفروض أن تبقى للمراجعة');
+  });
+
+  await run('كل تمرين موسوم بمهارة معروفة', {}, (ctx, ev) => {
+    const known = Object.keys(ev('SKILL_UNIT'));
+    ev('LESSONS').forEach(l => l.items.forEach((it, i) => {
+      const sk = ctx.skillOf(it);
+      if (!sk) throw new Error(l.id + '#' + (i + 1) + ': بلا مهارة');
+      if (!known.includes(sk)) throw new Error(l.id + '#' + (i + 1) + ': مهارة مجهولة ' + sk);
+      if (ctx.unitOf(it) !== l.u) throw new Error(l.id + '#' + (i + 1) + ': وحدة خاطئة');
+    }));
+  });
+
+  console.log('— التدريب الموجَّه عند الرسوب —');
+
+  /* حالة: الوحدة 1 جاهزة لبوابتها */
+  const READY = JSON.stringify({
+    placed: true,
+    lessons: { '1.1': true, '1.2': true, '1.3': true },
+    conv: { c1: true, c2: true }
+  });
+
+  const failGate = (ctx, ev, kind) => {
+    ctx.launch(kind, 1);
+    const n = ev('S').q.items.length;
+    for (let i = 0; i < n; i++) {
+      const it = ev('S').q.items[ev('S').q.i];
+      ctx.pick(it.a === 0 ? 1 : 0);          // أخطئ في كل شيء
+      ctx.nextQ();
+    }
+  };
+
+  await run('الرسوب في البوابة يُنشئ تدريباً من المهارات التي سقط فيها',
+    { 'eng-coach-v3': READY }, (ctx, ev) => {
+      failGate(ctx, ev, 'cp');
+      const d = ev('S').drill;
+      if (!d) throw new Error('لم يُنشأ تدريب بعد الرسوب');
+      if (d.unit !== 1) throw new Error('تدريب لوحدة خاطئة: ' + d.unit);
+      if (!d.skills.length) throw new Error('تدريب بلا مهارات');
+      const wrongSkills = new Set(ev('S').q.wrong.map(it => ctx.skillOf(it)));
+      d.skills.forEach(sk => { if (!wrongSkills.has(sk)) throw new Error('مهارة لم يخطئ فيها: ' + sk) });
+    });
+
+  await run('شاشة الرسوب توجّه إلى التدريب لا إلى إعادة الاختبار',
+    { 'eng-coach-v3': READY }, (ctx, ev) => {
+      failGate(ctx, ev, 'cp');
+      const html = ctx.quizView();
+      if (!html.includes("launch('drill'")) throw new Error('لا زر تدريب على شاشة الرسوب');
+      if (html.includes('retryQ()')) throw new Error('ما زال يعرض «أعد المحاولة» مباشرة');
+    });
+
+  await run('البوابة تُستبدل بالتدريب حتى يُجتاز',
+    { 'eng-coach-v3': READY }, (ctx, ev) => {
+      failGate(ctx, ev, 'cp');
+      ctx.closeQ();
+      const course = ctx.courseView();
+      if (!course.includes('درّبني على ما أخطأت فيه')) throw new Error('البوابة لا تعرض التدريب');
+      if (course.includes("launch('cp',1)")) throw new Error('ما زال يمكن إعادة الاختبار قبل التدريب');
+      const nx = ctx.nextStep();
+      if (!nx || !nx.label.includes('تدريب')) throw new Error('الخطوة التالية ليست التدريب: ' + (nx && nx.label));
+    });
+
+  await run('التدريب يسحب من المهارات المطلوبة وحدها',
+    { 'eng-coach-v3': READY }, (ctx, ev) => {
+      failGate(ctx, ev, 'cp');
+      ctx.closeQ();
+      const skills = ev('S').drill.skills;
+      ctx.launch('drill', 1);
+      const items = ev('S').q.items;
+      if (!items.length) throw new Error('تدريب بلا تمارين');
+      items.forEach(it => {
+        if (skills.indexOf(ctx.skillOf(it)) < 0)
+          throw new Error('تمرين خارج المهارات المطلوبة: ' + ctx.skillOf(it));
+      });
+    });
+
+  await run('اجتياز التدريب يفتح البوابة من جديد',
+    { 'eng-coach-v3': READY }, (ctx, ev) => {
+      failGate(ctx, ev, 'cp');
+      ctx.closeQ();
+      ctx.launch('drill', 1);
+      const n = ev('S').q.items.length;
+      for (let i = 0; i < n; i++) { ctx.pick(ev('S').q.items[ev('S').q.i].a); ctx.nextQ() }
+      if (!ev('S').q.pass) throw new Error('لم يُحتسب اجتياز التدريب');
+      if (ev('S').drill) throw new Error('التدريب لم يُغلق بعد اجتيازه');
+      ctx.closeQ();
+      if (!ctx.courseView().includes("launch('cp',1)")) throw new Error('البوابة لم تُفتح من جديد');
+    });
+
+  await run('الخطأ في التدريب يُبقيه مفتوحاً',
+    { 'eng-coach-v3': READY }, (ctx, ev) => {
+      failGate(ctx, ev, 'cp');
+      ctx.closeQ();
+      ctx.launch('drill', 1);
+      const n = ev('S').q.items.length;
+      for (let i = 0; i < n; i++) {
+        const it = ev('S').q.items[ev('S').q.i];
+        ctx.pick(i === 0 ? (it.a === 0 ? 1 : 0) : it.a);   // خطأ واحد يكفي
+        ctx.nextQ();
+      }
+      if (ev('S').q.pass) throw new Error('اجتاز التدريب رغم خطأ');
+      if (!ev('S').drill) throw new Error('أُغلق التدريب رغم الإخفاق');
+    });
+
+  await run('اجتياز البوابة من أول مرة لا يُنشئ تدريباً',
+    { 'eng-coach-v3': READY }, (ctx, ev) => {
+      ctx.launch('cp', 1);
+      const n = ev('S').q.items.length;
+      for (let i = 0; i < n; i++) { ctx.pick(ev('S').q.items[ev('S').q.i].a); ctx.nextQ() }
+      if (ev('S').drill) throw new Error('أُنشئ تدريب رغم النجاح');
+      if (!ev('S').cp[1]) throw new Error('لم تُسجَّل البوابة');
+    });
 
   await report();
 })();

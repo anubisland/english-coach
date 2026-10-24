@@ -10,11 +10,14 @@ import {card,svg,ar} from './ui.js';
 export function nextStep(){
   for(const u of [1,2,3]){
     if(!unitOpen(u))continue;
+    if(S.skipped[u])continue;            // تخطّاها اختبار المستوى: لا تقترحها
     const l=unitLessons(u).find(x=>lessonOpen(x)&&!S.lessons[x.id]);
     if(l)return{label:`الدرس ${l.id}: ${l.t}`,act:`openLesson('${l.id}')`,cta:'تابع الدرس',anchor:'st-l-'+l.id,unit:u};
     const c=convoList(u).find(x=>convoOpen(x)&&!S.conv[x.id]);
     if(c)return{label:`محادثة: ${c.t}`,act:`launch('conv','${c.id}')`,cta:'ابدأ المحادثة',anchor:'st-c-'+c.id,unit:u};
-    if(!S.cp[u])return{label:`بوابة الوحدة ${u}`,act:`launch('cp',${u})`,cta:'ابدأ الاختبار',anchor:'st-g-'+u,unit:u};
+    if(S.drill&&S.drill.unit===u)
+      return{label:'تدريب موجَّه على ما أخطأت فيه',act:`launch('drill',${u})`,cta:'ابدأ التدريب',anchor:'st-g-'+u,unit:u};
+    if(!S.cp[u])return{label:`بوابة الوحدة ${ar(u)}`,act:`launch('cp',${u})`,cta:'ابدأ الاختبار',anchor:'st-g-'+u,unit:u};
     if(u!==3&&!S.ret[u])return{label:`اختبار الاستبقاء للوحدة ${u}`,act:`launch('ret',${u})`,cta:'ابدأ الاختبار',anchor:'st-g-'+u,unit:u};
   }
   if(examOpen()&&!S.exam)return{label:'الامتحان النهائي A1',act:"launch('exam')",cta:'ابدأ الامتحان',anchor:'st-exam',unit:3};
@@ -24,7 +27,7 @@ export function nextStep(){
 export function homeView(){
   const done=LESSONS.filter(l=>S.lessons[l.id]).length;
   if(!S.placed) return card('أهلاً بك 👋',
-    '<p class="muted">قبل أن نبدأ، اختبار قصير من 10 أسئلة يحدد نقطة انطلاقك. يستغرق دقيقتين، ولا توجد إجابة تُحسب عليك.</p><div class="row"><button class="btn" onclick="launch(\'place\')">ابدأ اختبار تحديد المستوى</button></div>');
+    '<p class="muted">قبل أن نبدأ، اختبار قصير من 12 سؤالاً يحدد نقطة انطلاقك. يستغرق دقيقتين، ولا توجد إجابة تُحسب عليك.</p><div class="row"><button class="btn" onclick="launch(\'place\')">ابدأ اختبار تحديد المستوى</button></div>');
 
   const nx=nextStep();
   const pct=Math.round(done/LESSONS.length*100);

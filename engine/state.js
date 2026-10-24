@@ -14,6 +14,8 @@ export function defaultState(){return{
   lessons:{},conv:{},cp:{},ret:{},exam:false,xp:0,
   tab:'home',q:null,open:null,place:null,
   errs:{},                  // عدّاد أخطاء الجرامر المتكررة
+  skipped:{},               // وحدات تخطّاها اختبار تحديد المستوى
+  drill:null,               // تدريب موجَّه إلزامي بعد الرسوب في بوابة
   ruleOpen:null,            // بطاقة القاعدة المفتوحة حالياً
   theme:'light',            // النهاري هو الافتراضي، والليلي اختيار
   goal:10,                  // هدف دقائق الكلام اليومي
@@ -47,7 +49,8 @@ export function migrate(saved){
   /* الدرس المفتوح مؤشر إلى محتوى قد يختفي بين إصدارين.
      مؤشر ميت كان يُسقط الإقلاع كله ويترك شاشة بيضاء بلا شريط تنقل ولا مخرج. */
   if(typeof saved.open==='string'&&LESSONS.some(l=>l.id===saved.open))S.open=saved.open;
-  for(const k of ['lessons','conv','cp','ret','errs'])
+  if(saved.drill&&typeof saved.drill==='object'&&Array.isArray(saved.drill.skills))S.drill=saved.drill;
+  for(const k of ['lessons','conv','cp','ret','errs','skipped'])
     if(saved[k]&&typeof saved[k]==='object')S[k]=saved[k];
   if(saved.chat&&typeof saved.chat==='object')Object.assign(S.chat,saved.chat);
   if(!S.chat.pr||typeof S.chat.pr!=='object')S.chat.pr=null;
