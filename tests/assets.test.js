@@ -190,5 +190,51 @@ check('غلاف الشريطين لا يصطدم بصنف شريط التقدّ�
   if (!/header \.inner\{/.test(css)) throw new Error('لا قاعدة لغلاف الترويسة');
 });
 
+
+/* بلا عامل خدمة يصنع كروم «اختصاراً» لا تطبيقاً، والاختصارات لا يوحّدها،
+   فتتكاثر الأيقونات على سطح المكتب مع كل ضغطة على «تثبيت». */
+check('عامل الخدمة موجود ومُسجَّل في الصفحة', () => {
+  if (!fs.existsSync('sw.js')) throw new Error('لا ملفّ sw.js');
+  const sw = fs.readFileSync('sw.js', 'utf8');
+  ['install', 'activate', 'fetch'].forEach(ev => {
+    if (!new RegExp("addEventListener\\('" + ev + "'").test(sw))
+      throw new Error('عامل الخدمة بلا مستمع ' + ev);
+  });
+  const html = fs.readFileSync('index.html', 'utf8');
+  if (!/serviceWorker/.test(html)) throw new Error('الصفحة لا تُسجّل عامل الخدمة');
+  if (!/register\(['"]sw\.js['"]\)/.test(html)) throw new Error('التسجيل لا يشير إلى sw.js');
+  /* فشل التسجيل يجب ألّا يُسقط التطبيق. */
+  if (!/\.catch\(/.test(html.slice(html.indexOf('serviceWorker'))))
+    throw new Error('تسجيل بلا catch: فشله سيُظهر خطأً للمستخدم');
+});
+
+/* الشبكة أولاً: العكس يُجمّد المتعلّم على نسخة قديمة بلا حيلة. */
+check('عامل الخدمة يُقدّم الشبكة على المخزَّن', () => {
+  const sw = fs.readFileSync('sw.js', 'utf8');
+  const fetchAt = sw.indexOf("addEventListener('fetch'");
+  const body = sw.slice(fetchAt);
+  const net = body.indexOf('fetch(req)');
+  const cache = body.indexOf('caches.match');
+  if (net < 0 || cache < 0) throw new Error('لا شبكة ولا مخزَّن في معالج الطلبات');
+  if (net > cache) throw new Error('المخزَّن قبل الشبكة — سيُجمّد التطبيق على نسخة قديمة');
+  if (!/skipWaiting/.test(sw)) throw new Error('بلا skipWaiting: التحديث ينتظر إغلاق كل التبويبات');
+  if (!/clients\.claim/.test(sw)) throw new Error('بلا clients.claim');
+  if (!/caches\.delete/.test(sw)) throw new Error('لا يُنظّف المخازن القديمة');
+});
+
+/* الهوية الثابتة تمنع كروم من عدّ التطبيق تطبيقاً جديداً بعد كل تغيير. */
+check('manifest فيه هوية ثابتة ونطاق متّسق', () => {
+  const m = JSON.parse(fs.readFileSync('manifest.webmanifest', 'utf8'));
+  if (!m.id) throw new Error('لا id في manifest — الهوية غير مثبّتة');
+  if (!m.id.startsWith('/')) throw new Error('id يجب أن يكون مساراً ثابتاً من أصل الموقع');
+  if (!m.start_url || !m.scope) throw new Error('start_url أو scope ناقص');
+  if (!m.display) throw new Error('لا display');
+  ['name', 'icons', 'background_color', 'theme_color'].forEach(k => {
+    if (!m[k]) throw new Error('ناقص في manifest: ' + k);
+  });
+  const big = m.icons.filter(i => parseInt(i.sizes) >= 192);
+  if (big.length < 2) throw new Error('يحتاج كروم أيقونتين ١٩٢ فأكبر على الأقل');
+});
+
 console.log('\n' + (fail === 0 ? '\u2713' : '\u2717') + ' نجح ' + pass + ' واخفق ' + fail);
 process.exit(fail === 0 ? 0 : 1);
