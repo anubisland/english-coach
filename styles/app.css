@@ -27,14 +27,14 @@ header{
   /* أزرق غامق عند الطرفين يتدرّج نحو وسط أفتح، متناظر من اليمين واليسار.
      القيم الاحتياطية مقصودة: لو لم يُحمّل ملف المتغيّرات بقي الشريط ملوّناً
      ولم يصر الاسم أبيض على أبيض. */
-  background:var(--ind,#2F6FE0);
+  background:var(--ind,#1549BE);
   background:linear-gradient(90deg,
-    var(--barA,#0B2F8A) 0%,
-    var(--barB,#1E5BD6) 28%,
-    var(--barC,#2F6FE0) 50%,
-    var(--barB,#1E5BD6) 72%,
-    var(--barA,#0B2F8A) 100%);
-  box-shadow:0 2px 14px rgba(11,47,138,.28);
+    var(--barA,#061B52) 0%,
+    var(--barB,#0D3A9E) 28%,
+    var(--barC,#1549BE) 50%,
+    var(--barB,#0D3A9E) 72%,
+    var(--barA,#061B52) 100%);
+  box-shadow:0 2px 14px rgba(6,27,82,.34);
   max-width:100%;
 }
 /* الخلفية تملأ عرض الشاشة، والمحتوى يبقى بعرض الواجهة نفسها فلا يتناثر

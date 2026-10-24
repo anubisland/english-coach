@@ -12,7 +12,7 @@
   --warnBd:#B45309; --warnBg:#2B1B06; --warnInk:#FFC65C;
   --shadow:0 6px 20px rgba(0,0,0,.28);
   /* شريط التطبيق: أزرق غامق عند الطرفين يفتح نحو الوسط، واسم ذهبي عليه. */
-  --barA:#0B2F8A; --barB:#1E5BD6; --barC:#2F6FE0; --brand:#FFD86B;
+  --barA:#061B52; --barB:#0D3A9E; --barC:#1549BE; --brand:#FFD86B;
 }
 :root[data-theme=light]{
   --bg:#F6F5FB; --surf:#FFFFFF; --surf2:#EFEDFB; --line:#E6E5F0;
@@ -23,5 +23,5 @@
   --okBg:rgba(0,128,111,.10); --badBg:rgba(194,63,34,.10);
   --warnBd:#B45309; --warnBg:#FFFBEB; --warnInk:#92400E;
   --shadow:0 4px 14px rgba(30,27,75,.08);
-  --barA:#0B2F8A; --barB:#1E5BD6; --barC:#2F6FE0; --brand:#FFD86B;
+  --barA:#061B52; --barB:#0D3A9E; --barC:#1549BE; --brand:#FFD86B;
 }
