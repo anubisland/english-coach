@@ -30,6 +30,10 @@ export const CEFR_A1 = [
    skill:'القراءة', lessons:['1.1','1.2'], exam:'read', scene:'r-note'},
   {id:'read-sign', t:'يفهم إعلاناً أو جدولاً بسيطاً',
    skill:'القراءة', lessons:['3.1','3.2'], exam:'read', scene:'r-sign'},
+  {id:'things', t:'يتحدّث عن الأشياء من حوله وعددها',
+   skill:'الكتابة', lessons:['4.1','4.3'], exam:'write'},
+  {id:'belong', t:'يقول لمن يكون الشيء، ويصف ما يملك',
+   skill:'المحادثة', lessons:['4.2','4.4'], exam:'conv', scene:'x-hotel'},
   {id:'listen', t:'يفهم جملاً بطيئة واضحة ويكتبها',
    skill:'الاستماع', lessons:['1.1','2.1','3.3'], exam:'dictation'}
 ];
@@ -37,14 +41,10 @@ export const CEFR_A1 = [
 /* ما لا يغطّيه البرنامج من A1 — يُعرض للمتعلّم كما هو.
    هذه ليست عيوباً مخفيّة بل حدودٌ معلنة، ومن عرف حدّه عرف ما بقي عليه. */
 export const CEFR_GAPS = [
-  {t:'الجمع المنتظم وغير المنتظم', why:'book → books، child → children'},
-  {t:'الملكية: my / your / his وصيغة ’s', why:'my sister’s bag'},
   {t:'can / can’t للقدرة والطلب', why:'I can swim · Can you help me?'},
-  {t:'this / that / these / those', why:'الإشارة إلى القريب والبعيد'},
   {t:'الأمر والنهي', why:'Open the door · Don’t go'},
   {t:'الأرقام والوقت والتواريخ', why:'العدّ، وقراءة الساعة، وأيام الأسبوع'},
   {t:'المضارع المستمرّ', why:'I am working now'},
-  {t:'have got للملكية', why:'I have got two brothers'}
 ];
 
 /* نسبة ما يغطّيه البرنامج من A1 الكامل، محسوبة لا مُقدَّرة. */

@@ -37,10 +37,10 @@ export const STAGES = [
 
   {id:'a1-rest', t:'إكمال A1', level:'A1', state:'next', units:[
     {n:4, t:'الأشياء والناس من حولي', lessons:[
-      {id:'4.1', t:'الجمع: book → books', state:'todo'},
-      {id:'4.2', t:'الملكية: my / your وصيغة ’s', state:'todo'},
-      {id:'4.3', t:'this / that / these / those', state:'todo'},
-      {id:'4.4', t:'have got للملكية', state:'todo'}]},
+      {id:'4.1', t:'الجمع: book → books', state:'done'},
+      {id:'4.2', t:'الملكية: my / your وصيغة ’s', state:'done'},
+      {id:'4.3', t:'this / that / these / those', state:'done'},
+      {id:'4.4', t:'have got للملكية', state:'done'}]},
     {n:5, t:'الفعل والزمن والقدرة', lessons:[
       {id:'5.1', t:'can / can’t', state:'todo'},
       {id:'5.2', t:'الأمر والنهي', state:'todo'},

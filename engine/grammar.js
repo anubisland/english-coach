@@ -5,6 +5,8 @@ export function base(v){if(/ies$/.test(v))return v.replace(/ies$/,'y');if(/(sses
 export function be(p){const x=p.toLowerCase();return x==='i'?'am':/^(he|she|it)$/.test(x)?'is':'are'}
 export function s3(v){if(v==='have')return 'has';if(v==='do')return 'does';if(/[^aeiou]y$/.test(v))return v.slice(0,-1)+'ies';if(/(s|sh|ch|x|o)$/.test(v))return v+'es';return v+'s'}
 
+const IRREG={"childs":"children","mans":"men","womans":"women","foots":"feet","tooths":"teeth","persons":"people","mouses":"mice"};
+
 export const GR=[
 {re:/\bi is\b/gi,f:()=>'I am',rid:'be-subject',ar:'مع I نستخدم am وليس is'},
 {re:/\b(he|she|it) are\b/gi,f:(m,p)=>p+' is',rid:'be-subject',ar:'مع he / she / it نستخدم is وليس are'},
@@ -48,6 +50,16 @@ export const GR=[
 {re:/\bi have (\d+) years?\b/gi,f:(m,n)=>'I am '+n+' years old',ar:'العمر: I am 20 years old لا I have 20 years'},
 {re:/\bto (goes|works|likes|studies|wants|needs|lives|eats|drinks|comes|gets|makes|takes)\b/gi,f:(m,v)=>'to '+base(v.toLowerCase()),rid:'present-base',ar:'بعد to يأتي الفعل مجرّداً بلا s'},
 {re:/\b(peoples|informations|advices|moneys|furnitures|homeworks|luggages)\b/gi,f:m=>m.toLowerCase().slice(0,-1),ar:'هذه الأسماء لا تُجمع: people وinformation بلا s'},
+/* قواعد الوحدة الرابعة: الجمع، والملكية، والإشارة، و have got. */
+{re:/\b(child|man|woman|foot|tooth|person|mouse)s\b/gi,f:m=>IRREG[m.toLowerCase()]||m,rid:'plural',ar:'جمع شاذّ: child → children و man → men، ولا يُجمع بـ s'},
+{re:/\b(two|three|four|five|six|seven|eight|nine|ten|many|several|both)\s+(brother|sister|book|car|friend|student|teacher|room|day|week|year|hour|house|shop|thing|place|word|question|box|city|watch|dish|bus|baby|country|boy|key|phone|bag|chair|shoe|photo|dog|cat|table|window|door|street|office|school|letter|minute|month|idea|problem)\b/gi,f:(m,n,w)=>n+' '+w+(/(s|sh|ch|x)$/i.test(w)?'es':/[^aeiou]y$/i.test(w)?w.slice(-1)&&'':'s'),rid:'plural',ar:'العدد أكبر من واحد فيلزم الجمع'},
+{re:/\bthis\s+are\b/gi,f:()=>'These are',rid:'demonstrative',ar:'this للمفرد؛ ومع الجمع نقول These are'},
+{re:/\bthat\s+are\b/gi,f:()=>'Those are',rid:'demonstrative',ar:'that للمفرد؛ ومع الجمع نقول Those are'},
+{re:/\b(this|that)\s+([a-z]+s)\s+(are|were)\b/gi,f:(m,d,n,v)=>(d.toLowerCase()==='this'?'These':'Those')+' '+n+' '+v,rid:'demonstrative',ar:'الاسم جمع فتلزم الإشارة الجمع: these أو those'},
+{re:/\b(these|those)\s+([a-z]+[^s\W])\s+(is|was)\b/gi,f:(m,d,n,v)=>d+' '+n+'s '+(v.toLowerCase()==='is'?'are':'were'),rid:'demonstrative',ar:'these و those للجمع: يُجمع الاسم ويصير الفعل are'},
+{re:/\b(do|does|did)\s+(i|you|we|they|he|she|it)\s+have\s+got\b/gi,f:(m,d,p)=>(/^(he|she|it)$/i.test(p)?'Has ':'Have ')+p+' got',rid:'have-got',ar:'السؤال بـ have got يُقلب بلا do'},
+{re:/\bis\s+(me|him|them|us)\s+(book|car|bag|house|phone|friend|name|room|idea|turn|seat|sister|brother|school|office|father|mother|son|daughter|wife|husband|job|address|family|teacher|doctor|boss|city|town|street|shop|keys|money|work)\b/gi,f:(m,p,n)=>'is '+({me:'my',him:'his',them:'their',us:'our'})[p.toLowerCase()]+' '+n,rid:'possessive',ar:'قبل الاسم نستخدم صفة الملكية: my لا me'},
+{re:/\bthe\s+(my|your|his|her|our|their)\b/gi,f:(m,p)=>p,rid:'possessive',ar:'صفة الملكية تُغني عن the فلا تجتمعان'},
 {re:/\bthe most (\w+est)\b/gi,f:(m,w)=>'the '+w,ar:'لا نجمع most مع est: the biggest لا the most biggest'}
 ];
 export function fixText(t){let o=t;GR.forEach(r=>{o=o.replace(r.re,r.f)});return o.charAt(0).toUpperCase()+o.slice(1)}
