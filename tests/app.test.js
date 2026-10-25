@@ -2334,17 +2334,24 @@ const { run, report } = require('./harness.js');
   });
 
   /* المصداقية في إعلان النقص لا إخفائه. */
-  await run('شاشة المعيار تعرض ما لا يغطّيه البرنامج', {}, (ctx, ev) => {
+  /* إعلان الحدّ لا يختفي بتمام مستوى، بل ينتقل إلى ما فوقه. */
+  await run('شاشة المعيار تُعلن حدّ البرنامج دائماً', {}, (ctx, ev) => {
     const r = ctx.cefrReport();
-    if (!r.gaps.length) throw new Error('لا نواقص معلنة');
-    if (r.coverage >= 100) throw new Error('يدّعي تغطية كاملة: ' + r.coverage);
     const html = ctx.cefrView();
-    if (!html.includes('ما لا يغطّيه')) throw new Error('النواقص لا تظهر');
-    if (!html.includes('أساسيات A1')) throw new Error('لا يوضّح أنّه أساسيات لا A1 كامل');
-    r.gaps.slice(0, 3).forEach(g => {
-      if (!html.includes(g.t)) throw new Error('نقص غائب عن الشاشة: ' + g.t);
-    });
-    if (!html.includes(String(ctx.ar(r.coverage)))) throw new Error('نسبة التغطية لا تظهر');
+    if (r.gaps.length) {
+      if (r.coverage >= 100) throw new Error('نواقص معلنة مع ادّعاء التمام');
+      if (!html.includes('ما لا يغطّيه')) throw new Error('النواقص لا تظهر');
+      r.gaps.slice(0, 3).forEach(g => {
+        if (!html.includes(g.t)) throw new Error('نقص غائب عن الشاشة: ' + g.t);
+      });
+    } else {
+      /* اكتمل A1: يجب أن يُعلن أنّه لا يغطّي ما فوقه. */
+      if (!html.includes('حدّ هذا البرنامج')) throw new Error('لا إعلان للحدّ بعد تمام المستوى');
+      ['A2', 'B1', 'C2'].forEach(lv => {
+        if (!html.includes(lv)) throw new Error('لا يذكر أنّه لا يغطّي ' + lv);
+      });
+      if (!html.includes('ستّة مستويات')) throw new Error('لا يذكر أنّ السلّم ستّة');
+    }
   });
 
   await run('كل قدرة مرتبطة بدروس واختبار موجودين', {}, (ctx, ev) => {
@@ -2380,8 +2387,17 @@ const { run, report } = require('./harness.js');
         .flatMap(s => s.units).flatMap(u => u.lessons).filter(x => x.state === 'done');
       if (!built.length) throw new Error('المستوى ' + l.id + ' معلَن بلا دروس مبنيّة');
     });
-    const future = ev('LEVELS').filter(l => l.state === 'todo').map(l => l.id);
-    if (!future.includes('A2')) throw new Error('A2 ليس معلَّماً كغير مبنيّ');
+    /* «غير مبنيّ» يشمل todo و next معاً: المهمّ ألّا يُعرض كمبنيّ. */
+    const built = ev('LEVELS').filter(l => l.state === 'done' || l.state === 'doing').map(l => l.id);
+    if (built.includes('A2')) throw new Error('A2 معروض كمبنيّ ولا درس فيه');
+    ['A2', 'B1', 'B2', 'C1', 'C2'].forEach(id => {
+      const lv = ev('LEVELS').find(l => l.id === id);
+      const n = ev('STAGES').filter(st => st.level === id)
+        .flatMap(st => st.units).flatMap(u => u.lessons).filter(x => x.state === 'done').length;
+      if (n) throw new Error(id + ' فيه دروس مبنيّة ولم يُعلَن');
+      if (lv.state === 'done' || lv.state === 'doing')
+        throw new Error(id + ' معروض كمبنيّ بلا دروس');
+    });
   });
 
   await run('خريطة الشاشة تطابق الدروس الموجودة فعلاً', {}, (ctx, ev) => {

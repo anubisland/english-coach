@@ -60,6 +60,19 @@ export const GR=[
 {re:/\b(do|does|did)\s+(i|you|we|they|he|she|it)\s+have\s+got\b/gi,f:(m,d,p)=>(/^(he|she|it)$/i.test(p)?'Has ':'Have ')+p+' got',rid:'have-got',ar:'السؤال بـ have got يُقلب بلا do'},
 {re:/\bis\s+(me|him|them|us)\s+(book|car|bag|house|phone|friend|name|room|idea|turn|seat|sister|brother|school|office|father|mother|son|daughter|wife|husband|job|address|family|teacher|doctor|boss|city|town|street|shop|keys|money|work)\b/gi,f:(m,p,n)=>'is '+({me:'my',him:'his',them:'their',us:'our'})[p.toLowerCase()]+' '+n,rid:'possessive',ar:'قبل الاسم نستخدم صفة الملكية: my لا me'},
 {re:/\bthe\s+(my|your|his|her|our|their)\b/gi,f:(m,p)=>p,rid:'possessive',ar:'صفة الملكية تُغني عن the فلا تجتمعان'},
+/* قواعد الوحدة الخامسة: can، والأمر، والمضارع المستمرّ، وحروف الزمن. */
+{re:/\b(can|must|will|should|may)s\b/gi,f:m=>m.slice(0,-1),rid:'can',ar:'الفعل الناقص لا يأخذ s مع he / she / it: can لا cans'},
+{re:/\b(can|can't|cannot|must|will|should|may|might)\s+to\s+(\w+)/gi,f:(m,md,v)=>md+' '+v,rid:'can',ar:'بعد الفعل الناقص يأتي الفعل مجرّداً بلا to'},
+{re:/\b(do|does|did)\s+(i|you|we|they|he|she|it)\s+can\b/gi,f:(m,d,p)=>'Can '+p,rid:'can',ar:'السؤال بـ can يُقلب بلا do'},
+{re:/(^|[.!?]\s+)no\s+(open|close|go|come|be|do|take|put|touch|forget|worry|move|stop|eat|drink|run|sit|stand|talk|look|wait)\b/gi,f:(m,p,v)=>p+"Don't "+v,rid:'imperative',ar:'النهي بـ Don’t لا No'},
+{re:/(?<!\b(?:am|is|are|was|were|be|been)\s)\b(i|you|we|they|he|she|it)\s+(working|reading|writing|eating|drinking|sleeping|running|coming|going|playing|watching|studying|waiting|talking|listening|cooking|driving|sitting)\b/gi,f:(m,p,v)=>p+' '+be(p)+' '+v,rid:'present-cont',ar:'المضارع المستمرّ يحتاج am / is / are قبل الفعل'},
+{re:/\b(am|is|are)\s+(work|read|write|eat|drink|sleep|run|come|go|play|watch|study|wait|talk|listen|cook|drive|sit)\s+(now|today|at|in|on|a|the|to)\b/gi,f:(m,v,x,t)=>v+' '+x+(/e$/.test(x)&&!/ee$/.test(x)?x.slice(0,-1)+'ing':x+'ing').slice(x.length)+' '+t,rid:'present-cont',ar:'بعد am / is / are يأتي الفعل بـ ing'},
+{re:/\b(writ|mak|tak|com|giv|liv|driv|hav|us|clos|danc)eing\b/gi,f:(m,r)=>r+'ing',rid:'present-cont',ar:'الـ e الصامتة تسقط قبل ing: write → writing'},
+{re:/\b(in|at)\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/gi,f:(m,p,d)=>'on '+d,rid:'numbers-time',ar:'يوم الأسبوع يأخذ on'},
+{re:/\b(on|at)\s+(january|february|march|april|may|june|july|august|september|october|november|december)\b(?!\s+the\s)/gi,f:(m,p,x)=>'in '+x,rid:'numbers-time',ar:'الشهر يأخذ in'},
+{re:/\b(in|on)\s+(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|noon|midnight)\s+o'?clock\b/gi,f:(m,p,h)=>"at "+h+" o'clock",rid:'numbers-time',ar:'الساعة تأخذ at'},
+{re:/\b(in|on)\s+night\b/gi,f:()=>'at night',rid:'numbers-time',ar:'نقول at night لا in night'},
+{re:/\bat\s+the\s+(morning|afternoon|evening)\b/gi,f:(m,x)=>'in the '+x,rid:'numbers-time',ar:'أجزاء اليوم تأخذ in: in the morning'},
 {re:/\bthe most (\w+est)\b/gi,f:(m,w)=>'the '+w,ar:'لا نجمع most مع est: the biggest لا the most biggest'}
 ];
 export function fixText(t){let o=t;GR.forEach(r=>{o=o.replace(r.re,r.f)});return o.charAt(0).toUpperCase()+o.slice(1)}

@@ -6,9 +6,9 @@
    تُعرض الآن، ويرى المتعلّم موقعه من السلّم كلّه لا من درسه وحده. */
 
 export const LEVELS = [
-  {id:'A1', t:'مبتدئ', state:'doing',
+  {id:'A1', t:'مبتدئ', state:'done',
    d:'يعرّف بنفسه، ويسأل أسئلة بسيطة، ويتكلّم عن يومه، ويطلب في مطعم.'},
-  {id:'A2', t:'مبتدئ متقدّم', state:'todo',
+  {id:'A2', t:'مبتدئ متقدّم', state:'next',
    d:'يتكلّم عن الماضي والمستقبل، ويقارن، ويصل الجمل بـ because و when.'},
   {id:'B1', t:'متوسّط', state:'todo',
    d:'يتابع حديثاً عادياً، ويشرح رأيه، ويكتب رسالة مترابطة.'},
@@ -35,20 +35,20 @@ export const STAGES = [
       {id:'3.3', t:'There is / There are', state:'done'}]}
   ]},
 
-  {id:'a1-rest', t:'إكمال A1', level:'A1', state:'next', units:[
+  {id:'a1-rest', t:'إكمال A1', level:'A1', state:'done', units:[
     {n:4, t:'الأشياء والناس من حولي', lessons:[
       {id:'4.1', t:'الجمع: book → books', state:'done'},
       {id:'4.2', t:'الملكية: my / your وصيغة ’s', state:'done'},
       {id:'4.3', t:'this / that / these / those', state:'done'},
       {id:'4.4', t:'have got للملكية', state:'done'}]},
     {n:5, t:'الفعل والزمن والقدرة', lessons:[
-      {id:'5.1', t:'can / can’t', state:'todo'},
-      {id:'5.2', t:'الأمر والنهي', state:'todo'},
-      {id:'5.3', t:'المضارع المستمرّ', state:'todo'},
-      {id:'5.4', t:'الأرقام والوقت والتواريخ', state:'todo'}]}
+      {id:'5.1', t:'can / can’t', state:'done'},
+      {id:'5.2', t:'الأمر والنهي', state:'done'},
+      {id:'5.3', t:'المضارع المستمرّ', state:'done'},
+      {id:'5.4', t:'الأرقام والوقت والتواريخ', state:'done'}]}
   ]},
 
-  {id:'a2', t:'المستوى A2', level:'A2', state:'todo', units:[
+  {id:'a2', t:'المستوى A2', level:'A2', state:'next', units:[
     {n:6, t:'الماضي', lessons:[
       {id:'6.1', t:'was / were', state:'todo'},
       {id:'6.2', t:'الأفعال المنتظمة في الماضي', state:'todo'},

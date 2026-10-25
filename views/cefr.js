@@ -28,16 +28,24 @@ export function cefrView() {
 
     ${card('القدرات التسع', r.rows.map(row).join(''))}
 
-    ${card('ما لا يغطّيه هذا البرنامج من A1',
-      `<p class="muted">البرنامج يغطّي <b>${ar(r.coverage)}٪</b> من قدرات A1 الكاملة.
-         وهذه بقيّتها، نذكرها لك صراحةً حتى تعرف أين تقف:</p>`
-      + r.gaps.map(g => `<div style="display:flex;gap:8px;margin-top:8px">
-          <span style="color:var(--faint)">○</span>
-          <span style="flex:1"><b style="font-size:13.5px">${esc(g.t)}</b>
-            <span class="muted en" dir="ltr" style="display:block;font-size:11.5px;text-align:left">${esc(g.why)}</span></span>
-        </div>`).join('')
-      + `<p class="muted" style="margin-top:10px;font-size:11.5px">ولذلك نقول «أساسيات A1»
-          ولا نقول «A1 كامل».</p>`)}
+    ${r.gaps.length
+      ? card('ما لا يغطّيه هذا البرنامج من A1',
+        `<p class="muted">البرنامج يغطّي <b>${ar(r.coverage)}٪</b> من قدرات A1 الكاملة.
+           وهذه بقيّتها، نذكرها لك صراحةً حتى تعرف أين تقف:</p>`
+        + r.gaps.map(g => `<div style="display:flex;gap:8px;margin-top:8px">
+            <span style="color:var(--faint)">○</span>
+            <span style="flex:1"><b style="font-size:13.5px">${esc(g.t)}</b>
+              <span class="muted en" dir="ltr" style="display:block;font-size:11.5px;text-align:left">${esc(g.why)}</span></span>
+          </div>`).join('')
+        + `<p class="muted" style="margin-top:10px;font-size:11.5px">ولذلك نقول «أساسيات A1»
+            ولا نقول «A1 كامل».</p>`)
+      /* اكتمل A1، فينتقل إعلان الحدّ إلى السلّم: لا يختفي لمجرّد تمام مستوى. */
+      : card('حدّ هذا البرنامج',
+        `<p class="muted">البرنامج يغطّي <b>A1 كاملاً</b> — كل قدراته الثلاث عشرة.</p>
+         <p class="muted" style="margin-top:6px">ولا يغطّي شيئاً ممّا فوقه: <b>A2</b> و<b>B1</b>
+           و<b>B2</b> و<b>C1</b> و<b>C2</b>. فالإطار الأوروبي ستّة مستويات، وهذا أوّلها.</p>
+         <p class="muted" style="margin-top:6px;font-size:11.5px">ومن أتمّه يستطيع أن يعرّف بنفسه
+           ويسأل ويطلب ويصف يومه — ولا يستطيع بعدُ أن يتكلّم عن الماضي ولا المستقبل.</p>`)}
 
     <div class="row"><button class="btn" onclick='go("roadmap")'>خريطة المنهج كاملة</button><button class="btn ghost" onclick="goHome()">رجوع</button></div>`;
 }
