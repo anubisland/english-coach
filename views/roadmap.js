@@ -31,8 +31,9 @@ export function roadmapView() {
     ${STAGES.filter(s => s.units.length).map(stageCard).join('')}
 
     ${card('ما بعد A2',
-      `<p class="muted">B1 وما فوقه عملٌ كبير يحتاج محتوىً من مؤلّف لغوي.
-         لا يُبدأ قبل تمام A1 و A2، ولا يُوعَد به قبل تقدير صادق لحجمه.</p>`)}
+      `<p class="muted">A1 و A2 تمّا، وخطّة B1 أمامك مفصّلةً كما تراها —
+         إحدى عشرة محطّة. وهي عملٌ كبير يحتاج محتوىً من مؤلّف لغوي،
+         يُبنى محطّةً محطّة ولا يُوعَد به دفعةً واحدة.</p>`)}
 
     <div class="row"><button class="btn ghost" onclick="goHome()">رجوع</button></div>`;
 }

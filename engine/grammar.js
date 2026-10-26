@@ -31,7 +31,7 @@ export const GR=[
 {re:/\bi is\b/gi,f:()=>'I am',rid:'be-subject',ar:'مع I نستخدم am وليس is'},
 {re:/\b(he|she|it) are\b/gi,f:(m,p)=>p+' is',rid:'be-subject',ar:'مع he / she / it نستخدم is وليس are'},
 {re:/\b(we|you|they) is\b/gi,f:(m,p)=>p+' are',rid:'be-subject',ar:'مع we / you / they نستخدم are وليس is'},
-{re:/\bthere is (two|three|four|five|many|some|several)\b/gi,f:(m,n)=>'there are '+n,rid:'there-is-are',ar:'مع الجمع نستخدم there are'},
+{re:/\bthere is (two|three|four|five|many|several)\b/gi,f:(m,n)=>'there are '+n,rid:'there-is-are',ar:'مع الجمع نستخدم there are'},
 {re:/\bthere are (a|an|one)\b/gi,f:(m,n)=>'there is '+n,rid:'there-is-are',ar:'مع المفرد نستخدم there is'},
 {re:/\bin my home\b/gi,f:()=>'at home',ar:'نقول at home وليس in my home'},
 {re:/(?<!\b(?:does|do|don't|doesn't|did|can|can't|could|will|won't|would|should|must|may|might|shall|let|to) )\b(he|she|it) (go|like|work|study|live|stay|watch|play|want|need|speak|know|think|have|do|read|write|drink|eat|wake|get|come)\b/gi,f:(m,p,v)=>p+' '+s3(v.toLowerCase()),rid:'present-s',ar:'مع he / she / it نضيف s للفعل'},
@@ -120,6 +120,16 @@ export const GR=[
 {re:/\b(big|small|old|young|tall|short|long|fast|slow|cheap|rich|poor|cold|hot|warm|clean|strong|weak|hard|easy|happy|busy|heavy|early|late|nice|large|safe|close|high|low|new|dark|light|kind|quiet|bright|thick|thin|deep|wide)\s+than\b/gi,f:(m,a)=>CMPT2[a.toLowerCase()][0]+' than',rid:'compare-er',ar:'قبل than تأتي صيغة المفاضلة: bigger than'},
 {re:/\bas\s+(bigger|smaller|older|younger|taller|shorter|longer|faster|slower|cheaper|richer|poorer|colder|hotter|warmer|cleaner|stronger|weaker|harder|easier|happier|busier|heavier|earlier|later|nicer|larger|safer|closer|higher|lower|newer|darker|lighter|kinder|quieter|brighter|thicker|thinner|deeper|wider|biggest|smallest|oldest|youngest|tallest|shortest|longest|fastest|slowest|cheapest|richest|poorest|coldest|hottest|warmest|cleanest|strongest|weakest|hardest|easiest|happiest|busiest|heaviest|earliest|latest|nicest|largest|safest|closest|highest|lowest|newest|darkest|lightest|kindest|quietest|brightest|thickest|thinnest|deepest|widest|better|worse|further|more|more|less|best|worst|furthest|most|most|least)\s+as\b/gi,f:(m,a)=>'as '+(BARE[a.toLowerCase()]||a)+' as',rid:'compare-as',ar:'الصفة بين as و as تبقى مجرّدة: as tall as'},
 {re:/\bas\s+(big|small|old|young|tall|short|long|fast|slow|cheap|rich|poor|cold|hot|warm|clean|strong|weak|hard|easy|happy|busy|heavy|early|late|nice|large|safe|close|high|low|new|dark|light|kind|quiet|bright|thick|thin|deep|wide)\s+(than|from)\b/gi,f:(m,a)=>'as '+a+' as',rid:'compare-as',ar:'المساواة تُطوَّق بـ as من جهتيها: as tall as'},
+/* قواعد الوحدة التاسعة: الكمّ والربط. */
+{re:/\bmuch\s+(books|cars|people|friends|students|rooms|days|hours|years|questions|children|shops|houses|cities|words|things|places|chairs|tables|phones|bags|apples|eggs|minutes|letters|photos|keys|boxes)\b/gi,f:(m,n)=>'many '+n,rid:'quantity',ar:'المعدود يأخذ many لا much: many books'},
+{re:/\bmany\s+(water|money|bread|rice|time|milk|work|food|tea|coffee|sugar|salt|meat|cheese|oil|juice|paper|music|news|homework|advice|information|furniture|luggage|weather|traffic|help|fun|luck|snow|rain)\b/gi,f:(m,n)=>'much '+n,rid:'quantity',ar:'غير المعدود يأخذ much لا many: much water'},
+{re:/\bhow\s+much\s+(books|cars|people|friends|students|rooms|days|hours|years|questions|children|shops|houses|cities|words|things|places|chairs|tables|phones|bags|apples|eggs|minutes|letters|photos|keys|boxes)\b/gi,f:(m,n)=>'How many '+n,rid:'quantity',ar:'السؤال عن المعدود بـ How many'},
+{re:/\b(money|bread|rice|milk|furniture|luggage|information|advice|homework|traffic|weather|music|luck|sugar|salt|cheese|juice)s\b/gi,f:(m,n)=>n,rid:'quantity',ar:'اسمٌ غير معدود لا يُجمع: much money لا many moneys'},
+{re:/\b(don't|doesn't|didn't|do not|does not|did not)\s+(have|want|need|see|buy|eat|drink|get|take|bring)\s+some\b/gi,f:(m,n,v)=>n+' '+v+' any',rid:'quantity',ar:'النفي يأخذ any لا some: I don’t have any money'},
+{re:/\b(is|are)\s+there\s+some\b/gi,f:(m,v)=>v+' there any',rid:'quantity',ar:'السؤال يأخذ any لا some: Is there any milk?'},
+{re:/\bthere\s+is\s+some\s+(books|cars|people|friends|students|rooms|days|hours|years|questions|children|shops|houses|cities|words|things|places|chairs|tables|phones|bags|apples|eggs|minutes|letters|photos|keys|boxes)\b/gi,f:(m,n)=>'there are some '+n,rid:'there-is-are',ar:'مع الجمع نستخدم there are'},
+{re:/\bbecause\s+((?:\w+[,]?\s+){1,8}?)so\s+(i|you|we|they|he|she|it|the\s+\w+)\s/gi,f:(m,x,p)=>'Because '+x+p+' ',rid:'connect',ar:'واحدة من because و so تكفي، ولا يُجمعان'},
+{re:/\bbecause\s+(the|a|an)\s+(\w+)\s*(?=[.,!?]|$)/gi,f:(m,d,n)=>'because of '+d+' '+n,rid:'connect',ar:'بعد because جملة تامّة، وللاسم المفرد because of'},
 {re:/\bthe most (\w+est)\b/gi,f:(m,w)=>'the '+w,rid:'compare-er',ar:'لا نجمع most مع est: the biggest لا the most biggest'}
 ];
 export function fixText(t){let o=t;GR.forEach(r=>{o=o.replace(r.re,r.f)});return o.charAt(0).toUpperCase()+o.slice(1)}

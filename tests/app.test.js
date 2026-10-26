@@ -2601,6 +2601,16 @@ const { run, report } = require('./harness.js');
     if (silent.length) throw new Error('نقص ' + silent[0].id + ' مذكورٌ بلا بيان');
   });
 
+  /* ولا يُذكر مستوىً تامٌّ دون أخيه: البطاقة كانت تسمّي المستوى الذي
+     يقف عنده المتعلّم وحده، فلمّا تمّ A2 بقي الإعلان يقول «A1 كاملاً». */
+  await run('كل مستوى تامّ يُذكر في حدّ البرنامج', {}, (ctx, ev) => {
+    const html = ctx.cefrView();
+    const full = ctx.levelsReport().filter(l => l.built && !l.gaps);
+    full.forEach(l => {
+      if (!html.includes('<b>' + l.id + '</b>')) throw new Error(l.id + ' تامّ ولا يُذكر');
+    });
+  });
+
   await report();
 
 

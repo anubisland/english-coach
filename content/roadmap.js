@@ -60,11 +60,30 @@ export const STAGES = [
       {id:'8.1', t:'bigger / the biggest', state:'done'},
       {id:'8.2', t:'as … as والمقارنة غير المنتظمة', state:'done'}]},
     {n:9, t:'الكمّ والربط', lessons:[
-      {id:'9.1', t:'some / any / much / many', state:'todo'},
-      {id:'9.2', t:'because / when / so', state:'todo'}]}
+      {id:'9.1', t:'some / any / much / many', state:'done'},
+      {id:'9.2', t:'because / when / so', state:'done'}]}
   ]},
 
-  {id:'b1', t:'المستوى B1 فما فوق', level:'B1', state:'todo', units:[]}
+  {id:'b1', t:'المستوى B1', level:'B1', state:'todo', units:[
+    {n:10, t:'الحاضر التامّ', lessons:[
+      {id:'10.1', t:'have / has + التصريف الثالث', state:'todo'},
+      {id:'10.2', t:'ever وnever وjust وyet', state:'todo'},
+      {id:'10.3', t:'since وfor', state:'todo'}]},
+    {n:11, t:'الماضي المستمرّ والسرد', lessons:[
+      {id:'11.1', t:'was / were + ing', state:'todo'},
+      {id:'11.2', t:'while وwhen في السرد', state:'todo'}]},
+    {n:12, t:'الشرط', lessons:[
+      {id:'12.1', t:'الشرط الأوّل: if + مضارع → will', state:'todo'},
+      {id:'12.2', t:'الشرط الثاني: if + ماضٍ → would', state:'todo'}]},
+    {n:13, t:'الأفعال الناقصة الموسّعة', lessons:[
+      {id:'13.1', t:'should وmust وhave to', state:'todo'},
+      {id:'13.2', t:'may وmight وcould للاحتمال', state:'todo'}]},
+    {n:14, t:'المبنيّ للمجهول وجملة الوصل', lessons:[
+      {id:'14.1', t:'is / was + التصريف الثالث', state:'todo'},
+      {id:'14.2', t:'who وwhich وthat', state:'todo'}]}
+  ]},
+
+  {id:'b2', t:'المستوى B2 فما فوق', level:'B2', state:'todo', units:[]}
 ];
 
 export function roadmapCounts() {

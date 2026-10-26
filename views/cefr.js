@@ -60,17 +60,25 @@ function gapsCard(r) {
 
   const all = levelsReport();
   const rest = all.filter(l => !l.built).map(l => l.id);
-  /* المستوى المبنيّ نصفَ بناء لا هو تامّ ولا هو غائب، فلولا ذكره هنا
-     لسقط من الإعلان كلّه: لا يراه المتعلّم في النواقص ولا في غير المبنيّ. */
+  /* كل مستوى تامّ يُذكر، لا الذي يقف عنده المتعلّم وحده: البرنامج قد
+     يغطّي A1 وA2 معاً، فذكرُ أحدهما بخسٌ لما بُني. */
+  const full = all.filter(l => l.built && !l.gaps).map(l => l.id);
+  /* والمبنيّ نصفَ بناء لا هو تامّ ولا هو غائب، فلولا ذكره هنا لسقط من
+     الإعلان كلّه: لا يراه المتعلّم في النواقص ولا في غير المبنيّ. */
   const partial = all.filter(l => l.built && l.gaps && l.id !== r.id);
+  /* وما يستطيعه من أتمّ: من قدرات المستوى نفسها، لا من نصٍّ ثابت —
+     ولولا ذلك لنُسبت قدراتُ A1 إلى كل مستوى يُبنى بعده. */
+  const able = full.flatMap(id => cefrReport(id).rows.map(c => c.t)).slice(0, 5);
   return card('حدّ هذا البرنامج',
-    `<p class="muted">البرنامج يغطّي <b>${esc(r.id)} كاملاً</b> — كل قدراته ${ar(r.total)}.</p>`
+    `<p class="muted">البرنامج يغطّي ${full.map(x => '<b>' + esc(x) + '</b>').join(' و')}
+        ${full.length > 1 ? 'كاملين' : 'كاملاً'} — ${ar(full.reduce((n, id) =>
+          n + cefrReport(id).total, 0))} قدرة.</p>`
     + partial.map(l => `<p class="muted" style="margin-top:6px">و<b>${esc(l.id)}</b> قيد البناء:
         بُني منه ${ar(l.built)} وبقي ${ar(l.gaps)}.</p>`).join('')
     + (rest.length ? `<p class="muted" style="margin-top:6px">ولا يغطّي بعدُ:
         ${rest.map(x => '<b>' + esc(x) + '</b>').join(' و')}. فالإطار ستّة مستويات.</p>` : '')
-    + `<p class="muted" style="margin-top:6px;font-size:11.5px">ومن أتمّ ${esc(r.id)} يستطيع أن يعرّف
-        بنفسه ويسأل ويطلب ويصف يومه وما يحدث الآن.</p>`);
+    + (able.length ? `<p class="muted" style="margin-top:6px;font-size:11.5px">ومن أتمّ ما بُني
+        ${able.map(t => esc(t)).join('، و')}.</p>` : ''));
 }
 
 function levelRow(l) {

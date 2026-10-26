@@ -62,13 +62,15 @@ export const CEFR = {
       {id:'compare-say', t:'يوازن بين شيئين ويقول أيّهما أفضل',
        skill:'المحادثة', lessons:['8.1'], exam:'conv', scene:'x-shop'},
       {id:'compare-write', t:'يصف الفرق والمساواة بصيغ المقارنة الصحيحة',
-       skill:'الكتابة', lessons:['8.1','8.2'], exam:'write'}
+       skill:'الكتابة', lessons:['8.1','8.2'], exam:'write'},
+      {id:'ask-quantity', t:'يسأل عمّا يوجد وكم يوجد، ويطلب ما يحتاج',
+       skill:'المحادثة', lessons:['9.1'], exam:'conv', scene:'x-shop'},
+      {id:'connect-write', t:'يصل كلامه بالسبب والنتيجة والزمن',
+       skill:'الكتابة', lessons:['9.2'], exam:'write'}
     ],
     /* تُنقل واحدةً واحدة إلى caps كلّما بُني درسها، فتُقاس التغطية
        من الواقع لا من الوعد. */
     gaps: [
-      {t:'الكمّ: some / any / much / many', why:'Is there any milk?'},
-      {t:'الربط: because / when / so', why:'I stayed home because it was cold'}
     ]
   }
 ,
