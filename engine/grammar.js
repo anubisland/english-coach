@@ -131,7 +131,7 @@ export const GR=[
 {re:/\b(did|didn't|did not)\s+((?:[a-z]+\s+)?)([a-z]+ed)\b/gi,f:(m,d,mid,v)=>d+' '+mid+baseOfEd(v),rid:'past-regular',ar:'بعد did يعود الفعل مجرّداً: الزمن في did لا في الفعل'},
 {re:/\b(did|didn't|did not)\s+((?:[a-z]+\s+)?)(went|saw|had|ate|took|came|made|gave|bought|got|said|did|wrote|drank|sat|ran|knew|thought|brought|found|left|met|paid|sent|sold|taught|told|wore|won|spoke|slept|stood|lost|felt|kept|built)\b/gi,f:(m,d,mid,v)=>d+' '+mid+(PAST2BASE[v.toLowerCase()]||v),rid:'past-irregular',ar:'بعد did يعود الفعل مجرّداً وإن كان شاذّاً'},
 {re:/\b(go|see|have|eat|take|come|make|give|buy|get|say|do|write|drink|sit|run|know|think|bring|find|leave|meet|pay|send|sell|teach|tell|wear|win|speak|sleep|stand|lose|feel|keep|build)ed\b/gi,f:(m,v)=>IRR[v.toLowerCase()]||m,rid:'past-irregular',ar:'فعل شاذّ لا يأخذ ed، بل تتغيّر صيغته حفظاً'},
-{re:/\b(see|flee|agree)d\b/gi,f:(m,v)=>IRR[v.toLowerCase()]||v+'d',rid:'past-irregular',ar:'see شاذّ: ماضيه saw لا seed'},
+{re:/\b(see|flee)d\b/gi,f:(m,v)=>IRR[v.toLowerCase()]||v+'d',rid:'past-irregular',ar:'see شاذّ: ماضيه saw لا seed، وflee ماضيه fled'},
 {re:/\b(stud|tr|carr|marr|worr|cr|dr|appl|repl|suppl|cop)yed\b/gi,f:(m,r)=>r+'ied',rid:'past-regular',ar:'الفعل المنتهي بـ y بعد ساكن يصير ied لا yed'},
 /* قواعد الوحدة السابعة: المستقبل — going to و will. */
 {re:/(?<!\b(?:am|is|are|was|were|m|s|re)\s)\bi\s+going\s+to\b/g,f:()=>'I am going to',rid:'future-going',ar:'قبل going to لا بدّ من فعل الكينونة: I am going to'},

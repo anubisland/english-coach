@@ -310,5 +310,45 @@ export const SCENES=[
 {t:'درس 14.2: مَن ومَا؟',cat:'درس',les:'14.2',turns:[
 {p:'Tell me about a person who helped you.',need:/\b(who|that)\b/i,model:'The teacher who taught me English helped me a lot.'},
 {p:'And what about a book which changed your mind?',need:/\b(which|that|book|read)\b/i,model:'The book which I read last year changed my mind.'},
-{p:'Where is the place where you feel happiest?',need:/\b(where|place|home|sea|city|village)\b/i,model:'The place where I feel happiest is my village.'}]}
+{p:'Where is the place where you feel happiest?',need:/\b(where|place|home|sea|city|village)\b/i,model:'The place where I feel happiest is my village.'}]},
+{t:'درس 15.1: ماذا كان قد حدث؟',cat:'درس',les:'15.1',turns:[
+{p:'You arrived late yesterday. What had happened before you came?',need:/\bhad\b/i,model:'The bus had left before I reached the stop.'},
+{p:'And what had the others done by then?',need:/\bhad\b|\b(already|finished|started|gone|left)\b/i,model:'They had already started the meeting.'},
+{p:'Was anything still waiting for you?',need:/\b(yes|no|had|nothing|still|waiting|work|nobody)\b/i,model:'Yes, nobody had opened my office.'}]},
+{t:'درس 15.2: منذ متى؟',cat:'درس',les:'15.2',turns:[
+{p:'How long have you been studying English?',need:/\b(have|has)\s+been\b|\b(for|since|years|months)\b/i,model:'I have been studying English for three years.'},
+{p:'And what have you been doing today?',need:/\b(have|has)\s+been\b|\b(working|reading|studying|resting|nothing)\b/i,model:'I have been working all morning.'},
+{p:'Have you been waiting long for me?',need:/\b(yes|no|have|been|waiting|minutes|hour|not long)\b/i,model:'I have been waiting for twenty minutes.'}]},
+{t:'درس 16.1: ماذا قال؟',cat:'درس',les:'16.1',turns:[
+{p:'What did your friend say about the plan?',need:/\b(said|told)\b/i,model:'He said that he liked the plan.'},
+{p:'And what did he tell you about the time?',need:/\b(told|said)\b/i,model:'He told me that the meeting would start at nine.'},
+{p:'Did he say anything about the cost?',need:/\b(said|told|nothing|yes|no|would|was)\b/i,model:'He said it would be expensive.'}]},
+{t:'درس 16.2: ماذا سألك؟',cat:'درس',les:'16.2',turns:[
+{p:'What did the interviewer ask you?',need:/\b(asked|where|what|why|how|if|whether)\b/i,model:'She asked where I had worked before.'},
+{p:'Did she ask about your plans?',need:/\b(asked|if|whether|yes|no|wanted|would)\b/i,model:'She asked if I wanted to travel for work.'},
+{p:'And what did she tell you to do next?',need:/\b(told|asked)\b.*\bto\b/i,model:'She told me to wait for her email.'}]},
+{t:'درس 17.1: لو كان غير ذلك',cat:'درس',les:'17.1',turns:[
+{p:'You missed the train yesterday. What went wrong?',need:/\b(if|had|would have|left|woke|missed)\b/i,model:'If I had left earlier, I would have caught it.'},
+{p:'Could anyone have helped you?',need:/\b(if|had|would have|nobody|someone|yes|no)\b/i,model:'If someone had called me, I would have known.'},
+{p:'What would you have done differently?',need:/\b(would have|had|if|taken|set|left|gone)\b/i,model:'I would have taken a taxi.'}]},
+{t:'درس 17.2: ليت',cat:'درس',les:'17.2',turns:[
+{p:'Is there anything you would change about today?',need:/\b(wish|if only)\b/i,model:'I wish I had more time today.'},
+{p:'And about something in the past?',need:/\b(wish|if only)\b.*\bhad\b/i,model:'I wish I had studied harder at school.'},
+{p:'Does anything annoy you about other people?',need:/\b(wish|would|if only)\b/i,model:'I wish people would listen more.'}]},
+{t:'درس 18.1: ماذا تستمتع به؟',cat:'درس',les:'18.1',turns:[
+{p:'What do you enjoy doing at the weekend?',need:/\b(enjoy|like|love)\b.*\w+ing\b|\w+ing\b/i,model:'I enjoy reading and cooking.'},
+{p:'And what do you want to do next year?',need:/\bto\s+\w+\b|\b(want|plan|hope)\b/i,model:'I want to learn another language.'},
+{p:'What are you good at?',need:/\b(at|good)\b.*\w+ing\b|\w+ing\b/i,model:'I am good at solving problems.'}]},
+{t:'درس 18.2: المعنى يتغيّر',cat:'درس',les:'18.2',turns:[
+{p:'Have you stopped doing anything this year?',need:/\bstopped\b|\w+ing\b|\b(no|nothing)\b/i,model:'I stopped drinking coffee at night.'},
+{p:'What must you remember to do before you leave home?',need:/\bremember\b.*\bto\b|\bto\s+\w+\b/i,model:'I must remember to lock the door.'},
+{p:'And what do you remember doing as a child?',need:/\bremember\b|\w+ing\b/i,model:'I remember playing in the street.'}]},
+{t:'درس 19.1: مع أنّ',cat:'درس',les:'19.1',turns:[
+{p:'Tell me about something you did in spite of a difficulty.',need:/\b(although|though|despite|in spite of|however|but)\b/i,model:'Although I was tired, I finished the work.'},
+{p:'Say the same thing using despite.',need:/\b(despite|in spite of)\b/i,model:'Despite being tired, I finished the work.'},
+{p:'Was the result good?',need:/\b(however|but|although|yes|no|good|bad)\b/i,model:'It was hard. However, the result was good.'}]},
+{t:'درس 19.2: صِف لي',cat:'درس',les:'19.2',turns:[
+{p:'Describe something in your room using two adjectives.',need:/\b(a|an|the)\s+\w+\s+\w+\b/i,model:'I have a small wooden desk.'},
+{p:'How well do you speak English?',need:/\b(well|badly|fluently|a little|not)\b/i,model:'I speak English quite well.'},
+{p:'How often do you practise it?',need:/\b(always|never|often|usually|sometimes|rarely|every)\b/i,model:'I always practise it in the evening.'}]}
 ];

@@ -112,5 +112,45 @@ export const CONVO=[
 {id:'c28',u:14,t:'مَن ذاك ومَا ذاك؟',turns:[
 {p:`Who was the man at the door?`,o:[`He is the man who called me yesterday.`,`He is the man which called me yesterday.`,`He is the man who he called me yesterday.`],a:0,tip:`للعاقل who، ولا يُعاد الضمير`},
 {p:`And what is that book on the table?`,o:[`It is the book which I read last week.`,`It is the book who I read last week.`,`It is the book which I read it last week.`],a:0,tip:`لغير العاقل which، ولا ضمير زائد`},
-{p:`Where do you work now?`,o:[`This is the shop where I work.`,`This is the shop which I work.`,`This is the shop who I work.`],a:0,tip:`المكان يأخذ where`}]}
+{p:`Where do you work now?`,o:[`This is the shop where I work.`,`This is the shop which I work.`,`This is the shop who I work.`],a:0,tip:`المكان يأخذ where`}]},
+{id:'c29',u:15,t:'ماذا كان قد حدث؟',turns:[
+{p:`Why were you so late to the meeting?`,o:[`When I arrived, it had already started.`,`When I arrived, it has already started.`,`When I arrived, it had already start.`],a:0,tip:`السابق من حدثين ماضيين يأخذ had + الثالث`},
+{p:`Did you miss much?`,o:[`They had finished the first part.`,`They have finished the first part.`,`They had finish the first part.`],a:0,tip:`الماضي التامّ: had + الثالث`},
+{p:`How long have you been working on this project?`,o:[`I have been working on it for three months.`,`I have working on it for three months.`,`I have been work on it for three months.`],a:0,tip:`التامّ المستمرّ ثلاث قطع: have been + ing`}]},
+{id:'c30',u:15,t:'منذ متى وأنت هنا؟',turns:[
+{p:`How long have you been waiting?`,o:[`I have been waiting since nine.`,`I have waiting since nine.`,`I have been waited since nine.`],a:0,tip:`have been + ing، والنقطة تأخذ since`},
+{p:`Had you been here before today?`,o:[`No, I had never been here before.`,`No, I have never been here before today.`,`No, I had never be here before.`],a:0,tip:`الماضي التامّ: had + been`},
+{p:`Do you know this city well?`,o:[`I have known it since I was a child.`,`I have been knowing it since I was a child.`,`I have know it since I was a child.`],a:0,tip:`فعل الحالة لا يأتي مستمرّاً`}]},
+{id:'c31',u:16,t:'ماذا قال لك؟',turns:[
+{p:`Did you speak to the manager?`,o:[`Yes, he told me that he was busy.`,`Yes, he said me that he was busy.`,`Yes, he told that he was busy.`],a:0,tip:`tell بمفعول، وsay بلا مفعول`},
+{p:`What else did he say?`,o:[`He said he would call me later.`,`He said he will call me later.`,`He told he would call me later.`],a:0,tip:`will تتراجع إلى would`},
+{p:`Did he ask you anything?`,o:[`He asked where I had put the file.`,`He asked where did I put the file.`,`He asked where I did put the file.`],a:0,tip:`السؤال المنقول جملةٌ خبرية بلا قلب`}]},
+{id:'c32',u:16,t:'نقل الأمر',turns:[
+{p:`What did the doctor tell you?`,o:[`She told me to rest for a week.`,`She told me rest for a week.`,`She said me to rest for a week.`],a:0,tip:`الأمر المنقول: told me to + الفعل`},
+{p:`Anything you should avoid?`,o:[`She told me not to drink coffee.`,`She told me don't drink coffee.`,`She told me to not drinking coffee.`],a:0,tip:`النهي المنقول: not to + الفعل`},
+{p:`Did she ask about your work?`,o:[`She asked if I worked at night.`,`She asked do I work at night.`,`She asked if did I work at night.`],a:0,tip:`سؤال نعم/لا المنقول يأخذ if`}]},
+{id:'c33',u:17,t:'لو كنتُ أعلم',turns:[
+{p:`I am sorry, I did not know about the meeting.`,o:[`If I had known, I would have come.`,`If I would have known, I would have come.`,`If I knew, I would have come.`],a:0,tip:`الشرط الثالث: if + had + الثالث`},
+{p:`It is all right. Nobody told you.`,o:[`If someone had told me, I would have been there.`,`If someone had told me, I would be there.`,`If someone told me, I would have been there.`],a:0,tip:`الجواب: would have + الثالث`},
+{p:`Do you regret anything about it?`,o:[`I wish I had checked my email.`,`I wish I have checked my email.`,`I wish I would check my email.`],a:0,tip:`التمنّي للماضي: ماضٍ تامّ`}]},
+{id:'c34',u:17,t:'ليت الأمر غير هذا',turns:[
+{p:`Are you happy with your new job?`,o:[`I wish I had more free time.`,`I wish I have more free time.`,`I wish I will have more free time.`],a:0,tip:`التمنّي للحاضر: ماضٍ بسيط`},
+{p:`What would make it better?`,o:[`I wish the office were nearer.`,`I wish the office is nearer.`,`I wish the office will be nearer.`],a:0,tip:`مع الكينونة في التمنّي نقول were`},
+{p:`Does your colleague help you?`,o:[`I wish he would answer his phone.`,`I wish he answers his phone.`,`I wish he will answer his phone.`],a:0,tip:`would للانزعاج من فعل غيرك`}]},
+{id:'c35',u:18,t:'ماذا تحبّ أن تفعل؟',turns:[
+{p:`What do you do in your free time?`,o:[`I enjoy reading and walking.`,`I enjoy to read and to walk.`,`I enjoy read and walk.`],a:0,tip:`بعد enjoy يأتي ing`},
+{p:`Are you planning anything this year?`,o:[`I plan to travel in the summer.`,`I plan travelling in the summer.`,`I plan travel in the summer.`],a:0,tip:`بعد plan يأتي to + الفعل`},
+{p:`Are you good at languages?`,o:[`I am quite good at learning them.`,`I am quite good at learn them.`,`I am quite good at to learn them.`],a:0,tip:`بعد حرف الجرّ يأتي ing`}]},
+{id:'c36',u:18,t:'المعنى يتغيّر',turns:[
+{p:`You look well. Did you change anything?`,o:[`Yes, I stopped smoking last year.`,`Yes, I stopped to smoke last year.`,`Yes, I stopped smoke last year.`],a:0,tip:`الإقلاع عن الفعل: stop + ing`},
+{p:`Good for you. Are you leaving now?`,o:[`Yes, but remember to lock the door.`,`Yes, but remember locking the door.`,`Yes, but remember lock the door.`],a:0,tip:`التذكير بما لم يقع: remember + to`},
+{p:`Did you lock it last night?`,o:[`Yes, I remember locking it.`,`Yes, I remember to lock it.`,`Yes, I remember lock it.`],a:0,tip:`ما وقع فعلاً: remember + ing`}]},
+{id:'c37',u:19,t:'مع أنّ وغير أنّ',turns:[
+{p:`Did you go out in that weather?`,o:[`Although it was cold, we went out.`,`Despite it was cold, we went out.`,`Although it was cold, but we went out.`],a:0,tip:`الجملة التامّة تأخذ although، ولا تُجمع مع but`},
+{p:`Was the match cancelled?`,o:[`Despite the rain, it continued.`,`Although the rain, it continued.`,`Despite it was raining, it continued.`],a:0,tip:`الاسم المجرّد يأخذ despite`},
+{p:`Were many people there?`,o:[`It was very cold. However, the ground was full.`,`However it was very cold, the ground was full.`,`It was very cold, however the ground was full.`],a:0,tip:`however بين جملتين مستقلّتين وبفاصلتين`}]},
+{id:'c38',u:19,t:'وصفٌ وترتيب',turns:[
+{p:`Tell me about the table you bought.`,o:[`It is a beautiful old wooden table.`,`It is a wooden old beautiful table.`,`It is an old beautiful wooden table.`],a:0,tip:`الترتيب: رأي ثم عمر ثم مادّة`},
+{p:`And does your brother speak English?`,o:[`He speaks English very well.`,`He speaks very well English.`,`He very well speaks English.`],a:0,tip:`لا يُفصَل الفعل عن مفعوله بظرف`},
+{p:`Is he usually on time?`,o:[`He always comes early.`,`He comes always early.`,`Always he comes early.`],a:0,tip:`ظرف التكرار قبل الفعل`}]}
 ];

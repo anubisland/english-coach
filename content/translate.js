@@ -151,4 +151,38 @@ export const TRANSLATE = [
   {ar:'الرجل الذي اتّصل صديقي.', u:14, skill:'relative', en:['The man who called is my friend.','The man that called is my friend.']},
   {ar:'الكتاب الذي قرأته كان جيّداً جداً.', u:14, skill:'relative', en:['The book which I read was very good.','The book that I read was very good.','The book I read was very good.']},
   {ar:'هذا المحلّ الذي أعمل فيه.', u:14, skill:'relative', en:['This is the shop where I work.']},
+/* ===== الوحدة 15 ===== */
+  {ar:'حين وصلتُ كان قد غادر.', u:15, skill:'past-perfect', en:['When I arrived, he had left.','When I arrived, he had already left.']},
+  {ar:'كانت قد أنهت عملها قبل الاجتماع.', u:15, skill:'past-perfect', en:['She had finished her work before the meeting.']},
+  {ar:'أنتظر منذ ساعة.', u:15, skill:'perfect-cont', en:['I have been waiting for an hour.',"I've been waiting for an hour."]},
+  {ar:'ما زالت تعمل في المشروع منذ الصباح.', u:15, skill:'perfect-cont', en:['She has been working on the project since the morning.']},
+  {ar:'منذ متى تدرس الإنجليزية؟', u:15, skill:'perfect-cont', en:['How long have you been studying English?']},
+  /* ===== الوحدة 16 ===== */
+  {ar:'قال إنه متعب.', u:16, skill:'reported', en:['He said that he was tired.','He said he was tired.']},
+  {ar:'قالت لي إنها ستأتي.', u:16, skill:'reported', en:['She told me that she would come.','She told me she would come.']},
+  {ar:'قالوا إنهم أنهوا العمل.', u:16, skill:'reported', en:['They said they had finished the work.']},
+  {ar:'سألت أين أسكن.', u:16, skill:'reported-q', en:['She asked where I lived.']},
+  {ar:'سأل إن كنتُ مستعدّاً.', u:16, skill:'reported-q', en:['He asked if I was ready.','He asked whether I was ready.']},
+  {ar:'قالت لي ألّا أتأخّر.', u:16, skill:'reported-q', en:['She told me not to be late.']},
+  /* ===== الوحدة 17 ===== */
+  {ar:'لو كنتُ أعلم لجئت.', u:17, skill:'cond3', en:['If I had known, I would have come.']},
+  {ar:'لو كانت درست لنجحت.', u:17, skill:'cond3', en:['If she had studied, she would have passed.']},
+  {ar:'لو أخبرتني لساعدتك.', u:17, skill:'cond3', en:['If you had told me, I would have helped you.','If you had told me, I would have helped.']},
+  {ar:'ليت عندي وقتاً أكثر.', u:17, skill:'wish', en:['I wish I had more time.']},
+  {ar:'ليتني ذهبتُ معك.', u:17, skill:'wish', en:['I wish I had gone with you.']},
+  {ar:'ليته يكفّ عن الكلام.', u:17, skill:'wish', en:['I wish he would stop talking.']},
+  /* ===== الوحدة 18 ===== */
+  {ar:'أستمتع بقراءة الكتب.', u:18, skill:'gerund', en:['I enjoy reading books.']},
+  {ar:'تريد أن تسافر العام القادم.', u:18, skill:'gerund', en:['She wants to travel next year.']},
+  {ar:'هو بارع في السباحة.', u:18, skill:'gerund', en:['He is good at swimming.']},
+  {ar:'أنهوا العمل في السادسة.', u:18, skill:'gerund', en:['They finished working at six.']},
+  {ar:'أقلعتُ عن التدخين العام الماضي.', u:18, skill:'gerund-change', en:['I stopped smoking last year.']},
+  {ar:'لا تنسَ أن تقفل الباب.', u:18, skill:'gerund-change', en:["Don't forget to lock the door.",'Do not forget to lock the door.','Remember to lock the door.']},
+  /* ===== الوحدة 19 ===== */
+  {ar:'مع أن الجوّ كان بارداً خرجنا.', u:19, skill:'contrast', en:['Although it was cold, we went out.','Though it was cold, we went out.']},
+  {ar:'رغم المطر استمرّت المباراة.', u:19, skill:'contrast', en:['Despite the rain, the match continued.','In spite of the rain, the match continued.']},
+  {ar:'كان الوقت متأخراً، غير أنه واصل العمل.', u:19, skill:'contrast', en:['It was late. However, he kept working.']},
+  {ar:'اشترت طاولةً خشبيةً قديمةً جميلة.', u:19, skill:'adj-order', en:['She bought a beautiful old wooden table.']},
+  {ar:'يتكلّم الإنجليزية جيّداً جداً.', u:19, skill:'adj-order', en:['He speaks English very well.']},
+  {ar:'تأتي مبكراً دائماً.', u:19, skill:'adj-order', en:['She always comes early.']},
 ];

@@ -374,7 +374,105 @@ The room where the oldest objects are kept is closed on Fridays.`,
   {k:'short', ar:'أيّ يوم تُغلق غرفة أقدم المعروضات؟ أجب بالإنجليزية.',
    ok:['friday','on friday','fridays','on fridays']},
   {k:'word', ar:'ما الكلمة في النص التي تعني «معروضات / أشياء»؟', ok:['objects']},
-  {k:'word', ar:'ما الكلمة في النص التي تعني «تُباع»؟', ok:['sold']}]}
+  {k:'word', ar:'ما الكلمة في النص التي تعني «تُباع»؟', ok:['sold']}]},
+{id:'r-report', u:16, t:'تقرير اجتماع', cat:'تقرير',
+ text:`NOTES FROM THE TEAM MEETING
+
+The manager said that the new system would start in March.
+
+He told us that the old one had worked well for ten years, but it had become slow.
+
+Sara asked when the training would begin. The manager answered that it would start in February.
+
+Omar asked if the staff had to come at the weekend. The manager said they did not have to, although some of them might want to.
+
+He told everybody to read the new guide before the training.`,
+ qs:[
+  {k:'tf', q:'The new system will start in March.', a:true, why:'the new system would start in March'},
+  {k:'tf', q:'The staff have to come at the weekend.', a:false, why:'they did not have to — فهو إعفاء لا إلزام.'},
+  {k:'tf', q:'The training begins in February.', a:true, why:'it would start in February'},
+  {k:'short', ar:'كم سنةً عمل النظام القديم؟ أجب بالإنجليزية.',
+   ok:['ten years','ten','for ten years','10 years']},
+  {k:'short', ar:'ماذا طلب المدير من الجميع؟ أجب بالإنجليزية.',
+   ok:['to read the new guide','read the new guide','read the guide']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «تدريب»؟', ok:['training']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «بطيء»؟', ok:['slow']}]},
+
+{id:'r-letter', u:17, t:'رسالة أسف', cat:'رسالة',
+ text:`Dear Layla,
+
+I am sorry about last Friday.
+
+If I had known about the party, I would have come. Nobody told me, and I had already promised to help my brother.
+
+I wish I had checked my messages that morning. If only I had seen yours!
+
+If you had called me, I would have changed my plans at once.
+
+I hope we can meet soon. If you are free next week, I will cook for you.
+
+Sorry again,
+Mona`,
+ qs:[
+  {k:'tf', q:'Mona came to the party.', a:false, why:'If I had known about the party, I would have come — فهي لم تعلم ولم تأتِ.'},
+  {k:'tf', q:'Mona had promised to help her brother.', a:true, why:'I had already promised to help my brother'},
+  {k:'tf', q:'Mona read her messages that morning.', a:false, why:'I wish I had checked my messages that morning'},
+  {k:'short', ar:'ماذا ستفعل لليلى إن كانت متفرّغة؟ أجب بالإنجليزية.',
+   ok:['cook for her','cook','she will cook for her','cook for you']},
+  {k:'short', ar:'لماذا لم تأتِ مونا؟ أجب بالإنجليزية.',
+   ok:['she did not know','nobody told her','she had promised to help her brother','she didnt know']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «وعدتُ»؟', ok:['promised']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «خطط»؟', ok:['plans']}]},
+
+{id:'r-hobby', u:18, t:'مقال قصير: عادةٌ جديدة', cat:'مقال',
+ text:`WHY I STARTED RUNNING
+
+Two years ago I decided to change something in my life.
+
+I had always enjoyed walking, but I avoided running because I thought it was too hard.
+
+Then a friend suggested going with her in the morning. I agreed to try it once.
+
+I will never forget feeling so tired after ten minutes. But I kept going, and after a month I stopped feeling tired so quickly.
+
+Now I look forward to running every morning. I have learned that starting is the hardest part.
+
+If you are thinking about it, try running for five minutes only. Remember to begin slowly.`,
+ qs:[
+  {k:'tf', q:'The writer used to avoid running.', a:true, why:'I avoided running because I thought it was too hard'},
+  {k:'tf', q:'A friend suggested going with her.', a:true, why:'a friend suggested going with her in the morning'},
+  {k:'tf', q:'The writer still feels tired after ten minutes.', a:false, why:'after a month I stopped feeling tired so quickly'},
+  {k:'short', ar:'ماذا كان الكاتب يستمتع به دائماً؟ أجب بالإنجليزية.',
+   ok:['walking','he enjoyed walking','she enjoyed walking']},
+  {k:'short', ar:'ما أصعب جزءٍ في رأي الكاتب؟ أجب بالإنجليزية.',
+   ok:['starting','the start','beginning','starting is the hardest part']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «اقترحت»؟', ok:['suggested']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «تجنّبتُ»؟', ok:['avoided']}]},
+
+{id:'r-review', u:19, t:'رأيٌ في مطعم', cat:'رأي',
+ text:`A REVIEW: THE OLD GARDEN
+
+We went to this small new restaurant on Saturday evening.
+
+Although the street is noisy, the garden at the back is very quiet.
+
+The waiter brought the menu quickly and explained everything well.
+
+Despite the low prices, the food was excellent. I had a large bowl of hot vegetable soup and a plate of fresh white fish.
+
+The place was full. However, we did not wait long for our table.
+
+Even though the evening was cold, we sat outside under the lights. We will certainly go again.`,
+ qs:[
+  {k:'tf', q:'The street is quiet.', a:false, why:'Although the street is noisy — الشارع صاخب، والحديقة هي الهادئة.'},
+  {k:'tf', q:'The prices were low.', a:true, why:'Despite the low prices'},
+  {k:'tf', q:'They waited a long time for a table.', a:false, why:'we did not wait long for our table'},
+  {k:'short', ar:'أين جلسوا في المساء؟ أجب بالإنجليزية.',
+   ok:['outside','outside under the lights','in the garden','under the lights']},
+  {k:'short', ar:'ماذا أكل الكاتب؟ أجب بالإنجليزية.',
+   ok:['soup and fish','vegetable soup and fish','soup and white fish','soup, fish']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «صاخب»؟', ok:['noisy']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «ممتاز»؟', ok:['excellent']}]}
 ];
 
 export const READ = Object.fromEntries(READS.map(r => [r.id, r]));
