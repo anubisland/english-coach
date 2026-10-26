@@ -2676,6 +2676,24 @@ const { run, report } = require('./harness.js');
     });
   });
 
+  /* حالةُ المستوى تُشتقّ من دروسه ولا تُكتب بيد. كانت مكتوبةً في
+     LEVELS وفي STAGES معاً فافترقا: تمّ A2 وبقي «doing»، وبُنيت
+     دروس B1 وبقي «todo». */
+  await run('حالة كل مستوى ومرحلة مطابقةٌ لدروسها', {}, (ctx, ev) => {
+    const want = ls => !ls.length ? 'todo'
+      : ls.every(l => l.state === 'done') ? 'done'
+      : ls.some(l => l.state === 'done') ? 'doing' : 'todo';
+    ev('STAGES').forEach(st => {
+      const w = want(st.units.flatMap(u => u.lessons));
+      if (st.state !== w) throw new Error('المرحلة ' + st.id + ': ' + st.state + ' والواقع ' + w);
+    });
+    ev('LEVELS').forEach(lv => {
+      const w = want(ev('STAGES').filter(st => st.level === lv.id)
+        .flatMap(st => st.units).flatMap(u => u.lessons));
+      if (lv.state !== w) throw new Error('المستوى ' + lv.id + ': ' + lv.state + ' والواقع ' + w);
+    });
+  });
+
   await report();
 
 

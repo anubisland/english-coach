@@ -6,16 +6,16 @@
    تُعرض الآن، ويرى المتعلّم موقعه من السلّم كلّه لا من درسه وحده. */
 
 export const LEVELS = [
-  {id:'A1', t:'مبتدئ', state:'done',
+  {id:'A1', t:'مبتدئ',
    d:'يعرّف بنفسه، ويسأل أسئلة بسيطة، ويتكلّم عن يومه، ويطلب في مطعم.'},
-  {id:'A2', t:'مبتدئ متقدّم', state:'doing',
+  {id:'A2', t:'مبتدئ متقدّم',
    d:'يتكلّم عن الماضي والمستقبل، ويقارن، ويصل الجمل بـ because و when.'},
-  {id:'B1', t:'متوسّط', state:'todo',
+  {id:'B1', t:'متوسّط',
    d:'يتابع حديثاً عادياً، ويشرح رأيه، ويكتب رسالة مترابطة.'},
-  {id:'B2', t:'متوسّط متقدّم', state:'todo',
+  {id:'B2', t:'متوسّط متقدّم',
    d:'يناقش ويجادل، ويفهم نصّاً طويلاً في تخصّصه.'},
-  {id:'C1', t:'متقدّم', state:'todo', d:'يتكلّم بطلاقة في العمل والدراسة.'},
-  {id:'C2', t:'إتقان', state:'todo', d:'قريب من المتحدّث الأصلي.'}
+  {id:'C1', t:'متقدّم', d:'يتكلّم بطلاقة في العمل والدراسة.'},
+  {id:'C2', t:'إتقان', d:'قريب من المتحدّث الأصلي.'}
 ];
 
 /* مراحل البناء، بحالة كل درس. «done» يعني موجوداً في البرنامج الآن. */
@@ -48,7 +48,7 @@ export const STAGES = [
       {id:'5.4', t:'الأرقام والوقت والتواريخ', state:'done'}]}
   ]},
 
-  {id:'a2', t:'المستوى A2', level:'A2', state:'done', units:[
+  {id:'a2', t:'المستوى A2', level:'A2', units:[
     {n:6, t:'الماضي', lessons:[
       {id:'6.1', t:'was / were', state:'done'},
       {id:'6.2', t:'الأفعال المنتظمة في الماضي', state:'done'},
@@ -64,11 +64,11 @@ export const STAGES = [
       {id:'9.2', t:'because / when / so', state:'done'}]}
   ]},
 
-  {id:'b1', t:'المستوى B1', level:'B1', state:'todo', units:[
+  {id:'b1', t:'المستوى B1', level:'B1', units:[
     {n:10, t:'الحاضر التامّ', lessons:[
-      {id:'10.1', t:'have / has + التصريف الثالث', state:'todo'},
-      {id:'10.2', t:'ever وnever وjust وyet', state:'todo'},
-      {id:'10.3', t:'since وfor', state:'todo'}]},
+      {id:'10.1', t:'have / has + التصريف الثالث', state:'done'},
+      {id:'10.2', t:'ever وnever وjust وyet', state:'done'},
+      {id:'10.3', t:'since وfor', state:'done'}]},
     {n:11, t:'الماضي المستمرّ والسرد', lessons:[
       {id:'11.1', t:'was / were + ing', state:'todo'},
       {id:'11.2', t:'while وwhen في السرد', state:'todo'}]},
@@ -83,8 +83,27 @@ export const STAGES = [
       {id:'14.2', t:'who وwhich وthat', state:'todo'}]}
   ]},
 
-  {id:'b2', t:'المستوى B2 فما فوق', level:'B2', state:'todo', units:[]}
+  {id:'b2', t:'المستوى B2 فما فوق', level:'B2', units:[]}
 ];
+
+/* حالةُ المستوى والمرحلة تُشتقّ من الدروس، ولا تُكتب بيد.
+
+   كانت مكتوبةً في موضعين — LEVELS وSTAGES — فافترقا: تمّ A2 وبقي
+   «doing»، وبُنيت دروس B1 وبقي «todo». والحقيقة الواحدة تُكتب مرّة،
+   وإلا تخلّف أحد الموضعين وأخبر المتعلّم بغير الواقع. */
+function stateOf(lessons) {
+  if (!lessons.length) return 'todo';
+  const done = lessons.filter(l => l.state === 'done').length;
+  return done === lessons.length ? 'done' : done ? 'doing' : 'todo';
+}
+
+STAGES.forEach(st => {
+  st.state = stateOf(st.units.flatMap(u => u.lessons));
+});
+LEVELS.forEach(lv => {
+  lv.state = stateOf(STAGES.filter(st => st.level === lv.id)
+    .flatMap(st => st.units).flatMap(u => u.lessons));
+});
 
 export function roadmapCounts() {
   let done = 0, total = 0;

@@ -77,7 +77,23 @@ export const CEFR = {
 
   /* بقيّة السلّم: مذكورة وإن لم يُبنَ منها شيء. وذكرُها هو المقصود —
      لو حُذفت لظنّ المتعلّم أنّ السلّم ينتهي عند آخر ما بنيناه. */
-  B1: {t:'متوسّط', caps: [], gaps: []},
+  /* B1 مُعلَنُ النواقص قبل أن يُبنَ: تُنقل الواحدة إلى caps حين يُبنى
+     درسُها، فيقرأ المتعلّم على الشاشة ما بقي لا ما تمّ وحده. */
+  B1: {t:'متوسّط', caps: [
+      {id:'perfect-tell', t:'يربط ما مضى بحاضره: ما أنجزه وما لم ينجزه بعد',
+       skill:'المحادثة', lessons:['10.1','10.2'], exam:'conv', scene:'x-school'},
+      {id:'perfect-write', t:'يكتب عن تجربته ومدّتها بالصيغة الصحيحة',
+       skill:'الكتابة', lessons:['10.1','10.3'], exam:'write'}
+    ], gaps: [
+    {t:'الماضي المستمرّ', why:'I was working when he called'},
+    {t:'while و when في السرد', why:'While I was reading, the phone rang'},
+    {t:'الشرط الأوّل', why:'If it rains, I will stay home'},
+    {t:'الشرط الثاني', why:'If I had money, I would travel'},
+    {t:'should و must و have to', why:'You should see a doctor'},
+    {t:'may و might و could للاحتمال', why:'It might rain tonight'},
+    {t:'المبنيّ للمجهول', why:'The letter was written yesterday'},
+    {t:'جملة الوصل: who و which و that', why:'The man who called is my friend'}
+  ]},
   B2: {t:'متوسّط متقدّم', caps: [], gaps: []},
   C1: {t:'متقدّم', caps: [], gaps: []},
   C2: {t:'إتقان', caps: [], gaps: []}
