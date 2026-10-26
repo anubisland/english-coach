@@ -87,12 +87,14 @@ export const CEFR = {
       {id:'narrate-tell', t:'يحكي ما جرى: خلفيةٌ طويلة يقطعها حدث',
        skill:'المحادثة', lessons:['11.1','11.2'], exam:'conv', scene:'x-clinic'},
       {id:'cond-write', t:'يشترط ويَعِد ويفترض ما ليس بواقع',
-       skill:'الكتابة', lessons:['12.1','12.2'], exam:'write'}
+       skill:'الكتابة', lessons:['12.1','12.2'], exam:'write'},
+      {id:'advise-tell', t:'ينصح ويُلزم ويتكلّم عن المحتمل بحذر',
+       skill:'المحادثة', lessons:['13.1','13.2'], exam:'conv', scene:'x-clinic'},
+      {id:'passive-read', t:'يفهم الخبر والإعلان حين يُبنى الفعل لمجهول',
+       skill:'القراءة', lessons:['14.1'], exam:'read'},
+      {id:'relative-write', t:'يصل جملتيه في واحدة موصولة بـ who و which',
+       skill:'الكتابة', lessons:['14.2'], exam:'write'}
     ], gaps: [
-    {t:'should و must و have to', why:'You should see a doctor'},
-    {t:'may و might و could للاحتمال', why:'It might rain tonight'},
-    {t:'المبنيّ للمجهول', why:'The letter was written yesterday'},
-    {t:'جملة الوصل: who و which و that', why:'The man who called is my friend'}
   ]},
   B2: {t:'متوسّط متقدّم', caps: [], gaps: []},
   C1: {t:'متقدّم', caps: [], gaps: []},

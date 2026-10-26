@@ -76,14 +76,32 @@ export const STAGES = [
       {id:'12.1', t:'الشرط الأوّل: if + مضارع → will', state:'done'},
       {id:'12.2', t:'الشرط الثاني: if + ماضٍ → would', state:'done'}]},
     {n:13, t:'الأفعال الناقصة الموسّعة', lessons:[
-      {id:'13.1', t:'should وmust وhave to', state:'todo'},
-      {id:'13.2', t:'may وmight وcould للاحتمال', state:'todo'}]},
+      {id:'13.1', t:'should وmust وhave to', state:'done'},
+      {id:'13.2', t:'may وmight وcould للاحتمال', state:'done'}]},
     {n:14, t:'المبنيّ للمجهول وجملة الوصل', lessons:[
-      {id:'14.1', t:'is / was + التصريف الثالث', state:'todo'},
-      {id:'14.2', t:'who وwhich وthat', state:'todo'}]}
+      {id:'14.1', t:'is / was + التصريف الثالث', state:'done'},
+      {id:'14.2', t:'who وwhich وthat', state:'done'}]}
   ]},
 
-  {id:'b2', t:'المستوى B2 فما فوق', level:'B2', units:[]}
+  {id:'b2', t:'المستوى B2', level:'B2', units:[
+    {n:15, t:'الأزمنة التامّة الموسّعة', lessons:[
+      {id:'15.1', t:'الماضي التامّ: had + التصريف الثالث', state:'todo'},
+      {id:'15.2', t:'الحاضر التامّ المستمرّ', state:'todo'}]},
+    {n:16, t:'الكلام المنقول', lessons:[
+      {id:'16.1', t:'said و told وتغيّر الزمن', state:'todo'},
+      {id:'16.2', t:'نقل السؤال والأمر', state:'todo'}]},
+    {n:17, t:'الشرط الثالث والتمنّي', lessons:[
+      {id:'17.1', t:'الشرط الثالث: لو كان قد…', state:'todo'},
+      {id:'17.2', t:'wish و if only', state:'todo'}]},
+    {n:18, t:'المصدر والـ ing', lessons:[
+      {id:'18.1', t:'متى to + الفعل ومتى الـ ing', state:'todo'},
+      {id:'18.2', t:'أفعالٌ يتغيّر معناها بينهما', state:'todo'}]},
+    {n:19, t:'الربط المتقدّم والأسلوب', lessons:[
+      {id:'19.1', t:'although و however و despite', state:'todo'},
+      {id:'19.2', t:'ترتيب الصفات والظروف', state:'todo'}]}
+  ]},
+
+  {id:'c1', t:'المستوى C1 فما فوق', level:'C1', units:[]}
 ];
 
 /* حالةُ المستوى والمرحلة تُشتقّ من الدروس، ولا تُكتب بيد.
