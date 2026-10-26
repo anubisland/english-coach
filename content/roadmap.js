@@ -70,11 +70,11 @@ export const STAGES = [
       {id:'10.2', t:'ever وnever وjust وyet', state:'done'},
       {id:'10.3', t:'since وfor', state:'done'}]},
     {n:11, t:'الماضي المستمرّ والسرد', lessons:[
-      {id:'11.1', t:'was / were + ing', state:'todo'},
-      {id:'11.2', t:'while وwhen في السرد', state:'todo'}]},
+      {id:'11.1', t:'was / were + ing', state:'done'},
+      {id:'11.2', t:'while وwhen في السرد', state:'done'}]},
     {n:12, t:'الشرط', lessons:[
-      {id:'12.1', t:'الشرط الأوّل: if + مضارع → will', state:'todo'},
-      {id:'12.2', t:'الشرط الثاني: if + ماضٍ → would', state:'todo'}]},
+      {id:'12.1', t:'الشرط الأوّل: if + مضارع → will', state:'done'},
+      {id:'12.2', t:'الشرط الثاني: if + ماضٍ → would', state:'done'}]},
     {n:13, t:'الأفعال الناقصة الموسّعة', lessons:[
       {id:'13.1', t:'should وmust وhave to', state:'todo'},
       {id:'13.2', t:'may وmight وcould للاحتمال', state:'todo'}]},

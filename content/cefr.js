@@ -83,12 +83,12 @@ export const CEFR = {
       {id:'perfect-tell', t:'يربط ما مضى بحاضره: ما أنجزه وما لم ينجزه بعد',
        skill:'المحادثة', lessons:['10.1','10.2'], exam:'conv', scene:'x-school'},
       {id:'perfect-write', t:'يكتب عن تجربته ومدّتها بالصيغة الصحيحة',
-       skill:'الكتابة', lessons:['10.1','10.3'], exam:'write'}
+       skill:'الكتابة', lessons:['10.1','10.3'], exam:'write'},
+      {id:'narrate-tell', t:'يحكي ما جرى: خلفيةٌ طويلة يقطعها حدث',
+       skill:'المحادثة', lessons:['11.1','11.2'], exam:'conv', scene:'x-clinic'},
+      {id:'cond-write', t:'يشترط ويَعِد ويفترض ما ليس بواقع',
+       skill:'الكتابة', lessons:['12.1','12.2'], exam:'write'}
     ], gaps: [
-    {t:'الماضي المستمرّ', why:'I was working when he called'},
-    {t:'while و when في السرد', why:'While I was reading, the phone rang'},
-    {t:'الشرط الأوّل', why:'If it rains, I will stay home'},
-    {t:'الشرط الثاني', why:'If I had money, I would travel'},
     {t:'should و must و have to', why:'You should see a doctor'},
     {t:'may و might و could للاحتمال', why:'It might rain tonight'},
     {t:'المبنيّ للمجهول', why:'The letter was written yesterday'},

@@ -25,6 +25,14 @@ function ppOf(v){const x=v.toLowerCase();
   return null}
 /* الماضي ← ثالثه، حيث يفترقان وحده. */
 const SPLT={"was":"been","were":"been","went":"gone","saw":"seen","ate":"eaten","took":"taken","gave":"given","did":"done","wrote":"written","drank":"drunk","knew":"known","spoke":"spoken","wore":"worn","ran":"run","came":"come","broke":"broken","chose":"chosen","drove":"driven","fell":"fallen","forgot":"forgotten","grew":"grown","rode":"ridden","sang":"sung","swam":"swum","woke":"woken","began":"begun","hid":"hidden","threw":"thrown","flew":"flown","blew":"blown"};
+/* المجرّد ← صيغة ing، وأفعال الحالة ← ماضيها البسيط. */
+const ING={"work":"working","write":"writing","eat":"eating","sleep":"sleeping","run":"running","walk":"walking","drive":"driving","watch":"watching","listen":"listening","study":"studying","wait":"waiting","talk":"talking","sit":"sitting","stand":"standing","sing":"singing","travel":"traveling","call":"calling","move":"moving","carry":"carrying","swim":"swimming","cook":"cooking","clean":"cleaning","wash":"washing","knock":"knocking","laugh":"laughing","cry":"crying","shout":"shouting","climb":"climbing","jump":"jumping","arrive":"arriving"};
+const STATEV={"knowing":"knew","liking":"liked","wanting":"wanted","needing":"needed","believing":"believed","understanding":"understood","owning":"owned","seeming":"seemed"};
+const BE={"i":"was","he":"was","she":"was","it":"was","you":"were","we":"were","they":"were"};
+/* الشرط: صيغة المضارع، وماضي الشائع، والمتصرّف بعد would. */
+const S3={"rain":"rains","come":"comes","go":"goes","arrive":"arrives","finish":"finishes","leave":"leaves","start":"starts","call":"calls","see":"sees","work":"works","study":"studies","win":"wins","lose":"loses","miss":"misses","pass":"passes","fail":"fails","stay":"stays","move":"moves","travel":"travels","snow":"snows","happen":"happens","break":"breaks","stop":"stops","open":"opens","close":"closes"};
+const PAST={"have":"had","be":"were","go":"went","see":"saw","get":"got","know":"knew","find":"found","lose":"lost","win":"won","come":"came","take":"took","make":"made","live":"lived","work":"worked","study":"studied","travel":"travelled","call":"called","need":"needed","want":"wanted","speak":"spoke","buy":"bought","meet":"met"};
+const WBASE={"travelled":"travel","traveled":"travel","travels":"travel","worked":"work","works":"work","studied":"study","studyed":"study","studies":"study","called":"call","calls":"call","comed":"come","comeed":"come","comes":"come","goed":"go","goes":"go","stayed":"stay","stays":"stay","lived":"live","liveed":"live","lives":"live","moved":"move","moveed":"move","moves":"move","started":"start","starts":"start","finished":"finish","finishes":"finish","waited":"wait","waits":"wait","asked":"ask","asks":"ask","answered":"answer","answers":"answer","visited":"visit","visits":"visit","walked":"walk","walks":"walk","played":"play","plays":"play","watched":"watch","watches":"watch","listened":"listen","listens":"listen","opened":"open","opens":"open","closed":"close","closeed":"close","closes":"close","cleaned":"clean","cleans":"clean","cooked":"cook","cooks":"cook","needed":"need","needs":"need","wanted":"want","wants":"want","tried":"try","tryed":"try","tries":"try","learned":"learn","learns":"learn","went":"go","came":"come","bought":"buy","drove":"drive","taught":"teach","knew":"know","saw":"see","took":"take","made":"make"};
 const PAST2BASE=Object.fromEntries(Object.entries(IRR).map(([k,v])=>[v,k]));
 /* يردّ الفعل المنتهي بـ ed إلى صيغته المجرّدة تقريباً. */
 /* يردّ الفعل المنتهي بـ ed إلى صيغته المجرّدة.
@@ -105,7 +113,7 @@ export const GR=[
 {re:/\b(in|on)\s+night\b/gi,f:()=>'at night',rid:'numbers-time',ar:'نقول at night لا in night'},
 {re:/\bat\s+the\s+(morning|afternoon|evening)\b/gi,f:(m,x)=>'in the '+x,rid:'numbers-time',ar:'أجزاء اليوم تأخذ in: in the morning'},
 /* قواعد الوحدة السادسة: الماضي — was/were، وed، والأفعال الشاذّة. */
-{re:/\b(i|he|she|it)\s+were\b/gi,f:(m,p)=>p+' was',rid:'past-be',ar:'مع I و he و she و it نستخدم was لا were'},
+{re:/(?<!\bif\s)\b(i|he|she|it)\s+were\b/gi,f:(m,p)=>p+' was',rid:'past-be',ar:'مع I و he و she و it نستخدم was لا were'},
 {re:/\b(you|we|they)\s+was\b/gi,f:(m,p)=>p+' were',rid:'past-be',ar:'مع you و we و they نستخدم were لا was'},
 {re:/\bdid\s+(i|you|we|they|he|she|it)\s+(was|were)\b/gi,f:(m,p)=>(/^(i|he|she|it)$/i.test(p)?'Was ':'Were ')+p,rid:'past-be',ar:'السؤال بـ was / were يُقلب بلا did'},
 {re:/\b(did|didn't|did not)\s+((?:[a-z]+\s+)?)([a-z]+ed)\b/gi,f:(m,d,mid,v)=>d+' '+mid+baseOfEd(v),rid:'past-regular',ar:'بعد did يعود الفعل مجرّداً: الزمن في did لا في الفعل'},
@@ -151,6 +159,19 @@ export const GR=[
 {re:/\b(been|gone|seen|done|visited|tried|eaten|heard)\s+ever\b/gi,f:(m,v)=>'ever '+v,rid:'perfect-adv',ar:'ever تأتي قبل الفعل لا بعده: Have you ever been…'},
 {re:/\bsince\s+(a|an|one|two|three|four|five|six|seven|eight|nine|ten|\d+)\s+(year|years|month|months|week|weeks|day|days|hour|hours|minute|minutes)\b/gi,f:(m,n,u)=>'for '+n+' '+u,rid:'perfect-since',ar:'المدّة تأخذ for لا since: for two years'},
 {re:/\bfor\s+((?:19|20)\d\d)\b(?!\s*(pound|dollar|euro|riyal|item|page|word|km|mile|metre|meter))/gi,ar:'السنة نقطةُ بداية فتأخذ since: since 2020'},
+/* قواعد الوحدة الحادية عشرة: الماضي المستمرّ والسرد. */
+{re:/\b(i|you|he|she|it|we|they)\s+(was|were|wasn't|weren't)\s+(work|write|eat|sleep|run|walk|drive|watch|listen|study|wait|talk|sit|stand|sing|travel|call|move|carry|swim|cook|clean|wash|knock|laugh|cry|shout|climb|jump|arrive)\b(?!\s*(a|an|the|to|in|on|at|for|with|and|or|but))/gi,f:(m,p,h,v)=>p+' '+h+' '+ING[v.toLowerCase()],rid:'past-cont',ar:'بعد was و were يأتي الفعل بـ ing: was working'},
+{re:/\b(i|he|she|it)\s+were\s+(\w+ing)\b/gi,f:(m,p,v)=>p+' was '+v,rid:'past-cont',ar:'مع I و he و she و it نقول was'},
+{re:/\b(you|we|they)\s+was\s+(\w+ing)\b/gi,f:(m,p,v)=>p+' were '+v,rid:'past-cont',ar:'مع you و we و they نقول were'},
+{re:/\b(was|were)\s+(knowing|liking|wanting|needing|believing|understanding|owning|seeming)\b/gi,f:(m,h,v)=>STATEV[v.toLowerCase()],rid:'past-cont',ar:'فعل الحالة لا يأتي مستمرّاً: I knew him لا I was knowing him'},
+{re:/\bwhile\s+(i|you|he|she|it|we|they)\s+(work|write|eat|sleep|run|walk|drive|watch|listen|study|wait|talk|sit|stand|sing|travel|call|move|carry|swim|cook|clean|wash|knock|laugh|cry|shout|climb|jump|arrive)ed\b/gi,f:(m,p,v)=>'while '+p+' '+BE[p.toLowerCase()]+' '+ING[v.toLowerCase()],rid:'narrate',ar:'بعد while يأتي المستمرّ: while I was reading'},
+/* قواعد الوحدة الثانية عشرة: الشرط. */
+{re:/\bif\s+(i|you|we|they)\s+will\s+(rain|come|go|arrive|finish|leave|start|call|see|work|study|win|lose|miss|pass|fail|stay|move|travel|snow|happen|break|stop|open|close)\b/gi,f:(m,p,v)=>'if '+p+' '+v,rid:'cond1',ar:'لا توضع will بعد if: if it rains لا if it will rain'},
+{re:/\bif\s+(he|she|it)\s+will\s+(rain|come|go|arrive|finish|leave|start|call|see|work|study|win|lose|miss|pass|fail|stay|move|travel|snow|happen|break|stop|open|close)\b/gi,f:(m,p,v)=>'if '+p+' '+S3[v.toLowerCase()],rid:'cond1',ar:'لا توضع will بعد if: if it rains لا if it will rain'},
+{re:/\bif\s+(the\s+\w+)\s+will\s+(rain|come|go|arrive|finish|leave|start|call|see|work|study|win|lose|miss|pass|fail|stay|move|travel|snow|happen|break|stop|open|close)\b/gi,f:(m,p,v)=>'if '+p+' '+S3[v.toLowerCase()],rid:'cond1',ar:'لا توضع will بعد if'},
+{re:/\bif\s+(i|you|he|she|it|we|they)\s+would\s+(?!help|like|mind|care|prefer|be\b)(\w+)\b/gi,f:(m,p,v)=>'if '+p+' '+(PAST[v.toLowerCase()]||v.toLowerCase()+'ed'),rid:'cond2',ar:'لا توضع would بعد if: if I had money لا if I would have money'},
+{re:/\bif\s+(i|he|she|it)\s+was\s+(you|him|her|me|them|us|in\s+your\s+place)\b/gi,f:(m,p,x)=>'if '+p+' were '+x,rid:'cond2',ar:'في الشرط المتخيَّل نقول were لكلّ الفواعل: if I were you'},
+{re:/\bwould\s+(travelled|traveled|finished|finishes|answered|listened|travels|studied|studyed|studies|started|answers|visited|watched|watches|listens|closeed|cleaned|learned|worked|called|comeed|stayed|liveed|moveed|starts|waited|visits|walked|played|opened|closed|closes|cleans|cooked|needed|wanted|learns|bought|taught|works|calls|comed|comes|stays|lived|lives|moved|moves|waits|asked|walks|plays|opens|cooks|needs|wants|tried|tryed|tries|drove|goed|goes|asks|went|came|knew|took|made|saw)\b/gi,f:(m,v)=>'would '+WBASE[v.toLowerCase()],rid:'cond2',ar:'بعد would يأتي الفعل مجرّداً: would travel'},
 {re:/\bthe most (\w+est)\b/gi,f:(m,w)=>'the '+w,rid:'compare-er',ar:'لا نجمع most مع est: the biggest لا the most biggest'}
 ];
 export function fixText(t){let o=t;GR.forEach(r=>{o=o.replace(r.re,r.f)});return o.charAt(0).toUpperCase()+o.slice(1)}
