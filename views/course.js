@@ -2,7 +2,7 @@
 import {UNITS,LESSONS} from '../content/lessons.js';
 import {S,save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
-import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen,unitDone,LAST_UNIT} from '../engine/progress.js';
+import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen,unitDone,LAST_UNIT,LEVELS_BUILT,levelExamOpen} from '../engine/progress.js';
 import {RULE} from '../content/rules.js';
 import {card,svg,ar,ruleCard,esc,count,resultLine} from './ui.js';
 import {nextStep} from './home.js';
@@ -100,7 +100,15 @@ export function courseView(){
   h+=card('اختبار الترجمة',
     '<p class="muted">ست جمل عربية تكتب ترجمتها بنفسك — بلا خيارات ولا جملة أمامك تقلّدها. وهو أصدق مقياس لما تستطيع إنتاجه فعلاً.</p>'
     +'<div class="row" style="justify-content:flex-start"><button class="btn" onclick="startTranslation(3)">ابدأ اختبار الترجمة</button></div>');
-  h+=card('الامتحان النهائي لـ A1', examOpen()&&!S.exam?'<div class="row"><button class="btn" onclick="launch(\'exam\')">ابدأ الامتحان النهائي</button></div>':(S.exam?'<p>🎉 أتممت A1</p>':'<p class="muted">🔒 يُفتح بعد اجتياز الوحدات الثلاث</p>'));
+  /* امتحانٌ لكل مستوى بُني، لا امتحان واحد: ولولا ذلك لسأل امتحانُ A1
+     عن الماضي والمستقبل بمجرّد إضافة وحدات A2. */
+  LEVELS_BUILT.forEach(lv=>{
+    const open=levelExamOpen(lv), done=!!S.levelDone[lv];
+    const body=done?`<p>🎉 أتممت ${lv}</p>`
+      :open?`<div class="row"><button class="btn" onclick="launch('exam','${lv}')">ابدأ الامتحان النهائي</button></div>`
+      :`<p class="muted">🔒 يُفتح بعد اجتياز وحدات ${lv}</p>`;
+    h+=card(`الامتحان النهائي لـ ${lv}`, body);
+  });
   return h;
 }
 /* ينقل الشاشة إلى محطة الخطوة التالية على الخط. */

@@ -2471,7 +2471,76 @@ const { run, report } = require('./harness.js');
     if (ctx.examOpen()) throw new Error('مفتوح والوحدة الأخيرة لم تُجتَز');
   });
 
+  console.log('— المحرّك يتّسع للمستويات —');
+
+  await run('كل وحدة موسومة بمستواها، والمستويات مشتقّة منها', {}, (ctx, ev) => {
+    ev('UNITS').forEach(u => {
+      if (!u.lv) throw new Error('الوحدة ' + u.n + ' بلا مستوى');
+      if (!/^[ABC][12]$/.test(u.lv)) throw new Error('مستوى غريب: ' + u.lv);
+    });
+    const built = ev('LEVELS_BUILT');
+    if (!built.length) throw new Error('لا مستوى مبنيّ');
+    built.forEach(lv => {
+      if (!ctx.levelUnits(lv).length) throw new Error(lv + ' معلَن مبنيّاً بلا وحدات');
+    });
+  });
+
+  /* ولولا هذا لسأل امتحانُ A1 عن الماضي بمجرّد إضافة وحدات A2. */
+  await run('امتحان المستوى يسحب من وحداته وحدها',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    ev('LEVELS_BUILT').forEach(lv => {
+      const own = new Set(ctx.levelItems(lv));
+      ctx.launch('exam', lv);
+      const q = ev('S').q;
+      if (q.lv !== lv) throw new Error('الامتحان لم يلتزم المستوى: ' + q.lv);
+      if (!q.title.includes(lv)) throw new Error('العنوان بلا المستوى: ' + q.title);
+      q.items.forEach(it => {
+        if (!own.has(it)) throw new Error('سؤال من خارج ' + lv);
+      });
+      ctx.closeQ();
+    });
+  });
+
+  await run('امتحان المستوى يُفتح باجتياز وحداته هو',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    const S = ev('S'), lv = ev('LEVELS_BUILT')[0];
+    S.cp = {}; S.ret = {};
+    if (ctx.levelExamOpen(lv)) throw new Error('مفتوح بلا اجتياز');
+    const us = ctx.levelUnits(lv), last = us[us.length - 1];
+    us.forEach(u => { S.cp[u] = true });
+    us.filter(u => u < last).forEach(u => { S.ret[u] = true });
+    if (!ctx.levelExamOpen(lv)) throw new Error('لم يُفتح بعد اجتياز كل وحداته');
+    delete S.cp[last];
+    if (ctx.levelExamOpen(lv)) throw new Error('مفتوح والوحدة الأخيرة لم تُجتَز');
+  });
+
+  await run('تقرير القدرات لكل مستوى على حدة', {}, (ctx, ev) => {
+    const ids = ev('LEVEL_IDS');
+    ['A1', 'A2', 'B1', 'C2'].forEach(x => {
+      if (!ids.includes(x)) throw new Error('مستوى غائب من الخريطة: ' + x);
+    });
+    const a1 = ctx.cefrReport('A1'), a2 = ctx.cefrReport('A2');
+    if (!a1.total) throw new Error('A1 بلا قدرات');
+    if (a2.total) throw new Error('A2 فيه قدرات ولم يُبنَ بعد');
+    if (!a2.gaps.length) throw new Error('A2 بلا نواقص معلنة');
+    /* المستوى الحالي هو أوّل ما لم يُتمّ، ولا يكون مستوىً خالياً. */
+    const here = ctx.currentLevel();
+    if (!ctx.cefrReport(here).total) throw new Error('المستوى الحالي خالٍ: ' + here);
+  });
+
+  await run('الشاشة تعرض السلّم كلّه لا المبنيّ وحده', {}, (ctx, ev) => {
+    const html = ctx.cefrView();
+    ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].forEach(lv => {
+      if (!html.includes(lv)) throw new Error('لا يذكر ' + lv);
+    });
+    const rep = ctx.levelsReport();
+    rep.filter(l => !l.built).forEach(l => {
+      if (l.coverage) throw new Error(l.id + ': تغطية بلا بناء');
+    });
+  });
+
   await report();
+
 
 
 

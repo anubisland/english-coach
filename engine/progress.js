@@ -10,6 +10,14 @@ import {S} from './state.js';
    تُسقطها من الامتحان النهائي ومن تحديد المستوى ومن فتح الوحدات،
    صامتةً بلا خطأ يظهر. */
 export const UNIT_NS=UNITS.map(u=>u.n).sort((a,b)=>a-b);
+
+/* الوحدات مقسومة على المستويات: الامتحان النهائي لكل مستوى يسحب من
+   وحداته وحدها. وبلا هذا كان امتحان A1 يسأل عن الماضي والمستقبل
+   بمجرّد إضافة وحدات A2. */
+export const unitLevel=u=>{const x=UNITS.find(y=>y.n===u);return (x&&x.lv)||'A1'};
+export const levelUnits=lv=>UNIT_NS.filter(u=>unitLevel(u)===lv);
+export const levelItems=lv=>levelUnits(lv).flatMap(unitItems);
+export const LEVELS_BUILT=[...new Set(UNITS.map(u=>u.lv||'A1'))];
 export const LAST_UNIT=UNIT_NS[UNIT_NS.length-1];
 
 export const unitLessons=u=>LESSONS.filter(l=>l.u===u);
@@ -20,7 +28,14 @@ export const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x
 export const unitOpen=u=>u===1||!!S.skipped[u-1]||(!!S.cp[u-1]&&!!S.ret[u-1]);
 export const lessonOpen=l=>{if(!unitOpen(l.u))return false;const ls=unitLessons(l.u);const i=ls.indexOf(l);return i===0||!!S.lessons[ls[i-1].id]};
 /* الامتحان النهائي يحتاج اجتياز كل الوحدات، واستبقاء ما قبل الأخيرة. */
-export const examOpen=()=>UNIT_NS.every(u=>S.cp[u])&&UNIT_NS.filter(u=>u<LAST_UNIT).every(u=>S.ret[u]);
+/* امتحان المستوى يُفتح باجتياز وحداته هو، لا وحدات البرنامج كلّها. */
+export const levelExamOpen=lv=>{
+  const us=levelUnits(lv);
+  if(!us.length)return false;
+  const last=us[us.length-1];
+  return us.every(u=>S.cp[u])&&us.filter(u=>u<last).every(u=>S.ret[u]);
+};
+export const examOpen=(lv)=>levelExamOpen(lv||LEVELS_BUILT[0]);
 export const convoList=u=>CONVO.filter(c=>c.u===u);
 export const convoOpen=c=>{const L=convoList(c.u),i=L.indexOf(c);return unitOpen(c.u)&&unitLessons(c.u).every(l=>S.lessons[l.id])&&(i===0||!!S.conv[L[i-1].id])};
 

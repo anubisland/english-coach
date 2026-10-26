@@ -1,8 +1,8 @@
 /* الوحدات والدروس والتمارين. محتوى خالص بلا منطق ولا استيراد. */
 
-export const UNITS=[{n:1,t:'الضمير وفعل To Be'},{n:2,t:'المضارع البسيط'},{n:3,t:'أدوات التعريف و There is'},
-{n:4,t:'الأشياء والناس من حولي'},
-{n:5,t:'القدرة والأمر والزمن'}];
+export const UNITS=[{n:1,lv:'A1',t:'الضمير وفعل To Be'},{n:2,lv:'A1',t:'المضارع البسيط'},{n:3,lv:'A1',t:'أدوات التعريف و There is'},
+{n:4,lv:'A1',t:'الأشياء والناس من حولي'},
+{n:5,lv:'A1',t:'القدرة والأمر والزمن'}];
 export const LESSONS=[
 {id:'1.1',u:1,t:'I am / You are',rules:['be-subject'],more:'<b>القاعدة الأساسية:</b> كل جملة إنجليزية تحتاج فعلاً، وهذا الفعل يتغير حسب الشخص أو الشيء الذي يقوم بالفعل.<br><br>• <b>I</b> ← am (أنا)<br>• <b>you / we / they</b> ← are (أنت / نحن / هم)<br>• <b>he / she / it</b> ← is (هو / هي / هذا)<br>• الاسم المفرد مثل Mom أو my name يعامل معاملة he / she / it فنستخدم is.<br>• إذا جمعت اسمين بـ and صار الفاعل جمعاً، مثل: Ahmed and Sara are.<br><br><b>لماذا هي مهمة؟</b> ستستخدمها في كل جملة تعرّف بها نفسك، أو تصف حالك، أو تتحدث عن الناس من حولك في البيت والعمل والشارع.', ex:'نستخدم am مع I فقط، ونستخدم are مع you وwe وthey.',s:['I am a student.','You are my friend.','We are ready.','I am at work now.','Are you hungry? Yes, I am.','Hi, I am Sara. Nice to meet you!'],items:[
 {q:'Hi, my name ___ Omar.',o:['am','is','are'],a:1,tip:'my name مفرد، فنستخدم is'},

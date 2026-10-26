@@ -1,57 +1,92 @@
-/* ربط البرنامج بالإطار الأوروبي المرجعي (CEFR) للمستوى A1.
+/* ربط البرنامج بالإطار الأوروبي المرجعي (CEFR).
 
    لماذا؟ لأن «مستوى A1» كلمةٌ من عندنا بلا سند ما لم تُنسب إلى مرجع.
-   والإطار الأوروبي يصف المستوى بقدراتٍ محدّدة («يستطيع أن…»)، فإذا
-   رُبط كل درس واختبار بقدرةٍ منها صارت النتيجة قابلة للمراجعة:
-   «أثبتَّ سبعاً من تسع قدرات» بدل «٨٥٪» التي لا تُحيل إلى شيء.
+   والإطار يصف كل مستوى بقدراتٍ محدّدة («يستطيع أن…»)، فإذا رُبط كل درس
+   واختبار بقدرةٍ منها صارت النتيجة قابلة للمراجعة: «أثبتَّ سبعاً من
+   تسع» بدل «٨٥٪» التي لا تُحيل إلى شيء.
+
+   والبنية هنا **لكل مستوى** لا لمستوى واحد: كانت A1 وحدها مكتوبةً في
+   المحرّك والشاشة، فإضافة A2 كانت تحتاج نسخ المنظومة كلّها. فصارت
+   خريطةً من المستوى إلى قدراته ونواقصه.
 
    والأهمّ: ما لا يغطّيه البرنامج مذكورٌ هنا صراحةً. إخفاؤه يجعل
-   المتعلّم يظنّ أنّه أتمّ A1 وهو لم يتمّ نصفه، وذلك أسوأ من ألّا
-   نذكر المستوى أصلاً.
+   المتعلّم يظنّ أنّه أتمّ المستوى وهو لم يتمّ نصفه. */
 
-   المصدر: أوصاف A1 في الإطار الأوروبي (CEFR) لمهارات التحدّث والقراءة
-   والكتابة والاستماع. */
+export const CEFR = {
+  A1: {
+    t: 'مبتدئ',
+    caps: [
+      {id:'intro', t:'يُعرّف بنفسه: اسمه وبلده وعمله',
+       skill:'المحادثة', lessons:['1.1','1.2'], exam:'conv', scene:'x-air'},
+      {id:'people', t:'يصف شخصاً من أسرته أو أصدقائه',
+       skill:'الكتابة', lessons:['1.2'], exam:'write'},
+      {id:'ask', t:'يسأل أسئلة بسيطة ويفهم جوابها',
+       skill:'المحادثة', lessons:['1.3'], exam:'conv', scene:'x-bank'},
+      {id:'routine', t:'يتحدّث عن يومه وعمله ودراسته',
+       skill:'الكتابة', lessons:['2.1','2.2'], exam:'write'},
+      {id:'likes', t:'يقول ما يحبّ وما لا يحبّ',
+       skill:'الكتابة', lessons:['2.3'], exam:'write'},
+      {id:'place', t:'يصف مكاناً ويسأل عن الاتجاهات',
+       skill:'المحادثة', lessons:['3.3'], exam:'conv', scene:'x-shop'},
+      {id:'read-note', t:'يفهم رسالة شخصية قصيرة',
+       skill:'القراءة', lessons:['1.1','1.2'], exam:'read', scene:'r-note'},
+      {id:'read-sign', t:'يفهم إعلاناً أو جدولاً بسيطاً',
+       skill:'القراءة', lessons:['3.1','3.2'], exam:'read', scene:'r-sign'},
+      {id:'things', t:'يتحدّث عن الأشياء من حوله وعددها',
+       skill:'الكتابة', lessons:['4.1','4.3'], exam:'write'},
+      {id:'belong', t:'يقول لمن يكون الشيء، ويصف ما يملك',
+       skill:'المحادثة', lessons:['4.2','4.4'], exam:'conv', scene:'x-hotel'},
+      {id:'ability', t:'يقول ما يستطيع وما لا يستطيع، ويطلب بأدب',
+       skill:'المحادثة', lessons:['5.1','5.2'], exam:'conv', scene:'x-clinic'},
+      {id:'now-time', t:'يصف ما يحدث الآن، ويحدّد المواعيد',
+       skill:'الكتابة', lessons:['5.3','5.4'], exam:'write'},
+      {id:'listen', t:'يفهم جملاً بطيئة واضحة ويكتبها',
+       skill:'الاستماع', lessons:['1.1','2.1','3.3'], exam:'dictation'}
+    ],
+    /* لم يبقَ من قدرات A1 ما لا يغطّيه البرنامج. والقائمة تبقى موضعاً
+       لما يُكتشف لاحقاً: إعلانُه أصدق من حذف القائمة وادّعاء التمام. */
+    gaps: []
+  },
 
-/* ما يغطّيه البرنامج: لكل قدرة الدروسُ التي تبنيها والاختبارُ الذي يقيسها. */
-export const CEFR_A1 = [
-  {id:'intro', t:'يُعرّف بنفسه: اسمه وبلده وعمله',
-   skill:'المحادثة', lessons:['1.1','1.2'], exam:'conv', scene:'x-air'},
-  {id:'people', t:'يصف شخصاً من أسرته أو أصدقائه',
-   skill:'المحادثة', lessons:['1.2'], exam:'write'},
-  {id:'ask', t:'يسأل أسئلة بسيطة ويفهم جوابها',
-   skill:'المحادثة', lessons:['1.3'], exam:'conv', scene:'x-bank'},
-  {id:'routine', t:'يتحدّث عن يومه وعمله ودراسته',
-   skill:'المحادثة', lessons:['2.1','2.2'], exam:'write'},
-  {id:'likes', t:'يقول ما يحبّ وما لا يحبّ',
-   skill:'المحادثة', lessons:['2.3'], exam:'write'},
-  {id:'place', t:'يصف مكاناً ويسأل عن الاتجاهات',
-   skill:'المحادثة', lessons:['3.3'], exam:'conv', scene:'x-shop'},
-  {id:'read-note', t:'يفهم رسالة شخصية قصيرة',
-   skill:'القراءة', lessons:['1.1','1.2'], exam:'read', scene:'r-note'},
-  {id:'read-sign', t:'يفهم إعلاناً أو جدولاً بسيطاً',
-   skill:'القراءة', lessons:['3.1','3.2'], exam:'read', scene:'r-sign'},
-  {id:'things', t:'يتحدّث عن الأشياء من حوله وعددها',
-   skill:'الكتابة', lessons:['4.1','4.3'], exam:'write'},
-  {id:'belong', t:'يقول لمن يكون الشيء، ويصف ما يملك',
-   skill:'المحادثة', lessons:['4.2','4.4'], exam:'conv', scene:'x-hotel'},
-  {id:'ability', t:'يقول ما يستطيع وما لا يستطيع، ويطلب بأدب',
-   skill:'المحادثة', lessons:['5.1','5.2'], exam:'conv', scene:'x-clinic'},
-  {id:'now-time', t:'يصف ما يحدث الآن، ويحدّد المواعيد',
-   skill:'الكتابة', lessons:['5.3','5.4'], exam:'write'},
-  {id:'listen', t:'يفهم جملاً بطيئة واضحة ويكتبها',
-   skill:'الاستماع', lessons:['1.1','2.1','3.3'], exam:'dictation'}
-];
+  A2: {
+    t: 'مبتدئ متقدّم',
+    caps: [],
+    /* تُنقل واحدةً واحدة إلى caps كلّما بُني درسها، فتُقاس التغطية
+       من الواقع لا من الوعد. */
+    gaps: [
+      {t:'الماضي البسيط: was / were', why:'I was at home yesterday'},
+      {t:'الماضي: الأفعال المنتظمة', why:'worked · played · studied'},
+      {t:'الماضي: الأفعال الشاذّة', why:'go → went · see → saw'},
+      {t:'المستقبل بـ going to', why:'I am going to travel'},
+      {t:'المستقبل بـ will', why:'I will call you tomorrow'},
+      {t:'المقارنة: bigger / the biggest', why:'This car is bigger than that one'},
+      {t:'المساواة: as … as', why:'He is as tall as his brother'},
+      {t:'الكمّ: some / any / much / many', why:'Is there any milk?'},
+      {t:'الربط: because / when / so', why:'I stayed home because it was cold'}
+    ]
+  }
+,
 
-/* ما لا يغطّيه البرنامج من A1 — يُعرض للمتعلّم كما هو.
-   هذه ليست عيوباً مخفيّة بل حدودٌ معلنة، ومن عرف حدّه عرف ما بقي عليه. */
-export const CEFR_GAPS = [
-  /* لم يبقَ من قدرات A1 ما لا يغطّيه البرنامج.
-     والقائمة تبقى هنا لا تُحذف: هي موضع ما يُكتشف لاحقاً، وإعلانُه
-     على الشاشة أصدق من حذف القائمة وادّعاء التمام. */
-];
+  /* بقيّة السلّم: مذكورة وإن لم يُبنَ منها شيء. وذكرُها هو المقصود —
+     لو حُذفت لظنّ المتعلّم أنّ السلّم ينتهي عند آخر ما بنيناه. */
+  B1: {t:'متوسّط', caps: [], gaps: []},
+  B2: {t:'متوسّط متقدّم', caps: [], gaps: []},
+  C1: {t:'متقدّم', caps: [], gaps: []},
+  C2: {t:'إتقان', caps: [], gaps: []}
+};
 
-/* نسبة ما يغطّيه البرنامج من A1 الكامل، محسوبة لا مُقدَّرة. */
-export const A1_COVERAGE = Math.round(
-  CEFR_A1.length / (CEFR_A1.length + CEFR_GAPS.length) * 100);
+export const LEVEL_IDS = Object.keys(CEFR);
 
-export const CEFR_BY_ID = Object.fromEntries(CEFR_A1.map(c => [c.id, c]));
+export function levelCoverage(id) {
+  const lv = CEFR[id];
+  if (!lv) return 0;
+  const total = lv.caps.length + lv.gaps.length;
+  return total ? Math.round(lv.caps.length / total * 100) : 0;
+}
+
+/* تُبقى للتوافق مع ما يستوردها، ومصدرها الخريطة أعلاه لا نسخة ثانية. */
+export const CEFR_A1 = CEFR.A1.caps;
+export const CEFR_GAPS = CEFR.A1.gaps;
+export const A1_COVERAGE = levelCoverage('A1');
+export const CEFR_BY_ID = Object.fromEntries(
+  LEVEL_IDS.flatMap(id => CEFR[id].caps.map(c => [c.id, {...c, level: id}])));

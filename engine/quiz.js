@@ -4,7 +4,7 @@ import {LESSONS} from '../content/lessons.js';
 import {CONVO} from '../content/convo.js';
 import {S,save,addXp} from './state.js';
 import {hooks} from './bus.js';
-import {unitItems,itemsUpTo,shuffle,PLACE,lessonOpen,unitOf,skillOf,UNIT_NS,LAST_UNIT} from './progress.js';
+import {unitItems,itemsUpTo,shuffle,PLACE,lessonOpen,unitOf,skillOf,UNIT_NS,LAST_UNIT,levelItems,LEVELS_BUILT} from './progress.js';
 import {words,lev} from './pronounce.js';
 import {normalize} from './translate.js';
 import {record,dueKeys,dueSoon,boxCounts,masteredCount,BOXES} from './srs.js';
@@ -19,7 +19,10 @@ export function _launch(kind,id){
   if(kind==='lesson'){const l=LESSONS.find(x=>x.id===id);Object.assign(q,{items:l.items,title:'درس '+l.id,need:l.items.length})}
   else if(kind==='cp'){Object.assign(q,{items:shuffle(unitItems(id)).slice(0,8),title:'اختبار الوحدة '+id,need:7})}
   else if(kind==='ret'){Object.assign(q,{items:shuffle(itemsUpTo(id)).slice(0,4),title:'اختبار الاستبقاء (حتى الوحدة '+id+')',need:3})}
-  else if(kind==='exam'){Object.assign(q,{items:shuffle(itemsUpTo(LAST_UNIT)).slice(0,10),title:'الامتحان النهائي A1',need:8})}
+  else if(kind==='exam'){
+    const lv=LEVELS_BUILT.includes(id)?id:LEVELS_BUILT[0];
+    Object.assign(q,{lv,items:shuffle(levelItems(lv)).slice(0,10),title:'الامتحان النهائي '+lv,need:8});
+  }
   else if(kind==='conv'){const c=CONVO.find(x=>x.id===id);Object.assign(q,{title:'محادثة: '+c.t,items:c.turns.map(t=>({q:t.p,o:t.o,a:t.a,tip:t.tip})),need:c.turns.length})}
   /* pickPlace تقرأ q.items لتتجنّب تكرار سؤال، فيجب أن توجد قبل أول نداء. */
   /* تدريب من المهارات التي أخطأ فيها في البوابة وحدها — لا الوحدة كلها. */
@@ -188,7 +191,7 @@ export function endQ(){
     if(q.pass){S.drill=null;addXp(25)}
   }
   else if(q.kind==='conv'){q.pass=q.score===q.items.length;if(q.pass){S.conv[q.id]=true;addXp(40)}}
-  else if(q.kind==='exam'){q.pass=q.score>=q.need;if(q.pass){S.exam=true;addXp(100)}}
+  else if(q.kind==='exam'){q.pass=q.score>=q.need;if(q.pass){S.exam=true;if(q.lv)S.levelDone[q.lv]=true;addXp(100)}}
   else if(q.kind==='place'){
     const rows=q.items.map((x,i)=>({lv:x.lv,ok:q.got[i]}));
     const r1=rows.filter(r=>r.lv===1),r2=rows.filter(r=>r.lv===2);

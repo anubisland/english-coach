@@ -26,6 +26,7 @@ export function defaultState(){return{
   dx:null,                  // اختبار الإملاء الجاري (لحظي)
   rx:null,                  // اختبار القراءة الجاري (لحظي)
   cxSeen:[],                // مشاهد المحادثة التي جرّبها، فلا تتكرّر
+  levelDone:{},             // المستويات التي اجتاز امتحانها النهائي
   res:{},                   // سجلّ الاختبارات: {last,best,n,at} لكل اختبار
   srs:{},                   // صناديق المراجعة المتباعدة: نصّ السؤال -> {b,due,seen}
   ruleOpen:null,            // بطاقة القاعدة المفتوحة حالياً
@@ -143,12 +144,15 @@ export function migrate(saved){
   /* نسبة وحدها تُستورد، بعد قسرها عدداً في مداها. */
   S.srs=cleanSrs(saved.srs);
   S.res=cleanRes(saved.res);
+  S.levelDone={};
+  if(saved.levelDone&&typeof saved.levelDone==='object')
+    LEVELS.forEach(lv=>{if(saved.levelDone[lv]===true)S.levelDone[lv]=true});
   S.cxSeen=Array.isArray(saved.cxSeen)?saved.cxSeen.filter(x=>typeof x==='string'&&x.length<32).slice(0,50):[];
   S.v=SCHEMA;
   return S;
 }
 
-export const LEVELS=['A1','A2'];
+export const LEVELS=['A1','A2','B1','B2','C1','C2'];
 /* كل حقل يُقسر إلى مداه: صندوق خارج ١..٥ أو موعد غير عدد يُفسد الطابور. */
 /* سجلّ النتائج يُستورد من ملفّ غير موثوق، فلا يُقبل إلا ما عرفنا مفتاحه،
    وتُقسر أرقامه إلى مداها. */
