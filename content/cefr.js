@@ -96,7 +96,22 @@ export const CEFR = {
        skill:'الكتابة', lessons:['14.2'], exam:'write'}
     ], gaps: [
   ]},
-  B2: {t:'متوسّط متقدّم', caps: [], gaps: []},
+  /* B2 مُعلَنُ النواقص قبل أن يُبنَ، كما كان B1. */
+  B2: {t:'متوسّط متقدّم', caps: [
+      {id:'sequence-tell', t:'يرتّب حدثين في الماضي فيُفهم أيّهما قبل',
+       skill:'المحادثة', lessons:['15.1'], exam:'conv', scene:'x-school'},
+      {id:'duration-write', t:'يُبرز المدّة والاستمرار لا النتيجة وحدها',
+       skill:'الكتابة', lessons:['15.2'], exam:'write'},
+      {id:'report-tell', t:'ينقل كلام غيره وسؤاله وأمره بأمانة',
+       skill:'المحادثة', lessons:['16.1','16.2'], exam:'conv', scene:'x-bank'}
+    ], gaps: [
+    {t:'الشرط الثالث', why:'If I had known, I would have come'},
+    {t:'wish و if only', why:'I wish I had more time'},
+    {t:'متى to + الفعل ومتى الـ ing', why:'I enjoy reading · I want to read'},
+    {t:'أفعالٌ يتغيّر معناها بينهما', why:'I stopped smoking · I stopped to smoke'},
+    {t:'although و however و despite', why:'Although it was cold, we went out'},
+    {t:'ترتيب الصفات والظروف', why:'a nice big old house'}
+  ]},
   C1: {t:'متقدّم', caps: [], gaps: []},
   C2: {t:'إتقان', caps: [], gaps: []}
 };
