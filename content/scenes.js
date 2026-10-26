@@ -1,6 +1,38 @@
 /* مشاهد المحادثة الحيّة: جملة المحاور، وregex للإجابة المقبولة، والإجابة النموذجية. */
 
 export const SCENES=[
+{t:'درس 4.1: كم عندك؟',cat:'درس',les:'4.1',turns:[
+{p:'How many brothers and sisters have you got?',need:/\b(one|two|three|four|five|six|brother|sister|none|no)\b/i,model:'I have two brothers and one sister.'},
+{p:'That is a big family! How many rooms are there in your house?',need:/\b(one|two|three|four|five|six|seven|room)\b/i,model:'There are four rooms in our house.'},
+{p:'Nice. And how many languages do you speak?',need:/\b(one|two|three|language|arabic|english)\b/i,model:'I speak two languages.'}]},
+{t:'درس 4.2: لمن هذا؟',cat:'درس',les:'4.2',turns:[
+{p:'Excuse me, is this your bag?',need:/\b(yes|no|my|mine|not|it is|it's)\b/i,model:'Yes, it is my bag.'},
+{p:'And whose phone is this on the table?',need:/\b(my|his|her|their|our|friend|brother|sister|'s)\b/i,model:"It is my friend's phone."},
+{p:`Thank you. What is your brother's name?`,need:/\b(name|his|is)\b/i,model:'His name is Omar.'}]},
+{t:'درس 4.3: هذا وذاك',cat:'درس',les:'4.3',turns:[
+{p:'How much is this bag?',need:/\b(pound|dollar|it is|it's|\d|twenty|thirty|fifty)\b/i,model:'It is thirty pounds.'},
+{p:'And how much are those shoes over there?',need:/\b(pound|dollar|they are|they're|\d|twenty|forty|fifty)\b/i,model:'They are fifty pounds.'},
+{p:'Would you like this one or that one?',need:/\b(this|that|these|those|one|please)\b/i,model:'I would like this one, please.'}]},
+{t:'درس 4.4: ماذا معك؟',cat:'درس',les:'4.4',turns:[
+{p:'Have you got a car?',need:/\b(yes|no|have|haven't|got|not)\b/i,model:'Yes, I have got a small car.'},
+{p:'Has your brother got a car too?',need:/\b(yes|no|has|hasn't|got|he)\b/i,model:'No, he has not got a car.'},
+{p:'I see. Have you got my number?',need:/\b(yes|no|have|haven't|got|number)\b/i,model:'No, I have not got your number.'}]},
+{t:'درس 5.1: ماذا تستطيع؟',cat:'درس',les:'5.1',turns:[
+{p:'Can you drive a car?',need:/\b(yes|no|can|can't|cannot|drive)\b/i,model:'Yes, I can drive.'},
+{p:'Great. Can you help me tomorrow morning?',need:/\b(yes|no|can|can't|cannot|sorry|sure|help)\b/i,model:'Yes, I can help you.'},
+{p:'Thank you. Can I call you at eight?',need:/\b(yes|no|can|sure|of course|call|please)\b/i,model:'Yes, of course you can.'}]},
+{t:'درس 5.2: أرشدني من فضلك',cat:'درس',les:'5.2',turns:[
+{p:'Excuse me, how do I get to the station?',need:/\b(go|turn|take|walk|straight|right|left|then)\b/i,model:'Go straight and turn right.'},
+{p:'Thank you. Is it far from here?',need:/\b(yes|no|far|near|minute|walk|close)\b/i,model:'No, it is five minutes on foot.'},
+{p:'One more thing — where can I buy a ticket?',need:/\b(at|in|office|machine|inside|there|station)\b/i,model:'You can buy one at the ticket office.'}]},
+{t:'درس 5.3: ماذا تفعل الآن؟',cat:'درس',les:'5.3',turns:[
+{p:'Hi! What are you doing now?',need:/\b(am|working|reading|eating|waiting|studying|cooking|sitting|watching)\b/i,model:'I am working now.'},
+{p:'And what is your sister doing?',need:/\b(is|she|working|reading|sleeping|studying|cooking|watching)\b/i,model:'She is reading a book.'},
+{p:'Are the children sleeping?',need:/\b(yes|no|they are|aren't|not|sleeping|playing)\b/i,model:'No, they are not sleeping.'}]},
+{t:'درس 5.4: متى نلتقي؟',cat:'درس',les:'5.4',turns:[
+{p:'What time does the train leave?',need:/\b(at|o'clock|half|quarter|past|to|\d|six|seven|eight|nine)\b/i,model:'It leaves at half past six.'},
+{p:'And which day do you travel?',need:/\b(on|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i,model:'I travel on Friday.'},
+{p:'Good. When is your birthday?',need:/\b(in|on|january|february|march|april|may|june|july|august|september|october|november|december)\b/i,model:'My birthday is in May.'}]},
 {t:'التعارف',cat:'اجتماعي',turns:[
 {p:"Hi! I'm Sara. What's your name?",need:/name|i am|i'm|my name/i,model:'My name is Ahmed.'},
 {p:'Nice to meet you! Where are you from?',need:/from/i,model:'I am from Egypt.'},

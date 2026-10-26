@@ -4,6 +4,24 @@
 
    en: صيغ مقبولة. الأولى هي النموذجية، والبقية بدائل صحيحة لا نعاقب عليها. */
 export const TRANSLATE = [
+  /* ===== الوحدة 4: الأشياء والناس ===== */
+  {ar:'عندي أخوان.', u:4, skill:'plural', en:['I have two brothers.','I have got two brothers.']},
+  {ar:'في الغرفة ثلاثة كراسٍ.', u:4, skill:'plural', en:['There are three chairs in the room.']},
+  {ar:'هذه حقيبتي.', u:4, skill:'possessive', en:['This is my bag.']},
+  {ar:'سيارة عمر جديدة.', u:4, skill:'possessive', en:["Omar's car is new.",'Omar’s car is new.']},
+  {ar:'هؤلاء أصدقائي.', u:4, skill:'demonstrative', en:['These are my friends.']},
+  {ar:'ذلك البيت كبير.', u:4, skill:'demonstrative', en:['That house is big.']},
+  {ar:'معها هاتف جديد.', u:4, skill:'have-got', en:['She has got a new phone.','She has a new phone.']},
+  {ar:'هل معك قلم؟', u:4, skill:'have-got', en:['Have you got a pen?','Do you have a pen?']},
+  /* ===== الوحدة 5: القدرة والأمر والزمن ===== */
+  {ar:'أستطيع السباحة.', u:5, skill:'can', en:['I can swim.']},
+  {ar:'لا تستطيع المجيء اليوم.', u:5, skill:'can', en:['She cannot come today.',"She can't come today."]},
+  {ar:'هل يمكنك مساعدتي؟', u:5, skill:'can', en:['Can you help me?']},
+  {ar:'افتح النافذة من فضلك.', u:5, skill:'imperative', en:['Please open the window.','Open the window, please.']},
+  {ar:'لا تتأخّر غداً.', u:5, skill:'imperative', en:["Don't be late tomorrow.",'Do not be late tomorrow.']},
+  {ar:'أنا أعمل الآن.', u:5, skill:'present-cont', en:['I am working now.']},
+  {ar:'يقوم القطار في السادسة.', u:5, skill:'numbers-time', en:['The train leaves at six.']},
+  {ar:'عيد ميلادي في مايو.', u:5, skill:'numbers-time', en:['My birthday is in May.']},
   /* ===== الوحدة 1: فعل الكون ===== */
   {ar:'أنا طالب.', u:1, skill:'be-subject',
    en:['I am a student.', "I'm a student."]},

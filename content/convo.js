@@ -1,6 +1,22 @@
 /* مشاهد الحوار المرتبطة بالوحدات. */
 
 export const CONVO=[
+{id:'c7',u:4,t:'في السوق: كم وكم ثمنه',turns:[
+{p:`How many apples would you like?`,o:[`I would like six apples.`,`I would like six apple.`,`I like six apples would.`],a:0,tip:`العدد أكبر من واحد فنجمع: apples`},
+{p:`And how much is this box?`,o:[`This box is ten pounds.`,`These box is ten pounds.`,`This boxes is ten pounds.`],a:0,tip:`المفرد يأخذ this والفعل is`},
+{p:`Is this your bag?`,o:[`Yes, it is my bag.`,`Yes, it is me bag.`,`Yes, it is mine bag.`],a:0,tip:`قبل الاسم نستخدم my لا me`}]},
+{id:'c8',u:4,t:'التعارف على العائلة',turns:[
+{p:`Have you got any brothers?`,o:[`Yes, I have got two brothers.`,`Yes, I have got two brother.`,`Yes, I has got two brothers.`],a:0,tip:`مع I نستخدم have، والعدد يستلزم الجمع`},
+{p:`What are their names?`,o:[`Their names are Omar and Ali.`,`Their name are Omar and Ali.`,`Them names are Omar and Ali.`],a:0,tip:`الجمع names، وصفة الملكية their`},
+{p:`Is that your sister over there?`,o:[`Yes, that is my sister.`,`Yes, those is my sister.`,`Yes, that is me sister.`],a:0,tip:`المفرد البعيد يأخذ that`}]},
+{id:'c9',u:5,t:'طلب المساعدة',turns:[
+{p:`Can you help me, please?`,o:[`Yes, I can help you.`,`Yes, I can to help you.`,`Yes, I cans help you.`],a:0,tip:`بعد can الفعل مجرّد بلا to وبلا s`},
+{p:`Can your brother drive?`,o:[`Yes, he can drive.`,`Yes, he cans drive.`,`Yes, he can drives.`],a:0,tip:`can لا تتغيّر مع he`},
+{p:`Please don't be late tomorrow.`,o:[`I won't be late, I promise.`,`I don't be late, I promise.`,`I no be late, I promise.`],a:0,tip:`النفي للمستقبل بـ won't`}]},
+{id:'c10',u:5,t:'ماذا يحدث الآن؟',turns:[
+{p:`What are you doing?`,o:[`I am waiting for the bus.`,`I waiting for the bus.`,`I am wait for the bus.`],a:0,tip:`المضارع المستمرّ: am ثم الفعل + ing`},
+{p:`What time does the bus come?`,o:[`It comes at a quarter past eight.`,`It comes on a quarter past eight.`,`It comes in a quarter past eight.`],a:0,tip:`الساعة تأخذ at`},
+{p:`Do you travel on Friday?`,o:[`Yes, I travel on Friday.`,`Yes, I travel in Friday.`,`Yes, I travel at Friday.`],a:0,tip:`يوم الأسبوع يأخذ on`}]},
 {id:'c1',u:1,t:'التعارف مع زميل جديد',turns:[
 {p:`Hi! What is your name?`,o:[`My name is Ahmed.`,`I is Ahmed.`,`Name my Ahmed.`],a:0,tip:`للتعريف بالاسم نقول: My name is ...`},
 {p:`Nice to meet you. Where are you from?`,o:[`I am from Egypt.`,`I from Egypt am.`,`Egypt I am from.`],a:0,tip:`I am from ثم اسم البلد`},

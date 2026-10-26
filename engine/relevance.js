@@ -14,7 +14,7 @@
 
 const PLACE = /\b(in|at|on|near|next to|opposite|behind|front of|from|here|there|home|house|street|city|town|country|school|work|office|bank|park|shop|market|hospital|station|airport|hotel|restaurant|cafe|room|floor|egypt|cairo|london|alexandria|upstairs|downstairs|left|right|straight)\b/i;
 
-const TIME = /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|o'?clock|am|pm|morning|afternoon|evening|night|today|tomorrow|yesterday|now|soon|later|early|late|always|usually|sometimes|never|every|after|before|monday|tuesday|wednesday|thursday|friday|saturday|sunday|week|month|year|day|minute|hour)\b/i;
+const TIME = /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|o'?clock|am|pm|morning|afternoon|evening|night|today|tomorrow|yesterday|now|soon|later|early|late|always|usually|sometimes|never|every|after|before|monday|tuesday|wednesday|thursday|friday|saturday|sunday|week|month|year|day|minute|hour|january|february|march|april|may|june|july|august|september|october|november|december|spring|summer|autumn|winter|weekend|birthday)\b/i;
 
 const NUM = /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|forty|fifty|hundred|none|no|some|many|a few|a lot|both|half|only|just|single|couple)\b/i;
 

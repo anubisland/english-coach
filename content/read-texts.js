@@ -13,6 +13,49 @@
 
    w: عدد كلمات النص، يُحسب آلياً في الاختبار ويُستعمل لقياس سرعة القراءة. */
 export const READS = [
+{id:'r-family', u:4, t:'رسالة عن العائلة', cat:'رسالة',
+ text:`Hello Nour,
+
+I am happy in my new city. Our house is small but it has got three rooms. My brother's room is next to mine.
+
+We have got two cats. Their names are Simba and Luna. My sister loves them very much.
+
+There are many shops in our street. These shops open at nine every day.
+
+Write soon,
+Hana`,
+ qs:[
+  {k:'tf', q:'The house has got three rooms.', a:true, why:'it has got three rooms.'},
+  {k:'tf', q:'They have got two dogs.', a:false, why:'النصّ يقول two cats — قطّتان لا كلبان.'},
+  {k:'tf', q:'The shops open at nine.', a:true, why:'These shops open at nine every day.'},
+  {k:'short', ar:'ما أسماء القطّتين؟ أجب بالإنجليزية.',
+   ok:['simba and luna','their names are simba and luna','simba, luna','simba luna']},
+  {k:'short', ar:'أين غرفة أخيها؟ أجب بالإنجليزية.',
+   ok:['next to mine','next to her room','it is next to mine']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «صغير»؟', ok:['small']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «أسماء»؟', ok:['names']}]},
+{id:'r-notice', u:5, t:'إعلان في النادي', cat:'إعلان',
+ text:`SPORTS CLUB — NOTICE
+
+The swimming pool is open from seven in the morning until nine at night.
+
+You can swim every day except Monday. On Monday we clean the pool.
+
+Please bring your own towel. Don't bring food to the pool area.
+
+Children under eight cannot swim alone. A parent must be with them.
+
+The gym is closing at eight this week.`,
+ qs:[
+  {k:'tf', q:'You can swim on Monday.', a:false, why:'every day except Monday — الاثنين مستثنى.'},
+  {k:'tf', q:'You must bring your own towel.', a:true, why:'Please bring your own towel.'},
+  {k:'tf', q:'A child of six can swim alone.', a:false, why:'Children under eight cannot swim alone.'},
+  {k:'short', ar:'في أي ساعة يفتح المسبح صباحاً؟ أجب بالإنجليزية.',
+   ok:['at seven','seven','from seven','at seven in the morning','7']},
+  {k:'short', ar:'ماذا يُمنع إحضاره إلى المسبح؟ أجب بالإنجليزية.',
+   ok:['food','dont bring food',"don't bring food",'no food']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «منشفة»؟', ok:['towel']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «ما عدا»؟', ok:['except']}]},
 {id:'r-note', u:1, t:'رسالة من صديق', cat:'رسالة',
  text:`Hi Omar,
 

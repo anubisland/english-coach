@@ -919,7 +919,7 @@ const { run, report } = require('./harness.js');
     ev('TRANSLATE').forEach((t, i) => {
       if (!t.ar || !/[؀-ۿ]/.test(t.ar)) throw new Error('#' + i + ': لا جملة عربية');
       if (!Array.isArray(t.en) || !t.en.length) throw new Error(t.ar + ': لا ترجمة مقبولة');
-      if (![1,2,3].includes(t.u)) throw new Error(t.ar + ': وحدة خاطئة');
+      if (!ev('UNIT_NS').includes(t.u)) throw new Error(t.ar + ': وحدة خاطئة');
       if (!Object.keys(ev('RULE')).includes(t.skill)) throw new Error(t.ar + ': مهارة مجهولة ' + t.skill);
     });
   });
