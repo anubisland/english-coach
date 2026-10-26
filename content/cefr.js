@@ -50,13 +50,15 @@ export const CEFR = {
 
   A2: {
     t: 'مبتدئ متقدّم',
-    caps: [],
+    caps: [
+      {id:'past-tell', t:'يحكي ما حدث له أمس وأين كان',
+       skill:'المحادثة', lessons:['6.1','6.2'], exam:'conv', scene:'x-school'},
+      {id:'past-write', t:'يكتب عن حدثٍ مضى بأفعاله الصحيحة',
+       skill:'الكتابة', lessons:['6.2','6.3'], exam:'write'}
+    ],
     /* تُنقل واحدةً واحدة إلى caps كلّما بُني درسها، فتُقاس التغطية
        من الواقع لا من الوعد. */
     gaps: [
-      {t:'الماضي البسيط: was / were', why:'I was at home yesterday'},
-      {t:'الماضي: الأفعال المنتظمة', why:'worked · played · studied'},
-      {t:'الماضي: الأفعال الشاذّة', why:'go → went · see → saw'},
       {t:'المستقبل بـ going to', why:'I am going to travel'},
       {t:'المستقبل بـ will', why:'I will call you tomorrow'},
       {t:'المقارنة: bigger / the biggest', why:'This car is bigger than that one'},

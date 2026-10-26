@@ -2387,16 +2387,18 @@ const { run, report } = require('./harness.js');
         .flatMap(s => s.units).flatMap(u => u.lessons).filter(x => x.state === 'done');
       if (!built.length) throw new Error('المستوى ' + l.id + ' معلَن بلا دروس مبنيّة');
     });
-    /* «غير مبنيّ» يشمل todo و next معاً: المهمّ ألّا يُعرض كمبنيّ. */
-    const built = ev('LEVELS').filter(l => l.state === 'done' || l.state === 'doing').map(l => l.id);
-    if (built.includes('A2')) throw new Error('A2 معروض كمبنيّ ولا درس فيه');
-    ['A2', 'B1', 'B2', 'C1', 'C2'].forEach(id => {
-      const lv = ev('LEVELS').find(l => l.id === id);
-      const n = ev('STAGES').filter(st => st.level === id)
+    /* القاعدة عامّة لا تخصّ مستوىً بعينه: ما عُرض مبنيّاً فله دروس
+       مبنيّة، وما له دروس مبنيّة فلا يُعرض كأنّه لم يبدأ. */
+    ev('LEVELS').forEach(lv => {
+      const n = ev('STAGES').filter(st => st.level === lv.id)
         .flatMap(st => st.units).flatMap(u => u.lessons).filter(x => x.state === 'done').length;
-      if (n) throw new Error(id + ' فيه دروس مبنيّة ولم يُعلَن');
-      if (lv.state === 'done' || lv.state === 'doing')
-        throw new Error(id + ' معروض كمبنيّ بلا دروس');
+      const shown = lv.state === 'done' || lv.state === 'doing';
+      if (shown && !n) throw new Error(lv.id + ' معروض كمبنيّ بلا دروس');
+      if (!shown && n) throw new Error(lv.id + ' فيه دروس مبنيّة ولم يُعلَن');
+      /* و«done» تعني تمام دروسه كلّها لا بعضها. */
+      const all = ev('STAGES').filter(st => st.level === lv.id)
+        .flatMap(st => st.units).flatMap(u => u.lessons).length;
+      if (lv.state === 'done' && n < all) throw new Error(lv.id + ': معلَن تامّاً وفيه ناقص');
     });
   });
 
@@ -2458,17 +2460,27 @@ const { run, report } = require('./harness.js');
     });
   });
 
-  await run('الامتحان النهائي لا يُفتح قبل اجتياز كل الوحدات',
+  /* صار لكل مستوى امتحانه، فالاختبار على مستوىً لا على البرنامج كلّه.
+     والأهمّ هنا: وحدات A2 لا تؤثّر في فتح امتحان A1 ولا في إغلاقه. */
+  await run('امتحان المستوى لا تؤثّر فيه وحدات مستوىً آخر',
     { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
-    const S = ev('S'), ns = ev('UNIT_NS'), last = ev('LAST_UNIT');
+    const S = ev('S');
+    const built = ev('LEVELS_BUILT');
+    const first = built[0];
+    const own = ctx.levelUnits(first), last = own[own.length - 1];
     S.cp = {}; S.ret = {};
-    if (ctx.examOpen()) throw new Error('مفتوح بلا اجتياز شيء');
-    ns.forEach(u => { S.cp[u] = true });
-    ns.filter(u => u < last).forEach(u => { S.ret[u] = true });
-    if (!ctx.examOpen()) throw new Error('لم يُفتح بعد اجتياز الكل');
-    /* إسقاط وحدة واحدة يُغلقه. */
+    if (ctx.levelExamOpen(first)) throw new Error('مفتوح بلا اجتياز شيء');
+    own.forEach(u => { S.cp[u] = true });
+    own.filter(u => u < last).forEach(u => { S.ret[u] = true });
+    if (!ctx.levelExamOpen(first)) throw new Error('لم يُفتح بعد اجتياز وحداته');
+
+    /* وحدة من مستوىً آخر لا تغلقه ولا تفتحه. */
+    const other = ev('UNIT_NS').filter(u => own.indexOf(u) < 0);
+    other.forEach(u => { delete S.cp[u]; delete S.ret[u] });
+    if (!ctx.levelExamOpen(first)) throw new Error('أغلقته وحدةٌ من مستوىً آخر');
+
     delete S.cp[last];
-    if (ctx.examOpen()) throw new Error('مفتوح والوحدة الأخيرة لم تُجتَز');
+    if (ctx.levelExamOpen(first)) throw new Error('مفتوح والوحدة الأخيرة لم تُجتَز');
   });
 
   console.log('— المحرّك يتّسع للمستويات —');
@@ -2519,10 +2531,19 @@ const { run, report } = require('./harness.js');
     ['A1', 'A2', 'B1', 'C2'].forEach(x => {
       if (!ids.includes(x)) throw new Error('مستوى غائب من الخريطة: ' + x);
     });
-    const a1 = ctx.cefrReport('A1'), a2 = ctx.cefrReport('A2');
+    const a1 = ctx.cefrReport('A1');
     if (!a1.total) throw new Error('A1 بلا قدرات');
-    if (a2.total) throw new Error('A2 فيه قدرات ولم يُبنَ بعد');
-    if (!a2.gaps.length) throw new Error('A2 بلا نواقص معلنة');
+    /* كل قدرة معلنة لها دروس موجودة فعلاً، ولا تُحتسب تغطية بلا بناء. */
+    ids.forEach(id => {
+      const r = ctx.cefrReport(id);
+      const lessons = ev('LESSONS').map(l => l.id);
+      r.rows.forEach(c => c.lessons.forEach(ls => {
+        if (!lessons.includes(ls)) throw new Error(id + '/' + c.id + ': درس غير موجود ' + ls);
+      }));
+      if (!r.total && r.coverage) throw new Error(id + ': تغطية بلا قدرات');
+      if (r.total && r.gaps.length && r.coverage >= 100)
+        throw new Error(id + ': يدّعي التمام وفيه نواقص');
+    });
     /* المستوى الحالي هو أوّل ما لم يُتمّ، ولا يكون مستوىً خالياً. */
     const here = ctx.currentLevel();
     if (!ctx.cefrReport(here).total) throw new Error('المستوى الحالي خالٍ: ' + here);
@@ -2537,6 +2558,20 @@ const { run, report } = require('./harness.js');
     rep.filter(l => !l.built).forEach(l => {
       if (l.coverage) throw new Error(l.id + ': تغطية بلا بناء');
     });
+  });
+
+  /* السهم يدلّ على موضع واحد. ووحداتٌ كثيرة تكون مفتوحة معاً، فلو وُسمت
+     كلّها «الوحدة الحالية» لم يَدُلّ السهم على شيء. */
+  await run('سهم «الوحدة الحالية» يشير إلى وحدة واحدة لا إلى كل المفتوح',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    const lessons = ev('LESSONS'), units = ev('UNIT_NS');
+    units.forEach(u => { ev('S').cp[u] = true; ev('S').ret[u] = true });
+    lessons.forEach(l => { ev('S').lessons[l.id] = 100 });
+    const h = ctx.courseView();
+    const n = (h.match(/الوحدة الحالية/g) || []).length;
+    if (n > 1) throw new Error('السهم على ' + n + ' وحدات');
+    const open = units.filter(u => ev('unitOpen')(u) && !ev('unitDone')(u));
+    if (open.length > 1 && n !== 1) throw new Error('وحدات مفتوحة بلا سهم على إحداها');
   });
 
   await report();

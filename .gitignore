@@ -1,3 +1,4 @@
 
 # ملفات سكربتات مؤقتة
 .*.tmp.js
+.claude/launch.json

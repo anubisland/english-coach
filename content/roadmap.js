@@ -8,7 +8,7 @@
 export const LEVELS = [
   {id:'A1', t:'مبتدئ', state:'done',
    d:'يعرّف بنفسه، ويسأل أسئلة بسيطة، ويتكلّم عن يومه، ويطلب في مطعم.'},
-  {id:'A2', t:'مبتدئ متقدّم', state:'next',
+  {id:'A2', t:'مبتدئ متقدّم', state:'doing',
    d:'يتكلّم عن الماضي والمستقبل، ويقارن، ويصل الجمل بـ because و when.'},
   {id:'B1', t:'متوسّط', state:'todo',
    d:'يتابع حديثاً عادياً، ويشرح رأيه، ويكتب رسالة مترابطة.'},
@@ -48,11 +48,11 @@ export const STAGES = [
       {id:'5.4', t:'الأرقام والوقت والتواريخ', state:'done'}]}
   ]},
 
-  {id:'a2', t:'المستوى A2', level:'A2', state:'next', units:[
+  {id:'a2', t:'المستوى A2', level:'A2', state:'doing', units:[
     {n:6, t:'الماضي', lessons:[
-      {id:'6.1', t:'was / were', state:'todo'},
-      {id:'6.2', t:'الأفعال المنتظمة في الماضي', state:'todo'},
-      {id:'6.3', t:'الأفعال غير المنتظمة', state:'todo'}]},
+      {id:'6.1', t:'was / were', state:'done'},
+      {id:'6.2', t:'الأفعال المنتظمة في الماضي', state:'done'},
+      {id:'6.3', t:'الأفعال غير المنتظمة', state:'done'}]},
     {n:7, t:'المستقبل', lessons:[
       {id:'7.1', t:'going to', state:'todo'},
       {id:'7.2', t:'will', state:'todo'}]},

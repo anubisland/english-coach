@@ -80,3 +80,6 @@ export const SKILL_UNIT=(()=>{const m={};LESSONS.forEach(l=>(l.rules||[]).forEac
 export const ITEM_RULE=ITEM_SKILL;
 
 export const unitDone=n=>unitLessons(n).every(l=>S.lessons[l.id])&&convoList(n).every(c=>S.conv[c.id])&&!!S.cp[n]&&(n===3||!!S.ret[n]);
+/* أوّل وحدة مفتوحة لم تكتمل. ووحداتٌ كثيرة تكون مفتوحة معاً، فلو وُسمت
+   كلّها «الوحدة الحالية» لدلّ السهم على ستّة مواضع ولم يدلّ على شيء. */
+export const currentUnit=()=>UNIT_NS.find(u=>unitOpen(u)&&!unitDone(u)&&!S.skipped[u])||null;

@@ -2,7 +2,7 @@
 import {UNITS,LESSONS} from '../content/lessons.js';
 import {S,save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
-import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen,unitDone,LAST_UNIT,LEVELS_BUILT,levelExamOpen} from '../engine/progress.js';
+import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen,unitDone,currentUnit,LAST_UNIT,LEVELS_BUILT,levelExamOpen} from '../engine/progress.js';
 import {RULE} from '../content/rules.js';
 import {card,svg,ar,ruleCard,esc,count,resultLine} from './ui.js';
 import {nextStep} from './home.js';
@@ -32,7 +32,8 @@ export function convoHtml(u){
 export function unitStatus(n){
   if(unitDone(n))return '<span class="pill">✅ مكتملة</span>';
   if(S.skipped[n])return '<span class="pill" style="background:var(--surf2);color:var(--mute)">⏭️ تخطّيتها بالاختبار</span>';
-  if(unitOpen(n))return '<span class="pill" style="background:var(--soft);color:var(--ind2)">📍 الوحدة الحالية</span>';
+  if(n===currentUnit())return '<span class="pill" style="background:var(--soft);color:var(--ind2)">📍 الوحدة الحالية</span>';
+  if(unitOpen(n))return '<span class="pill" style="background:var(--surf2);color:var(--mute)">مفتوحة</span>';
   return '<span class="pill" style="background:var(--surf2);color:var(--faint)">🔒 مقفلة</span>';
 }
 export function courseView(){

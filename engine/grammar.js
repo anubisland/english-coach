@@ -7,6 +7,20 @@ export function s3(v){if(v==='have')return 'has';if(v==='do')return 'does';if(/[
 
 const IRREG={"childs":"children","mans":"men","womans":"women","foots":"feet","tooths":"teeth","persons":"people","mouses":"mice"};
 
+const IRR={"go":"went","see":"saw","have":"had","eat":"ate","take":"took","come":"came","make":"made","give":"gave","buy":"bought","get":"got","say":"said","do":"did","write":"wrote","drink":"drank","sit":"sat","run":"ran","know":"knew","think":"thought","bring":"brought","find":"found","leave":"left","meet":"met","pay":"paid","send":"sent","sell":"sold","teach":"taught","tell":"told","wear":"wore","win":"won","speak":"spoke","sleep":"slept","stand":"stood","lose":"lost","feel":"felt","keep":"kept","build":"built"};
+const PAST2BASE=Object.fromEntries(Object.entries(IRR).map(([k,v])=>[v,k]));
+/* يردّ الفعل المنتهي بـ ed إلى صيغته المجرّدة تقريباً. */
+/* يردّ الفعل المنتهي بـ ed إلى صيغته المجرّدة.
+   ولا يصحّ التخمين باللاحقة: «worked» و«liked» كلاهما ينتهي بـ ked،
+   وأصلهما work و like — فاللائحة أصدق من القاعدة هنا. */
+const E_VERBS=new Set(['like','live','close','use','move','arrive','dance','smile','invite','decide','hope','phone','save','share','change','continue','prepare','practice','complete','agree','love','hate','create','receive','believe','arrange','manage','promise','produce'.split?'produce':'produce']);
+function baseOfEd(v){const x=v.toLowerCase();
+  if(/ied$/.test(x))return x.slice(0,-3)+'y';
+  const dropD=x.slice(0,-1);
+  if(E_VERBS.has(dropD))return dropD;
+  if(/([^aeiou])\1ed$/.test(x))return x.slice(0,-3);
+  return x.replace(/ed$/,'')}
+
 export const GR=[
 {re:/\bi is\b/gi,f:()=>'I am',rid:'be-subject',ar:'مع I نستخدم am وليس is'},
 {re:/\b(he|she|it) are\b/gi,f:(m,p)=>p+' is',rid:'be-subject',ar:'مع he / she / it نستخدم is وليس are'},
@@ -73,6 +87,15 @@ export const GR=[
 {re:/\b(in|on)\s+(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|noon|midnight)\s+o'?clock\b/gi,f:(m,p,h)=>"at "+h+" o'clock",rid:'numbers-time',ar:'الساعة تأخذ at'},
 {re:/\b(in|on)\s+night\b/gi,f:()=>'at night',rid:'numbers-time',ar:'نقول at night لا in night'},
 {re:/\bat\s+the\s+(morning|afternoon|evening)\b/gi,f:(m,x)=>'in the '+x,rid:'numbers-time',ar:'أجزاء اليوم تأخذ in: in the morning'},
+/* قواعد الوحدة السادسة: الماضي — was/were، وed، والأفعال الشاذّة. */
+{re:/\b(i|he|she|it)\s+were\b/gi,f:(m,p)=>p+' was',rid:'past-be',ar:'مع I و he و she و it نستخدم was لا were'},
+{re:/\b(you|we|they)\s+was\b/gi,f:(m,p)=>p+' were',rid:'past-be',ar:'مع you و we و they نستخدم were لا was'},
+{re:/\bdid\s+(i|you|we|they|he|she|it)\s+(was|were)\b/gi,f:(m,p)=>(/^(i|he|she|it)$/i.test(p)?'Was ':'Were ')+p,rid:'past-be',ar:'السؤال بـ was / were يُقلب بلا did'},
+{re:/\b(did|didn't|did not)\s+((?:[a-z]+\s+)?)([a-z]+ed)\b/gi,f:(m,d,mid,v)=>d+' '+mid+baseOfEd(v),rid:'past-regular',ar:'بعد did يعود الفعل مجرّداً: الزمن في did لا في الفعل'},
+{re:/\b(did|didn't|did not)\s+((?:[a-z]+\s+)?)(went|saw|had|ate|took|came|made|gave|bought|got|said|did|wrote|drank|sat|ran|knew|thought|brought|found|left|met|paid|sent|sold|taught|told|wore|won|spoke|slept|stood|lost|felt|kept|built)\b/gi,f:(m,d,mid,v)=>d+' '+mid+(PAST2BASE[v.toLowerCase()]||v),rid:'past-irregular',ar:'بعد did يعود الفعل مجرّداً وإن كان شاذّاً'},
+{re:/\b(go|see|have|eat|take|come|make|give|buy|get|say|do|write|drink|sit|run|know|think|bring|find|leave|meet|pay|send|sell|teach|tell|wear|win|speak|sleep|stand|lose|feel|keep|build)ed\b/gi,f:(m,v)=>IRR[v.toLowerCase()]||m,rid:'past-irregular',ar:'فعل شاذّ لا يأخذ ed، بل تتغيّر صيغته حفظاً'},
+{re:/\b(see|flee|agree)d\b/gi,f:(m,v)=>IRR[v.toLowerCase()]||v+'d',rid:'past-irregular',ar:'see شاذّ: ماضيه saw لا seed'},
+{re:/\b(stud|tr|carr|marr|worr|cr|dr|appl|repl|suppl|cop)yed\b/gi,f:(m,r)=>r+'ied',rid:'past-regular',ar:'الفعل المنتهي بـ y بعد ساكن يصير ied لا yed'},
 {re:/\bthe most (\w+est)\b/gi,f:(m,w)=>'the '+w,ar:'لا نجمع most مع est: the biggest لا the most biggest'}
 ];
 export function fixText(t){let o=t;GR.forEach(r=>{o=o.replace(r.re,r.f)});return o.charAt(0).toUpperCase()+o.slice(1)}
