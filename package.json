@@ -1,0 +1,16 @@
+{
+  "name": "english-coach",
+  "version": "1.0.0",
+  "private": true,
+  "description": "مدرب الإنجليزية — تطبيق تعلّم الإنجليزية للناطقين بالعربية",
+  "scripts": {
+    "test": "node tests/app.test.js && node tests/assets.test.js && node tests/apk.test.mjs",
+    "stage": "node scripts/stage-web.mjs",
+    "apk": "node scripts/build-apk.mjs"
+  },
+  "devDependencies": {
+    "@capacitor/android": "7.6.9",
+    "@capacitor/cli": "7.6.9",
+    "@capacitor/core": "7.6.9"
+  }
+}

@@ -1,0 +1,90 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>توليد أيقونات أندرويد</title>
+<!--
+  يرسم icon.svg في لوحات بالمقاسات التي يطلبها أندرويد، ويُخرج النتيجة
+  base64 ليكتبها scripts/icons/write-icons.mjs في android-res/.
+
+  ولا مكتبة هنا قصداً: مولّدُ الأيقونات الرسميّ يجرّ sharp، وفيه ثغرات
+  بلا إصلاح، ولا يُحتمل أن يبقى في اعتماديات المشروع لأجل عملٍ يُفعل
+  مرّة. والمتصفّح يرسم SVG أصلاً.
+-->
+<body style="font:14px system-ui;padding:20px">جارٍ…</body>
+<script type="module">
+const BG = '#5B47F5';
+
+/* الزخرفة وحدها بلا خلفيّتها: طبقةُ المقدّمة في الأيقونة المتكيّفة
+   تُرسم فوق لونٍ مصمت، فلو حملت خلفيّتها لظهرت مربّعاً فوق مربّع. */
+const GLYPH = `
+  <path fill="#FFFFFF"
+        d="M172 84h168a60 60 0 0 1 60 60v96a60 60 0 0 1-60 60h-92l-54 42a9 9 0 0 1-14.5-7V300H172a60 60 0 0 1-60-60v-96a60 60 0 0 1 60-60Z"/>
+  <g fill="none" stroke="${BG}" stroke-width="28" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M216 246 256 136l40 110"/>
+    <path d="M233 212h46"/>
+  </g>
+  <g fill="#FFFFFF">
+    <rect x="170" y="402" width="20" height="28" rx="10" opacity=".75"/>
+    <rect x="208" y="384" width="20" height="46" rx="10" opacity=".88"/>
+    <rect x="246" y="366" width="20" height="64" rx="10"/>
+    <rect x="284" y="388" width="20" height="42" rx="10" opacity=".88"/>
+    <rect x="322" y="404" width="20" height="26" rx="10" opacity=".75"/>
+  </g>`;
+
+const FULL = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="114" fill="${BG}"/>${GLYPH}</svg>`;
+
+/* حدود الزخرفة في إحداثيّات 512: من 112 إلى 400 عرضاً، ومن 84 إلى 430
+   طولاً. وتُقاس لتُوضَع في المنطقة الآمنة — الثلثين الأوسطين — فلا
+   يقصّها القناع مهما كان شكله. */
+const BOX = {x: 112, y: 84, w: 288, h: 346};
+function foreground(px) {
+  const safe = px * 2 / 3, k = safe / Math.max(BOX.w, BOX.h);
+  const dx = px / 2 - (BOX.x + BOX.w / 2) * k, dy = px / 2 - (BOX.y + BOX.h / 2) * k;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${px} ${px}">
+    <g transform="translate(${dx} ${dy}) scale(${k})">${GLYPH}</g></svg>`;
+}
+
+const draw = (svg, px, round) => new Promise((res, rej) => {
+  const img = new Image();
+  img.onerror = () => rej(new Error('تعذّر رسم SVG عند ' + px));
+  img.onload = () => {
+    const c = document.createElement('canvas');
+    c.width = c.height = px;
+    const g = c.getContext('2d');
+    if (round) { g.beginPath(); g.arc(px / 2, px / 2, px / 2, 0, 7); g.clip() }
+    g.drawImage(img, 0, 0, px, px);
+    res(c.toDataURL('image/png').split(',')[1]);
+  };
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+});
+
+const DPI = {mdpi: 1, hdpi: 1.5, xhdpi: 2, xxhdpi: 3, xxxhdpi: 4};
+const out = {};
+for (const [d, k] of Object.entries(DPI)) {
+  out[`mipmap-${d}/ic_launcher.png`] = await draw(FULL, Math.round(48 * k), false);
+  out[`mipmap-${d}/ic_launcher_round.png`] = await draw(FULL, Math.round(48 * k), true);
+  const fg = Math.round(108 * k);
+  out[`mipmap-${d}/ic_launcher_foreground.png`] = await draw(foreground(fg), fg, false);
+}
+/* وأيقونة المتجر، ولا مكان لها في res فتُحفظ بجوارها. */
+out['play-store-512.png'] = await draw(FULL, 512, false);
+
+window.ICONS = out;
+
+/* الرمز يطبعه write-icons.mjs عند بدئه، ويُمرَّر هنا في ?token=…
+   فيُرسَل في ترويسةٍ مخصّصة — وهي تُلزم المتصفّح بطلب إذنٍ مسبق، فلا
+   تستطيع صفحةٌ أجنبيّة أن تبلغ الخادم ولو كان مفتوحاً. */
+window.send = async () => {
+  const token = new URLSearchParams(location.search).get('token');
+  if (!token) throw new Error('لا رمز: افتح الصفحة بـ ?token=…');
+  const r = await fetch('http://127.0.0.1:9099/', {
+    method: 'POST',
+    headers: {'content-type': 'application/json', 'x-icons-token': token},
+    body: JSON.stringify(window.ICONS)
+  });
+  return (r.ok ? '' : r.status + ': ') + await r.text();
+};
+
+document.body.textContent = 'جاهز: ' + Object.keys(out).length
+  + ' ملفاً. نادِ send() للكتابة.';
+</script>

@@ -2,3 +2,9 @@
 # ملفات سكربتات مؤقتة
 .*.tmp.js
 .claude/launch.json
+
+# بناء التطبيق — يُولَّد ولا يُحفظ
+node_modules/
+www/
+android/
+*.apk

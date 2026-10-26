@@ -1,0 +1,11 @@
+{
+  "appId": "org.elwazir.englishcoach",
+  "appName": "مدرب الإنجليزية",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}
