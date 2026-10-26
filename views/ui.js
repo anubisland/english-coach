@@ -31,7 +31,7 @@ export function say(t,r=0.9){
   }catch(e){logError('تشغيل الصوت',e);toast('الصوت غير متاح في هذا المتصفح، جرّب Chrome أو Edge')}
 }
 
-export function card(h,b){return `<div class="card"><h2>${h}</h2>${b}</div>`}
+export function card(h,b,cls){return `<div class="card${cls?' '+cls:''}"><h2>${h}</h2>${b}</div>`}
 /* تحذير يبقى ظاهراً ما دام سببه قائماً، بخلاف التنبيه العابر. */
 
 export function banners(){

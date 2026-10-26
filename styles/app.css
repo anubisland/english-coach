@@ -29,8 +29,10 @@ header{
   padding-top:env(safe-area-inset-top,0px);
   /* ألوان صريحة لا متغيّرات: ظهر الاسم مرة على خلفية بيضاء لأن ملف
      المتغيّرات لم يصل، ولا يصحّ أن تتوقف قراءة اسم البرنامج على ملف ثانٍ. */
-  background:#1E3A8A;
-  background:linear-gradient(90deg,#0B2567 0%,#1D4ED8 30%,#2563EB 50%,#1D4ED8 70%,#0B2567 100%);
+  background:#0A1C52;
+  background:linear-gradient(90deg,#040B24 0%,#0A1C52 32%,#102A74 50%,#0A1C52 68%,#040B24 100%);
+  /* ولا يُغني عن ذلك احتياطيٌّ قبل السطر: إخفاق var() يُبطل الإعلان
+     عند الحساب فيعود اللون شفّافاً، ولا يرجع إلى الإعلان السابق. */
   border-radius:0 0 22px 22px;
   overflow:hidden;
   box-shadow:0 4px 18px rgba(11,37,103,.32);
@@ -81,6 +83,28 @@ header::after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;
 .card{background:var(--surf);border:1px solid var(--line);border-radius:22px;padding:16px;margin-top:13px;box-shadow:var(--shadow)}
 .card h2{font:600 16px 'Readex Pro','IBM Plex Sans Arabic',sans-serif;margin-bottom:9px;line-height:1.5}
 .card.flat{box-shadow:none;background:transparent}
+
+/* البطاقتان الملوّنتان في الرئيسية. ولا تُلوَّن أجزاؤهما واحداً
+   واحداً: كلُّ ما بداخلهما يقرأ من الرموز أصلاً، فتُعاد الرموزُ
+   هنا في نطاق البطاقة وحدَها ويتبعها ما فيها — الحلقةُ والشريطُ
+   والأزرارُ والنصُّ الخافت. وبهذا لا يبقى لونٌ ثابتٌ في العرض. */
+.card.tone1,.card.tone2{border-color:transparent}
+.card.tone1{
+  background:var(--t1Bg); color:var(--t1Ink);
+  --ink:var(--t1Ink); --mute:var(--t1Mute); --faint:var(--t1Mute);
+  --line:var(--t1Line); --surf2:rgba(255,255,255,.14);
+  /* الذهبيُّ على الأزرق أظهرُ من البنفسجيّ، وهو لونُ العلامة نفسه. */
+  --ind:var(--brand); --ind2:var(--brand);
+}
+.card.tone2{
+  background:var(--t2Bg); color:var(--t2Ink);
+  --ink:var(--t2Ink); --mute:var(--t2Mute); --faint:var(--t2Mute);
+  --line:var(--t2Line); --surf2:rgba(255,255,255,.18);
+  --ind:var(--t2Ink); --ind2:var(--t2Ink);
+}
+:root[data-theme=light] .card.tone2{--surf2:rgba(16,48,110,.09)}
+.card.tone1 h2,.card.tone2 h2{color:inherit}
+.card.tone1 .btn.ghost,.card.tone2 .btn.ghost{background:var(--surf2);color:inherit}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:16px;
   background:var(--ind);color:#fff;padding:12px 19px;min-height:44px;

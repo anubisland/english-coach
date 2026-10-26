@@ -2,9 +2,10 @@
 import {LESSONS} from '../content/lessons.js';
 import {S,save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
-import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen,UNIT_NS} from '../engine/progress.js';
+import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen,UNIT_NS,
+        levelUnits,unitLevel} from '../engine/progress.js';
 import {reviewStats} from '../engine/quiz.js';
-import {cefrReport} from '../engine/cefr.js';
+import {cefrReport,currentLevel} from '../engine/cefr.js';
 import {BOXES} from '../engine/srs.js';
 import {card,svg,ar,count,esc} from './ui.js';
 
@@ -23,8 +24,23 @@ export function nextStep(){
     if(!S.cp[u])return{label:`بوابة الوحدة ${ar(u)}`,act:`launch('cp',${u})`,cta:'ابدأ الاختبار',anchor:'st-g-'+u,unit:u};
     if(u!==3&&!S.ret[u])return{label:`اختبار الاستبقاء للوحدة ${u}`,act:`launch('ret',${u})`,cta:'ابدأ الاختبار',anchor:'st-g-'+u,unit:u};
   }
-  if(examOpen()&&!S.exam)return{label:'الامتحان النهائي A1',act:"launch('exam')",cta:'ابدأ الامتحان',anchor:'st-exam',unit:3};
+  /* اسمُ المستوى يُشتقّ من الوحدة التي وقفنا عندها، لا يُكتب: كان
+     «الامتحان النهائي A1» ثابتاً، فبقي يقول A1 لمن بلغ C2. */
+  const last=UNIT_NS[UNIT_NS.length-1];
+  if(examOpen()&&!S.exam)return{label:`الامتحان النهائي ${unitLevel(last)}`,
+    act:"launch('exam')",cta:'ابدأ الامتحان',anchor:'st-exam',unit:3};
   return null;
+}
+
+/* نصيبُ المستوى الحاليّ من دروسه. والحلقة تقيسه هو لا المنهجَ كلَّه:
+   كانت تقيس الدروس الستّة والخمسين وتكتب تحتها «من أساسيات A1»،
+   فكان الرقمُ شيئاً والعنوانُ شيئاً آخر. */
+export function levelProgress(){
+  const lv=currentLevel();
+  const ls=levelUnits(lv).flatMap(unitLessons);
+  const done=ls.filter(l=>S.lessons[l.id]).length;
+  return {lv, done, total:ls.length,
+    pct: ls.length?Math.round(done/ls.length*100):0};
 }
 
 export function homeView(){
@@ -33,13 +49,13 @@ export function homeView(){
     '<p class="muted">قبل أن نبدأ، اختبار قصير من 12 سؤالاً يحدد نقطة انطلاقك. يستغرق دقيقتين، ولا توجد إجابة تُحسب عليك.</p><div class="row"><button class="btn" onclick="launch(\'place\')">ابدأ اختبار تحديد المستوى</button></div>');
 
   const nx=nextStep();
-  const pct=Math.round(done/LESSONS.length*100);
+  const lp=levelProgress();
   const top=Object.entries(S.errs||{}).sort((a,b)=>b[1]-a[1])[0];
 
-  return ringCard(pct)+
+  return ringCard(lp)+
   `<div class="stats">
     <div class="stat s1"><b>${ar(done)}<span style="font-size:14px">/${ar(LESSONS.length)}</span></b><span>دروس متقنة</span></div>
-    <div class="stat s2"><b>${ar(Object.keys(S.cp).length)}<span style="font-size:14px">/٣</span></b><span>وحدات مجتازة</span></div>
+    <div class="stat s2"><b>${ar(Object.keys(S.cp).length)}<span style="font-size:14px">/${ar(UNIT_NS.length)}</span></b><span>وحدات مجتازة</span></div>
     <div class="stat s3"><b>${ar(S.xp)}</b><span>نقاط XP</span></div></div>`+
   cefrCard()+
   reviewCard()+
@@ -53,13 +69,16 @@ export function homeView(){
        <span class="muted" style="display:block;font-size:12px">تكرر ${ar(top[1])} مرة</span></span>
        <button class="btn ghost" style="margin:0" onclick="go('speak')">درّبني</button></div>`):'')+
   card('الامتحان النهائي',
-    `<p class="muted">${S.exam?'🎉 أتممت مستوى A1':'يُفتح بعد اجتياز الوحدات الثلاث واختبارات الاستبقاء'}</p>
+    `<p class="muted">${S.exam?`🎉 أتممت مستوى ${esc(lp.lv)}`
+      :`يُفتح بعد اجتياز وحدات ${esc(lp.lv)} واختبارات الاستبقاء`}</p>
      <div class="row" style="justify-content:flex-start"><button class="btn ghost" onclick="go('course')">عرض الرحلة كاملة</button></div>`);
 }
 
 /* أرقام عربية-هندية في الواجهة العربية، والإنجليزية تبقى كما هي. */
 
-export function ringCard(pct){
+export function ringCard(lp){
+  const pct=typeof lp==='number'?lp:lp.pct;
+  const lv=typeof lp==='number'?currentLevel():lp.lv;
   const C=414.7, p=Math.max(0,Math.min(1,pct/100));
   const lens=[6,11,4,13,7,9,5,14,8,6,12,5];
   let ticks='';
@@ -70,7 +89,7 @@ export function ringCard(pct){
     ticks+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${i/48<p?'var(--ind)':'var(--line)'}" stroke-width="2.4" stroke-linecap="round"/>`;
   }
   const goals=[5,10,20].map(g=>`<button class="btn${g===S.goal?'':' ghost'}" style="margin:0;padding:8px 15px;min-height:0;border-radius:999px;font-size:12.5px${g===S.goal?'':';background:transparent;color:var(--mute)'}" onclick="setGoal(${g})">${ar(g)} د</button>`).join('');
-  return `<div class="card" style="display:flex;flex-direction:column;align-items:center;padding-top:10px">
+  return `<div class="card tone1" style="display:flex;flex-direction:column;align-items:center;padding-top:10px">
     <div style="position:relative;width:186px;height:186px">
       <svg width="186" height="186" viewBox="0 0 200 200" role="img" aria-label="أتممتَ ${pct} بالمئة من دروس المستوى">
         <circle cx="100" cy="100" r="66" fill="none" stroke="var(--line)" stroke-width="13"/>
@@ -80,7 +99,7 @@ export function ringCard(pct){
       </svg>
       <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
         <span class="dsp" style="font-size:44px;line-height:1">${ar(pct)}<span style="font-size:20px">٪</span></span>
-        <span class="muted" style="font-size:12px">من أساسيات <span class="en">A1</span></span>
+        <span class="muted" style="font-size:12px">من أساسيات <span class="en">${esc(lv)}</span></span>
       </div>
     </div>
     <div class="muted" style="font-size:12px;margin-top:10px">هدف الكلام اليومي</div>
@@ -124,14 +143,22 @@ function boxBar(r){
     +ar(BOXES[BOXES.length-1])+' يوماً · أتقنت '+ar(r.mastered)+' من '+ar(r.tracked)+'</p>';
 }
 
-/* بطاقة «أين أنت من A1»: المستوى منسوباً إلى مرجع لا إلى أنفسنا. */
+/* بطاقة «أين أنت من …»: المستوى منسوباً إلى مرجع لا إلى أنفسنا.
+
+   وكان اسمُ المستوى مكتوباً A1 في العنوان وفي متنه، وcefrReport بلا
+   وسيطٍ ترجع A1 دائماً — فكان من بلغ B2 يُقال له «أين أنت من A1»
+   ويُعرض عليه عددُ قدرات A1. فالمستوى يُشتقّ الآن ويُمرَّر. */
 function cefrCard(){
-  const r=cefrReport();
-  return card('أين أنت من A1',
+  const lv=currentLevel();
+  const r=cefrReport(lv);
+  if(!r.total)return '';
+  return card('أين أنت من <span class="en">'+esc(lv)+'</span>',
     '<p class="muted">أثبتَ <b style="color:var(--ind2)">'+ar(r.proven)+' من '+ar(r.total)
-    +'</b> من قدرات A1 التي يغطّيها البرنامج، وهو يغطّي '+ar(r.coverage)+'٪ من A1 الكامل.</p>'
+    +'</b> من قدرات <span class="en">'+esc(lv)+'</span> التي يغطّيها البرنامج، وهو يغطّي '
+    +ar(r.coverage)+'٪ من <span class="en">'+esc(lv)+'</span> الكامل.</p>'
     +'<div class="bar" style="margin-top:9px"><i style="width:'+Math.round(r.proven/r.total*100)+'%"></i></div>'
     +'<div class="row" style="justify-content:flex-start;margin-top:10px">'
     +'<button class="btn ghost" onclick=\'go("cefr")\'>اعرض التفصيل</button>'
-    +'<button class="btn ghost" onclick=\'go("roadmap")\'>خريطة المنهج</button></div>');
+    +'<button class="btn ghost" onclick=\'go("roadmap")\'>خريطة المنهج</button></div>',
+    'tone2');
 }

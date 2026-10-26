@@ -2578,6 +2578,32 @@ const { run, report } = require('./harness.js');
     if (!ctx.cefrReport(here).total) throw new Error('المستوى الحالي خالٍ: ' + here);
   });
 
+  /* الرئيسية كانت تقول «أين أنت من A1» و«من أساسيات A1» و«الامتحان
+     النهائي A1» و«/٣ وحدات» — أربعةُ نصوصٍ كُتبت يوم كان البرنامج
+     A1 وثلاثَ وحدات. فبقيت تقولها لمن بلغ C2، وcefrReport بلا وسيطٍ
+     ترجع A1 دائماً فكانت الأرقامُ أرقامَ A1 أيضاً. */
+  await run('الرئيسية تتبع مستوى المتعلّم لا مستوىً مكتوباً',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    const S = ev('S'), ids = ev('LEVEL_IDS');
+    /* أثبِت قدرات المستوى الأول كلَّها، فينتقل «الحاليّ» إلى ما بعده. */
+    const first = ids.find(id => ctx.cefrReport(id).total);
+    S.res = S.res || {};
+    ctx.cefrReport(first).rows.forEach(c => {
+      c.lessons.forEach(id => { S.lessons[id] = true });
+      S.res[c.exam] = {n: 1, last: 90};
+    });
+    const now = ctx.currentLevel();
+    if (now === first) throw new Error('لم ينتقل المستوى رغم إثبات قدراته');
+    const html = ctx.homeView();
+    if (!html.includes(now)) throw new Error('الرئيسية لا تذكر مستواه ' + now);
+    /* ولا تذكر مستوىً أتمّه كأنّه موضعُه الآن. */
+    if (new RegExp('(أين أنت من|أساسيات|الامتحان النهائي)[^<]*<[^>]*>' + first)
+        .test(html) || html.includes('من قدرات ' + first))
+      throw new Error('الرئيسية ما زالت تنسبه إلى ' + first);
+    if (html.includes('/٣<') || html.includes('>٣<'))
+      throw new Error('عدد الوحدات مكتوبٌ ثلاثةً لا مشتقّاً');
+  });
+
   /* تمّ المنهج المخطَّط كلُّه، فسقط الحارسُ الذي كان يكفي: «فيه باقٍ
      إذن لا يدّعي التمام». ولو حُذف آخرُ نقصٍ مُعلَنٍ بعد اليوم لقال
      البرنامج إنّه يعلّم الإنجليزية كلَّها — وفيها ما لا يقيسه محرّك
