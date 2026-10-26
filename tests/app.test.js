@@ -2702,6 +2702,20 @@ const { run, report } = require('./harness.js');
      يقول إنه موجود، والشاشة لا تعرضه أبداً. وقد وقع هذا فعلاً — كان
      سقف اختبار الترجمة الرقمَ ٣ مكتوباً، فبقيت إحدى وأربعون جملة في
      البنك لا يراها أحد، منها وحدتان سبقتا A2. */
+  /* فاصلةٌ زائدةٌ بين مدخلين تصنع ثقباً في المصفوفة: [a, , b]. وطولُها
+     يعدّه، وfilter وforEach وmap تتخطّاه جميعاً — فلا يظهر في أيّ
+     فحصٍ يمرّ عليها، ويظهر عند أوّل قراءةٍ بالفهرس بصورة undefined.
+     وقد وقع هذا عند إلحاق بنوك C1. */
+  await run('لا ثقب في بنوك المحتوى', {}, (ctx, ev) => {
+    [['CONVO', ev('CONVO')], ['READS', ev('READS')],
+     ['TRANSLATE', ev('TRANSLATE')], ['WRITE', ev('WRITE')],
+     ['LESSONS', ev('LESSONS')]].forEach(([name, bank]) => {
+      for (let i = 0; i < bank.length; i++)
+        if (!(i in bank) || !bank[i])
+          throw new Error(name + ': ثقبٌ عند الموضع ' + i + ' — فاصلةٌ زائدة');
+    });
+  });
+
   await run('كل ما في البنوك يبلغه المتعلّم عند تمام المنهج', {}, (ctx, ev) => {
     const last = ev('LAST_UNIT');
     const reach = { 'الترجمة': ev('TRANSLATE'), 'الكتابة': ev('WRITE') };

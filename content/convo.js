@@ -153,4 +153,34 @@ export const CONVO=[
 {p:`Tell me about the table you bought.`,o:[`It is a beautiful old wooden table.`,`It is a wooden old beautiful table.`,`It is an old beautiful wooden table.`],a:0,tip:`الترتيب: رأي ثم عمر ثم مادّة`},
 {p:`And does your brother speak English?`,o:[`He speaks English very well.`,`He speaks very well English.`,`He very well speaks English.`],a:0,tip:`لا يُفصَل الفعل عن مفعوله بظرف`},
 {p:`Is he usually on time?`,o:[`He always comes early.`,`He comes always early.`,`Always he comes early.`],a:0,tip:`ظرف التكرار قبل الفعل`}]}
+,
+{id:'c-c1-1',u:20,t:'مقابلة عمل: التأكيد بالقلب',turns:[
+{p:`You have worked in three countries. Was that hard?`,o:[`Never have I regretted it.`,`Never I have regretted it.`,`Never regretted I it.`],a:0,tip:`never المتصدّرة تقلب المساعد والفاعل`},
+{p:`And what did you gain there?`,o:[`Not only did I learn the language, I also learned the work.`,`Not only I learned the language, I also learned the work.`,`Not only learned I the language, I also learned the work.`],a:0,tip:`not only تلزمها did مع الفاعل بعدها`},
+{p:`When did you decide to come back?`,o:[`Only then did I understand what I wanted.`,`Only then I understood what I wanted.`,`Only then understood I what I wanted.`],a:0,tip:`only then تستلزم القلب بـdid`}]},
+
+{id:'c-c1-2',u:20,t:'مراجعة تقرير: الصيغة المُجزَأة',turns:[
+{p:`Who found the mistake in the report?`,o:[`It was Omar who found it.`,`It was Omar which found it.`,`It were Omar who found it.`],a:0,tip:`للعاقل who، وفعل الكينونة مفرد`},
+{p:`And what exactly did he find?`,o:[`What he found was a wrong date.`,`What he found were a wrong date.`,`That he found was a wrong date.`],a:0,tip:`صيغة What تُبرز المفعول، وفعلها مفرد`},
+{p:`Was the problem in the numbers or the dates?`,o:[`It was the dates that were wrong.`,`It were the dates that were wrong.`,`It was the dates which was wrong.`],a:0,tip:`It was مفردٌ دائماً، ولو كان المُبرَز جمعاً`}]},
+
+{id:'c-c1-3',u:21,t:'بريد العمل: السجلّ الرسميّ',turns:[
+{p:`We cannot meet on Monday. How do we write that to the client?`,o:[`We regret that we are unable to meet on Monday.`,`We can't meet on Monday, sorry.`,`We are not able to meet on Monday, no.`],a:0,tip:`الرسميّ يتجنّب الاختصار ويؤثر المفردة اللاتينية`},
+{p:`And we want the meeting moved to Thursday.`,o:[`We would be grateful if you could postpone it until Thursday.`,`Can you put it off until Thursday?`,`Please put off the meeting to Thursday.`],a:0,tip:`would be grateful if أرسمُ صيغ الطلب، وpostpone رسميّ`},
+{p:`How should the message end?`,o:[`We look forward to hearing from you.`,`Write back soon, please.`,`Waiting your answer.`],a:0,tip:`look forward to hearing from you خاتمةُ الرسالة الرسمية`}]},
+
+{id:'c-c1-4',u:21,t:'عرض نتائج: التحفّظ في الرأي',turns:[
+{p:`Is the new method faster than the old one?`,o:[`It appears to be faster in most cases.`,`It is always faster, everyone knows that.`,`It is faster, and nobody doubts it.`],a:0,tip:`appears to be وin most cases أدبُ التحفّظ`},
+{p:`Does the data prove that?`,o:[`The data suggest a clear link between them.`,`The data prove a clear link between them.`,`The data show, without any doubt, a link.`],a:0,tip:`suggest تنسب ولا تطلق، وprove جزمٌ يحتاج دليلاً قاطعاً`},
+{p:`So the cost will fall?`,o:[`The cost is likely to fall next year.`,`The cost will certainly fall next year.`,`The cost must fall next year.`],a:0,tip:`is likely to بدل will certainly`}]},
+
+{id:'c-c1-5',u:22,t:'في المكتب: ما يصاحب الكلمة',turns:[
+{p:`Have you decided about the new office?`,o:[`We made a decision yesterday.`,`We did a decision yesterday.`,`We gave a decision yesterday.`],a:0,tip:`make a decision — مصاحبةٌ تُحفظ`},
+{p:`And did the team finish the study?`,o:[`They did the research last month.`,`They made the research last month.`,`They gave the research last month.`],a:0,tip:`do research لا make research`},
+{p:`Shall I write the main points down?`,o:[`Yes, please take notes.`,`Yes, please do notes.`,`Yes, please pay notes.`],a:0,tip:`take notes — وmake notes فصيحةٌ أيضاً`}]},
+
+{id:'c-c1-6',u:22,t:'ترتيبات: الأفعال المركّبة',turns:[
+{p:`The meeting is at three, but Sara cannot come.`,o:[`Then we should put it off.`,`Then we should put off it.`,`Then we should off put it.`],a:0,tip:`الضمير يُفصَل: put it off`},
+{p:`Who will take care of the visitors?`,o:[`Hana will look after them.`,`Hana will look them after.`,`Hana will after look them.`],a:0,tip:`look after لا يُفصَل أبداً`},
+{p:`And what about the old chairs?`,o:[`We can give them away.`,`We can give away them.`,`We can away give them.`],a:0,tip:`give away قابلٌ للفصل، والضمير يُفصَل`}]}
 ];

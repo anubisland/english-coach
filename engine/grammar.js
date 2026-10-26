@@ -93,7 +93,7 @@ export const GR=[
 
    وكل قاعدة هنا ضيّقة عمداً — قائمة كلمات مغلقة لا نمط عام — لأن الإنذار
    الكاذب أسوأ من الصمت: الصمت يفوّت خطأً، والإنذار الكاذب يُعلّم خطأً. */
-{re:/(?<!\b(?:am|is|are|was|were|be|been|feel|feels|look|looks|get|gets|got|very|so|too|not|and|or|but|that|if|when)\s)\b(i|we|they|he|she|it) (happy|sad|tired|ready|fine|healthy|hungry|thirsty|late|early|busy|sick|ill|angry|afraid|sure|married|student|teacher|doctor|engineer|nurse|driver)\b/gi,f:(m,p,w)=>p+' '+be(p)+' '+w,rid:'be-subject',ar:'الجملة بلا فعل كينونة: نحتاج am / is / are'},
+{re:/(?<!\b(?:am|is|are|was|were|be|been|feel|feels|look|looks|get|gets|got|very|so|too|not|and|or|but|that|if|when|leave|leaves|left|keep|keeps|kept|find|finds|found|make|makes|made|call|calls|called|want|wants|wanted|need|needs|needed|like|likes|liked|see|sees|saw|let|lets|consider|considers|considered)\s)\b(i|we|they|he|she|it) (happy|sad|tired|ready|fine|healthy|hungry|thirsty|late|early|busy|sick|ill|angry|afraid|sure|married|student|teacher|doctor|engineer|nurse|driver)\b/gi,f:(m,p,w)=>p+' '+be(p)+' '+w,rid:'be-subject',ar:'الجملة بلا فعل كينونة: نحتاج am / is / are'},
 {re:/\b(we|you|they|he|she|it) am\b/gi,f:(m,p)=>p+' '+be(p),rid:'be-subject',ar:'am لا تأتي إلا مع I'},
 {re:/\b(doesn't|does not|don't|do not|didn't|did not) (\w+(?:ies|es|s))\b/gi,f:(m,n,v)=>n+' '+base(v.toLowerCase()),rid:'present-neg',ar:'بعد أداة النفي يبقى الفعل مجرّداً بلا s'},
 {re:/\b(stud|tr|cr|fl|carr|marr|worr|hurr|cop|appl|repl|suppl)ys\b/gi,f:(m,r)=>r+'ies',rid:'present-s',ar:'الفعل المنتهي بـ y بعد ساكن يصير ies لا ys'},

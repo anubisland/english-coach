@@ -473,6 +473,80 @@ Even though the evening was cold, we sat outside under the lights. We will certa
    ok:['soup and fish','vegetable soup and fish','soup and white fish','soup, fish']},
   {k:'word', ar:'ما الكلمة في النص التي تعني «صاخب»؟', ok:['noisy']},
   {k:'word', ar:'ما الكلمة في النص التي تعني «ممتاز»؟', ok:['excellent']}]}
+,
+{id:'r-c1-news', u:20, t:'خبر صحفيّ: افتتاح الخطّ', cat:'خبر',
+ text:`THE NEW LINE OPENS
+
+Rarely does a city change in a single week. On Monday, however, the new railway line opened to the public.
+
+Not only is the line faster than the old road, it is also cheaper for daily travellers.
+
+No sooner had the first train left than the platform filled again. Hardly had the doors closed when a second crowd arrived.
+
+It was the engineers who finished the work three months early. What surprised the mayor was the cost: it came to less than the first estimate.
+
+Only then did the council agree to plan a second line.`,
+ qs:[
+  {k:'tf', q:'The new line is cheaper than the old road.', a:true, why:'it is also cheaper for daily travellers'},
+  {k:'tf', q:'The work finished three months late.', a:false, why:'finished the work three months early — بل قبل موعدها بثلاثة أشهر'},
+  {k:'tf', q:'The cost was higher than the first estimate.', a:false, why:'it came to less than the first estimate'},
+  {k:'short', ar:'متى وافق المجلس على خطٍّ ثانٍ؟ أجب بالإنجليزية.',
+   ok:['only then','after the first line opened','when the cost was low','only then did the council agree']},
+  {k:'short', ar:'من أنهى العمل مبكّراً؟ أجب بالإنجليزية.',
+   ok:['the engineers','engineers','it was the engineers']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «نادراً»؟', ok:['rarely']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «رصيف المحطّة»؟', ok:['platform']}]},
+
+{id:'r-c1-mail', u:21, t:'رسالة رسمية: تأجيل الزيارة', cat:'رسالة',
+ text:`Dear Mr Hassan,
+
+Thank you for your letter of 3 March.
+
+I regret to inform you that we are unable to receive your team on Monday. The laboratory will be closed for repairs on that day.
+
+We would be grateful if you could postpone the visit until Thursday. Should that date be difficult, please let us know and we will arrange another.
+
+Our staff will assist your team with the forms on arrival. Visitors require a valid pass, which we will provide at the gate.
+
+We apologise for the change and look forward to hearing from you.
+
+Yours sincerely,
+Dr Amal Farouk`,
+ qs:[
+  {k:'tf', q:'The laboratory will be open on Monday.', a:false, why:'The laboratory will be closed for repairs on that day'},
+  {k:'tf', q:'The writer suggests Thursday instead.', a:true, why:'postpone the visit until Thursday'},
+  {k:'tf', q:'Visitors must bring their own pass.', a:false, why:'we will provide at the gate — المضيف يوفّره'},
+  {k:'short', ar:'ما المقابل الرسميّ لـ«put off» في النص؟ أجب بالإنجليزية.',
+   ok:['postpone']},
+  {k:'short', ar:'ما المقابل الرسميّ لـ«help» في النص؟ أجب بالإنجليزية.',
+   ok:['assist']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «يحتاج» رسميّاً؟', ok:['require']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «نعتذر»؟', ok:['apologise','apologize']}]},
+
+{id:'r-c1-adv', u:22, t:'نصيحة عملية: قبل المقابلة', cat:'مقال',
+ text:`BEFORE THE INTERVIEW
+
+Do your research first. Read about the company and make a list of questions.
+
+Do not put off your preparation until the last evening. People who leave it late make simple mistakes.
+
+Take notes while you read, and look over them on the morning of the interview.
+
+Pay attention to the time. Arriving early gives a good first impression.
+
+If the panel asks a hard question, take a moment before you answer. It is better to think than to make a mistake in a hurry.
+
+Afterwards, write a short note of thanks. Few candidates do this, and it is remembered.`,
+ qs:[
+  {k:'tf', q:'The writer advises leaving preparation until the last evening.', a:false, why:'Do not put off your preparation until the last evening'},
+  {k:'tf', q:'Arriving early helps the first impression.', a:true, why:'Arriving early gives a good first impression'},
+  {k:'tf', q:'Many candidates send a note of thanks.', a:false, why:'Few candidates do this'},
+  {k:'short', ar:'ماذا ينصح الكاتب أن تفعل أثناء القراءة؟ أجب بالإنجليزية.',
+   ok:['take notes','take notes while you read','make notes']},
+  {k:'short', ar:'ماذا تفعل عند سؤالٍ صعب؟ أجب بالإنجليزية.',
+   ok:['take a moment','take a moment before you answer','think first','wait and think']},
+  {k:'word', ar:'ما الفعل المركّب في النص الذي يعني «يؤجّل»؟', ok:['put off']},
+  {k:'word', ar:'ما الفعل المركّب في النص الذي يعني «يراجع»؟', ok:['look over']}]}
 ];
 
 export const READ = Object.fromEntries(READS.map(r => [r.id, r]));
