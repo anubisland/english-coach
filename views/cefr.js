@@ -58,9 +58,15 @@ function gapsCard(r) {
       + `<p class="muted" style="margin-top:10px;font-size:11.5px">ولذلك نقول «أساسيات ${esc(r.id)}»
           ولا نقول «${esc(r.id)} كامل».</p>`);
 
-  const rest = levelsReport().filter(l => !l.built).map(l => l.id);
+  const all = levelsReport();
+  const rest = all.filter(l => !l.built).map(l => l.id);
+  /* المستوى المبنيّ نصفَ بناء لا هو تامّ ولا هو غائب، فلولا ذكره هنا
+     لسقط من الإعلان كلّه: لا يراه المتعلّم في النواقص ولا في غير المبنيّ. */
+  const partial = all.filter(l => l.built && l.gaps && l.id !== r.id);
   return card('حدّ هذا البرنامج',
     `<p class="muted">البرنامج يغطّي <b>${esc(r.id)} كاملاً</b> — كل قدراته ${ar(r.total)}.</p>`
+    + partial.map(l => `<p class="muted" style="margin-top:6px">و<b>${esc(l.id)}</b> قيد البناء:
+        بُني منه ${ar(l.built)} وبقي ${ar(l.gaps)}.</p>`).join('')
     + (rest.length ? `<p class="muted" style="margin-top:6px">ولا يغطّي بعدُ:
         ${rest.map(x => '<b>' + esc(x) + '</b>').join(' و')}. فالإطار ستّة مستويات.</p>` : '')
     + `<p class="muted" style="margin-top:6px;font-size:11.5px">ومن أتمّ ${esc(r.id)} يستطيع أن يعرّف

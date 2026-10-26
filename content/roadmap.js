@@ -54,8 +54,8 @@ export const STAGES = [
       {id:'6.2', t:'الأفعال المنتظمة في الماضي', state:'done'},
       {id:'6.3', t:'الأفعال غير المنتظمة', state:'done'}]},
     {n:7, t:'المستقبل', lessons:[
-      {id:'7.1', t:'going to', state:'todo'},
-      {id:'7.2', t:'will', state:'todo'}]},
+      {id:'7.1', t:'going to', state:'done'},
+      {id:'7.2', t:'will', state:'done'}]},
     {n:8, t:'المقارنة', lessons:[
       {id:'8.1', t:'bigger / the biggest', state:'todo'},
       {id:'8.2', t:'as … as والمقارنة غير المنتظمة', state:'todo'}]},

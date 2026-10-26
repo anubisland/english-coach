@@ -2574,6 +2574,33 @@ const { run, report } = require('./harness.js');
     if (open.length > 1 && n !== 1) throw new Error('وحدات مفتوحة بلا سهم على إحداها');
   });
 
+  /* نصٌّ عربيّ داخل نطاقٍ إنجليزيّ ينقلب ترتيبه على الشاشة، فيقرأ
+     المتعلّم القاعدة معكوسة. والاختبار لا يراه، ولا تراه أنا إلا بالعين. */
+  await run('لا نصّ عربيّ داخل نطاق إنجليزيّ', {}, (ctx, ev) => {
+    const arabic = /[؀-ۿ]/;
+    const bad = [];
+    const scan = (where, html) => {
+      const re = /<span class=en>([^<]*)<\/span>/g;
+      let m; while ((m = re.exec(html || ''))) if (arabic.test(m[1])) bad.push(where + ': ' + m[1]);
+    };
+    ev('RULES').forEach(r => scan(r.id, [r.rule, r.why, ...(r.more || []),
+      ...(r.bad || []), r.ar].join(' ')));
+    ev('LESSONS').forEach(l => scan(l.id, l.more));
+    if (bad.length) throw new Error(bad.length + ' نطاقاً: ' + bad[0]);
+  });
+
+  /* المستوى المبنيّ نصفَ بناء لا هو تامّ ولا هو غائب، فمن السهل أن
+     يسقط من الإعلان بين الاثنين. وهذا ما وقع فعلاً حين بُني نصف A2. */
+  await run('كل مستوى بُني منه شيء ولم يتمّ يُعلَن على الشاشة', {}, (ctx, ev) => {
+    const html = ctx.cefrView();
+    ctx.levelsReport().filter(l => l.built && l.gaps).forEach(l => {
+      if (!html.includes(l.id)) throw new Error(l.id + ' مبنيّ ناقص ولا يُذكر');
+    });
+    const silent = ctx.levelsReport().filter(l => l.built && l.gaps)
+      .filter(l => !/ناقص|بقي|بقيّتها|قيد البناء/.test(html));
+    if (silent.length) throw new Error('نقص ' + silent[0].id + ' مذكورٌ بلا بيان');
+  });
+
   await report();
 
 

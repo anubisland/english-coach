@@ -54,13 +54,15 @@ export const CEFR = {
       {id:'past-tell', t:'يحكي ما حدث له أمس وأين كان',
        skill:'المحادثة', lessons:['6.1','6.2'], exam:'conv', scene:'x-school'},
       {id:'past-write', t:'يكتب عن حدثٍ مضى بأفعاله الصحيحة',
-       skill:'الكتابة', lessons:['6.2','6.3'], exam:'write'}
+       skill:'الكتابة', lessons:['6.2','6.3'], exam:'write'},
+      {id:'plan-tell', t:'يُخبر عن خططه ونيّاته لما هو آت',
+       skill:'المحادثة', lessons:['7.1'], exam:'conv', scene:'x-school'},
+      {id:'future-write', t:'يَعِد ويتكهّن ويكتب عمّا سيكون',
+       skill:'الكتابة', lessons:['7.1','7.2'], exam:'write'}
     ],
     /* تُنقل واحدةً واحدة إلى caps كلّما بُني درسها، فتُقاس التغطية
        من الواقع لا من الوعد. */
     gaps: [
-      {t:'المستقبل بـ going to', why:'I am going to travel'},
-      {t:'المستقبل بـ will', why:'I will call you tomorrow'},
       {t:'المقارنة: bigger / the biggest', why:'This car is bigger than that one'},
       {t:'المساواة: as … as', why:'He is as tall as his brother'},
       {t:'الكمّ: some / any / much / many', why:'Is there any milk?'},
