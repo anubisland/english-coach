@@ -58,13 +58,15 @@ export const CEFR = {
       {id:'plan-tell', t:'يُخبر عن خططه ونيّاته لما هو آت',
        skill:'المحادثة', lessons:['7.1'], exam:'conv', scene:'x-school'},
       {id:'future-write', t:'يَعِد ويتكهّن ويكتب عمّا سيكون',
-       skill:'الكتابة', lessons:['7.1','7.2'], exam:'write'}
+       skill:'الكتابة', lessons:['7.1','7.2'], exam:'write'},
+      {id:'compare-say', t:'يوازن بين شيئين ويقول أيّهما أفضل',
+       skill:'المحادثة', lessons:['8.1'], exam:'conv', scene:'x-shop'},
+      {id:'compare-write', t:'يصف الفرق والمساواة بصيغ المقارنة الصحيحة',
+       skill:'الكتابة', lessons:['8.1','8.2'], exam:'write'}
     ],
     /* تُنقل واحدةً واحدة إلى caps كلّما بُني درسها، فتُقاس التغطية
        من الواقع لا من الوعد. */
     gaps: [
-      {t:'المقارنة: bigger / the biggest', why:'This car is bigger than that one'},
-      {t:'المساواة: as … as', why:'He is as tall as his brother'},
       {t:'الكمّ: some / any / much / many', why:'Is there any milk?'},
       {t:'الربط: because / when / so', why:'I stayed home because it was cold'}
     ]
