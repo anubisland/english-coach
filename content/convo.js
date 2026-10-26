@@ -72,5 +72,45 @@ export const CONVO=[
 {id:'c18',u:9,t:'لماذا تأخّرت؟',turns:[
 {p:`You look tired. Why did you come late?`,o:[`I came late because the bus was full.`,`I came late because so the bus was full.`,`I came late because the full bus.`],a:0,tip:`بعد because جملة تامّة، ولا تُجمع مع so`},
 {p:`Oh, I see. What did you do then?`,o:[`It was raining, so I took a taxi.`,`It was raining, because I took a taxi.`,`Because it was raining so I took a taxi.`],a:0,tip:`so يليها النتيجة، وواحدة منهما تكفي`},
-{p:`Do you always take the bus?`,o:[`When I have time, I walk to work.`,`Because I have time, I walk to work.`,`When I have time, so I walk to work.`],a:0,tip:`when للزمن`}]}
+{p:`Do you always take the bus?`,o:[`When I have time, I walk to work.`,`Because I have time, I walk to work.`,`When I have time, so I walk to work.`],a:0,tip:`when للزمن`}]},
+{id:'c19',u:10,t:'ماذا أنجزتَ اليوم؟',turns:[
+{p:`Have you finished the report?`,o:[`Yes, I have finished it.`,`Yes, I have finish it.`,`Yes, I have finished it yesterday.`],a:0,tip:`بعد have التصريف الثالث، ولا يُذكر معه زمنٌ منتهٍ`},
+{p:`Good. Has your brother sent the email?`,o:[`No, he hasn't sent it yet.`,`No, he haven't sent it yet.`,`No, he hasn't send it yet.`],a:0,tip:`مع he نقول has، والثالث sent`},
+{p:`Have you ever worked on a project like this?`,o:[`No, I have never done this before.`,`No, I haven't never done this before.`,`No, I have never did this before.`],a:0,tip:`never نفيٌ بنفسها، وdo ثالثه done`}]},
+{id:'c20',u:10,t:'منذ متى؟',turns:[
+{p:`How long have you lived in this city?`,o:[`I have lived here for five years.`,`I have lived here since five years.`,`I live here for five years.`],a:0,tip:`المدّة تأخذ for، والزمن حاضرٌ تامّ`},
+{p:`And how long have you worked at the company?`,o:[`I have worked there since 2021.`,`I have worked there for 2021.`,`I worked there since 2021.`],a:0,tip:`السنة نقطةُ بداية فتأخذ since`},
+{p:`Have you already met the new manager?`,o:[`Yes, I have already met him.`,`Yes, I have met him yet.`,`Yes, I have already meet him.`],a:0,tip:`already للإثبات، وmeet ثالثه met`}]},
+{id:'c21',u:11,t:'ماذا كنتَ تفعل؟',turns:[
+{p:`I called you at eight. What were you doing?`,o:[`I was cooking dinner.`,`I was cook dinner.`,`I were cooking dinner.`],a:0,tip:`was ثم الفعل بـ ing`},
+{p:`And your brother? Was he at home?`,o:[`He was sleeping on the sofa.`,`He were sleeping on the sofa.`,`He was sleep on the sofa.`],a:0,tip:`مع he نقول was، والفعل بـ ing`},
+{p:`Did anything happen while you were cooking?`,o:[`Yes, the lights went out.`,`Yes, the lights were going out.`,`Yes, the lights go out.`],a:0,tip:`الحدث القاطع ماضٍ بسيط`}]},
+{id:'c22',u:11,t:'احكِ لي ما جرى',turns:[
+{p:`You look upset. What happened?`,o:[`While I was walking home, I lost my keys.`,`While I lost my keys, I was walking home.`,`While I walked home, I lost my keys.`],a:0,tip:`while للخلفية الطويلة المستمرّة`},
+{p:`Oh no. Were you alone?`,o:[`No, my sister was walking with me.`,`No, my sister were walking with me.`,`No, my sister was walk with me.`],a:0,tip:`المفرد يأخذ was، والفعل بـ ing`},
+{p:`Did you find them in the end?`,o:[`Yes, a man found them while we were looking.`,`Yes, a man was finding them while we looked.`,`Yes, a man find them while we were looking.`],a:0,tip:`القاطع بسيط، والخلفية مستمرّة`}]},
+{id:'c23',u:12,t:'اتّفاقٌ وشرط',turns:[
+{p:`Will you come to the meeting tomorrow?`,o:[`If I finish my work, I will come.`,`If I will finish my work, I will come.`,`If I finish my work, I come.`],a:0,tip:`بعد if مضارعٌ بسيط، والجواب will`},
+{p:`And if the meeting is late?`,o:[`If it is late, I will leave early.`,`If it will be late, I will leave early.`,`If it is late, I leave early.`],a:0,tip:`الشرط مضارع، والجواب will`},
+{p:`What would you do if you had more time?`,o:[`If I had more time, I would learn Spanish.`,`If I would have more time, I would learn Spanish.`,`If I had more time, I will learn Spanish.`],a:0,tip:`الشرط المتخيَّل ماضٍ، والجواب would`}]},
+{id:'c24',u:12,t:'لو كنتُ مكانك',turns:[
+{p:`I have a bad headache and a lot of work.`,o:[`If I were you, I would rest.`,`If I was you, I would rest.`,`If I were you, I will rest.`],a:0,tip:`في الشرط المتخيَّل were، والجواب would`},
+{p:`But my manager is waiting for the report.`,o:[`If you explained, he would understand.`,`If you would explain, he would understand.`,`If you explain, he would understand.`],a:0,tip:`بعد if ماضٍ بسيط لا would`},
+{p:`Maybe. What if he says no?`,o:[`If he says no, you will have to finish it.`,`If he will say no, you will have to finish it.`,`If he says no, you have to finished it.`],a:0,tip:`شرطٌ ممكن: مضارعٌ ثم will`}]},
+{id:'c25',u:13,t:'في العيادة',turns:[
+{p:`I have had a headache for three days.`,o:[`You should see a doctor.`,`You should to see a doctor.`,`You shoulds see a doctor.`],a:0,tip:`بعد should الفعل مجرّد بلا to`},
+{p:`Do I need to come back next week?`,o:[`No, you don't have to come back.`,`No, you mustn't come back.`,`No, you don't have to came back.`],a:0,tip:`don’t have to إعفاء، وmustn’t منع`},
+{p:`Can I take this medicine with coffee?`,o:[`No, you mustn't take it with coffee.`,`No, you don't have to take it with coffee.`,`No, you mustn't to take it with coffee.`],a:0,tip:`المنع mustn’t لا don’t have to`}]},
+{id:'c26',u:13,t:'ربّما ولعلّ',turns:[
+{p:`Do you think the train will be late?`,o:[`It might be late.`,`It might to be late.`,`It mights be late.`],a:0,tip:`بعد might الفعل مجرّد بلا to وبلا s`},
+{p:`Should we wait or take a taxi?`,o:[`We could take a taxi.`,`We could to take a taxi.`,`We coulds take a taxi.`],a:0,tip:`could ناقصٌ لا يقبل to ولا s`},
+{p:`Will your friend be able to help us?`,o:[`She may be able to help.`,`She may can help.`,`She may helps.`],a:0,tip:`ناقصان لا يجتمعان: may be able to`}]},
+{id:'c27',u:14,t:'خبرٌ في الجريدة',turns:[
+{p:`When was this bridge built?`,o:[`It was built in 1990.`,`It was build in 1990.`,`It built in 1990.`],a:0,tip:`المجهول: be + التصريف الثالث`},
+{p:`And the new library? Is it finished?`,o:[`The windows were cleaned last week.`,`The windows was cleaned last week.`,`The windows were clean last week.`],a:0,tip:`الجمع يأخذ were، والثالث cleaned`},
+{p:`Is English spoken at the new office?`,o:[`Yes, English is spoken there.`,`Yes, English is speak there.`,`Yes, English speaks there.`],a:0,tip:`المجهول في المضارع: is + الثالث`}]},
+{id:'c28',u:14,t:'مَن ذاك ومَا ذاك؟',turns:[
+{p:`Who was the man at the door?`,o:[`He is the man who called me yesterday.`,`He is the man which called me yesterday.`,`He is the man who he called me yesterday.`],a:0,tip:`للعاقل who، ولا يُعاد الضمير`},
+{p:`And what is that book on the table?`,o:[`It is the book which I read last week.`,`It is the book who I read last week.`,`It is the book which I read it last week.`],a:0,tip:`لغير العاقل which، ولا ضمير زائد`},
+{p:`Where do you work now?`,o:[`This is the shop where I work.`,`This is the shop which I work.`,`This is the shop who I work.`],a:0,tip:`المكان يأخذ where`}]}
 ];

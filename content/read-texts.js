@@ -280,7 +280,101 @@ We have got a lot of cheese, so don't buy any.`,
   {k:'short', ar:'ماذا يطلب منك أن تشتري؟ أجب بالإنجليزية.',
    ok:['bread','some bread','buy some bread']},
   {k:'word', ar:'ما الكلمة في النص التي تعني «مالح»؟', ok:['salty']},
-  {k:'word', ar:'ما الكلمة في النص التي تعني «طريّ»؟', ok:['soft']}]}
+  {k:'word', ar:'ما الكلمة في النص التي تعني «طريّ»؟', ok:['soft']}]},
+{id:'r-cv', u:10, t:'رسالة تقديم لوظيفة', cat:'رسالة',
+ text:`Dear Mr Hassan,
+
+I am writing about the job in your shop.
+
+I have worked as a seller for four years. I have sold clothes, shoes and bags. I have also worked with computers since 2021.
+
+I have never worked at night, but I can learn. I have already finished a short course in English.
+
+I have not received your last email yet. Could you send it again?
+
+Thank you,
+Kareem`,
+ qs:[
+  {k:'tf', q:'Kareem has worked as a seller for four years.', a:true, why:'I have worked as a seller for four years.'},
+  {k:'tf', q:'He has worked at night before.', a:false, why:'I have never worked at night'},
+  {k:'tf', q:'He has finished an English course.', a:true, why:'I have already finished a short course in English.'},
+  {k:'short', ar:'منذ متى يعمل بالحاسوب؟ أجب بالإنجليزية.',
+   ok:['since 2021','2021','since twenty twenty one']},
+  {k:'short', ar:'ماذا لم يصله بعد؟ أجب بالإنجليزية.',
+   ok:['your last email','the last email','an email','the email']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «باع»؟', ok:['sold']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «دورة»؟', ok:['course']}]},
+
+{id:'r-night', u:11, t:'خبرٌ قصير: ليلة العاصفة', cat:'خبر',
+ text:`A QUIET NIGHT IN AL-NOUR STREET
+
+Last Tuesday the lights went out in Al-Nour Street.
+
+People were having dinner when the storm started. Some families were watching television and others were already sleeping.
+
+While the wind was blowing, a tree fell on an old car. Nobody was sitting in it, so nobody was hurt.
+
+Mr Samir, who lives at number twelve, said: "I was reading when I heard a loud noise. I looked out of the window and I saw the tree."
+
+The lights came back after three hours.`,
+ qs:[
+  {k:'tf', q:'The lights went out on Tuesday.', a:true, why:'Last Tuesday the lights went out'},
+  {k:'tf', q:'Somebody was hurt in the car.', a:false, why:'Nobody was sitting in it, so nobody was hurt.'},
+  {k:'tf', q:'Mr Samir was sleeping when he heard the noise.', a:false, why:'كان يقرأ، لا نائماً: I was reading when I heard a loud noise.'},
+  {k:'short', ar:'ماذا سقط على السيارة؟ أجب بالإنجليزية.',
+   ok:['a tree','tree','the tree']},
+  {k:'short', ar:'بعد كم ساعة عاد النور؟ أجب بالإنجليزية.',
+   ok:['three hours','after three hours','3 hours','three']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «عاصفة»؟', ok:['storm']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «ضجيج»؟', ok:['noise']}]},
+
+{id:'r-advice', u:13, t:'إرشادات للموظّف الجديد', cat:'إرشادات',
+ text:`NOTES FOR NEW STAFF
+
+You have to arrive before nine o'clock every morning.
+
+You must wear your badge inside the building. You mustn't give it to anyone else.
+
+You don't have to wear a suit, but you should look tidy.
+
+If you are ill, you have to call the office before eight.
+
+You may take your break at any time between twelve and two. You might find the small room quieter than the kitchen.
+
+If you had a problem with any of this, you would speak to your manager first.`,
+ qs:[
+  {k:'tf', q:'You must arrive before nine.', a:true, why:'You have to arrive before nine'},
+  {k:'tf', q:'You must wear a suit.', a:false, why:"You don't have to wear a suit"},
+  {k:'tf', q:'You can give your badge to a friend.', a:false, why:"You mustn't give it to anyone else."},
+  {k:'short', ar:'متى تتّصل بالمكتب إن مرضت؟ أجب بالإنجليزية.',
+   ok:['before eight','before 8','before eight o clock','before eight oclock']},
+  {k:'short', ar:'بين أيّ ساعتين تأخذ استراحتك؟ أجب بالإنجليزية.',
+   ok:['between twelve and two','twelve and two','12 and 2','between 12 and 2']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «مرتَّب المظهر»؟', ok:['tidy']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «شارة»؟', ok:['badge']}]},
+
+{id:'r-museum', u:14, t:'إعلان: المتحف الصغير', cat:'إعلان',
+ text:`THE SMALL MUSEUM — VISITOR NOTICE
+
+This building was built in 1890. It was used as a school for sixty years.
+
+The museum was opened to the public in 1975. Most of the objects were given by families who lived in this street.
+
+The old photographs which you see on the first floor were taken between 1900 and 1940.
+
+Tickets are sold at the door. Students who show a card pay half price.
+
+The room where the oldest objects are kept is closed on Fridays.`,
+ qs:[
+  {k:'tf', q:'The building was built in 1890.', a:true, why:'This building was built in 1890.'},
+  {k:'tf', q:'The museum was opened in 1890.', a:false, why:'The museum was opened to the public in 1975.'},
+  {k:'tf', q:'Students pay the full price.', a:false, why:'Students who show a card pay half price.'},
+  {k:'short', ar:'ماذا كان المبنى قبل أن يصير متحفاً؟ أجب بالإنجليزية.',
+   ok:['a school','school','it was a school','used as a school']},
+  {k:'short', ar:'أيّ يوم تُغلق غرفة أقدم المعروضات؟ أجب بالإنجليزية.',
+   ok:['friday','on friday','fridays','on fridays']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «معروضات / أشياء»؟', ok:['objects']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «تُباع»؟', ok:['sold']}]}
 ];
 
 export const READ = Object.fromEntries(READS.map(r => [r.id, r]));

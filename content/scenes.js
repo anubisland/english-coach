@@ -266,5 +266,49 @@ export const SCENES=[
 {t:'درس 9.2: لماذا وكيف؟',cat:'درس',les:'9.2',turns:[
 {p:'Why were you late this morning?',need:/\b(because|so|the bus|traffic|late|woke|missed|rain)\b/i,model:'I was late because the bus was full.'},
 {p:'That is hard. What did you do then?',need:/\b(so|then|because|took|walked|called|waited|went)\b/i,model:'It was raining, so I took a taxi.'},
-{p:'Where did you live when you were a child?',need:/\b(when|i lived|lived|in|cairo|city|village|town|here|there)\b/i,model:'When I was a child, I lived in Cairo.'}]}
+{p:'Where did you live when you were a child?',need:/\b(when|i lived|lived|in|cairo|city|village|town|here|there)\b/i,model:'When I was a child, I lived in Cairo.'}]},
+{t:'درس 10.1: ماذا أنجزتَ؟',cat:'درس',les:'10.1',turns:[
+{p:'Have you finished your work today?',need:/\b(yes|no|have|haven't|finished|not yet|done|almost)\b/i,model:'Yes, I have finished my work.'},
+{p:'Has anyone helped you with it?',need:/\b(yes|no|has|hasn't|have|helped|alone|nobody|my)\b/i,model:'No, nobody has helped me.'},
+{p:'What have you learned this week?',need:/\b(have|learned|learnt|studied|nothing|a lot|new)\b/i,model:'I have learned a lot of new words.'}]},
+{t:'درس 10.2: هل سبق لك؟',cat:'درس',les:'10.2',turns:[
+{p:'Have you ever been to another country?',need:/\b(yes|no|have|never|ever|been|once|twice|times)\b/i,model:'Yes, I have been to Saudi Arabia.'},
+{p:'Have you eaten anything today yet?',need:/\b(yes|no|yet|already|just|have|haven't|eaten|nothing)\b/i,model:"No, I haven't eaten anything yet."},
+{p:'What have you just finished doing?',need:/\b(just|have|finished|was|reading|working|nothing)\b/i,model:'I have just finished reading a book.'}]},
+{t:'درس 10.3: منذ متى؟',cat:'درس',les:'10.3',turns:[
+{p:'How long have you lived in your city?',need:/\b(for|since|years|months|all my life|born)\b/i,model:'I have lived here for ten years.'},
+{p:'How long have you studied English?',need:/\b(for|since|years|months|school|began|started)\b/i,model:'I have studied English since school.'},
+{p:'Have you known your best friend for a long time?',need:/\b(for|since|yes|no|years|long|childhood|school)\b/i,model:'Yes, I have known him since we were children.'}]},
+{t:'درس 11.1: أين كنتَ وقتها؟',cat:'درس',les:'11.1',turns:[
+{p:'What were you doing at eight last night?',need:/\b(was|were)\s+\w+ing\b/i,model:'I was watching the news.'},
+{p:'Was anyone with you?',need:/\b(yes|no|was|were|alone|with|my|nobody)\b/i,model:'Yes, my brother was sitting with me.'},
+{p:'Were you working or resting?',need:/\b(was|were|working|resting|both|neither|ing)\b/i,model:'I was resting after a long day.'}]},
+{t:'درس 11.2: احكِ ما جرى',cat:'درس',les:'11.2',turns:[
+{p:'Tell me about something that happened to you.',need:/\b(while|when|was|were|happened|suddenly|then)\b/i,model:'While I was walking home, I met an old friend.'},
+{p:'What were you doing before it happened?',need:/\b(was|were)\s+\w+ing\b/i,model:'I was walking to the station.'},
+{p:'And what did you do then?',need:/\b(then|after|so|went|called|stopped|waited|talked)\b/i,model:'Then I called my brother.'}]},
+{t:'درس 12.1: إن حدث ماذا؟',cat:'درس',les:'12.1',turns:[
+{p:'What will you do if it rains tomorrow?',need:/\b(will|i'll|stay|go|take|if)\b/i,model:'If it rains, I will stay at home.'},
+{p:'And if your friend arrives late?',need:/\b(will|i'll|wait|leave|call|if)\b/i,model:'If he arrives late, I will wait for him.'},
+{p:'What will happen if you finish early?',need:/\b(will|i'll|can|go|rest|if|finish)\b/i,model:'If I finish early, I will go home.'}]},
+{t:'درس 12.2: لو كان ماذا؟',cat:'درس',les:'12.2',turns:[
+{p:'What would you do if you had a million pounds?',need:/\b(would|i'd|buy|travel|give|help|if)\b/i,model:'If I had a million pounds, I would travel the world.'},
+{p:'If you could live anywhere, where would you live?',need:/\b(would|i'd|live|in|near|if)\b/i,model:'If I could live anywhere, I would live near the sea.'},
+{p:'If you were the manager here, what would you change?',need:/\b(would|i'd|change|nothing|hours|rules|if|were)\b/i,model:'If I were the manager, I would change the working hours.'}]},
+{t:'درس 13.1: انصحني',cat:'درس',les:'13.1',turns:[
+{p:'I am very tired and I have a lot of work.',need:/\b(should|must|have to|need|rest|sleep|stop)\b/i,model:'You should rest for an hour.'},
+{p:'Do I need to finish it all today?',need:/\b(have to|don't have to|must|mustn't|should|no|yes)\b/i,model:"You don't have to finish it today."},
+{p:'Can I leave early tomorrow?',need:/\b(have to|must|should|ask|tell|yes|no|can)\b/i,model:'You have to ask your manager first.'}]},
+{t:'درس 13.2: ما رأيك — هل يحدث؟',cat:'درس',les:'13.2',turns:[
+{p:'Do you think it will rain this evening?',need:/\b(may|might|could|maybe|perhaps|think|will|won't)\b/i,model:'It might rain this evening.'},
+{p:'Will your friend come to the party?',need:/\b(may|might|could|maybe|perhaps|think|will|won't)\b/i,model:'He may come, but I am not sure.'},
+{p:'Could you help me with this tomorrow?',need:/\b(may|might|could|can|able|sure|yes|no|sorry)\b/i,model:'I may be able to help you in the morning.'}]},
+{t:'درس 14.1: كيف صُنع هذا؟',cat:'درس',les:'14.1',turns:[
+{p:'When was your house built?',need:/\b(was|were)\s+\w+(ed|t|n)\b|\b(built|in|ago|year)\b/i,model:'It was built in 1995.'},
+{p:'Is English spoken in your office?',need:/\b(is|are|yes|no|spoken|used|not)\b/i,model:'Yes, English is spoken there every day.'},
+{p:'Was this photo taken here?',need:/\b(was|were|yes|no|taken|not|in|at)\b/i,model:'No, it was taken in Alexandria.'}]},
+{t:'درس 14.2: مَن ومَا؟',cat:'درس',les:'14.2',turns:[
+{p:'Tell me about a person who helped you.',need:/\b(who|that)\b/i,model:'The teacher who taught me English helped me a lot.'},
+{p:'And what about a book which changed your mind?',need:/\b(which|that|book|read)\b/i,model:'The book which I read last year changed my mind.'},
+{p:'Where is the place where you feel happiest?',need:/\b(where|place|home|sea|city|village)\b/i,model:'The place where I feel happiest is my village.'}]}
 ];

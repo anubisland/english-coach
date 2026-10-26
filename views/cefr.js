@@ -44,6 +44,10 @@ export function cefrView() {
       <button class="btn ghost" onclick="goHome()">رجوع</button></div>`;
 }
 
+/* العربية تفرّق بين الواحد والاثنين والجمع: «كاملاً» و«كاملين»
+   و«كاملة». وثلاثةٌ ليست مثنّى. */
+const fullWord = n => n === 1 ? 'كاملاً' : n === 2 ? 'كاملين' : 'كاملة';
+
 /* إعلان الحدّ لا يختفي بتمام مستوى، بل ينتقل إلى ما فوقه. */
 function gapsCard(r) {
   if (r.gaps.length)
@@ -71,7 +75,7 @@ function gapsCard(r) {
   const able = full.flatMap(id => cefrReport(id).rows.map(c => c.t)).slice(0, 5);
   return card('حدّ هذا البرنامج',
     `<p class="muted">البرنامج يغطّي ${full.map(x => '<b>' + esc(x) + '</b>').join(' و')}
-        ${full.length > 1 ? 'كاملين' : 'كاملاً'} — ${ar(full.reduce((n, id) =>
+        ${fullWord(full.length)} — ${ar(full.reduce((n, id) =>
           n + cefrReport(id).total, 0))} قدرة.</p>`
     + partial.map(l => `<p class="muted" style="margin-top:6px">و<b>${esc(l.id)}</b> قيد البناء:
         بُني منه ${ar(l.built)} وبقي ${ar(l.gaps)}.</p>`).join('')
