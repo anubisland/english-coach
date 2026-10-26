@@ -12,7 +12,7 @@
    ولا يُفقد هذا المفتاح: تحديثُ تطبيقٍ منشور لا يُقبل إلا بمفتاحه
    نفسه. احفظ نسخةً منه في مدير أسرارك. */
 import {spawnSync} from 'node:child_process';
-import {mkdir, writeFile, chmod, access, stat} from 'node:fs/promises';
+import {mkdir, writeFile, chmod, access, stat, rm} from 'node:fs/promises';
 import {randomBytes} from 'node:crypto';
 import {join} from 'node:path';
 import {homedir, userInfo} from 'node:os';
@@ -35,17 +35,33 @@ async function lockDown(path, isDir) {
     {encoding: 'utf8'});
   if (r.status !== 0) throw new Error('icacls فشل على ' + path + ': ' + (r.stderr || '').trim());
 
-  /* ويُتحقَّق من الطرفين: ألّا يصل غيرُك، وأن تصل أنت. ولو فُحص الأول
-     وحده لمرّ ملفٌّ بلا صلاحيّات أصلاً — وهو ما وقع فعلاً. */
+  /* ويُتحقَّق من ثلاثة: ألّا يصل غيرُك، وأن تصل أنت، وأن يكون وصولُك
+     هو الذي طلبناه. فلو فُحص الأول وحده لمرّ ملفٌّ بلا صلاحيّات أصلاً،
+     ولو فُحص «مَن» دون «ماذا» لمرّ منحٌ نزل قراءةً فقط أو نزل منعاً —
+     وهي عينُ العلّة الأولى: icacls يضع غير ما طُلب ولا يقول. */
   const acl = spawnSync('powershell', ['-NoProfile', '-Command',
-    '(Get-Acl -LiteralPath ' + JSON.stringify(path)
-    + ').Access | ForEach-Object { Write-Output $_.IdentityReference.Value }'],
+    '(Get-Acl -LiteralPath ' + JSON.stringify(path) + ').Access | ForEach-Object {'
+    + ' Write-Output ("{0}|{1}|{2}|{3}" -f $_.IdentityReference.Value,'
+    + ' $_.AccessControlType, $_.FileSystemRights, $_.InheritanceFlags) }'],
     {encoding: 'utf8'});
-  const who = (acl.stdout || '').split('\n').map(x => x.trim()).filter(Boolean);
-  const mine = who.filter(x => x.toLowerCase().endsWith('\\' + me.toLowerCase()));
-  const others = who.filter(x => !mine.includes(x));
-  if (others.length) throw new Error('غيرُك يصل إلى ' + path + ': ' + others.join('، '));
+  const rows = (acl.stdout || '').split('\n').map(x => x.trim()).filter(Boolean)
+    .map(l => { const [who, type, rights, inherit] = l.split('|'); return {who, type, rights, inherit} });
+
+  const isMine = r => r.who.toLowerCase().endsWith('\\' + me.toLowerCase());
+  const others = rows.filter(r => !isMine(r));
+  if (others.length)
+    throw new Error('غيرُك يصل إلى ' + path + ': '
+      + others.map(r => r.who + ' (' + r.rights + ')').join('، '));
+
+  const mine = rows.filter(isMine);
   if (!mine.length) throw new Error('لا أحد يصل إلى ' + path + ' — ولا أنت');
+  const full = mine.find(r => r.type === 'Allow' && /FullControl/.test(r.rights));
+  if (!full)
+    throw new Error('وصولُك إلى ' + path + ' ليس كما طُلب: '
+      + mine.map(r => r.type + ' ' + r.rights).join('، '));
+  /* ووراثةُ الدليل حمّالةٌ لما يُكتب فيه قبل أن يُحكَم بنفسه. */
+  if (isDir && !/ContainerInherit/.test(full.inherit || ''))
+    throw new Error('الدليل ' + path + ' لا يورّث صلاحيّاته: ' + full.inherit);
 }
 
 const DIR = join(homedir(), '.config', 'english-coach');
@@ -56,10 +72,34 @@ const ALIAS = 'english-coach';
 const exists = async p => access(p).then(() => true, () => false);
 
 async function main() {
-  if (await exists(STORE)) {
+  const hasStore = await exists(STORE), hasProps = await exists(PROPS);
+  if (hasStore && hasProps) {
     console.log('المفتاح موجود: ' + STORE);
     console.log('ولا يُستبدل: استبدالُه يمنع تحديث ما نُشر بالقديم.');
+    /* ويُعاد إحكامُه في كل مرّة: لو أخفق الإحكام يوماً لبقي مكشوفاً إلى
+       الأبد، لأن هذا الفرع كان يقول «موجود» ويخرج بنجاح بلا فحص. */
+    await lockDown(DIR, true);
+    await lockDown(STORE, false);
+    await lockDown(PROPS, false);
+    console.log('وأُعيد التحقّق: لا يصل إليه غيرُك.');
     return;
+  }
+  /* ونصفُ مفتاحٍ أسوأ من لا مفتاح: كان هذا السكربت يقول «موجود» ويخرج
+     بنجاح، والبناء يقول «لا مفتاح، أنشئه بهذا السكربت» — فيُحال
+     المستخدم بينهما بلا مخرجٍ ولا بيان. */
+  if (hasStore !== hasProps) {
+    console.error('✗ نصفُ مفتاح: ' + (hasStore ? 'المفتاح موجود وسجلّ كلمته مفقود'
+      : 'سجلّ الكلمة موجود والمفتاح مفقود'));
+    console.error('  في ' + DIR);
+    if (hasStore) {
+      console.error('  والكلمة لا تُستخرج من المفتاح — استعِدها من نسختك');
+      console.error('  الاحتياطيّة في مدير الأسرار.');
+      console.error('  ولا تحذف المفتاح إن كنت قد نشرتَ به: من ثبّت');
+      console.error('  التطبيق لن يستطيع تحديثه بمفتاحٍ آخر.');
+    } else {
+      console.error('  احذف السجلّ ثم أعد الإنشاء — إن لم تكن نشرتَ به.');
+    }
+    process.exit(1);
   }
   await mkdir(DIR, {recursive: true});
   await lockDown(DIR, true);
@@ -80,17 +120,25 @@ async function main() {
   ], {stdio: ['ignore', 'inherit', 'inherit'], env: {...process.env, KS_PASS: pass}});
 
   if (r.status !== 0) { console.error('✗ فشل keytool'); process.exit(1) }
-  await lockDown(STORE, false);
 
-  await writeFile(PROPS,
-    'storePassword=' + pass + '\n'
-    + 'keyPassword=' + pass + '\n'
-    + 'keyAlias=' + ALIAS + '\n', {mode: 0o600});
-  await lockDown(PROPS, false);
+  /* ما بعد keytool يتمّ كلُّه أو لا شيء منه: مفتاحٌ كُتب ثم أخفق
+     إحكامُه يبقى مكشوفاً، ويظنّه التشغيلُ التالي سليماً. */
+  try {
+    await lockDown(STORE, false);
+    await writeFile(PROPS,
+      'storePassword=' + pass + '\n'
+      + 'keyPassword=' + pass + '\n'
+      + 'keyAlias=' + ALIAS + '\n', {mode: 0o600});
+    await lockDown(PROPS, false);
+  } catch (e) {
+    await rm(STORE, {force: true});
+    await rm(PROPS, {force: true});
+    throw e;
+  }
 
   console.log('\n✓ أُنشئ المفتاح في ' + DIR);
   console.log('  لا يصل إليه غيرُك، وهو خارج المستودع.');
   console.log('  احفظ نسخةً احتياطيّة في مدير أسرارك: فقدانُه يمنع التحديث.');
 }
 
-main();
+main().catch(e => { console.error('✗ ' + e.message); process.exit(1) });

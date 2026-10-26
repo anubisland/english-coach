@@ -1,7 +1,7 @@
 /* يحرس حزمة التطبيق: ما يدخل الـAPK هو قائمةٌ مكتوبة بيد، ومن أضاف
    ملفّاً جديداً إلى الويب ونسي القائمة شحن تطبيقاً ناقصاً — ولا يظهر
    النقص إلا على الهاتف. */
-import {readdir, readFile} from 'node:fs/promises';
+import {readdir, readFile, stat} from 'node:fs/promises';
 import {join, dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {ASSETS} from '../scripts/stage-web.mjs';
@@ -38,22 +38,44 @@ await run('كل ملفّ يحتاجه الويب مذكورٌ في قائمة ا
 await run('لا نداء شبكةٍ في الكود إلا ما نعلمه', async () => {
   /* الخطوط من جوجل هي الاستثناء الوحيد المعلوم، وهي تتدهور بلطف:
      بلا شبكةٍ يعمل التطبيق ويتغيّر شكل الخطّ وحده. وما جاوزها يكسر
-     العملَ دون إنترنت، فلا يمرّ صامتاً. */
-  const KNOWN = /fonts\.(googleapis|gstatic)\.com/;
-  const files = ['index.html', 'app.js'];
-  const dirs = ['engine', 'views', 'content', 'styles'];
-  for (const d of dirs)
-    for (const f of await readdir(join(ROOT, d)))
-      if (/\.(js|css)$/.test(f)) files.push(join(d, f));
+     العملَ دون إنترنت، فلا يمرّ صامتاً.
+
+     والمسحُ يغوص في الأدلّة الفرعيّة ويُشتقّ من قائمة الحزمة نفسها:
+     stage-web ينسخ الأدلّة بـ recursive، فلو مسح هذا الطبقةَ الأولى
+     وحدها لشُحن أوّلُ ملفٍّ في دليلٍ فرعيّ بلا فحص — ويبقى الاختبار
+     يقول ✓. */
+  const KNOWN = /fonts\.(googleapis|gstatic)\.com|w3\.org|schemas\.android\.com/;
+  const CODE = /\.(js|mjs|css|html|webmanifest|json)$/;
+  /* وكلُّ ما يبلغ الشبكة، لا fetch وحدها. */
+  const CALLS = /\bfetch\s*\(|XMLHttpRequest|sendBeacon|new\s+WebSocket|new\s+EventSource|importScripts\s*\(|\bimport\s*\(/;
+
+  const files = [];
+  for (const a of ASSETS) {
+    const p = join(ROOT, a);
+    const st = await stat(p);
+    if (!st.isDirectory()) { if (CODE.test(a)) files.push(a); continue }
+    for (const e of await readdir(p, {recursive: true, withFileTypes: true}))
+      if (e.isFile() && CODE.test(e.name))
+        files.push(join(a, e.parentPath.slice(p.length), e.name));
+  }
+  /* ومسحٌ فارغ يمرّ صامتاً، فيُشترط حدٌّ أدنى. */
+  if (files.length < 20) throw new Error('المسح غطّى ' + files.length + ' ملفاً فقط');
 
   const bad = [];
   for (const f of files) {
     const text = await readFile(join(ROOT, f), 'utf8');
-    for (const m of text.matchAll(/https?:\/\/[\w.-]+/g))
-      if (!KNOWN.test(m[0]) && !/w3\.org/.test(m[0])) bad.push(f + ': ' + m[0]);
-    if (/\bfetch\s*\(|XMLHttpRequest/.test(text)) bad.push(f + ': نداء شبكة');
+    /* وعناوين بلا بروتوكول أيضاً: //cdn.example.com تخفى على نمطٍ
+       يبدأ بـ http. */
+    for (const m of text.matchAll(/(?:https?:)?\/\/[\w.-]+\.\w{2,}/g))
+      if (!KNOWN.test(m[0])) bad.push(f + ': ' + m[0]);
+    const c = text.match(CALLS);
+    if (c) bad.push(f + ': ' + c[0]);
   }
   if (bad.length) throw new Error(bad.join(' | '));
+});
+
+await run('كل ما في قائمة الحزمة موجودٌ فعلاً', async () => {
+  for (const a of ASSETS) await stat(join(ROOT, a));
 });
 
 await run('هوية التطبيق ونسخته متّسقتان', async () => {

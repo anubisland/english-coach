@@ -30,8 +30,22 @@ const ALLOWED = new Set([
 ]);
 
 const MAX = 2 * 1024 * 1024;
+const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47]);
 
-function bad(res, code, msg) { res.statusCode = code; res.end(msg); console.error('✗ ' + msg) }
+let timer = null;
+/* المؤقّت لا يُترك معلّقاً: server.close وحده لا ينهي العمليّة ما دام
+   مؤقّتٌ قائماً، فكانت الكتابة تنجح ثم تجلس دقيقتين ثم تعلن الفشل
+   وتخرج بـ 1 — فيقرأ من يلفّها في سكربت أنّ الأيقونات لم تُكتب. */
+function done(code) {
+  if (timer) clearTimeout(timer);
+  server.close(() => process.exit(code));
+  setTimeout(() => process.exit(code), 1000).unref();
+}
+
+function bad(res, code, msg) {
+  res.statusCode = code; res.end(msg); console.error('✗ ' + msg);
+  done(1);
+}
 
 const server = createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', ORIGIN);
@@ -39,6 +53,10 @@ const server = createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Headers', 'x-icons-token, content-type');
   if (req.method === 'OPTIONS') return res.end();
   if (req.method !== 'POST') return bad(res, 405, 'POST فقط');
+  /* فحصُ المنشأ يوقف الصفحات وحدها: Origin ترويسةٌ يضعها المتصفّح،
+     وأيّ عمليّةٍ محليّة تكتبها كما تشاء. فالذي يوقف العمليّات هو الرمز
+     وحده. والمضيف يُفحص أيضاً حتى لا يصل الطلب باسمٍ آخر. */
+  if (req.headers.host !== '127.0.0.1:' + PORT) return bad(res, 403, 'مضيف غير مسموح');
   if (req.headers.origin !== ORIGIN) return bad(res, 403, 'منشأ غير مسموح');
   if (req.headers['x-icons-token'] !== TOKEN) return bad(res, 403, 'رمز غير صحيح');
 
@@ -46,7 +64,7 @@ const server = createServer((req, res) => {
   let size = 0;
   req.on('data', c => {
     size += c.length;
-    if (size > MAX) { req.destroy(); return bad(res, 413, 'أكبر من الحدّ') }
+    if (size > MAX) { chunks.length = 0; return bad(res, 413, 'أكبر من الحدّ') }
     chunks.push(c);
   });
   req.on('end', async () => {
@@ -57,20 +75,33 @@ const server = createServer((req, res) => {
       const unknown = names.filter(n => !ALLOWED.has(n));
       if (unknown.length) return bad(res, 400, 'أسماء غير مسموحة: ' + unknown.join('، '));
 
+      /* يُفكّ الترميز ويُتحقَّق كلُّ شيء قبل أن يُكتب شيء: الكتابة على
+         دفعتين تترك مجموعةَ أيقوناتٍ نصفُها جديد ونصفها قديم إن أخفق
+         ملفٌّ في المنتصف — وتخرج منها حزمةٌ أيقوناتها مختلفة باختلاف
+         كثافة الشاشة، بلا خطأٍ في أيّ مكان.
+         وBuffer.from لا تفشل على base64 فاسدة: تعطي عازلاً قصيراً أو
+         فارغاً، فيُكتب PNG بصفر بايت ويُعلَن النجاح. */
+      const decoded = [];
       for (const name of names) {
         const p = resolve(OUT, name);
         /* حزامٌ فوق حمّالة: القائمة المغلقة تكفي، وهذا يمسك ما لو
            تُساهل فيها يوماً. */
         if (p !== OUT && !p.startsWith(OUT + sep)) return bad(res, 400, 'مسار خارج الدليل');
+        const buf = Buffer.from(String(files[name] || ''), 'base64');
+        if (buf.length < 64 || !buf.subarray(0, 4).equals(PNG))
+          return bad(res, 400, 'ليس PNG صالحاً: ' + name);
+        decoded.push([p, buf]);
+      }
+
+      for (const [p, buf] of decoded) {
         await mkdir(dirname(p), {recursive: true});
-        await writeFile(p, Buffer.from(files[name], 'base64'));
+        await writeFile(p, buf);
       }
       res.end('كُتب ' + names.length);
       console.log('كُتب ' + names.length + ' ملفاً في android-res/');
+      done(0);
     } catch (e) {
       bad(res, 400, e.message);
-    } finally {
-      server.close();
     }
   });
 });
@@ -79,4 +110,4 @@ server.listen(PORT, '127.0.0.1', () => {
   console.log('بانتظار الأيقونات من ' + ORIGIN);
   console.log('TOKEN=' + TOKEN);
 });
-setTimeout(() => { console.error('✗ لم يصل شيء'); server.close(); process.exit(1) }, 120000);
+timer = setTimeout(() => { console.error('✗ لم يصل شيء'); done(1) }, 120000);

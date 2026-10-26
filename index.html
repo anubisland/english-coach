@@ -48,12 +48,18 @@
 </main>
 <div class="toast" id="toast"></div>
 <script type="module" src="app.js"></script>
+<!--SW-->
 <script>
 /* تسجيل عامل الخدمة: به يُثبّت كروم التطبيق تطبيقاً لا اختصاراً مكرّراً،
-   ويعمل البرنامج بلا إنترنت. وفشله لا يعطّل شيئاً — التطبيق يعمل بدونه. */
+   ويعمل البرنامج بلا إنترنت. وفشله لا يعطّل شيئاً — التطبيق يعمل بدونه.
+
+   والعلامتان حولَه يَنزع بينهما scripts/stage-web.mjs في نسخة أندرويد:
+   الملفّات هناك محليّة أصلاً، وعاملُ الخدمة يضيف طبقةَ تخزينٍ ثانية قد
+   تُقدّم نسخةً قديمة بعد تحديث التطبيق. */
 if('serviceWorker' in navigator)addEventListener('load',()=>{
   navigator.serviceWorker.register('sw.js').catch(e=>console.warn('تعذّر تسجيل عامل الخدمة:',e));
 });
 </script>
+<!--/SW-->
 </body>
 </html>

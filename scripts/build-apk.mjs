@@ -8,7 +8,7 @@
    التوقيع: مفتاحٌ خارج المستودع، وكلماته تُقرأ من ملفّه وقت النداء ولا
    تُمرَّر في سطر الأمر. انظر android-signing في README. */
 import {spawnSync} from 'node:child_process';
-import {cp, mkdir, readFile, writeFile, rm} from 'node:fs/promises';
+import {cp, mkdir, readFile, writeFile, rm, readdir} from 'node:fs/promises';
 import {existsSync} from 'node:fs';
 import {join, dirname} from 'node:path';
 import {homedir} from 'node:os';
@@ -30,26 +30,58 @@ function run(cmd, args, opts = {}) {
 
 const JAVA_MIN = 21;
 
-function checkJava(javaHome) {
-  const bin = javaHome ? join(javaHome, 'bin', 'javac') : 'javac';
-  const r = spawnSync('"' + bin + '"', ['-version'], {shell: true, encoding: 'utf8'});
-  const v = Number(((r.stdout || '') + (r.stderr || '')).match(/\b(\d+)\./)?.[1]);
-  if (!v) { console.error('✗ لا مترجم Java. ثبّت JDK ' + JAVA_MIN + ' فأعلى.'); process.exit(1) }
+/* لا يُفحص JDK ويُبنى بآخر: يُسأل gradle نفسه أيَّ آلةٍ اختار، بالوسائط
+   والبيئة نفسها التي سيُبنى بها. ولولا ذلك لفحصنا ما في PATH وبنينا
+   بما في إعداد المستخدم العامّ — وهما غير واحد هنا فعلاً. */
+function checkGradleJava(wrapper, args, opts) {
+  const r = spawnSync('"' + wrapper + '"', ['--version', ...args], opts);
+  const out = (r.stdout || '') + (r.stderr || '');
+  if (r.status !== 0) { console.error('✗ تعذّر سؤال gradle:\n' + out); process.exit(1) }
+  const m = out.match(/^\s*(?:Launcher |Daemon )?JVM:\s*(\d+)/mi)
+    || out.match(/JVM:\s*(\d+)/i);
+  if (!m) { console.error('✗ لم أعرف أيّ JVM يستعمل gradle:\n' + out); process.exit(1) }
+  const v = Number(m[1]);
   if (v < JAVA_MIN) {
-    console.error('✗ Java ' + v + ' والمطلوب ' + JAVA_MIN + ' فأعلى.');
-    console.error('  اضبط JAVA_HOME على JDK ' + JAVA_MIN + '.');
+    console.error('✗ gradle يبني بـ Java ' + v + ' والمطلوب ' + JAVA_MIN + ' فأعلى.');
+    console.error('  اضبط JAVA_HOME، أو راجع org.gradle.java.home في ~/.gradle.');
     process.exit(1);
   }
-  console.log('  Java ' + v);
+  console.log('  gradle يبني بـ Java ' + v);
 }
 
-/* رقم النسخة من package.json، ورقم البناء من عدد الوسوم — فلا يُنسى
-   رفعُه يدويّاً، ولا يرفض المتجر تحديثاً لأن رقمه لم يتغيّر. */
+/* رقم النسخة من package.json، ورقم البناء من عدد الالتزامات — فلا
+   يُنسى رفعُه يدويّاً، ولا يرفض المتجر تحديثاً لأن رقمه لم يتغيّر.
+
+   ولا يُخمَّن: «|| 1» كانت تبتلع غياب git والنسخةَ الضحلة والمستودعَ
+   التالف في رقمٍ واحد هو 1، ثم يُطبع الرقم الصحيح وكأنّ شيئاً لم يكن —
+   فيُرفض الرفع أو يرفض الجهاز التثبيت فوق ما عنده، بلا سببٍ ظاهر. */
 async function version() {
   const pkg = JSON.parse(await readFile(join(ROOT, 'package.json'), 'utf8'));
+  if (!/^\d+\.\d+\.\d+$/.test(pkg.version || ''))
+    { console.error('✗ نسخة غير صالحة في package.json'); process.exit(1) }
+
   const n = spawnSync('git', ['rev-list', '--count', 'HEAD'], {cwd: ROOT, encoding: 'utf8'});
-  const code = Number((n.stdout || '').trim()) || 1;
+  const raw = (n.stdout || '').trim();
+  if (n.error || n.status !== 0 || !/^\d+$/.test(raw)) {
+    console.error('✗ تعذّر عدّ الالتزامات: ' + (n.error?.message || (n.stderr || '').trim()
+      || 'مخرجات غير متوقّعة: ' + JSON.stringify(raw)));
+    console.error('  ورقم البناء لا يُخمَّن — تحديثُ التطبيق يتوقّف عليه.');
+    process.exit(1);
+  }
+  const code = Number(raw);
+  /* النسخة الضحلة تعطي رقماً صغيراً صحيح الشكل، وهو أسوأ من الخطأ. */
+  if (existsSync(join(ROOT, '.git', 'shallow'))) {
+    console.error('✗ مستودع ضحل: عدّ الالتزامات ناقص ورقم البناء سيتراجع.');
+    process.exit(1);
+  }
   return {name: pkg.version, code};
+}
+
+/* استبدالٌ لم يجد ما يستبدله يعود بالنصّ كما هو ولا يقول شيئاً. */
+function must(text, re, to, what) {
+  const out = text.replace(re, to);
+  if (out === text) { console.error('✗ لم أجد ' + what + ' في build.gradle'); process.exit(1) }
+  return out;
 }
 
 async function main() {
@@ -76,9 +108,13 @@ async function main() {
   const v = await version();
   const gradle = join(ANDROID, 'app', 'build.gradle');
   let g = await readFile(gradle, 'utf8');
-  g = g.replace(/versionCode \d+/, 'versionCode ' + v.code)
-       .replace(/versionName "[^"]*"/, 'versionName "' + v.name + '"');
+  g = must(g, /versionCode \d+/, 'versionCode ' + v.code, 'versionCode');
+  g = must(g, /versionName "[^"]*"/, 'versionName "' + v.name + '"', 'versionName');
   await writeFile(gradle, g);
+  /* ويُقرأ الملفّ ثانيةً: الكتابة قد تنجح والقيمة ليست التي أردنا. */
+  const back = await readFile(gradle, 'utf8');
+  if (!back.includes('versionCode ' + v.code) || !back.includes('versionName "' + v.name + '"'))
+    { console.error('✗ النسخة لم تُكتب كما أردنا'); process.exit(1) }
   console.log('  النسخة ' + v.name + ' (' + v.code + ')');
 
   if (release) await signingConfig(gradle);
@@ -88,31 +124,42 @@ async function main() {
   /* بالمسار الكامل: الصدفة هنا قد تكون bash أو cmd، ولا يبحث كلاهما في
      دليل العمل بالطريقة نفسها. */
   const wrapper = join(ANDROID, process.platform === 'win32' ? 'gradlew.bat' : 'gradlew');
-  /* Capacitor 7 يترجم إلى Java 21، وJAVA_HOME هنا ينتهي بشرطة مائلة
-     فلا يهتدي إليه gradle — فتُنزع، ويُفحص الإصدار قبل البناء بدل أن
-     يُكتشف الخطأ بعد دقيقةٍ من الترجمة. */
+  /* Capacitor 7 يترجم إلى Java 21، وJAVA_HOME هنا قد ينتهي بشرطة مائلة
+     فلا يهتدي إليه gradle — فتُنزع. */
   const javaHome = (process.env.JAVA_HOME || '').replace(/[\\/]+$/, '');
-  checkJava(javaHome);
+  if (!javaHome || !existsSync(join(javaHome, 'bin'))) {
+    console.error('✗ JAVA_HOME غير مضبوط على JDK صالح.');
+    console.error('  اضبطه على JDK ' + JAVA_MIN + ' فأعلى قبل البناء.');
+    process.exit(1);
+  }
   /* ويُمرَّر org.gradle.java.home صراحةً: قد يثبّت المستخدم في إعداده
      العامّ (~/.gradle) إصداراً أقدم لمشاريعه الأخرى، وليس لنا أن نغيّر
-     إعداده العامّ لأجل هذا المشروع. */
-  run('"' + wrapper + '"',
-    [task, '--no-daemon', '-Dorg.gradle.java.home=' + JSON.stringify(javaHome)],
-    {cwd: ANDROID, env: {...process.env, ANDROID_HOME: SDK, ANDROID_SDK_ROOT: SDK,
-      JAVA_HOME: javaHome}});
+     إعداده العامّ لأجل هذا المشروع. والاقتباس بعلامتين لا بـ JSON:
+     JSON يُضاعف الشرطات المائلة الخلفيّة وcmd لا يفكّها. */
+  const args = ['--no-daemon', '-Dorg.gradle.java.home="' + javaHome + '"'];
+  const opts = {cwd: ANDROID, encoding: 'utf8', shell: true,
+    env: {...process.env, ANDROID_HOME: SDK, ANDROID_SDK_ROOT: SDK, JAVA_HOME: javaHome}};
+  checkGradleJava(wrapper, args, opts);
+  run('"' + wrapper + '"', [task, ...args],
+    {cwd: ANDROID, env: opts.env});
 
   const out = join(ANDROID, 'app', 'build', 'outputs', 'apk',
     release ? 'release' : 'debug', 'app-' + (release ? 'release' : 'debug') + '.apk');
   if (!existsSync(out)) { console.error('✗ لم يُنتَج APK'); process.exit(1) }
+  if (release) await verifySigned(out);
 
   const dest = join(ROOT, 'english-coach-' + v.name + (release ? '' : '-debug') + '.apk');
   await cp(out, dest);
   console.log('\n✓ ' + dest);
 }
 
-/* يقرأ المفتاح وكلماته من دليل المفاتيح، ويكتب إعداد التوقيع في ملفّ
-   خصائص داخل android/ — وandroid/ يُولَّد ولا يُحفظ، فلا تصل الكلمات
-   إلى المستودع. ولا تمرّ في سطر أمرٍ أيضاً، فلا تدخل سجلّ الصدفة. */
+/* يشير gradle إلى المفتاح في مكانه ولا يُنسخ إلى المستودع.
+
+   ونُسخ: fs.cp تحمل أذون POSIX ولا تحمل قوائم تحكّم ويندوز، فالنسخة
+   ترث أذون دليل المستودع — ومعناه أن مجموعةَ مستخدمين أخرى تقرأ كلمةَ
+   مفتاح التوقيع نصّاً صريحاً. وهذا المستودع داخل OneDrive، فالنسخة
+   تُرفَع إلى السحابة أيضاً. وgitignore لا يمنع شيئاً من ذلك: يمنع git
+   وحده. فلا نسخةَ أصلاً. */
 async function signingConfig(gradle) {
   const store = join(KEYDIR, 'release.keystore');
   const creds = join(KEYDIR, 'keystore.properties');
@@ -120,17 +167,17 @@ async function signingConfig(gradle) {
     console.error('✗ لا مفتاح توقيع. أنشئه بـ: node scripts/make-keystore.mjs');
     process.exit(1);
   }
-  await cp(creds, join(ANDROID, 'keystore.properties'));
-  await cp(store, join(ANDROID, 'release.keystore'));
 
-  let g = await readFile(gradle, 'utf8');
+  /* gradle يقبل المسار المطلق، والشرطة المائلة تصلح على ويندوز أيضاً. */
+  const q = p => JSON.stringify(p.split('\\').join('/'));
+  const g = await readFile(gradle, 'utf8');
   const cfg = `
 def keyProps = new Properties()
-file("../keystore.properties").withInputStream { keyProps.load(it) }
+file(${q(creds)}).withInputStream { keyProps.load(it) }
 android {
     signingConfigs {
         release {
-            storeFile file("../release.keystore")
+            storeFile file(${q(store)})
             storePassword keyProps['storePassword']
             keyAlias keyProps['keyAlias']
             keyPassword keyProps['keyPassword']
@@ -145,6 +192,24 @@ android {
 }
 `;
   await writeFile(gradle, g + cfg);
+}
+
+/* التوقيع يُتحقَّق منه، ولا يُفترض. واسمُ الملفّ وحده لا يكفي حَكَماً:
+   يمسك غيرَ الموقَّع عرَضاً، ولا يمسك الموقَّع بمفتاحٍ آخر. */
+async function verifySigned(apk) {
+  const tools = join(SDK, 'build-tools');
+  const ver = existsSync(tools)
+    ? (await readdir(tools)).filter(d => /^\d/.test(d)).sort().pop() : null;
+  if (!ver) { console.error('✗ لا build-tools للتحقّق من التوقيع'); process.exit(1) }
+  const signer = join(tools, ver, process.platform === 'win32' ? 'apksigner.bat' : 'apksigner');
+  const r = spawnSync('"' + signer + '"', ['verify', '--print-certs', '"' + apk + '"'],
+    {shell: true, encoding: 'utf8'});
+  const out = (r.stdout || '') + (r.stderr || '');
+  if (r.status !== 0) { console.error('✗ التوقيع غير صالح:\n' + out); process.exit(1) }
+  const sha = out.match(/certificate SHA-256 digest:\s*([0-9a-f]{64})/i)?.[1];
+  if (!sha) { console.error('✗ لم أجد بصمة الشهادة'); process.exit(1) }
+  console.log('  بصمة التوقيع ' + sha.slice(0, 16) + '…');
+  return sha;
 }
 
 main();
