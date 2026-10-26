@@ -103,14 +103,14 @@ export const CEFR = {
       {id:'duration-write', t:'يُبرز المدّة والاستمرار لا النتيجة وحدها',
        skill:'الكتابة', lessons:['15.2'], exam:'write'},
       {id:'report-tell', t:'ينقل كلام غيره وسؤاله وأمره بأمانة',
-       skill:'المحادثة', lessons:['16.1','16.2'], exam:'conv', scene:'x-bank'}
+       skill:'المحادثة', lessons:['16.1','16.2'], exam:'conv', scene:'x-bank'},
+      {id:'regret-write', t:'يتحسّر على ما فات ويتمنّى ما ليس بواقع',
+       skill:'الكتابة', lessons:['17.1','17.2'], exam:'write'},
+      {id:'verbform-write', t:'يختار صيغة الفعل التابع فلا ينقلب معناه',
+       skill:'الكتابة', lessons:['18.1','18.2'], exam:'write'},
+      {id:'contrast-write', t:'يخالف ويستدرك، ويرتّب صفاته وظروفه',
+       skill:'الكتابة', lessons:['19.1','19.2'], exam:'write'}
     ], gaps: [
-    {t:'الشرط الثالث', why:'If I had known, I would have come'},
-    {t:'wish و if only', why:'I wish I had more time'},
-    {t:'متى to + الفعل ومتى الـ ing', why:'I enjoy reading · I want to read'},
-    {t:'أفعالٌ يتغيّر معناها بينهما', why:'I stopped smoking · I stopped to smoke'},
-    {t:'although و however و despite', why:'Although it was cold, we went out'},
-    {t:'ترتيب الصفات والظروف', why:'a nice big old house'}
   ]},
   C1: {t:'متقدّم', caps: [], gaps: []},
   C2: {t:'إتقان', caps: [], gaps: []}

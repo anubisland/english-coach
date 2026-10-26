@@ -91,14 +91,14 @@ export const STAGES = [
       {id:'16.1', t:'said و told وتغيّر الزمن', state:'done'},
       {id:'16.2', t:'نقل السؤال والأمر', state:'done'}]},
     {n:17, t:'الشرط الثالث والتمنّي', lessons:[
-      {id:'17.1', t:'الشرط الثالث: لو كان قد…', state:'todo'},
-      {id:'17.2', t:'wish و if only', state:'todo'}]},
+      {id:'17.1', t:'الشرط الثالث: لو كان قد…', state:'done'},
+      {id:'17.2', t:'wish و if only', state:'done'}]},
     {n:18, t:'المصدر والـ ing', lessons:[
-      {id:'18.1', t:'متى to + الفعل ومتى الـ ing', state:'todo'},
-      {id:'18.2', t:'أفعالٌ يتغيّر معناها بينهما', state:'todo'}]},
+      {id:'18.1', t:'متى to + الفعل ومتى الـ ing', state:'done'},
+      {id:'18.2', t:'أفعالٌ يتغيّر معناها بينهما', state:'done'}]},
     {n:19, t:'الربط المتقدّم والأسلوب', lessons:[
-      {id:'19.1', t:'although و however و despite', state:'todo'},
-      {id:'19.2', t:'ترتيب الصفات والظروف', state:'todo'}]}
+      {id:'19.1', t:'although و however و despite', state:'done'},
+      {id:'19.2', t:'ترتيب الصفات والظروف', state:'done'}]}
   ]},
 
   {id:'c1', t:'المستوى C1', level:'C1', units:[
