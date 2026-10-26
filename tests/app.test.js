@@ -1539,9 +1539,22 @@ const { run, report } = require('./harness.js');
   await run('بنك القراءة سليم ولا اختيار من متعدّد فيه', {}, (ctx, ev) => {
     const R = ev('READS');
     if (R.length < 5) throw new Error('نصوص قليلة: ' + R.length);
+    /* الطول يتبع المستوى. وكان ٤٠–١٤٠ لكلّ نصٍّ لأنّ النصوص كلَّها
+       كانت A1 — ومقالٌ حجاجيٌّ في C2 لا يُقال في مئةٍ وأربعين كلمة،
+       فالسقف الثابت يمنع المستوى الأعلى أن يكون أعلى.
+
+       والحدُّ الأدنى ليس تدرّجاً في الصعوبة، بل ضمانُ نصٍّ يحتمل خمسة
+       أسئلة. والرسالةُ الرسمية قصيرةٌ بطبعها — تسعٌ وسبعون كلمةً في
+       B2 نصٌّ سليم، فلا يُرفع الحدُّ الأدنى حتى يُدينها. */
+    const SPAN = {A1:[40,140], A2:[50,170], B1:[60,210],
+                  B2:[70,250], C1:[90,300], C2:[110,360]};
     R.forEach(t => {
       const n = ctx.countWords(t.text);
-      if (n < 40 || n > 140) throw new Error(t.id + ': طول غير مناسب لـ A1: ' + n);
+      const lv = ctx.unitLevel(t.u);
+      const [lo, hi] = SPAN[lv] || SPAN.A1;
+      if (n < lo || n > hi)
+        throw new Error(t.id + ': طول غير مناسب لـ ' + lv + ': ' + n
+          + ' (المدى ' + lo + '–' + hi + ')');
       if (t.qs.length < 5) throw new Error(t.id + ': أسئلة قليلة');
       t.qs.forEach((q, i) => {
         if (!['tf', 'short', 'word'].includes(q.k)) throw new Error(t.id + ': نوع غريب ' + q.k);
@@ -2713,6 +2726,21 @@ const { run, report } = require('./harness.js');
       for (let i = 0; i < bank.length; i++)
         if (!(i in bank) || !bank[i])
           throw new Error(name + ': ثقبٌ عند الموضع ' + i + ' — فاصلةٌ زائدة');
+    });
+  });
+
+  /* pickWrite تصفّي المهامّ بوحدتها، فإن خلت الوحدةُ منها سقطت صامتةً
+     إلى shuffle(WRITE) كلِّه. ولمّا لم تكن للوحدات ٢٠–٢٤ مهامٌّ كان
+     المتعلّم يُثبت قدرةَ C1 بورقةٍ من مهامّ A1 — والقدرةُ لا تُثبَت
+     بما لا يقيسها. فلا وحدةَ بلا مهامّ، ولا ورقةَ من غير وحدتها. */
+  await run('ورقةُ الكتابة من وحدتها هي، لا من حيث اتّفق', {}, (ctx, ev) => {
+    ev('UNIT_NS').forEach(u => {
+      const paper = ctx.pickWrite(u);
+      if (!paper.length) throw new Error('الوحدة ' + u + ': ورقةٌ فارغة');
+      const alien = paper.filter(t => t.u !== u);
+      if (alien.length)
+        throw new Error('الوحدة ' + u + ': ' + alien.length
+          + ' مهمّةً من وحدةٍ أخرى (' + [...new Set(alien.map(t => t.u))].join('،') + ')');
     });
   });
 

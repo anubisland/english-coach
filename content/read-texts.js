@@ -547,6 +547,52 @@ Afterwards, write a short note of thanks. Few candidates do this, and it is reme
    ok:['take a moment','take a moment before you answer','think first','wait and think']},
   {k:'word', ar:'ما الفعل المركّب في النص الذي يعني «يؤجّل»؟', ok:['put off']},
   {k:'word', ar:'ما الفعل المركّب في النص الذي يعني «يراجع»؟', ok:['look over']}]}
+,
+{id:'r-c2-edit', u:23, t:'دليل تحرير: اكتب أوجز', cat:'مقال',
+ text:`WRITE SHORTER
+
+Good writing is not writing more. It is writing less and saying the same thing.
+
+Cut the words that repeat each other. A result needs no adjective before it, and a fact needs no adjective either. Each word should earn its place.
+
+Replace long phrases with short ones. Write because, not due to the fact that. Write now, not at this point in time. Write many, not a large number of.
+
+Be exact as well as short. Use fewer with what you can count and less with what you cannot, and keep amount for money and number for people.
+
+A short sentence is not an empty one. If you cut a word and lose a meaning, put the word back.`,
+ qs:[
+  {k:'tf', q:'The writer says good writing means writing more.', a:false, why:'Good writing is not writing more'},
+  {k:'tf', q:'The writer prefers "because" to "due to the fact that".', a:true, why:'Write because, not due to the fact that'},
+  {k:'tf', q:'The writer says to cut a word even if the meaning is lost.', a:false, why:'If you cut a word and lose a meaning, put the word back'},
+  {k:'short', ar:'ما الكلمة الموجزة التي تقوم مقام «a large number of»؟ أجب بالإنجليزية.',
+   ok:['many']},
+  {k:'short', ar:'ما الصواب مع المعدود: fewer أم less؟ أجب بالإنجليزية.',
+   ok:['fewer','fewer people']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «دقيق»؟', ok:['exact']},
+  {k:'word', ar:'ما الفعل في النص الذي يعني «استبدل»؟', ok:['replace']}]},
+
+{id:'r-c2-essay', u:24, t:'مقال حجاجيّ: النقل العامّ', cat:'مقال',
+ text:`SHOULD BUSES BE FREE?
+
+Public transport should be free in large cities. The reason is that free buses serve everyone, not only those who can pay.
+
+Free buses would reduce traffic on every main road. Fewer cars mean cleaner air, and the health of a city is worth more than a ticket. For instance, one European capital cut its traffic by a fifth within two years.
+
+Furthermore, poorer families would save money each month. For them the fare is not a small sum.
+
+On the other hand, some people argue that the cost would fall on the taxpayer. That is a fair point. However, the cost of wider roads and of treating sick lungs is also paid by the taxpayer, and it is paid later and at a higher price.
+
+In conclusion, the benefits appear to outweigh the cost. The question is not whether a city can afford free buses, but whether it can afford the traffic it has now.`,
+ qs:[
+  {k:'tf', q:'The writer is against free buses.', a:false, why:'Public transport should be free in large cities'},
+  {k:'tf', q:'The writer mentions the opposite view.', a:true, why:'On the other hand, some people argue that the cost would fall on the taxpayer'},
+  {k:'tf', q:'The writer says the taxpayer pays nothing either way.', a:false, why:'the cost of wider roads and of treating sick lungs is also paid by the taxpayer'},
+  {k:'short', ar:'بأيّ رابطٍ فتح الكاتب الرأي المخالف؟ أجب بالإنجليزية.',
+   ok:['on the other hand']},
+  {k:'short', ar:'بأيّ رابطٍ ختم مقاله؟ أجب بالإنجليزية.',
+   ok:['in conclusion']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «الأجرة»؟', ok:['fare']},
+  {k:'word', ar:'ما الرابط في النص الذي يدلّ على الزيادة؟', ok:['furthermore']}]}
 ];
 
 export const READ = Object.fromEntries(READS.map(r => [r.id, r]));

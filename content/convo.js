@@ -183,4 +183,24 @@ export const CONVO=[
 {p:`The meeting is at three, but Sara cannot come.`,o:[`Then we should put it off.`,`Then we should put off it.`,`Then we should off put it.`],a:0,tip:`الضمير يُفصَل: put it off`},
 {p:`Who will take care of the visitors?`,o:[`Hana will look after them.`,`Hana will look them after.`,`Hana will after look them.`],a:0,tip:`look after لا يُفصَل أبداً`},
 {p:`And what about the old chairs?`,o:[`We can give them away.`,`We can give away them.`,`We can away give them.`],a:0,tip:`give away قابلٌ للفصل، والضمير يُفصَل`}]}
+,
+{id:'c-c2-1',u:23,t:'مراجعة تقرير: الكلمة الأدقّ',turns:[
+{p:`How many people came this year?`,o:[`Fewer people came than last year.`,`Less people came than last year.`,`Fewer people came as last year.`],a:0,tip:`المعدود يأخذ fewer لا less`},
+{p:`And how much was spent?`,o:[`A large amount of money was spent.`,`A large number of money was spent.`,`A large amount of pounds was spent.`],a:0,tip:`غير المعدود يأخذ amount of`},
+{p:`Did the new rule change anything?`,o:[`It had a clear effect on prices.`,`It had a clear affect on prices.`,`It had a clear effect in prices.`],a:0,tip:`effect اسمٌ، وaffect فعل`}]},
+
+{id:'c-c2-2',u:23,t:'تحرير نصّ: حذف الحشو',turns:[
+{p:`The report repeats itself. How do we say the outcome plainly?`,o:[`The result was clear.`,`The end was clear.`,`The final end result was clear.`],a:0,tip:`end حشوٌ مع result`},
+{p:`And how do we say that he gave the book to the library again?`,o:[`He returned the book.`,`He returned back it.`,`He gave back return the book.`],a:0,tip:`back حشوٌ مع return`},
+{p:`What about "due to the fact that the test was fair"?`,o:[`Because the test was fair.`,`Due to the test was fair.`,`Because of the test was fair.`],a:0,tip:`because تقوم مقام due to the fact that`}]},
+
+{id:'c-c2-3',u:24,t:'نقاش: ربط الحجّة',turns:[
+{p:`The plan is cheap, but it is slow. How do you join that?`,o:[`The plan is cheap. However, it is slow.`,`The plan is cheap. Moreover, it is slow.`,`The plan is cheap. Therefore, it is slow.`],a:0,tip:`however رابطُ المخالفة`},
+{p:`The road was closed, so we were late.`,o:[`The road was closed. Therefore, we arrived late.`,`The road was closed. However, we arrived late.`,`The road was closed. For instance, we arrived late.`],a:0,tip:`therefore رابطُ النتيجة`},
+{p:`Some people disagree. How do you open that side?`,o:[`On the other hand, some people disagree.`,`In the other hand, some people disagree.`,`On the other side, some people disagree.`],a:0,tip:`on the other hand — بـon لا in`}]},
+
+{id:'c-c2-4',u:24,t:'مقال رأي: بناء الفقرة',turns:[
+{p:`Where does the main idea of a paragraph go?`,o:[`In the first sentence.`,`In the last sentence only.`,`In every sentence equally.`],a:0,tip:`جملةُ الفكرة تفتح الفقرة ثمّ يأتي السند`},
+{p:`How do you open your own view in an essay?`,o:[`In my opinion, the rule is unfair.`,`According to me, the rule is unfair.`,`In my point of view, the rule is unfair.`],a:0,tip:`according to لغير المتكلّم، وfrom my point of view لا in`},
+{p:`And how should the essay end?`,o:[`In conclusion, the benefits outweigh the cost.`,`For instance, the benefits outweigh the cost.`,`Firstly of all, the benefits outweigh the cost.`],a:0,tip:`in conclusion للخاتمة`}]}
 ];

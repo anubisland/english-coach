@@ -218,4 +218,29 @@ export const TRANSLATE = [
   {ar:'ترعى جدّتها.', u:22, skill:'phrasal', en:['She looks after her grandmother.']},
   {ar:'اخفضه من فضلك.', u:22, skill:'phrasal', en:['Please turn it down.']},
   {ar:'أبحث عن مفاتيحي.', u:22, skill:'phrasal', en:['I am looking for my keys.']}
+,
+  /* ===== الوحدة 23: الدقّة والإيجاز ===== */
+  {ar:'جاء عددٌ أقلّ من الناس هذا العام.', u:23, skill:'precision', en:['Fewer people came this year.']},
+  {ar:'عندنا ماءٌ أقلّ من الصيف الماضي.', u:23, skill:'precision', en:['We have less water than last summer.']},
+  {ar:'ازداد عدد الطلاب.', u:23, skill:'precision', en:['The number of students has increased.','The number of students increased.']},
+  {ar:'أُنفق مبلغٌ كبير على الإصلاحات.', u:23, skill:'precision', en:['A large amount of money was spent on repairs.']},
+  {ar:'سيؤثّر القرار في الفريق كلّه.', u:23, skill:'precision', en:['The decision will affect the whole team.']},
+  {ar:'كان أثرُ القاعدة الجديدة واضحاً.', u:23, skill:'precision', en:['The effect of the new rule was clear.']},
+  {ar:'أعلنت البلاد نموّاً اقتصاديّاً قويّاً.', u:23, skill:'precision', en:['The country reported strong economic growth.']},
+  {ar:'السيّارة الصغيرة أقلُّ صرفاً.', u:23, skill:'precision', en:['A small car is more economical.','The small car is more economical.']},
+  {ar:'كانت النتيجة واضحةً للجميع.', u:23, skill:'concision', en:['The result was clear to everyone.']},
+  {ar:'أعاد الكتاب أمس.', u:23, skill:'concision', en:['He returned the book yesterday.']},
+  {ar:'نجح كثيرٌ من الطلاب لأنّ الاختبار كان عادلاً.', u:23, skill:'concision', en:['Many students passed because the test was fair.']},
+  {ar:'سنلتقي قبل المؤتمر.', u:23, skill:'concision', en:['We will meet before the conference.']},
+  {ar:'وافق أكثرُ الفريق على الخطة.', u:23, skill:'concision', en:['Most of the team agreed with the plan.']},
+  {ar:'سيفتح الطريق الجديد قريباً.', u:23, skill:'concision', en:['The new road will open soon.']},
+  /* ===== الوحدة 24: النصّ الطويل ===== */
+  {ar:'الخطة رخيصة. غير أنّها ستستغرق سنين.', u:24, skill:'argument', en:['The plan is cheap. However, it will take years.']},
+  {ar:'كان الطريق مغلقاً. ولذلك وصلنا متأخّرين.', u:24, skill:'argument', en:['The road was closed. Therefore, we arrived late.']},
+  {ar:'ومن الجهة الأخرى، يخالف بعض الناس.', u:24, skill:'argument', en:['On the other hand, some people disagree.']},
+  {ar:'وزيادةً على ذلك، فهو يخفّف الزحام.', u:24, skill:'argument', en:['Furthermore, it reduces traffic.','In addition, it reduces traffic.']},
+  {ar:'وفي الختام، تفوق الفوائدُ التكلفة.', u:24, skill:'argument', en:['In conclusion, the benefits outweigh the cost.']},
+  {ar:'في رأيي أنّ القاعدة غير عادلة.', u:24, skill:'argument', en:['In my opinion, the rule is unfair.']},
+  {ar:'أوّلاً، علينا أن نتّفق على الهدف.', u:24, skill:'argument', en:['First of all, we must agree on the aim.','First, we must agree on the aim.']},
+  {ar:'على سبيل المثال، جعلت مدينةٌ أوروبية حافلاتها مجّانية.', u:24, skill:'argument', en:['For example, one European city made its buses free.','For instance, one European city made its buses free.']}
 ];
