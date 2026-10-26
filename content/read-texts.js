@@ -173,7 +173,114 @@ There are no cafes in our street, but there is a very good one in the next stree
   {k:'short', ar:'كل كم دقيقة يأتي الأتوبيس؟ أجب بالإنجليزية.',
    ok:['every twenty minutes','twenty minutes','every 20 minutes','twenty','20']},
   {k:'word', ar:'ما الكلمة في النص التي تعني «هادئ»؟', ok:['quiet']},
-  {k:'word', ar:'ما الكلمة في النص التي تعني «مقابل / أمام»؟', ok:['opposite']}]}
+  {k:'word', ar:'ما الكلمة في النص التي تعني «مقابل / أمام»؟', ok:['opposite']}]},
+{id:'r-trip', u:6, t:'رسالة عن رحلة مضت', cat:'رسالة',
+ text:`Dear Omar,
+
+Last week I travelled to Alexandria with my family. We left early on Friday morning and arrived at eleven.
+
+The hotel was small but it was very clean. Our room was on the third floor.
+
+On Saturday we went to the beach. The water was cold, so we did not swim. We ate fish in a small restaurant near the sea.
+
+My sister bought a blue bag for her friend. I did not buy anything.
+
+We came home on Sunday night. I was tired but happy.
+
+See you soon,
+Hana`,
+ qs:[
+  {k:'tf', q:'They arrived in Alexandria at eleven.', a:true, why:'arrived at eleven.'},
+  {k:'tf', q:'They swam in the sea on Saturday.', a:false, why:'The water was cold, so we did not swim.'},
+  {k:'tf', q:'Hana bought a bag for her friend.', a:false, why:'أختُها هي التي اشترت الحقيبة، وHana لم تشترِ شيئاً.'},
+  {k:'short', ar:'متى غادروا؟ أجب بالإنجليزية.',
+   ok:['on friday morning','friday morning','early on friday morning','friday','early friday morning']},
+  {k:'short', ar:'ماذا أكلوا قرب البحر؟ أجب بالإنجليزية.',
+   ok:['fish','they ate fish','we ate fish']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «وصلنا»؟', ok:['arrived']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «متعَب»؟', ok:['tired']}]},
+
+{id:'r-plan', u:7, t:'خطّة الأسبوع القادم', cat:'رسالة',
+ text:`Hi Sara,
+
+Next week is going to be busy for me.
+
+On Monday I am going to start my new job. The office is near the station, so I will walk there every morning.
+
+On Wednesday my brother is going to visit us. He will stay for three days.
+
+We are going to cook dinner together on Thursday. I think it will be fun.
+
+I am not going to travel this month. Maybe in December.
+
+Will you come and see us on Friday? Please call me tonight.
+
+Nour`,
+ qs:[
+  {k:'tf', q:'Nour is going to start a new job on Monday.', a:true, why:'On Monday I am going to start my new job.'},
+  {k:'tf', q:'Her brother will stay for a week.', a:false, why:'He will stay for three days — ثلاثة أيام لا أسبوع.'},
+  {k:'tf', q:'Nour is going to travel this month.', a:false, why:'I am not going to travel this month.'},
+  {k:'short', ar:'كيف ستذهب إلى العمل كل صباح؟ أجب بالإنجليزية.',
+   ok:['walk','she will walk','on foot','i will walk there','walk there']},
+  {k:'short', ar:'ماذا سيفعلان يوم الخميس؟ أجب بالإنجليزية.',
+   ok:['cook dinner','cook dinner together','they are going to cook dinner','cook']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «مشغول»؟', ok:['busy']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «ربّما»؟', ok:['maybe']}]},
+
+{id:'r-compare', u:8, t:'إعلان: شقّتان للإيجار', cat:'إعلان',
+ text:`TWO FLATS FOR RENT
+
+FLAT ONE — Green Street
+Three rooms. 2,500 pounds a month.
+It is near the market and the bus stop.
+The rooms are small but the building is new.
+
+FLAT TWO — Park Road
+Two rooms. 3,000 pounds a month.
+It is quieter than Flat One, and the rooms are bigger.
+It is further from the station — about twenty minutes on foot.
+
+Flat One is cheaper, but Flat Two is more comfortable.
+Flat Two is the best choice for a small family.
+
+Call 0100 555 7788 for more information.`,
+ qs:[
+  {k:'tf', q:'Flat One is cheaper than Flat Two.', a:true, why:'Flat One is cheaper'},
+  {k:'tf', q:'Flat Two is nearer to the station.', a:false, why:'It is further from the station — أبعد لا أقرب.'},
+  {k:'tf', q:'Flat One has got more rooms than Flat Two.', a:true, why:'ثلاث غرف مقابل غرفتين.'},
+  {k:'short', ar:'كم إيجار الشقّة B في الشهر؟ أجب بالإنجليزية.',
+   ok:['3000 pounds','3,000 pounds','three thousand pounds','3000','3,000']},
+  {k:'short', ar:'أيّ الشقّتين أهدأ؟ أجب بالإنجليزية.',
+   ok:['flat two','two','flat two is quieter','the second one']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «أهدأ»؟', ok:['quieter']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «أبعد»؟', ok:['further']}]},
+
+{id:'r-recipe', u:9, t:'وصفة ورسالة قصيرة', cat:'إرشادات',
+ text:`A SIMPLE BREAKFAST — for two people
+
+You need:
+four eggs, some bread, a little salt, and some cheese.
+You do not need any sugar.
+
+First, put a little oil in the pan. When the oil is hot, break the eggs into it.
+
+Do not use much salt, because the cheese is already salty.
+
+Cook for three minutes, so the eggs stay soft.
+
+Note from Mum:
+There isn't any bread in the kitchen, so please buy some on your way home.
+We have got a lot of cheese, so don't buy any.`,
+ qs:[
+  {k:'tf', q:'You need four eggs.', a:true, why:'four eggs'},
+  {k:'tf', q:'You need some sugar.', a:false, why:'You do not need any sugar.'},
+  {k:'tf', q:'There is bread in the kitchen.', a:false, why:"There isn't any bread in the kitchen."},
+  {k:'short', ar:'لماذا لا تُكثر الملح؟ أجب بالإنجليزية.',
+   ok:['because the cheese is salty','the cheese is already salty','because the cheese is already salty','cheese is salty']},
+  {k:'short', ar:'ماذا يطلب منك أن تشتري؟ أجب بالإنجليزية.',
+   ok:['bread','some bread','buy some bread']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «مالح»؟', ok:['salty']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «طريّ»؟', ok:['soft']}]}
 ];
 
 export const READ = Object.fromEntries(READS.map(r => [r.id, r]));

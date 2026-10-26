@@ -100,7 +100,7 @@ export function courseView(){
     +'<div class="row" style="justify-content:flex-start"><button class="btn" onclick="examWriteStart(0)">ابدأ اختبار الكتابة</button></div>');
   h+=card('اختبار الترجمة',
     '<p class="muted">ست جمل عربية تكتب ترجمتها بنفسك — بلا خيارات ولا جملة أمامك تقلّدها. وهو أصدق مقياس لما تستطيع إنتاجه فعلاً.</p>'
-    +'<div class="row" style="justify-content:flex-start"><button class="btn" onclick="startTranslation(3)">ابدأ اختبار الترجمة</button></div>');
+    +'<div class="row" style="justify-content:flex-start"><button class="btn" onclick="startTranslation()">ابدأ اختبار الترجمة</button></div>');
   /* امتحانٌ لكل مستوى بُني، لا امتحان واحد: ولولا ذلك لسأل امتحانُ A1
      عن الماضي والمستقبل بمجرّد إضافة وحدات A2. */
   LEVELS_BUILT.forEach(lv=>{

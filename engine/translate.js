@@ -81,7 +81,8 @@ export function gradeOne(item, said) {
 
 /* يسحب عدداً من الجمل موزّعة على الوحدات المتاحة. */
 export function pickTranslation(n, maxUnit) {
-  const pool = TRANSLATE.filter(t => t.u <= (maxUnit || 3));
+  /* بلا سقفٍ مكتوب: من لم يمرّر سقفاً أراد البنك كلّه. */
+  const pool = TRANSLATE.filter(t => t.u <= (maxUnit || Infinity));
   const byUnit = {};
   pool.forEach(t => { (byUnit[t.u] = byUnit[t.u] || []).push(t) });
   const shuffled = u => byUnit[u].slice().sort(() => Math.random() - 0.5);

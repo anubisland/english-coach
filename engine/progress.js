@@ -82,4 +82,14 @@ export const ITEM_RULE=ITEM_SKILL;
 export const unitDone=n=>unitLessons(n).every(l=>S.lessons[l.id])&&convoList(n).every(c=>S.conv[c.id])&&!!S.cp[n]&&(n===3||!!S.ret[n]);
 /* أوّل وحدة مفتوحة لم تكتمل. ووحداتٌ كثيرة تكون مفتوحة معاً، فلو وُسمت
    كلّها «الوحدة الحالية» لدلّ السهم على ستّة مواضع ولم يدلّ على شيء. */
+/* أبعدُ وحدةٍ بلغها المتعلّم، لا أبعدُ وحدةٍ بُنيت. بها تُختار موادُّ
+   الاختبارات العامّة فتنمو معه: مبتدئٌ لا يُسأل عن الماضي، ومن بلغ A2
+   لا يبقى يُسأل عن الوحدات الثلاث الأولى وحدها — وكان السقف رقماً
+   مكتوباً (٣) فبقيت وحداتٌ كاملة لا يراها أحد. */
+export const reachedUnit=()=>{
+  const done=UNIT_NS.filter(u=>unitLessons(u).some(l=>S.lessons[l.id]));
+  const far=done.length?Math.max(...done):0;
+  /* والوحدة التي يعمل فيها الآن داخلةٌ أيضاً، وأدنى ذلك ثلاث. */
+  return Math.max(3, Math.min(LAST_UNIT, far+1));
+};
 export const currentUnit=()=>UNIT_NS.find(u=>unitOpen(u)&&!unitDone(u)&&!S.skipped[u])||null;

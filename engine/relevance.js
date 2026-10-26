@@ -35,6 +35,30 @@ const CLAUSE = /\b(am|is|are|was|were|do|does|did|don't|doesn't|didn't|have|has|
    قبل «what»، وإلّا ابتلع العامُّ الخاصَّ. */
 export function questionType(prompt) {
   const p = String(prompt || '').toLowerCase();
+  /* أداةُ الصدر تحكم: «Where did you live when you were a child?» سؤالٌ
+     عن مكان، وwhen فيه ظرفٌ تابع لا أداةُ سؤال. ولولا هذا لسبق الماسحُ
+     العامُّ إلى when فطلب ساعةً من سائلٍ يسأل عن مدينة.
+     ويُتخطّى ما يتصدّرها من تلطّف: «Excuse me, where is…». */
+  const head = p.replace(/^[^a-z]*(excuse me|sorry|please|hi|hello|ok|so|and|but|tell me)[\s,]+/g, '').trim();
+  const lead = head.match(/^(how (?:many|much)|how (?:long|old)|what time|when|where|who|why|how|what|which)\b/);
+  if (lead) {
+    const w = lead[1];
+    if (w === 'how many' || w === 'how much') return 'amount';
+    if (w === 'how long' || w === 'how old') return 'duration';
+    if (w === 'what time' || w === 'when') return 'time';
+    if (w === 'where') return 'place';
+    if (w === 'who') return 'person';
+    if (w === 'why') return 'reason';
+    if (w === 'how') return 'manner';
+    if (/\bname\b/.test(p)) return 'person';
+    return 'thing';
+  }
+  /* والمبدوء بفعلٍ ناقصٍ أو مساعد سؤالُ «نعم أو لا»، وإن تلاه when أو
+     where في جملةٍ تابعة: «Will you call me when you arrive?» لا يُطلب
+     فيه وقت. ويسبق الماسحَ العامَّ للسبب نفسه. */
+  if (/^\s*(is|are|am|was|were|do|does|did|can|could|would|will|have|has|had|shall|may|might|should|must)\b/.test(head))
+    return 'yesno';
+
   if (/\bhow (many|much)\b/.test(p)) return 'amount';
   /* «how long» و«how old» جوابهما مدّة لا عدد مجرّد: «since yesterday» جواب تامّ. */
   if (/\bhow (long|old)\b/.test(p)) return 'duration';

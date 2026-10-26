@@ -1567,6 +1567,27 @@ const { run, report } = require('./harness.js');
     });
   });
 
+  /* مبرّر «صح أو خطأ» يقتبس النصّ، فإن لم يكن فيه فالمتعلّم يُحال على
+     شيء لا يجده — وهو أسوأ من ألّا يُعطى مبرّراً. */
+  await run('مبرّر صح/خطأ موجودٌ في نصّه', {}, (ctx, ev) => {
+    const norm = x => x.toLowerCase().replace(/[’']/g, "'")
+      .replace(/["«»]/g, '').replace(/\s+/g, ' ').trim();
+    ev('READS').forEach(t => {
+      const low = norm(t.text);
+      t.qs.filter(q => q.k === 'tf').forEach(q => {
+        if (!q.why) throw new Error(t.id + ': عبارة بلا مبرّر');
+        /* المبرّر إمّا اقتباسٌ إنجليزيّ وإمّا شرحٌ عربيّ. والاقتباس هو
+           ما تصدّره من حروف لاتينية، وما بعده شرحٌ لا يُطلب في النصّ. */
+        const en = norm(q.why).match(/^[a-z0-9 ,.'’-]+/);
+        if (!en) return;
+        const quote = en[0].replace(/[.,\s]+$/, '');
+        if (quote.split(' ').length < 2) return;
+        if (!low.includes(quote))
+          throw new Error(t.id + ': المبرّر ليس في النصّ — «' + quote + '»');
+      });
+    });
+  });
+
   await run('كل إجابة نموذجية تنال العلامة الكاملة', {}, (ctx, ev) => {
     ev('READS').forEach(t => t.qs.forEach((q, i) => {
       const sc = ctx.gradeRead(q, q.k === 'tf' ? q.a : q.ok[0]).sc;
@@ -2608,6 +2629,50 @@ const { run, report } = require('./harness.js');
     const full = ctx.levelsReport().filter(l => l.built && !l.gaps);
     full.forEach(l => {
       if (!html.includes('<b>' + l.id + '</b>')) throw new Error(l.id + ' تامّ ولا يُذكر');
+    });
+  });
+
+  /* أداةُ الصدر تحكم: «Where did you live when you were a child?» سؤالٌ
+     عن مكان، وwhen فيه ظرفٌ تابع. وكان الماسحُ العامُّ يسبق إلى when
+     فيطلب ساعةً ممّن سأل عن مدينة — ويُرفض الجواب الصحيح. */
+  await run('أداة السؤال في صدره تحكم، لا أيُّ أداةٍ وردت فيه', {}, (ctx, ev) => {
+    const cases = [
+      ['Where did you live when you were a child?', 'place'],
+      ['Will you call me when you arrive?', 'yesno'],
+      ['Did you go out when it stopped raining?', 'yesno'],
+      ['When is your birthday?', 'time'],
+      ['Excuse me, where is the station?', 'place'],
+      ['Why were you late?', 'reason'],
+      ['How many books do you have?', 'amount'],
+      ['Is there any milk?', 'yesno']
+    ];
+    cases.forEach(([q, want]) => {
+      const got = ctx.questionType(q);
+      if (got !== want) throw new Error('«' + q + '» → ' + got + ' والمتوقَّع ' + want);
+    });
+  });
+
+  /* محتوىً مبنيٌّ لا يبلغه المتعلّم أسوأ من محتوىً لم يُبنَ: العدّ
+     يقول إنه موجود، والشاشة لا تعرضه أبداً. وقد وقع هذا فعلاً — كان
+     سقف اختبار الترجمة الرقمَ ٣ مكتوباً، فبقيت إحدى وأربعون جملة في
+     البنك لا يراها أحد، منها وحدتان سبقتا A2. */
+  await run('كل ما في البنوك يبلغه المتعلّم عند تمام المنهج', {}, (ctx, ev) => {
+    const last = ev('LAST_UNIT');
+    const reach = { 'الترجمة': ev('TRANSLATE'), 'الكتابة': ev('WRITE') };
+    Object.entries(reach).forEach(([name, bank]) => {
+      const beyond = bank.filter(x => x.u > last);
+      if (beyond.length)
+        throw new Error(name + ': ' + beyond.length + ' مدخلاً لوحدةٍ غير مبنيّة');
+    });
+    /* وسقف الترجمة يبلغ آخر وحدة متى أتمّ المتعلّم المنهج. */
+    ev('LESSONS').forEach(l => { ev('S').lessons[l.id] = 100 });
+    if (ctx.reachedUnit() !== last)
+      throw new Error('من أتمّ كل الدروس سقفُه ' + ctx.reachedUnit() + ' لا ' + last);
+    const picked = ctx.pickTranslation(60, ctx.reachedUnit());
+    const units = new Set(picked.map(x => x.u));
+    const have = new Set(ev('TRANSLATE').map(x => x.u));
+    have.forEach(u => {
+      if (!units.has(u)) throw new Error('الترجمة: الوحدة ' + u + ' لا تُسحب أبداً');
     });
   });
 

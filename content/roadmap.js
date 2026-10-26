@@ -48,7 +48,7 @@ export const STAGES = [
       {id:'5.4', t:'الأرقام والوقت والتواريخ', state:'done'}]}
   ]},
 
-  {id:'a2', t:'المستوى A2', level:'A2', state:'doing', units:[
+  {id:'a2', t:'المستوى A2', level:'A2', state:'done', units:[
     {n:6, t:'الماضي', lessons:[
       {id:'6.1', t:'was / were', state:'done'},
       {id:'6.2', t:'الأفعال المنتظمة في الماضي', state:'done'},

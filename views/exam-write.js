@@ -6,6 +6,7 @@
 import {S} from '../engine/state.js';
 import {examWriteTask, examWriteBag, examWriteResult} from '../engine/exam-write.js';
 import {WRITE_KINDS} from '../content/write-tasks.js';
+import {UNIT_NS} from '../engine/progress.js';
 import {card, ar, esc, count, resultLine} from './ui.js';
 
 export function examWriteView() {
@@ -25,7 +26,7 @@ function introHtml() {
      <div class="row" style="justify-content:flex-start;margin-top:12px">
        <button class="btn" onclick="examWriteStart(0)">ابدأ الاختبار</button></div>
      <div class="row" style="justify-content:flex-start;margin-top:8px">
-       ${[1, 2, 3].map(u => `<button class="btn ghost" style="padding:9px 14px;font-size:12.5px"
+       ${UNIT_NS.map(u => `<button class="btn ghost" style="padding:9px 14px;font-size:12.5px"
          onclick="examWriteStart(${u})">الوحدة ${ar(u)} فقط</button>`).join('')}</div>`);
 }
 

@@ -40,5 +40,37 @@ export const CONVO=[
 {id:'c6',u:3,t:'الطلب في المقهى',turns:[
 {p:`What can I get for you?`,o:[`I would like an orange juice, please.`,`I would like a orange juice, please.`,`Orange juice an I like.`],a:0,tip:`orange يبدأ بحرف علة فنستخدم an`},
 {p:`Anything else?`,o:[`Yes, a sandwich, please.`,`Yes, an sandwich, please.`,`Yes, sandwich a please.`],a:0,tip:`sandwich يبدأ بصوت ساكن فنستخدم a`},
-{p:`That is ten dollars. Thank you.`,o:[`Here you are. Thank you.`,`Here you is. Thank you.`,`You here are. Thank you.`],a:0,tip:`Here you are عبارة شائعة عند الدفع`}]}
+{p:`That is ten dollars. Thank you.`,o:[`Here you are. Thank you.`,`Here you is. Thank you.`,`You here are. Thank you.`],a:0,tip:`Here you are عبارة شائعة عند الدفع`}]},
+{id:'c11',u:6,t:'أين كنتَ أمس؟',turns:[
+{p:`Where were you yesterday? I called you twice.`,o:[`I was at my brother's house.`,`I were at my brother's house.`,`I am at my brother's house.`],a:0,tip:`مع I نستخدم was لا were`},
+{p:`Was the traffic bad?`,o:[`Yes, the roads were very busy.`,`Yes, the roads was very busy.`,`Yes, the roads are very busy.`],a:0,tip:`الجمع roads يأخذ were`},
+{p:`Did you get home late?`,o:[`Yes, I arrived at ten.`,`Yes, I arrive at ten.`,`Yes, I did arrived at ten.`],a:0,tip:`الماضي المنتظم: arrive → arrived`}]},
+{id:'c12',u:6,t:'ماذا فعلتَ في العطلة؟',turns:[
+{p:`What did you do last weekend?`,o:[`I went to the market with my family.`,`I goed to the market with my family.`,`I did went to the market with my family.`],a:0,tip:`go شاذّ: ماضيه went`},
+{p:`Did you buy anything nice?`,o:[`I bought a book and some bread.`,`I buyed a book and some bread.`,`I did bought a book and some bread.`],a:0,tip:`buy شاذّ: ماضيه bought`},
+{p:`Did your sister come with you?`,o:[`No, she didn't come. She was tired.`,`No, she didn't came. She was tired.`,`No, she not came. She was tired.`],a:0,tip:`بعد didn’t يعود الفعل مجرّداً`}]},
+{id:'c13',u:7,t:'ما خطّتك للعطلة؟',turns:[
+{p:`What are you going to do next week?`,o:[`I am going to visit my family.`,`I going to visit my family.`,`I am going to visits my family.`],a:0,tip:`قبل going to لا بدّ من am، والفعل بعدها مجرّد`},
+{p:`Nice! Is your brother going to travel too?`,o:[`Yes, he is going to come with me.`,`Yes, he are going to come with me.`,`Yes, he is going to comes with me.`],a:0,tip:`المفرد الغائب يأخذ is، والفعل مجرّد`},
+{p:`How long are you going to stay?`,o:[`We are going to stay for a week.`,`We is going to stay for a week.`,`We going to stay for a week.`],a:0,tip:`مع we نقول are going to`}]},
+{id:'c14',u:7,t:'وعدٌ وقرار',turns:[
+{p:`This bag is very heavy.`,o:[`I will help you.`,`I will helps you.`,`I will to help you.`],a:0,tip:`القرار في لحظته يأخذ will، والفعل مجرّد`},
+{p:`Thank you! Will you be at the meeting tomorrow?`,o:[`Yes, I will be there at nine.`,`Yes, I will am there at nine.`,`Yes, I am will be there at nine.`],a:0,tip:`بعد will يأتي be لا am`},
+{p:`Do you think it will rain tonight?`,o:[`No, I think it won't rain.`,`No, I think it will not rains.`,`No, I think it doesn't will rain.`],a:0,tip:`نفي will هو won’t والفعل بعده مجرّد`}]},
+{id:'c15',u:8,t:'أيّهما أفضل؟',turns:[
+{p:`Which phone do you like, this one or that one?`,o:[`This one is better than that one.`,`This one is more better than that one.`,`This one is gooder than that one.`],a:0,tip:`good شاذّة: better وحدها بلا more`},
+{p:`But this one is more expensive, isn't it?`,o:[`Yes, but it is faster.`,`Yes, but it is more faster.`,`Yes, but it is more fast.`],a:0,tip:`الصفة القصيرة تأخذ er ولا تُجمع مع more`},
+{p:`Which is the best shop in the city?`,o:[`The shop near the station is the best.`,`The shop near the station is the most best.`,`The shop near the station is the goodest.`],a:0,tip:`التفضيل الشاذّ: the best`}]},
+{id:'c16',u:8,t:'موازنة بين مدينتين',turns:[
+{p:`Is your new city bigger than the old one?`,o:[`Yes, it is much bigger.`,`Yes, it is much more bigger.`,`Yes, it is much big.`],a:0,tip:`big → bigger، ولا more معها`},
+{p:`Is it as quiet as your old street?`,o:[`No, it is not as quiet as my old street.`,`No, it is not as quieter as my old street.`,`No, it is not as quiet than my old street.`],a:0,tip:`المساواة as … as والصفة بينهما مجرّدة`},
+{p:`And the weather? Is it worse?`,o:[`In winter it is worse than here.`,`In winter it is more worse than here.`,`In winter it is badder than here.`],a:0,tip:`bad شاذّة: worse وحدها`}]},
+{id:'c17',u:9,t:'في البقالة',turns:[
+{p:`Good morning. Do you need anything today?`,o:[`Yes, I need some bread, please.`,`Yes, I need any bread, please.`,`Yes, I need many bread, please.`],a:0,tip:`الإثبات يأخذ some، وbread غير معدود`},
+{p:`Of course. Is there anything else?`,o:[`Have you got any milk?`,`Have you got any milks?`,`Have you got many milk?`],a:0,tip:`السؤال يأخذ any`},
+{p:`Yes, we have. How many eggs would you like?`,o:[`Six eggs, please. And not much sugar.`,`Six eggs, please. And not many sugar.`,`Six egg, please. And not much sugar.`],a:0,tip:`eggs معدود فيأخذ many، وsugar غير معدود فيأخذ much`}]},
+{id:'c18',u:9,t:'لماذا تأخّرت؟',turns:[
+{p:`You look tired. Why did you come late?`,o:[`I came late because the bus was full.`,`I came late because so the bus was full.`,`I came late because the full bus.`],a:0,tip:`بعد because جملة تامّة، ولا تُجمع مع so`},
+{p:`Oh, I see. What did you do then?`,o:[`It was raining, so I took a taxi.`,`It was raining, because I took a taxi.`,`Because it was raining so I took a taxi.`],a:0,tip:`so يليها النتيجة، وواحدة منهما تكفي`},
+{p:`Do you always take the bus?`,o:[`When I have time, I walk to work.`,`Because I have time, I walk to work.`,`When I have time, so I walk to work.`],a:0,tip:`when للزمن`}]}
 ];

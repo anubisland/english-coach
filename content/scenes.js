@@ -230,5 +230,41 @@ export const SCENES=[
 {p:'Good afternoon. Are you a member?',need:/yes|no|i am|i'm|member|not|first|new|how/i,model:'No, I am not a member yet.'},
 {p:'You can join today. Do you have ID?',need:/yes|no|i have|here|it is|forgot|passport/i,model:'Yes, I have my ID here.'},
 {p:'How many books would you like?',need:/\d|one|two|three|four|five|books|just|only/i,model:'Three books, please.'},
-{p:'You can keep them for two weeks.',need:/thank|ok|two|weeks|got it|fine|great/i,model:'Thank you very much.'}]}
+{p:'You can keep them for two weeks.',need:/thank|ok|two|weeks|got it|fine|great/i,model:'Thank you very much.'}]},
+{t:'درس 6.1: أين كنتَ؟',cat:'درس',les:'6.1',turns:[
+{p:'Where were you yesterday evening?',need:/\b(was|wasn't|were|at|in|home|house|work|school|office|market|with)\b/i,model:'I was at home with my family.'},
+{p:'Was it a good day?',need:/\b(yes|no|was|wasn't|were|not|good|bad|tired|busy|fine|nice)\b/i,model:'Yes, it was a very good day.'},
+{p:'Were your friends there too?',need:/\b(yes|no|were|weren't|was|they|not|there)\b/i,model:'No, they were not there.'}]},
+{t:'درس 6.2: ماذا عملتَ أمس؟',cat:'درس',les:'6.2',turns:[
+{p:'What did you do yesterday?',need:/\b(worked|played|watched|studied|cleaned|cooked|visited|called|walked|finished|stayed|helped|opened|closed|stopped|tried|carried|lived|liked)\b/i,model:'I worked and then I watched a film.'},
+{p:'Did you finish everything?',need:/\b(yes|no|did|didn't|not|finish|finished|all|some|everything)\b/i,model:"No, I didn't finish everything."},
+{p:'What time did you stop working?',need:/\b(at|stopped|finished|o'clock|past|half|quarter|\d|six|seven|eight|nine|ten)\b/i,model:'I stopped at seven.'}]},
+{t:'درس 6.3: احكِ لي ما حدث',cat:'درس',les:'6.3',turns:[
+{p:'Where did you go last weekend?',need:/\b(went|go|to|market|park|city|home|beach|friend|family|nowhere|stayed)\b/i,model:'I went to the market with my brother.'},
+{p:'What did you see there?',need:/\b(saw|see|met|found|bought|nothing|many|some|a lot)\b/i,model:'I saw an old friend there.'},
+{p:'Did you have a good time?',need:/\b(yes|no|had|have|didn't|not|good|great|nice|time)\b/i,model:'Yes, I had a very good time.'}]},
+{t:'درس 7.1: ما خطّتك؟',cat:'درس',les:'7.1',turns:[
+{p:'What are you going to do tomorrow?',need:/\b(going to|gonna|am|i'm)\b/i,model:'I am going to visit my family.'},
+{p:'Is anyone going to come with you?',need:/\b(yes|no|going to|is|are|not|alone|brother|sister|friend|nobody)\b/i,model:'Yes, my brother is going to come with me.'},
+{p:'How long are you going to stay?',need:/\b(going to|stay|day|days|week|hour|hours|night|until|for)\b/i,model:'We are going to stay for two days.'}]},
+{t:'درس 7.2: وعدٌ وتكهّن',cat:'درس',les:'7.2',turns:[
+{p:'This box is very heavy. Can you help me?',need:/\b(will|i'll|won't|yes|no|sure|of course|help)\b/i,model:'Yes, I will help you.'},
+{p:'Thank you! Do you think it will rain tonight?',need:/\b(will|won't|i think|maybe|perhaps|yes|no|rain)\b/i,model:"I think it will rain tonight."},
+{p:'Will you call me when you arrive?',need:/\b(will|i'll|won't|yes|no|sure|of course|promise|call)\b/i,model:'Yes, I will call you.'}]},
+{t:'درس 8.1: أيّهما أكبر؟',cat:'درس',les:'8.1',turns:[
+{p:'Is your city bigger than mine?',need:/\b(bigger|smaller|larger|than|yes|no|same|not)\b/i,model:'Yes, my city is bigger than yours.'},
+{p:'Which is the cheapest shop near you?',need:/\b(cheapest|the|shop|market|near|station|street|corner)\b/i,model:'The shop near the station is the cheapest.'},
+{p:'Is this book more interesting than that one?',need:/\b(more|less|interesting|boring|than|yes|no|same)\b/i,model:'Yes, it is more interesting than that one.'}]},
+{t:'درس 8.2: سواءٌ أم لا؟',cat:'درس',les:'8.2',turns:[
+{p:'Is your brother as tall as you?',need:/\b(as|than|taller|shorter|same|yes|no|not)\b/i,model:'No, he is not as tall as me.'},
+{p:'Which is better, tea or coffee?',need:/\b(better|best|worse|prefer|like|tea|coffee)\b/i,model:'I think tea is better than coffee.'},
+{p:'What was the worst day of your week?',need:/\b(worst|bad|monday|tuesday|wednesday|thursday|friday|saturday|sunday|day|none)\b/i,model:'Monday was the worst day.'}]},
+{t:'درس 9.1: كم تحتاج؟',cat:'درس',les:'9.1',turns:[
+{p:'Is there any bread at home?',need:/\b(yes|no|some|any|there is|there's|isn't|not|bread)\b/i,model:'No, there is not any bread at home.'},
+{p:'How many eggs do we need?',need:/\b(\d|one|two|three|four|five|six|ten|dozen|many|some|few|egg)\b/i,model:'We need six eggs.'},
+{p:'Do we have much sugar left?',need:/\b(much|little|some|any|yes|no|not|enough|sugar)\b/i,model:"No, we don't have much sugar."}]},
+{t:'درس 9.2: لماذا وكيف؟',cat:'درس',les:'9.2',turns:[
+{p:'Why were you late this morning?',need:/\b(because|so|the bus|traffic|late|woke|missed|rain)\b/i,model:'I was late because the bus was full.'},
+{p:'That is hard. What did you do then?',need:/\b(so|then|because|took|walked|called|waited|went)\b/i,model:'It was raining, so I took a taxi.'},
+{p:'Where did you live when you were a child?',need:/\b(when|i lived|lived|in|cairo|city|village|town|here|there)\b/i,model:'When I was a child, I lived in Cairo.'}]}
 ];

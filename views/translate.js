@@ -5,12 +5,15 @@ import {RULE} from '../content/rules.js';
 import {gradeOne, pickTranslation, summarize} from '../engine/translate.js';
 import {card, svg, ar, esc} from './ui.js';
 import {penDiff} from '../engine/chat.js';
+import {reachedUnit} from '../engine/progress.js';
 
 export const TRANSLATE_N = 6;
 
 export function startTranslation(maxUnit) {
   S.tr = {
-    items: pickTranslation(TRANSLATE_N, maxUnit || 3),
+    /* السقف من تقدّم المتعلّم لا رقماً مكتوباً: كان ٣، فبقيت جُمل
+       الوحدات من ٤ إلى ٩ في البنك لا تُعرض على أحد. */
+    items: pickTranslation(TRANSLATE_N, maxUnit || reachedUnit()),
     results: [], i: 0, graded: null, done: false
   };
   S.tab = 'translate';
@@ -67,7 +70,7 @@ export function translateView() {
   if (!t) return card('اختبار الترجمة',
     `<p class="muted">جُمل بالعربية تكتب ترجمتها بنفسك — بلا خيارات ولا جملة أمامك تقلّدها.</p>
      <div class="row" style="justify-content:flex-start">
-       <button class="btn" onclick="startTranslation(3)">ابدأ</button></div>`);
+       <button class="btn" onclick="startTranslation()">ابدأ</button></div>`);
 
   if (t.done) {
     const s = t.summary;
@@ -98,7 +101,7 @@ export function translateView() {
       ${card('حسب المهارة', skills)}
       ${card('جملة جملة', lines)}
       <div class="row" style="margin-top:12px">
-        <button class="btn" onclick="startTranslation(3)">أعد الاختبار</button>
+        <button class="btn" onclick="startTranslation()">أعد الاختبار</button>
         <button class="btn ghost" onclick="closeTranslation()">رجوع</button></div>`;
   }
 
