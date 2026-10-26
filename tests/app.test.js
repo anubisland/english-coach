@@ -2434,7 +2434,15 @@ const { run, report } = require('./harness.js');
   await run('الخريطة تعدّ المبنيّ من المخطَّط', {}, (ctx, ev) => {
     const c = ctx.roadmapCounts();
     if (c.done !== ev('LESSONS').length) throw new Error('العدّ لا يطابق الواقع');
-    if (c.total <= c.done) throw new Error('الخطة لا تتجاوز المُنجَز — لا خريطة إذن');
+    /* كان هنا شرطُ total > done، أي أنّ في الخطة باقياً. وقد تمّ
+       المنهج كلُّه فسقط الشرط — وليس هذا عيباً فيه بل بلوغاً لغايته.
+       والحارسُ الباقي هو الأهمّ: المعدود يطابق الموجود، لا أكثر. */
+    if (c.total < c.done) throw new Error('المبنيّ يتجاوز المخطَّط — عدٌّ فاسد');
+    /* نصٌّ كُتب لحالٍ ثمّ تغيّر الحال: بقيت الشاشة تقول «البرنامج
+       اليوم داخل الأول منها» بعد بناء الستّة، وبقيت بطاقةُ «ما بعد
+       A2» تَعِد بـB1 بعد بنائه. فلا وعدَ بما تمّ. */
+    if (c.done === c.total && /أمامك|داخل الأول/.test(ctx.roadmapView()))
+      throw new Error('الخطة تمّت والشاشة ما زالت تَعِد بما بُني');
     const html = ctx.roadmapView();
     if (!html.includes(ctx.ar(c.done)) || !html.includes(ctx.ar(c.total)))
       throw new Error('العدد لا يظهر على الشاشة');
@@ -2568,6 +2576,18 @@ const { run, report } = require('./harness.js');
     /* المستوى الحالي هو أوّل ما لم يُتمّ، ولا يكون مستوىً خالياً. */
     const here = ctx.currentLevel();
     if (!ctx.cefrReport(here).total) throw new Error('المستوى الحالي خالٍ: ' + here);
+  });
+
+  /* تمّ المنهج المخطَّط كلُّه، فسقط الحارسُ الذي كان يكفي: «فيه باقٍ
+     إذن لا يدّعي التمام». ولو حُذف آخرُ نقصٍ مُعلَنٍ بعد اليوم لقال
+     البرنامج إنّه يعلّم الإنجليزية كلَّها — وفيها ما لا يقيسه محرّك
+     أنماطٍ أبداً: السخرية والتلميح والمجاز. فهذا حارسُ الدعوى. */
+  await run('لا يدّعي البرنامج تمامَ اللغة ولو تمّت خطّته', {}, (ctx, ev) => {
+    const planLeft = ev('STAGES').flatMap(s => s.units).flatMap(u => u.lessons)
+      .some(l => l.state !== 'done');
+    const gaps = ev('LEVEL_IDS').reduce((n, id) => n + ctx.cefrReport(id).gaps.length, 0);
+    if (!planLeft && !gaps)
+      throw new Error('الخطة تمّت ولا نقصَ مُعلَن — دعوى تمامٍ لا تصحّ');
   });
 
   await run('الشاشة تعرض السلّم كلّه لا المبنيّ وحده', {}, (ctx, ev) => {

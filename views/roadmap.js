@@ -1,6 +1,6 @@
 /* شاشة «خريطة المنهج»: السلّم كلّه، وموقعك منه، وما لم يُبنَ بعد. */
 import {LEVELS, STAGES, roadmapCounts} from '../content/roadmap.js';
-import {cefrReport} from '../engine/cefr.js';
+import {cefrReport, levelsReport} from '../engine/cefr.js';
 import {card, ar, esc, count} from './ui.js';
 
 const MARK = {done: '✓', doing: '●', next: '→', todo: '○'};
@@ -14,8 +14,7 @@ export function roadmapView() {
       <span class="muted" style="font-size:12px">خريطة المنهج</span>
       <div class="dsp" style="font-size:40px;line-height:1.15">${ar(c.done)} من ${ar(c.total)}</div>
       <p class="muted" style="margin-top:4px">درساً مبنيّاً من خطّة المنهج كاملة</p>
-      <p class="muted" style="margin-top:8px;font-size:12px">الإطار الأوروبي ستّة مستويات.
-        البرنامج اليوم داخل الأول منها، ويغطّي <b>${ar(r.coverage)}٪</b> منه.</p>
+      <p class="muted" style="margin-top:8px;font-size:12px">${scope()}</p>
     </div>
 
     ${card('المستويات الستّة', LEVELS.map(l => `
@@ -30,12 +29,39 @@ export function roadmapView() {
 
     ${STAGES.filter(s => s.units.length).map(stageCard).join('')}
 
-    ${card('ما بعد A2',
-      `<p class="muted">A1 و A2 تمّا، وخطّة B1 أمامك مفصّلةً كما تراها —
-         إحدى عشرة محطّة. وهي عملٌ كبير يحتاج محتوىً من مؤلّف لغوي،
-         يُبنى محطّةً محطّة ولا يُوعَد به دفعةً واحدة.</p>`)}
+    ${ahead()}
 
     <div class="row"><button class="btn ghost" onclick="goHome()">رجوع</button></div>`;
+}
+
+/* سطرُ المدى. كان مكتوباً «البرنامج اليوم داخل الأول منها» فبقي
+   يقول ذلك بعد أن بُنيت الستّة كلُّها — وهو العيبُ نفسه الذي تكرّر
+   في هذا المشروع: حقيقةٌ تُكتب مرّةً ثمّ يتغيّر ما تصفه. فليُشتقّ. */
+function scope() {
+  const built = LEVELS.filter(l => l.state === 'done').length;
+  if (built === LEVELS.length)
+    return `الإطار الأوروبي ستّة مستويات، وقد بُنيت كلُّها —
+      وما لا يقيسه المحرّك مُعلَنٌ في حدّ كلّ مستوى.`;
+  const here = LEVELS.find(l => l.state === 'doing');
+  return `الإطار الأوروبي ستّة مستويات، بُني منها ${ar(built)}.`
+    + (here ? ` والبرنامج اليوم في <b class="en">${esc(here.id)}</b>.` : '');
+}
+
+/* بطاقةُ ما بعدُ. كانت «ما بعد A2» نصّاً ثابتاً يَعِد بـB1 بعد أن
+   بُني B1 وما فوقه. فإمّا أن تُعلن ما بقي، وإمّا أن تُعلن الحدّ. */
+function ahead() {
+  const next = STAGES.find(s => s.state !== 'done');
+  if (next) {
+    const left = next.units.flatMap(u => u.lessons)
+      .filter(l => l.state !== 'done').length;
+    return card('ما بعدُ', `<p class="muted">${esc(next.t)} أمامك —
+      ${count(left, 'درس', 'دروس')}. ويُبنى درساً درساً ولا يُوعَد به دفعةً واحدة.</p>`);
+  }
+  const gaps = levelsReport().filter(l => l.gaps).map(l => l.id);
+  return card('حدّ البرنامج', `<p class="muted">تمّت الخطة كلُّها:
+    ${count(roadmapCounts().total, 'درس', 'دروس')} في ستّة مستويات. وما بقي خارجَها
+    مذكورٌ في ${gaps.length ? esc(gaps.join(' و')) : 'حدّ المستويات'} بسببه —
+    لا وعداً مؤجَّلاً، بل ما لا يقيسه محرّك الأنماط أصلاً.</p>`);
 }
 
 function stageCard(s) {

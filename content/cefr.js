@@ -130,7 +130,16 @@ export const CEFR = {
     ], gaps: [
     {t:'السخرية والتلميح والمجاز', why:'يحتاج قارئاً بشرياً — لا يقيسه محرّك الأنماط'}
   ]},
-  C2: {t:'إتقان', caps: [], gaps: []}
+  C2: {t:'إتقان', caps: [
+      {id:'precise-write', t:'يختار الكلمة الأدقّ لا الأقربَ معنىً',
+       skill:'الكتابة', lessons:['23.1'], exam:'write'},
+      {id:'concise-write', t:'يوجز فيقول كلَّ المعنى بأقلّ لفظ',
+       skill:'الكتابة', lessons:['23.2'], exam:'write'},
+      {id:'argue-write', t:'يبني حجّته في فقرات: فكرةٌ وسندٌ وإغلاق',
+       skill:'الكتابة', lessons:['24.1'], exam:'write'}
+    ], gaps: [
+    {t:'السخرية والتلميح والمجاز', why:'يحتاج قارئاً بشرياً — لا يقيسه محرّك الأنماط'}
+  ]}
 };
 
 export const LEVEL_IDS = Object.keys(CEFR);
