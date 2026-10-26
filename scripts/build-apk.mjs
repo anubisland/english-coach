@@ -56,9 +56,22 @@ function checkGradleJava(wrapper, args, opts) {
    التالف في رقمٍ واحد هو 1، ثم يُطبع الرقم الصحيح وكأنّ شيئاً لم يكن —
    فيُرفض الرفع أو يرفض الجهاز التثبيت فوق ما عنده، بلا سببٍ ظاهر. */
 async function version() {
-  const pkg = JSON.parse(await readFile(join(ROOT, 'package.json'), 'utf8'));
-  if (!/^\d+\.\d+\.\d+$/.test(pkg.version || ''))
-    { console.error('✗ نسخة غير صالحة في package.json'); process.exit(1) }
+  /* الرقم من حيث يراه المستخدم — views/settings.js — لا من package.json:
+     كان لكلٍّ رقمُه، فنزّل المستخدم ١٫١٫٠ ورأى في التطبيق «إصدار ٤». */
+  const src = await readFile(join(ROOT, 'views', 'settings.js'), 'utf8');
+  const m = src.match(/APP_VERSION\s*=\s*'([^']+)'/);
+  if (!m) { console.error('✗ لم أجد APP_VERSION في views/settings.js'); process.exit(1) }
+  const pkg = {version: m[1]};
+  if (!/^\d+\.\d+\.\d+$/.test(pkg.version))
+    { console.error('✗ نسخة غير صالحة: ' + pkg.version); process.exit(1) }
+
+  /* وpackage.json يتبعه، ولا يسبقه. */
+  const meta = JSON.parse(await readFile(join(ROOT, 'package.json'), 'utf8'));
+  if (meta.version !== pkg.version) {
+    console.error('✗ package.json يقول ' + meta.version + ' وAPP_VERSION يقول ' + pkg.version);
+    console.error('  الرقم يُكتب في views/settings.js، ويُنسخ إلى package.json.');
+    process.exit(1);
+  }
 
   const n = spawnSync('git', ['rev-list', '--count', 'HEAD'], {cwd: ROOT, encoding: 'utf8'});
   const raw = (n.stdout || '').trim();
