@@ -16,6 +16,7 @@ export function defaultState(){return{
   lessons:{},conv:{},cp:{},ret:{},exam:false,xp:0,
   tab:'home',q:null,open:null,place:null,
   rev:null,                 // رأيُ المراجع الاختياريّ: لحظيّ، لا يُحفظ ولا يُصدَّر
+  syncBusy:false,           // مزامنةٌ جارية: لحظيّ، وmigrate تُسقطه عمداً
   errs:{},                  // عدّاد أخطاء الجرامر المتكررة
   skipped:{},               // وحدات تخطّاها اختبار تحديد المستوى
   attempts:{},              // عدد محاولات كل اختبار: النجاح من السابعة ليس كالأولى

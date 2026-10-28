@@ -15,6 +15,8 @@ import * as speak from './views/speak.js';
 import * as settings from './views/settings.js';
 import * as reviewer from './engine/reviewer.js';
 import * as reviewerPanel from './views/reviewer-panel.js';
+import * as syncPanel from './views/sync-panel.js';
+import * as syncEng from './engine/sync.js';
 import * as translate from './views/translate.js';
 import * as sounds from './views/sounds.js';
 import * as examScore from './engine/exam-score.js';
@@ -104,7 +106,7 @@ const VIEWS={home:home.homeView,course:course.courseView,speak:speak.speakView,s
 
 /* المعالجات داخل الـ HTML (onclick) تحتاج أسماءً عامة. */
 Object.assign(window,{
-  ...state,...grammar,...pronounce,...progress,...quiz,...chat,...ui,...home,...course,...quizv,...speak,...settings,...reviewerPanel,...translate,...trEngine,...sounds,...examScore,...examConv,...examConvView,...writeScore,...examWrite,...examWriteView,...readScore,...examRead,...examReadView,...examDict,...examDictView,...cefrEng,...cefrView,...roadmapContent,...roadmapView,...srs,...relevanceEng,
+  ...state,...grammar,...pronounce,...progress,...quiz,...chat,...ui,...home,...course,...quizv,...speak,...settings,...reviewerPanel,...syncPanel,...translate,...trEngine,...sounds,...examScore,...examConv,...examConvView,...writeScore,...examWrite,...examWriteView,...readScore,...examRead,...examReadView,...examDict,...examDictView,...cefrEng,...cefrView,...roadmapContent,...roadmapView,...srs,...relevanceEng,
   render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme,setTheme
 });
 /* S مرتبط حيّاً لأنه يُعاد بناؤه عند كل إقلاع. */
@@ -113,6 +115,22 @@ Object.defineProperty(window,'S',{get:()=>S,configurable:true});
 setHooks({render,toast:ui.toast,say:ui.say,nextStep:home.nextStep,goToStep:course.goToStep});
 bootState();
 render();
+
+/* المزامنة عند الفتح، ومن بعدُ لا يفعل المتعلّم شيئاً.
+
+   وبعد render لا قبله: الشاشةُ تظهر فوراً بما على الجهاز، ثمّ
+   تُحدَّث إن جاء من الوسيط جديد. ولو انتُظرت الشبكةُ أوّلاً لبقي
+   أمامه بياضٌ كلّما ضعف اتّصاله.
+
+   والإخفاقُ لا يُزعجه برسالة: هو لم يطلب شيئاً، والتطبيق يعمل بلا
+   شبكة كما هو. ويبقى الأثرُ في سطر الإعدادات «زامنتَ قبل كذا»،
+   فمن أراد أن يعرف وجد. */
+if (syncEng.syncOn()) {
+  /* صامتةٌ لأنّه لم يطلبها، ولكنّها تمرّ بالحارس نفسه: نداءان
+     على حالةٍ واحدة يكتب أحدهما فوق دمج الآخر، والرسمُ على يدٍ
+     تكتب يمحو فقرتها. وخطؤها يُسجَّل وإن لم يُزعج صاحبه. */
+  syncPanel.syncRun(true).catch(e => state.logError('مزامنة الإقلاع', e));
+}
 
 /* واجهة الوحدة: تتيح للاختبارات إعادة بناء الحالة والوصول إلى كل شيء بأسمائه. */
 export * from './content/lessons.js';
@@ -133,6 +151,9 @@ export * from './views/speak.js';
 export * from './views/settings.js';
 export * from './engine/reviewer.js';
 export * from './views/reviewer-panel.js';
+export * from './views/sync-panel.js';
+export * from './engine/sync.js';
+export * from './engine/sync-merge.js';
 export * from './views/translate.js';
 export * from './views/sounds.js';
 export * from './engine/exam-convo.js';

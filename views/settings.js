@@ -4,13 +4,14 @@ import {hooks} from '../engine/bus.js';
 import {LESSONS} from '../content/lessons.js';
 import {card, svg, ar, toast} from './ui.js';
 import {reviewerPanel} from './reviewer-panel.js';
+import {syncCard} from './sync-panel.js';
 
 /* مصدرُ رقم النسخة الوحيد. يقرؤه scripts/build-apk.mjs ليضعه في
    الـAPK، ويحرس tests/apk.test.mjs أنّ package.json يطابقه.
 
    وكان رقماً مستقلّاً («٤») لا صلة له برقم الحزمة، فنزّل المستخدم
    ١٫١٫٠ ورأى في التطبيق «إصدار ٤». الحقيقة الواحدة تُكتب مرّةً. */
-export const APP_VERSION = '1.6.0';
+export const APP_VERSION = '1.7.0';
 
 /* ما يُصدَّر: الحالة بلا الاختبار الجاري، فهو لحظي لا يُنقل. */
 function snapshot() {
@@ -95,13 +96,18 @@ export function settingsView() {
          `<button class="btn${g === S.goal ? '' : ' ghost'}" style="${pick(g === S.goal)}" onclick="setGoal(${g})">${ar(g)} دقائق</button>`).join('')}
      </div>`)
   + card('نقل تقدّمك إلى جهاز آخر',
-    `<p class="muted">لا حساب ولا خادم: نزّل ملف تقدّمك من هنا، وارفعه على الجهاز الآخر.</p>
-     <div class="row" style="justify-content:flex-start;margin-top:4px">
-       <button class="btn" onclick="exportProgress()">نزّل ملف تقدّمي</button>
-       <label class="btn ghost" style="cursor:pointer">استورد ملفاً
-         <input id="impFile" type="file" accept="application/json,.json" style="display:none" onchange="importProgress(event)">
-       </label>
-     </div>`)
+    syncCard()
+    + `<details style="margin-top:12px">
+       <summary class="muted" style="cursor:pointer;font-size:12px">أو بملفّ (لا يعمل داخل تطبيق الأندرويد)</summary>
+       <p class="muted" style="margin-top:8px;font-size:12px">نافذةُ العرض في أندرويد
+         تتجاهل تنزيل الملفّ، فاستعمل المزامنة أعلاه على الهاتف واللوح.</p>
+       <div class="row" style="justify-content:flex-start;margin-top:4px">
+         <button class="btn ghost" onclick="exportProgress()">نزّل ملف تقدّمي</button>
+         <label class="btn ghost" style="cursor:pointer">استورد ملفاً
+           <input id="impFile" type="file" accept="application/json,.json" style="display:none" onchange="importProgress(event)">
+         </label>
+       </div>
+     </details>`)
   + card('تقدّمك الآن',
     `<p class="muted">${ar(done)} من ${ar(LESSONS.length)} دروس · ${ar(Object.keys(S.cp).length)} وحدات مجتازة · ${ar(S.xp)} نقطة</p>`)
   /* لا نقول «مستواك A1» — البرنامج يغطّي أساسيات A1 وحدها، فلا يملك

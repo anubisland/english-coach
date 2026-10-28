@@ -1505,9 +1505,26 @@ const { run, report } = require('./harness.js');
       .replace(/'(?:\\.|[^'\\\n])*'/g, ' ')
       .replace(/"(?:\\.|[^"\\\n])*"/g, ' ');
 
+    /* ومعاملاتُ الدوالّ أسماءٌ محلّية لا تُستورَد: mergeInto(S, remote)
+       تأخذ S معاملاً، وsyncNow(S, save) تأخذ save. فلولا استثناؤها
+       لطُولبت كلُّ وحدةٍ باستيراد ما يُمرَّر إليها. */
+    const params = code => {
+      const names = new Set();
+      const add = list => String(list).split(',').forEach(p => {
+        const m = p.trim().match(/^([a-zA-Z_$][\w$]*)/);
+        if (m) names.add(m[1]);
+      });
+      for (const m of code.matchAll(/function\s*[\w$]*\s*\(([^)]*)\)/g)) add(m[1]);
+      for (const m of code.matchAll(/\(([^)]*)\)\s*=>/g)) add(m[1]);
+      for (const m of code.matchAll(/(?<![\w.$])([a-zA-Z_$][\w$]*)\s*=>/g)) names.add(m[1]);
+      for (const m of code.matchAll(/catch\s*\(([^)]*)\)/g)) add(m[1]);
+      return names;
+    };
+
     const bad = [];
     for (const rel of files) {
       const code = strip(src[rel]);
+      const local = params(code);
       const imports = (src[rel].match(/^import[\s\S]*?from\s*'[^']+';/gm) || []).join('\n');
       const seen = new Set();
       /* يُلتقط الاسمُ مُنادىً «name(» ومُضافاً إليه «name.» جميعاً:
@@ -1517,6 +1534,7 @@ const { run, report } = require('./harness.js');
         const name = m[1];
         if (seen.has(name) || !owner[name] || owner[name].includes(rel)) continue;
         seen.add(name);
+        if (local.has(name)) continue;
         /* ومن عرّف الاسم عنده لا يستورده: esc في chat.js دالّةٌ
            محلّية، وtoast في bus.js عضوٌ في كائن. والعضوُ يُعرف بقوسٍ
            يتلوه قوسٌ معقوف — ولولا ذلك لمرّ كلُّ نداءٍ يفتتح كتلةً
@@ -1630,6 +1648,127 @@ const { run, report } = require('./harness.js');
     ['١ مسائل', '٢ مسائل', '1 مسائل'].forEach(bad => {
       if (h.includes(bad)) throw new Error('مطابقة العدد خطأ: «' + bad + '»');
     });
+  });
+
+  console.log('— المزامنة بين الأجهزة —');
+
+  /* دالّةٌ كلُّ غرضها «لا تُضيّع تقدّماً» شُحنت بلا اختبارٍ واحد.
+     وهذه الحراسُ تقيس الوعد نفسه: يزيد ولا ينقص، ولا يتأثّر
+     بالترتيب، ولا يسقط أمام وثيقةٍ تالفة. */
+  const progress = () => ({
+    lessons: {'1.1': true, '1.2': true}, conv: {c1: true}, cp: {1: true},
+    ret: {}, skipped: {}, levelDone: {A1: true}, errs: {s3: 7},
+    attempts: {cp1: 3}, xp: 450, placed: true, exam: true, level: 'A2',
+    res: {write: {last: 80, best: 95, n: 4, at: 5000}},
+    srs: {'I am Ahmed.': {b: 6, due: 90, seen: 9}},
+    cxSeen: ['s1', 's2'], place: {suggest: 2}
+  });
+  const weigh = o => ({
+    lessons: Object.values(o.lessons || {}).filter(Boolean).length,
+    cp: Object.values(o.cp || {}).filter(Boolean).length,
+    levelDone: Object.values(o.levelDone || {}).filter(Boolean).length,
+    xp: o.xp || 0, placed: !!o.placed, exam: !!o.exam,
+    best: ((o.res || {}).write || {}).best || 0,
+    box: ((o.srs || {})['I am Ahmed.'] || {}).b || 0,
+    seen: (o.cxSeen || []).length
+  });
+  const shrank = (before, after) => Object.keys(before).filter(k =>
+    typeof before[k] === 'boolean' ? (before[k] && !after[k]) : (after[k] < before[k]));
+
+  await run('الدمج يزيد ولا ينقص مهما كان المُدخل', {}, (ctx, ev) => {
+    const base = weigh(progress());
+    const inputs = {
+      'فارغ': {}, 'null': null, 'نصّ': 'x', 'رقم': 7, 'مصفوفة': [1],
+      'حقولٌ null': {lessons: null, xp: null, res: null, srs: null, cxSeen: null},
+      'أنواعٌ خاطئة': {lessons: 'x', xp: 'كثير', res: [], srs: 9, cxSeen: {}},
+      'قيمٌ كاذبة': {lessons: {'1.1': 0}, cp: {1: false}, xp: 0, placed: false,
+        exam: false, res: {write: {last: 0, best: 0, n: 0, at: 9e9}},
+        srs: {'I am Ahmed.': {b: 0, due: 0, seen: 0}}, levelDone: {A1: false}},
+      'سجلٌّ تالف': {res: {write: null}, srs: {'I am Ahmed.': 'نصّ'}},
+      /* مفتاحٌ جديدٌ لا مقابلَ له: يُتبنّى بلا فحصٍ لولا الحارس. */
+      'سجلٌّ جديدٌ تالف': {srs: {'X': null, 'Y': 'نصّ', 'Z': 5},
+        res: {read: null, conv: 'نصّ'}},
+      'لانهاية': {xp: Infinity}, 'سالب': {xp: -5},
+      'جهازٌ جديد': {lessons: {}, xp: 0, placed: false, res: {}, srs: {}}
+    };
+    Object.entries(inputs).forEach(([name, remote]) => {
+      const S = progress();
+      ev('mergeInto')(S, remote);
+      const lost = shrank(base, weigh(S));
+      if (lost.length) throw new Error(name + ': نقص ' + lost.join('، '));
+      /* وما دخل الحالةَ يجب أن يُقرأ بلا رمية: النقصُ ليس العطلَ
+         الوحيد — سجلُّ مراجعةٍ نصُّه «نصّ» يُسقط شاشة اليوم. */
+      Object.entries(S.srs || {}).forEach(([q, v]) => {
+        if (!v || typeof v !== 'object' || !Number.isFinite(Number(v.b)))
+          throw new Error(name + ': سجلُّ مراجعةٍ غيرُ صالح — ' + q);
+      });
+      Object.entries(S.res || {}).forEach(([k, v]) => {
+        if (!v || typeof v !== 'object' || !Number.isFinite(Number(v.last)))
+          throw new Error(name + ': نتيجةٌ غيرُ صالحة — ' + k);
+      });
+    });
+  });
+
+  await run('الدمج لا يتغيّر بترتيب الاتّصال ولا بتكراره', {}, (ctx, ev) => {
+    /* الطرفان مُنقَّيان قبل المقارنة: التنقيةُ تُطبَّق على ما يأتي من
+       الوسيط لا على ما في الجهاز، فمقارنةُ خامٍ بمُنقّى مقارنةُ
+       شيئين مختلفين لا كشفُ فرقٍ في الترتيب. */
+    const a = ctx.migrate(progress());
+    const b = ctx.migrate({lessons: {'3.1': true}, xp: 900, cxSeen: ['s3'],
+      levelDone: {A2: true}, res: {write: {last: 60, best: 60, n: 9, at: 9000}},
+      level: 'B1'});
+    const x = JSON.parse(JSON.stringify(a)); ev('mergeInto')(x, b);
+    const y = JSON.parse(JSON.stringify(b)); ev('mergeInto')(y, a);
+    if (JSON.stringify(weigh(x)) !== JSON.stringify(weigh(y)))
+      throw new Error('النتيجة تختلف بترتيب الاتّصال');
+    const once = JSON.stringify(x); ev('mergeInto')(x, b);
+    if (JSON.stringify(x) !== once) throw new Error('الدمج المكرّر يغيّر النتيجة');
+  });
+
+  /* ما يصمد في الجلسة ثمّ يسقط عند الإقلاع ضياعٌ مؤجَّل: المتعلّم
+     يرى تقدّمه ليلاً ولا يجده صباحاً. فما يُدمج يجب أن ينجو من
+     migrate — ولذلك يمرّ به قبل الدمج لا بعده. */
+  await run('المدموج ينجو من migrate، فلا يضيع عند الإقلاع', {}, (ctx, ev) => {
+    const S = ctx.migrate(progress());
+    const before = weigh(S);
+    ev('mergeInto')(S, ctx.migrate({lessons: {'2.1': true}, xp: 700}));
+    const after = weigh(ctx.migrate(JSON.parse(JSON.stringify(S))));
+    const lost = shrank(before, after);
+    if (lost.length) throw new Error('سقط عند الإقلاع: ' + lost.join('، '));
+    if (after.xp !== 700) throw new Error('النقاط لم تنجُ: ' + after.xp);
+  });
+
+  await run('المُرسَل لا يحمل كتابةً حرّةً ولا مفتاحاً ولا تفضيلَ جهاز', {}, (ctx, ev) => {
+    const S = Object.assign(progress(), {
+      wx: {done: [{ans: 'SECRET-WRITING'}]}, rev: {text: 'SECRET-REVIEW'},
+      theme: 'dark', goal: 20, q: {x: 1}, chat: {sc: 5}, syncBusy: true
+    });
+    const out = JSON.stringify(ev('syncable')(S));
+    ['SECRET-WRITING', 'SECRET-REVIEW', 'wx', 'rev', 'theme', 'goal', 'chat', 'syncBusy']
+      .forEach(k => { if (out.includes(k)) throw new Error('سُرّب: ' + k) });
+  });
+
+  /* في التصفّح الخاصّ يفشل التخزين صامتاً. وكان setSyncCode يُرجع
+     النجاح دائماً، فيُقال لصاحبه «أُنشئ رمزك» ثمّ لا يرى رمزاً ولا
+     يفهم. فالردُّ يجب أن يصدق. */
+  await run('تعذّرُ التخزين يُقال ولا يُدّعى نجاحٌ كاذب', {}, (ctx, ev) => {
+    const real = globalThis.localStorage.setItem;
+    globalThis.localStorage.setItem = () => { throw new Error('ممنوع') };
+    try {
+      if (ev('setSyncCode')(ev('newCode')()) !== false)
+        throw new Error('ادّعى الحفظ نجاحاً والتخزين ممنوع');
+    } finally { globalThis.localStorage.setItem = real }
+  });
+
+  await run('الرمز لا يُقبل إلّا بطوله وحروفه', {}, (ctx, ev) => {
+    if (ev('validCode')('short')) throw new Error('قُبل رمزٌ قصير');
+    if (ev('validCode')('')) throw new Error('قُبل رمزٌ فارغ');
+    if (ev('validCode')('AAAAAAAAAAA0')) throw new Error('قُبل حرفٌ ملتبس');
+    const c = ev('newCode')();
+    if (!ev('validCode')(c)) throw new Error('رمزٌ مولَّدٌ مرفوض: ' + c);
+    const many = new Set();
+    for (let i = 0; i < 200; i++) many.add(ev('newCode')());
+    if (many.size !== 200) throw new Error('تكرّر رمزٌ مولَّد');
   });
 
   console.log('— اختبار القراءة —');
