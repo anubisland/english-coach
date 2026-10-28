@@ -4,9 +4,29 @@ import {READS, READ} from '../content/read-texts.js';
 import {S, save, keepResult} from './state.js';
 import {hooks} from './bus.js';
 import {gradeRead, readTotals, countWords, wpm} from './read-score.js';
+import {reachedUnit, unitLevel} from './progress.js';
+
+/* النصّ من مستوى المتعلّم، لا من حيث اتّفق.
+
+   كان الاختيار عشوائياً من البنك كلِّه: فيقع المبتدئ على مقالٍ
+   حجاجيٍّ من C2، ويُثبت من بلغ C2 قدرتَه بنصٍّ من A1. وهو العيب
+   نفسه الذي كان في ورقة الكتابة — ونتيجةُ القراءة خانةٌ واحدة،
+   فالنصُّ هو كلُّ ما يفصل قياساً من قياس.
+
+   والمدى ما بلغه لا ما يقف عنده وحده: المراجعة بنصٍّ أسهل مقصودة،
+   وإنما يُؤثَر مستواه حين يوجد فيه نصّ. */
+export function readPool() {
+  const upto = reachedUnit();
+  const reached = READS.filter(t => t.u <= upto);
+  if (!reached.length) return READS.slice();
+  const here = unitLevel(upto);
+  const own = reached.filter(t => unitLevel(t.u) === here);
+  return own.length ? own : reached;
+}
 
 export function examReadStart(id) {
-  const t = READ[id] || READS[Math.floor(Math.random() * READS.length)];
+  const pool = readPool();
+  const t = READ[id] || pool[Math.floor(Math.random() * pool.length)];
   S.rx = {id: t.id, stage: 'read', began: Date.now(), ms: 0, i: 0, ans: {}, done: false};
   S.tab = 'examread';
   save(); hooks.render();

@@ -924,7 +924,24 @@ export const RULES=[
  bad:['<span class=en>In the other hand, some disagree.</span> ← الصواب <span class=en>on the other hand</span>',
   '<span class=en>According to me, the plan is good.</span> ← الصواب <span class=en>in my opinion</span>',
   '<span class=en>Firstly of all, we must agree.</span> ← الصواب <span class=en>first of all</span>'],
- ar:'العربية تصل الجملَ بالواو وتستغني بها عن أكثر الروابط، فتُقرأ الفقرةُ العربية سلسلةً متّصلة. والإنجليزية تقطع وتُفقِّر: جملةٌ تنتهي بنقطة، وفقرةٌ تنتهي بفكرة. فمن كتب بذوقنا جاء نصّه عندهم طويلَ النَّفَس مبهمَ البناء. وكذلك حرفُ الجرّ في الروابط لا يُقاس على حرفنا: نقول «في المقابل» فيُترجم <span class=en>in the other hand</span>، وهي <span class=en>on</span> لا <span class=en>in</span>.'}
+ ar:'العربية تصل الجملَ بالواو وتستغني بها عن أكثر الروابط، فتُقرأ الفقرةُ العربية سلسلةً متّصلة. والإنجليزية تقطع وتُفقِّر: جملةٌ تنتهي بنقطة، وفقرةٌ تنتهي بفكرة. فمن كتب بذوقنا جاء نصّه عندهم طويلَ النَّفَس مبهمَ البناء. وكذلك حرفُ الجرّ في الروابط لا يُقاس على حرفنا: نقول «في المقابل» فيُترجم <span class=en>in the other hand</span>، وهي <span class=en>on</span> لا <span class=en>in</span>.'},
+{id:'irony', t:'ما وراء الحرف: السخرية والتلميح والمجاز',
+ rule:'ليس كلُّ قولٍ يُراد ظاهرُه: <span class=en>Great, another meeting</span> تضجّرٌ لا سرور.',
+ why:'من يفهم الحرفَ وحده يسمع كلَّ كلمةٍ ويفوته معنى الجملة — وهذا أكثر ما يُوقع المتعلّم المتقدّم في سوء فهم.',
+ table:[['السخرية','Great, another meeting. = تضجّر'],['التلميح','It is cold in here. = أغلق النافذة'],['التقليل','Not bad. = جيّدٌ جدّاً'],['المجاز','He is drowning in work. = مثقلٌ بالعمل'],['التلطيف','He passed away. = مات'],['الاصطلاح','The ball is in your court. = الدور عليك']],
+ more:['<b>١. السخرية</b> — يُقال الحسن ويُراد ضدُّه، وتدلّ عليه القرينة:<br><span class=en>«The train is an hour late.» «<b>Wonderful.</b>»</span><br>ليست إعجاباً، بل تضجّراً. والقرينةُ أنّ التأخّر لا يُعجب أحداً.',
+  '<b>٢. التلميح</b> — يُقال شيءٌ ويُراد طلبٌ أو خبرٌ غيرُه:<br><span class=en>«It is a bit cold in here.»</span> = أغلق النافذة.<br><span class=en>«Do you know what time it is?»</span> = تأخّرتَ.<br><span class=en>«I have an early start tomorrow.»</span> = أريد الانصراف.<br>ولا يُجاب عن ظاهره: من ردّ «‎Yes, I know the time‎» لم يفهم.',
+  '<b>٣. التقليل</b> — يُنقَص اللفظ ويُراد الكثير، وهو إنجليزيٌّ أصيل:<br><span class=en>not bad</span> = جيّدٌ جدّاً<br><span class=en>a bit of a problem</span> = مشكلةٌ كبيرة<br><span class=en>I would not say no</span> = أرحّب جدّاً<br>والعربية تميل إلى التوكيد، فيقرأ المتعلّم <span class=en>not bad</span> فتوراً وهي مدح.',
+  '<b>٤. المجاز والاصطلاح</b> — صورةٌ لا تُفكَّك كلمةً كلمة:<br><span class=en>drowning in work</span> · <span class=en>the ball is in your court</span><br><span class=en>time is money</span> · <span class=en>break the ice</span> · <span class=en>a grey area</span>',
+  '<b>٥. التلطيف</b> — يُستبدل باللفظ الثقيل ما يخفّ:<br><span class=en>passed away</span> بدل <span class=en>died</span><br><span class=en>let go</span> بدل <span class=en>fired</span> · <span class=en>between jobs</span> بدل <span class=en>unemployed</span>',
+  '<b>وكيف تعرف؟</b> ثلاثُ قرائن: <b>الموقف</b> (أيُعقل أن يُعجَب بهذا؟)، و<b>النبرة</b> في الكلام، و<b>ما بعدها</b> في النصّ. وإذا استوى عندك المعنيان فاسأل: أيُّهما يناسب الحال؟'],
+ ex:[{en:'The train is an hour late. Wonderful.',ar:'القطار متأخّر ساعة. «رائع» — سخريةٌ لا إعجاب.'},
+  {en:'It is a bit cold in here.',ar:'الجوّ باردٌ قليلاً هنا — تلميحٌ بطلب إغلاق النافذة.'},
+  {en:'The food was not bad at all.',ar:'كان الطعام جيّداً جدّاً — تقليلٌ يُراد به المدح.'}],
+ bad:['أن تردّ على <span class=en>Do you know what time it is?</span> بـ<span class=en>Yes, I do</span> — فاتك التلميح',
+  'أن تفهم <span class=en>not bad</span> فتوراً — وهي مدحٌ عندهم',
+  'أن تفكّك <span class=en>the ball is in your court</span> كلمةً كلمة — فهي صورةٌ لا كرة'],
+ ar:'العربية تعرف هذه الأبواب كلَّها ولها فيها باعٌ أطول: التهكّم والكناية والتعريض والمجاز. فليست الفكرة غريبة، وإنما الغريبُ مواضعُها. فالعربيّ يُلمّح بالمدح ويُسرف في التوكيد، والإنجليزيّ يُلمّح بالتقليل ويتحرّج من التوكيد. ولهذا يُقرأ <span class=en>not bad</span> فتوراً وهي مدح، ويُقرأ <span class=en>I would suggest</span> ترّدداً وهو أمرٌ مهذّب. فالمطلوب نقلُ الحسّ لا نقلُ الباب.'}
 ]
 
 export const RULE=Object.fromEntries(RULES.map(r=>[r.id,r]));

@@ -100,7 +100,7 @@ export function quizView(){
        <div class="bar" style="flex:1;margin:0"><i style="width:${q.i/total*100}%"></i></div>
        <span class="muted" style="font-size:12px;font-weight:700;flex:0 0 auto">${ar(q.i+1)} من ${ar(total)}</span></div>
      <p class="muted" style="margin-top:12px;font-size:12px">${q.title}</p>
-     ${itemTyped(it)?askHtml(it):`<div class="mean en" style="font-size:19px;margin-top:6px;line-height:1.7;font-weight:500">${it.q}</div>`}${opts}
+     ${itemTyped(it)?askHtml(it):`${it.ar?`<p style="margin-top:6px;font-weight:700">${esc(it.ar)}</p>`:''}<div class="mean en" style="font-size:19px;margin-top:6px;line-height:1.7;font-weight:500">${it.q}</div>`}${opts}
      ${speakPanel(q,it)}${q.picked!=null&&(q.kind!=='conv'||q.spoke!=null)?`<p class='muted' style='margin-top:10px'>💡 ${it.tip}</p>${itemRuleHtml(q,it)}<div class="row"><button class="btn" onclick="nextQ()">${q.i+1>=total?'النتيجة':'التالي ←'}</button></div>`:''}
      <div class="row" style="margin-top:4px"><button class="btn ghost" style="background:transparent;color:var(--faint)" onclick="closeQ()">إلغاء</button></div></div>`;
 }

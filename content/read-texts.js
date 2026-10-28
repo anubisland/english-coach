@@ -593,6 +593,33 @@ In conclusion, the benefits appear to outweigh the cost. The question is not whe
    ok:['in conclusion']},
   {k:'word', ar:'ما الكلمة في النص التي تعني «الأجرة»؟', ok:['fare']},
   {k:'word', ar:'ما الرابط في النص الذي يدلّ على الزيادة؟', ok:['furthermore']}]}
+,
+{id:'r-c2-irony', u:24, t:'رسالة إلى صديق: بين السطور', cat:'رسالة',
+ text:`Dear Salma,
+
+You asked how the new office is. Wonderful. The lift has been broken since March, so we all get our exercise on the stairs.
+
+My manager is a man of few words. When I handed in my first report he read two pages and said, "This will need another look." I spent the weekend rewriting it.
+
+The team is not bad at all. On my first day Hana saw me standing alone by the door and said, "Have you met anyone yet?" Within ten minutes I knew half the floor. She is very good at breaking the ice.
+
+Yesterday I stayed until eight. As I was leaving, Omar looked up and said, "Half day?" I laughed.
+
+Anyway, I am drowning in work this month, so forgive the short letter. Come and visit when you can. I have an early start tomorrow, so I will stop here.
+
+Yours,
+Nadia`,
+ qs:[
+  {k:'tf', q:'Nadia is pleased that the lift is broken.', a:false, why:'Wonderful — سخرية: يُقال الحسن ويُراد ضدُّه، والقرينةُ أنّ تعطّل المصعد لا يُعجب أحداً'},
+  {k:'tf', q:'The manager was satisfied with the first report.', a:false, why:'This will need another look — تلميحٌ بأنّ التقرير يحتاج إعادة كتابة'},
+  {k:'tf', q:'Nadia likes her team.', a:true, why:'The team is not bad at all — تقليلٌ يُراد به المدح'},
+  {k:'tf', q:'Omar believed that Nadia had worked only half a day.', a:false, why:'Half day? — سخريةٌ لأنّها بقيت إلى الثامنة'},
+  {k:'short', ar:'ماذا أرادت هناء بسؤالها «Have you met anyone yet?» — أجب بالإنجليزية.',
+   ok:['to introduce her','she wanted to introduce her','to help her meet people','to break the ice','she was offering to introduce her']},
+  {k:'short', ar:'بأيِّ جملةٍ ألمحت نادية إلى أنّها تريد إنهاء الرسالة؟ أجب بالإنجليزية.',
+   ok:['I have an early start tomorrow','i have an early start','an early start tomorrow']},
+  {k:'word', ar:'ما العبارة في النص التي تعني «مثقلٌ بالعمل»؟', ok:['drowning in work','drowning']},
+  {k:'word', ar:'ما العبارة في النص التي تعني «يُذهب الحرج بين الناس»؟', ok:['breaking the ice','break the ice']}]}
 ];
 
 export const READ = Object.fromEntries(READS.map(r => [r.id, r]));
