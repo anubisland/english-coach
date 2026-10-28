@@ -15,6 +15,7 @@ export function defaultState(){return{
   level:'A1',
   lessons:{},conv:{},cp:{},ret:{},exam:false,xp:0,
   tab:'home',q:null,open:null,place:null,
+  rev:null,                 // رأيُ المراجع الاختياريّ: لحظيّ، لا يُحفظ ولا يُصدَّر
   errs:{},                  // عدّاد أخطاء الجرامر المتكررة
   skipped:{},               // وحدات تخطّاها اختبار تحديد المستوى
   attempts:{},              // عدد محاولات كل اختبار: النجاح من السابعة ليس كالأولى

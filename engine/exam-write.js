@@ -30,11 +30,12 @@ export function pickWrite(unit) {
 export function examWriteStart(unit) {
   const items = pickWrite(Number(unit) || 0);
   S.wx = {items, i: 0, done: [], shown: null, finished: false};
+  S.rev = null;   /* رأيُ ورقةٍ سابقة لا يُعرض على ورقةٍ جديدة */
   S.tab = 'examwrite';
   save(); hooks.render();
 }
 
-export function examWriteQuit() { S.wx = null; S.tab = 'course'; save(); hooks.render() }
+export function examWriteQuit() { S.wx = null; S.rev = null; S.tab = 'course'; save(); hooks.render() }
 
 export function examWriteTask() {
   const w = S.wx;
@@ -57,7 +58,9 @@ export function examWriteAnswer(text) {
   const w = S.wx, t = examWriteTask();
   if (!w || !t || w.shown) return;
   const v = text === undefined ? fieldValue() : String(text);
-  w.shown = gradeWrite(t, v);
+  /* يُحفظ نصُّ المتعلّم مع نتيجته: الميزان لا يحتاجه، والمراجعُ
+     الاختياريّ يحتاج ما كتبه هو لا ما فُهم منه. */
+  w.shown = Object.assign(gradeWrite(t, v), {ans: v});
   w.done.push(w.shown);
   save(); hooks.render();
 }
@@ -70,7 +73,7 @@ function fieldValue() {
 export function examWriteNext() {
   const w = S.wx;
   if (!w || !w.shown) return;
-  w.shown = null; w.bag = null; w.i++;
+  w.shown = null; w.bag = null; w.i++; S.rev = null;
   if (w.i >= w.items.length) w.finished = true;
   save(); hooks.render();
 }

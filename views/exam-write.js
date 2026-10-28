@@ -7,6 +7,9 @@ import {S} from '../engine/state.js';
 import {examWriteTask, examWriteBag, examWriteResult} from '../engine/exam-write.js';
 import {WRITE_KINDS} from '../content/write-tasks.js';
 import {UNIT_NS} from '../engine/progress.js';
+import {reviewerOn, reviewWriting} from '../engine/reviewer.js';
+import {hooks} from '../engine/bus.js';
+import {logError} from '../engine/state.js';
 import {card, ar, esc, count, resultLine} from './ui.js';
 
 export function examWriteView() {
@@ -103,8 +106,62 @@ function feedbackHtml(t, r) {
       ${r.sc < 100 ? `<p class="muted" style="margin-top:6px;font-size:12.5px">نموذج:
         <span class="en" dir="ltr" style="font-weight:600">${esc(r.model)}</span></p>` : ''}
     </div>
+    ${reviewBox(t)}
     <div class="row" style="justify-content:flex-start;margin-top:10px">
       <button class="btn" onclick="examWriteNext()">التالية ←</button></div>`;
+}
+
+/* المراجع الاختياريّ: على الكتابة الحرّة وحدها، وبعد ظهور النتيجة.
+
+   ولا يُعرض إلّا لمن فعّله: من لم يُدخل مفتاحاً لا يُعرض عليه زرٌّ
+   يُرسل كتابته. والرأيُ يُكتب تحت النتيجة مفصولاً عنها بعنوانه،
+   فلا يُحسب درجةً. */
+/* هويّةُ المراجعة: رقمُ السؤال وحده لا يكفي — يبدأ الاختبارُ
+   التالي من الرقم نفسه، فيُعرض على سؤالٍ جديدٍ رأيٌ في كتابةٍ قديمة.
+   فتُضمّ إليه نصُّ المهمّة، ورقمٌ متصاعدٌ لكلّ طلب: فلا يكتب الردُّ
+   البطيء فوق ردٍّ أحدثَ منه. */
+let seq = 0;
+const revId = (w, t) => w.i + '|' + (t.ar || '') + '|' + (t.ok && t.ok[0] || '');
+
+export async function askReview() {
+  const w = S.wx, t = examWriteTask();
+  if (!w || !t || t.k !== 'free') return;
+  /* نداءٌ واحدٌ في كلّ مرّة: الضغطتان تُنفقان مرّتين ويغلب أبطؤهما. */
+  if (S.rev && S.rev.busy) return;
+  const id = revId(w, t), mine = ++seq;
+  const wrote = (w.shown && w.shown.ans) || '';
+  S.rev = {id, busy: true};
+  hooks.render();
+
+  let r;
+  try { r = await reviewWriting({ask: t.ar, text: wrote}) }
+  catch (e) {
+    /* لا يسقط الطلبُ صامتاً: askReview لا ينتظرها أحد، فالرمية
+       غير الملتقَطة تترك «… يراجع» أبداً بلا خبر. */
+    logError('مراجعة الكتابة', e);
+    r = {ok: false, why: 'عطلٌ غير متوقّع في المراجعة'};
+  }
+
+  /* أحدثُ طلبٍ هو الذي يكتب، لا آخرُ من يعود. */
+  if (mine !== seq) return;
+  if (!S.wx || revId(S.wx, examWriteTask() || t) !== id) { S.rev = null; return }
+  S.rev = r.ok ? {id, text: r.text} : {id, why: r.why};
+  hooks.render();
+}
+
+function reviewBox(t) {
+  if (t.k !== 'free' || !reviewerOn()) return '';
+  const st = (S.rev && S.rev.id === revId(S.wx, t)) ? S.rev : {};
+  if (st.busy) return `<p class="muted" style="margin-top:10px">… يراجع</p>`;
+  if (st.why) return `<div style="margin-top:10px;background:var(--badBg);border-radius:12px;padding:10px">
+      <p class="muted" style="color:var(--coral)">تعذّرت المراجعة: ${esc(st.why)}</p></div>
+    <div class="row" style="justify-content:flex-start;margin-top:6px">
+      <button class="btn ghost" onclick="askReview()">أعد المحاولة</button></div>`;
+  if (st.text) return `<div style="margin-top:10px;border:1.5px dashed var(--line);border-radius:14px;padding:12px">
+      <b style="font-size:13px">رأي المراجع — لا يدخل في الدرجة</b>
+      <p class="muted" style="margin-top:6px;white-space:pre-wrap;line-height:1.9">${esc(st.text)}</p></div>`;
+  return `<div class="row" style="justify-content:flex-start;margin-top:10px">
+      <button class="btn ghost" onclick="askReview()">اطلب رأي المراجع</button></div>`;
 }
 
 function reportHtml() {

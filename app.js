@@ -13,6 +13,8 @@ import * as course from './views/course.js';
 import * as quizv from './views/quiz.js';   // ليس quizView: الاسم يحجب الدالة
 import * as speak from './views/speak.js';
 import * as settings from './views/settings.js';
+import * as reviewer from './engine/reviewer.js';
+import * as reviewerPanel from './views/reviewer-panel.js';
 import * as translate from './views/translate.js';
 import * as sounds from './views/sounds.js';
 import * as examScore from './engine/exam-score.js';
@@ -102,7 +104,7 @@ const VIEWS={home:home.homeView,course:course.courseView,speak:speak.speakView,s
 
 /* المعالجات داخل الـ HTML (onclick) تحتاج أسماءً عامة. */
 Object.assign(window,{
-  ...state,...grammar,...pronounce,...progress,...quiz,...chat,...ui,...home,...course,...quizv,...speak,...settings,...translate,...trEngine,...sounds,...examScore,...examConv,...examConvView,...writeScore,...examWrite,...examWriteView,...readScore,...examRead,...examReadView,...examDict,...examDictView,...cefrEng,...cefrView,...roadmapContent,...roadmapView,...srs,...relevanceEng,
+  ...state,...grammar,...pronounce,...progress,...quiz,...chat,...ui,...home,...course,...quizv,...speak,...settings,...reviewerPanel,...translate,...trEngine,...sounds,...examScore,...examConv,...examConvView,...writeScore,...examWrite,...examWriteView,...readScore,...examRead,...examReadView,...examDict,...examDictView,...cefrEng,...cefrView,...roadmapContent,...roadmapView,...srs,...relevanceEng,
   render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme,setTheme
 });
 /* S مرتبط حيّاً لأنه يُعاد بناؤه عند كل إقلاع. */
@@ -129,6 +131,8 @@ export * from './views/course.js';
 export * from './views/quiz.js';
 export * from './views/speak.js';
 export * from './views/settings.js';
+export * from './engine/reviewer.js';
+export * from './views/reviewer-panel.js';
 export * from './views/translate.js';
 export * from './views/sounds.js';
 export * from './engine/exam-convo.js';

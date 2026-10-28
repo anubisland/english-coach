@@ -1473,6 +1473,104 @@ const { run, report } = require('./harness.js');
     }
   });
 
+  /* حارسٌ ساكن، لا يُشغّل شيئاً. وهو هنا أصدقُ من التشغيل: مُشغِّل
+     الاختبارات يجمع الوحدات في نطاقٍ واحد، فيجد اسماً لم يُستورَد
+     ويمضي — والمتصفّحُ يرميه ReferenceError. فسقط اسمٌ غيرُ مستوردٍ
+     في askReview ومرّ على اختبارٍ يضغط الزرّ فعلاً. فالاستيراد
+     يُفحص نصّاً لا تشغيلاً. */
+  await run('كل اسمٍ مستعمَلٍ في وحدةٍ مستوردٌ فيها', {}, (ctx, ev) => {
+    const fs = require('fs'), path = require('path');
+    const ROOT = path.join(__dirname, '..');
+    const dirs = ['views', 'engine'];
+    const files = [];
+    for (const d of dirs)
+      for (const f of fs.readdirSync(path.join(ROOT, d)))
+        if (f.endsWith('.js')) files.push(d + '/' + f);
+
+    /* ما تُصدّره كلُّ وحدة، ومن يملكه. */
+    const src = {}, owner = {};
+    for (const rel of files) {
+      const text = fs.readFileSync(path.join(ROOT, rel), 'utf8');
+      src[rel] = text;
+      for (const m of text.matchAll(/^export\s+(?:async\s+)?(?:function|const|let|var)\s+(\w+)/gm))
+        (owner[m[1]] = owner[m[1]] || []).push(rel);
+    }
+
+    /* ونصُّ السلاسل يُمحى قبل الفحص: معالجاتُ onclick مكتوبةٌ داخلها،
+       وهي تُحلّ على window وقت الضغط لا بالاستيراد — فعدُّها استعمالاً
+       يُغرق الفحص بإنذارٍ كاذب. */
+    const strip = t => t
+      .replace(/\/\*[\s\S]*?\*\//g, ' ')
+      .replace(/`(?:\\.|[^`\\])*`/g, ' ')
+      .replace(/'(?:\\.|[^'\\\n])*'/g, ' ')
+      .replace(/"(?:\\.|[^"\\\n])*"/g, ' ');
+
+    const bad = [];
+    for (const rel of files) {
+      const code = strip(src[rel]);
+      const imports = (src[rel].match(/^import[\s\S]*?from\s*'[^']+';/gm) || []).join('\n');
+      const seen = new Set();
+      /* يُلتقط الاسمُ مُنادىً «name(» ومُضافاً إليه «name.» جميعاً:
+         hooks لا يُنادى قطّ، وإنما يُقال hooks.render() — فالقصرُ على
+         النداء يُفلته، وهو أوّلُ ما سقط هنا. */
+      for (const m of code.matchAll(/(?<![\w.$])([a-zA-Z_$][\w$]*)\s*[(.]/g)) {
+        const name = m[1];
+        if (seen.has(name) || !owner[name] || owner[name].includes(rel)) continue;
+        seen.add(name);
+        /* ومن عرّف الاسم عنده لا يستورده: esc في chat.js دالّةٌ
+           محلّية، وtoast في bus.js عضوٌ في كائن. والعضوُ يُعرف بقوسٍ
+           يتلوه قوسٌ معقوف — ولولا ذلك لمرّ كلُّ نداءٍ يفتتح كتلةً
+           («catch (e) { logError(…)») على أنّه تعريفُ عضو. */
+        if (new RegExp('(?:const|let|var|function|class)\\s+' + name + '\\b').test(code)) continue;
+        if (new RegExp('[{,]\\s*' + name + '\\s*\\([^)]*\\)\\s*\\{').test(code)) continue;
+        if (new RegExp('\\b' + name + '\\b').test(imports)) continue;
+        bad.push(rel + ': ' + name);
+      }
+    }
+    if (bad.length) throw new Error('اسمٌ مستعمَلٌ بلا استيراد: ' + bad.join('، '));
+  });
+
+  /* استوردتُ الوحدة في المتصفّح فعملت، ولم أضغط الزرّ قطّ — فبقي
+     askReview يستدعي hooks وreviewWriting بلا استيراد، فيرمي قبل
+     النداء. والرمية في دالّةٍ async لا ينتظرها أحد تضيع صامتة: لا
+     رسم، ولا خبر، ولا طلب. فالحارس يسلك الطريق الذي يسلكه المتعلّم:
+     يضغط ويقرأ ما ظهر. */
+  await run('زرّ المراجعة يسلك طريقه كاملاً ولا يسقط صامتاً',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, async (ctx, ev) => {
+    const S = ev('S');
+    ctx.examWriteStart(0);
+    /* بلا مفتاحٍ ولا موافقة: لا زرّ أصلاً، ولا نداء. */
+    if (ctx.examWriteView().includes('اطلب رأي المراجع'))
+      throw new Error('عُرض الزرّ بلا تفعيل');
+
+    let called = 0;
+    const realFetch = global.fetch;
+    global.fetch = () => { called++; return Promise.reject(new TypeError('offline')) };
+    try {
+      /* نُفعّله كما يفعّله صاحبُه، ثمّ نبلغ بنداً حرّاً. */
+      ctx.setReviewerKey('sk-ant-test-not-a-real-key');
+      ctx.setReviewerCfg({agreed: true});
+      while (!S.wx.finished && (ctx.examWriteTask() || {}).k !== 'free') {
+        ctx.examWriteAnswer('x'); ctx.examWriteNext();
+      }
+      if (S.wx.finished) return;   /* لا بند حرّ في هذه الورقة */
+      ctx.examWriteAnswer('I go to the school every day.');
+      if (!ctx.examWriteView().includes('اطلب رأي المراجع'))
+        throw new Error('فُعِّل ولم يظهر الزرّ');
+
+      await ctx.askReview();
+      if (!called) throw new Error('ضُغط الزرّ ولم يُطلب شيء — سقط قبل النداء');
+      const html = ctx.examWriteView();
+      if (html.includes('… يراجع'))
+        throw new Error('بقي «يراجع» بعد انتهاء الطلب');
+      if (!html.includes('تعذّرت المراجعة'))
+        throw new Error('فشل الطلب ولم يُخبَر المتعلّم');
+    } finally {
+      global.fetch = realFetch;
+      ctx.forgetReviewer();
+    }
+  });
+
   await run('اختبار الكتابة يمشي إلى النهاية',
     { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
     ctx.examWriteStart(0);

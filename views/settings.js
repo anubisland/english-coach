@@ -3,6 +3,7 @@ import {S, save, logError, defaultState, migrate, K} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
 import {LESSONS} from '../content/lessons.js';
 import {card, svg, ar, toast} from './ui.js';
+import {reviewerPanel} from './reviewer-panel.js';
 
 /* مصدرُ رقم النسخة الوحيد. يقرؤه scripts/build-apk.mjs ليضعه في
    الـAPK، ويحرس tests/apk.test.mjs أنّ package.json يطابقه.
@@ -15,6 +16,10 @@ export const APP_VERSION = '1.5.0';
 function snapshot() {
   const c = Object.assign({}, S);
   delete c.q;
+  /* ونصُّ الكتابة الحرّة ورأيُ المراجع فيه: لحظيّان، وmigrate
+     يُسقطهما عند الاستيراد — فحملُهما في الملفّ تعريضٌ بلا فائدة. */
+  delete c.wx;
+  delete c.rev;
   return c;
 }
 
@@ -112,6 +117,7 @@ export function settingsView() {
      <div class="row" style="justify-content:flex-start;margin-top:4px">
        <button class="btn ghost" style="color:var(--coral)" onclick="resetProgress()">امحُ كل شيء وابدأ من جديد</button>
      </div>`)
+  + reviewerPanel()
   + card('عن التطبيق',
     `<p class="muted">مدرب الإنجليزية · إصدار ${ar(APP_VERSION)}<br>
      تعلّم بالكلام: شرح بالعربية، تمارين، ومحادثة حيّة مع تصحيح فوري.</p>`);
