@@ -3,6 +3,7 @@ import {UNITS,LESSONS} from '../content/lessons.js';
 import {CONVO} from '../content/convo.js';
 import {PLACE2} from '../content/place.js';   // تُستخدم في PLACE وفي وسم المهارات
 import {S} from './state.js';
+import {gateReady} from './unit-plan.js';
 
 /* أرقام الوحدات تُشتقّ من المحتوى لا تُكتب يدوياً.
 
@@ -23,7 +24,9 @@ export const LAST_UNIT=UNIT_NS[UNIT_NS.length-1];
 export const unitLessons=u=>LESSONS.filter(l=>l.u===u);
 export const unitItems=u=>unitLessons(u).flatMap(l=>l.items);
 export const itemsUpTo=u=>UNIT_NS.filter(x=>x<=u).flatMap(unitItems);
-export const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
+/* الخلطُ انتقل إلى shuffle.js ليَخرج من حلقة الاستيراد، ويُعاد
+   تصديرُه هنا فلا ينكسر من كان يستورده من هذا الموضع. */
+export {shuffle} from './shuffle.js';
 /* الوحدة تُفتح بإتمام ما قبلها، أو بتخطّيها بناءً على اختبار تحديد المستوى. */
 export const unitOpen=u=>u===1||!!S.skipped[u-1]||(!!S.cp[u-1]&&!!S.ret[u-1]);
 export const lessonOpen=l=>{if(!unitOpen(l.u))return false;const ls=unitLessons(l.u);const i=ls.indexOf(l);return i===0||!!S.lessons[ls[i-1].id]};
@@ -79,7 +82,14 @@ export const SKILL_UNIT=(()=>{const m={};LESSONS.forEach(l=>(l.rules||[]).forEac
 /* للتوافق مع شاشة الاختبار التي تعرض بطاقة القاعدة */
 export const ITEM_RULE=ITEM_SKILL;
 
-export const unitDone=n=>unitLessons(n).every(l=>S.lessons[l.id])&&convoList(n).every(c=>S.conv[c.id])&&!!S.cp[n]&&(n===3||!!S.ret[n]);
+/* الوحدةُ تامّةٌ بمحطّاتها كلِّها، لا بدروسها وحدها.
+
+   وكانت المهاراتُ الأربع خارج الشرط، فتُعدّ الوحدةُ تامّةً ولم
+   يقرأ فيها نصّاً ولا كتب جملة. والمرجعُ الآن unitPlan وحده. */
+export const unitDone=n=>gateReady(n)&&!!S.cp[n]&&(n===3||!!S.ret[n]);
+
+/* والبوابةُ لا تُفتح حتى تُخدَم الوحدة. */
+export const gateOpen=n=>unitOpen(n)&&gateReady(n);
 /* أوّل وحدة مفتوحة لم تكتمل. ووحداتٌ كثيرة تكون مفتوحة معاً، فلو وُسمت
    كلّها «الوحدة الحالية» لدلّ السهم على ستّة مواضع ولم يدلّ على شيء. */
 /* أبعدُ وحدةٍ بلغها المتعلّم، لا أبعدُ وحدةٍ بُنيت. بها تُختار موادُّ

@@ -4,8 +4,10 @@ import {S,save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
 import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen,UNIT_NS,
         levelUnits,unitLevel} from '../engine/progress.js';
+import {nextInUnit} from '../engine/unit-plan.js';
 import {reviewStats} from '../engine/quiz.js';
 import {cefrReport,currentLevel} from '../engine/cefr.js';
+import {vocabReport} from '../engine/vocab.js';
 import {BOXES} from '../engine/srs.js';
 import {card,svg,ar,count,esc} from './ui.js';
 
@@ -15,17 +17,18 @@ export function nextStep(){
   for(const u of UNIT_NS){
     if(!unitOpen(u))continue;
     if(S.skipped[u])continue;            // تخطّاها اختبار المستوى: لا تقترحها
-    const l=unitLessons(u).find(x=>lessonOpen(x)&&!S.lessons[x.id]);
-    if(l)return{label:`الدرس ${l.id}: ${l.t}`,act:`openLesson('${l.id}')`,cta:'تابع الدرس',anchor:'st-l-'+l.id,unit:u};
-    const c=convoList(u).find(x=>convoOpen(x)&&!S.conv[x.id]);
-    if(c)return{label:`محادثة: ${c.t}`,act:`launch('conv','${c.id}')`,cta:'ابدأ المحادثة',anchor:'st-c-'+c.id,unit:u};
+
+    /* محطّاتُ الوحدة من unitPlan وحدها: درساً فمحادثةً فمهارةً.
+       وكانت المهاراتُ الأربع خارج هذه الحلقة، فلا يُرشَد إليها
+       أحدٌ أبداً — وهي نصفُ ما تقيسه الشهادة. */
+    const st=nextInUnit(u);
+    if(st)return{label:st.t,act:st.act,cta:st.cta,anchor:st.id,unit:u};
+
     if(S.drill&&S.drill.unit===u)
       return{label:'تدريب موجَّه على ما أخطأت فيه',act:`launch('drill',${u})`,cta:'ابدأ التدريب',anchor:'st-g-'+u,unit:u};
     if(!S.cp[u])return{label:`بوابة الوحدة ${ar(u)}`,act:`launch('cp',${u})`,cta:'ابدأ الاختبار',anchor:'st-g-'+u,unit:u};
     if(u!==3&&!S.ret[u])return{label:`اختبار الاستبقاء للوحدة ${u}`,act:`launch('ret',${u})`,cta:'ابدأ الاختبار',anchor:'st-g-'+u,unit:u};
   }
-  /* اسمُ المستوى يُشتقّ من الوحدة التي وقفنا عندها، لا يُكتب: كان
-     «الامتحان النهائي A1» ثابتاً، فبقي يقول A1 لمن بلغ C2. */
   const last=UNIT_NS[UNIT_NS.length-1];
   if(examOpen()&&!S.exam)return{label:`الامتحان النهائي ${unitLevel(last)}`,
     act:"launch('exam')",cta:'ابدأ الامتحان',anchor:'st-exam',unit:3};
@@ -152,10 +155,16 @@ function cefrCard(){
   const lv=currentLevel();
   const r=cefrReport(lv);
   if(!r.total)return '';
+  /* والمفرداتُ سطرٌ ثانٍ: «أثبتَ سبع قدرات» صحيحٌ لكنّه مجرّد، و«بلغتَ
+     أربعمئة كلمة» هو ما يقيس به المتعلّم نفسَه. */
+  const v = vocabReport(lv);
   return card('أين أنت من <span class="en">'+esc(lv)+'</span>',
     '<p class="muted">أثبتَ <b style="color:var(--ind2)">'+ar(r.proven)+' من '+ar(r.total)
     +'</b> من قدرات <span class="en">'+esc(lv)+'</span> التي يغطّيها البرنامج، وهو يغطّي '
     +ar(r.coverage)+'٪ من <span class="en">'+esc(lv)+'</span> الكامل.</p>'
+    +(v?'<p class="muted" style="margin-top:6px">وبلغتَ <b style="color:var(--ind2)">'
+      +ar(v.met)+' من '+ar(v.total)+'</b> كلمة'
+      +(v.nextCount?'، وفي الوحدة التالية '+ar(v.nextCount)+' جديدة':'')+'.</p>':'')
     +'<div class="bar" style="margin-top:9px"><i style="width:'+Math.round(r.proven/r.total*100)+'%"></i></div>'
     +'<div class="row" style="justify-content:flex-start;margin-top:10px">'
     +'<button class="btn ghost" onclick=\'go("cefr")\'>اعرض التفصيل</button>'

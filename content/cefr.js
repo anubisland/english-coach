@@ -43,9 +43,17 @@ export const CEFR = {
       {id:'listen', t:'يفهم جملاً بطيئة واضحة ويكتبها',
        skill:'الاستماع', lessons:['1.1','2.1','3.3'], exam:'dictation'}
     ],
-    /* لم يبقَ من قدرات A1 ما لا يغطّيه البرنامج. والقائمة تبقى موضعاً
-       لما يُكتشف لاحقاً: إعلانُه أصدق من حذف القائمة وادّعاء التمام. */
-    gaps: []
+    /* وكانت فارغةً فيُقال «يغطّي البرنامج ١٠٠٪ من A1» — وهو ادّعاءٌ
+       كذّبه القياس: بنكُ المفردات ٥٠٢ معنًى والـEVP يقدّر A1 بنحو
+       ستّمئة، والاستماعُ عندنا تركيبٌ صوتيّ آليّ لا كلامُ ناطقين.
+
+       وإعلانُ النقص هو ما يجعل الرقم فوقه ذا معنى. */
+    gaps: [
+      {t: 'الاستماع إلى ناطقين حقيقيّين',
+       why: 'Listening uses synthesized speech, not recordings of real speakers.'},
+      {t: 'نطقُ المتعلّم مقيساً',
+       why: 'The app does not yet score how the learner pronounces what they say.'}
+    ]
   },
 
   A2: {
@@ -69,8 +77,13 @@ export const CEFR = {
        skill:'الكتابة', lessons:['9.2'], exam:'write'}
     ],
     /* تُنقل واحدةً واحدة إلى caps كلّما بُني درسها، فتُقاس التغطية
-       من الواقع لا من الوعد. */
+       من الواقع لا من الوعد.
+
+       ولم يُقَس A2 على المعيار بعد — ودورتُه في docs/الخطة.md.
+       و«لم نقس» ليست «غطّينا»، فتُعلَن حتى تُقاس. */
     gaps: [
+      {t: 'الماضي المستمرّ وأفعالُ الواجب',
+       why: 'Past continuous, must and should are taught later, in the B1 units.'}
     ]
   }
 ,
@@ -95,6 +108,8 @@ export const CEFR = {
       {id:'relative-write', t:'يصل جملتيه في واحدة موصولة بـ who و which',
        skill:'الكتابة', lessons:['14.2'], exam:'write'}
     ], gaps: [
+      {t: 'الأزمنةُ التامّةُ الموسّعةُ والكلامُ المنقول',
+       why: 'Past perfect, present perfect continuous and reported speech are taught in the B2 units.'}
   ]},
   /* B2 مُعلَنُ النواقص قبل أن يُبنَ، كما كان B1. */
   B2: {t:'متوسّط متقدّم', caps: [
@@ -111,6 +126,8 @@ export const CEFR = {
       {id:'contrast-write', t:'يخالف ويستدرك، ويرتّب صفاته وظروفه',
        skill:'الكتابة', lessons:['19.1','19.2'], exam:'write'}
     ], gaps: [
+      {t: 'الأساليبُ المتقدّمةُ والمصاحبات',
+       why: 'Inversion, cleft sentences, register and collocation are taught in the C1 units.'}
   ]},
   /* C1 يختلف في نوعه عمّا قبله: ما مضى قواعدُ لها صوابٌ وخطأ يمسكهما
      محرّك الأنماط، وC1 أسلوبٌ وسجلٌّ ومصاحبات. فما بُني منه هو ما

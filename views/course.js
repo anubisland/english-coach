@@ -2,10 +2,11 @@
 import {UNITS,LESSONS} from '../content/lessons.js';
 import {S,save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
-import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen,unitDone,currentUnit,LAST_UNIT,LEVELS_BUILT,levelExamOpen} from '../engine/progress.js';
+import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen,unitDone,currentUnit,LAST_UNIT,LEVELS_BUILT,levelExamOpen,gateOpen} from '../engine/progress.js';
 import {RULE} from '../content/rules.js';
 import {card,svg,ar,ruleCard,esc,count,resultLine} from './ui.js';
 import {nextStep} from './home.js';
+import {unitPlan,nextInUnit} from '../engine/unit-plan.js';
 
 export function stop(o){
   const card=`<div class="stopCard ${o.cls||''}"><span style="flex:1;min-width:0">
@@ -27,6 +28,44 @@ export function convoHtml(u){
       meta:av?(ok?'مكتملة · اضغط للإعادة':'تدرّب على القاعدة في حوار'):'بعد إتقان دروس الوحدة',
       act:av?`launch('conv','${c.id}')`:''
     })}).join('');
+}
+
+/* محطّاتُ الوحدة من unitPlan وحده.
+
+   وكانت الخريطةُ تبني مسارَها بنفسها — دروساً فمحادثة — والمهاراتُ
+   الأربع بطاقاتٍ في ذيل الصفحة خارج المسار. فيمضي المتعلّم إلى آخر
+   المنهج ولم يقرأ نصّاً ولا كتب جملةً ولا أُملي عليه، وهي نصفُ ما
+   تقيسه الشهادة. وبرنامجٌ يُطرح للناس لا يقوم على أن يتذكّر صاحبُه
+   أن ينزل إلى الأسفل.
+
+   والترتيب شرطٌ لا عرض: المحطّةُ تُفتح حين يبلغها، فيُمشى الطريقُ
+   طريقاً لا بطاقاتٍ متناثرة. وما تمّ يبقى مفتوحاً للمراجعة. */
+function planStops(n){
+  const open=unitOpen(n), skipped=!!S.skipped[n];
+  const nextId=(nextInUnit(n)||{}).id;
+  return unitPlan(n).map((st,i)=>{
+    const now=open&&!skipped&&st.id===nextId;
+    const av=open&&(st.done||now||skipped);
+    const mic=st.kind==='convo'?' mic':'';
+    return stop({
+      id:st.id,
+      first:i===0,
+      lit:st.done||now,
+      dot:st.done?`<div class="dot done${mic}">${svg('check',13,'var(--onGreen)')}</div>`
+          :now?'<div class="dot now"></div>'
+          :av?`<div class="dot${mic}"></div>`
+          :`<div class="dot${mic}">${svg('lock',11)}</div>`,
+      cls:now?'now':(av?'':'locked'),
+      title:st.t,
+      /* المتخطّاةُ بالاختبار: محطّاتُها مفتوحةٌ ولم تُنجَز، فيُقال
+         صراحةً إنّها للمراجعة — لا تُترك بلا بيانٍ فيظنّها ناقصة. */
+      meta:!av?'تُفتح حين تبلغها'
+          :st.done?st.meta+' · اضغط للإعادة'
+          :skipped?'متاح للمراجعة · '+st.meta
+          :st.meta,
+      act:av?st.act:''
+    });
+  }).join('');
 }
 
 export function unitStatus(n){
@@ -56,27 +95,9 @@ export function courseView(){
     h+=card(`الدرس ${l.id}: ${l.t}`,`<p>${l.ex}</p>${l.more?`<div class='muted' style='margin-top:10px;line-height:1.9'>${l.more}</div>`:''}${(l.rules||[]).map(r=>ruleCard(r,'full')).join('')}<div class="en muted" style="margin-top:10px;line-height:1.9">${l.s.map(x=>'• '+x).join('<br>')}</div>
       <div class="row"><button class="btn" onclick="launch(\'lesson\',\'${l.id}\')">ابدأ تمارين الدرس</button><button class="btn ghost" onclick="S.open=null;hooks.render()">إغلاق</button></div>`);}
   for(const u of UNITS){
-    const LS=unitLessons(u.n);
-    const skipped=!!S.skipped[u.n];
-    const ls=LS.map((l,i)=>{const ok=!!S.lessons[l.id],av=lessonOpen(l);
-      /* في وحدة تخطّاها اختبار المستوى لا توجد «محطة حالية»: كلها متاحة
-         للمراجعة، وإبراز أولها يناقض وسم «تخطّيتها». */
-      const now=av&&!ok&&!skipped;
-      return stop({
-        id:'st-l-'+l.id,
-        first:i===0,
-        lit:ok||now,
-        dot:ok?`<div class="dot done">${svg('check',13,'var(--onGreen)')}</div>`
-            :now?'<div class="dot now"></div>'
-            :skipped?'<div class="dot"></div>'
-            :`<div class="dot">${svg('lock',11)}</div>`,
-        cls:now?'now':(av?'':'locked'),
-        title:`${l.id} — ${l.t}`,
-        meta:av?(ok?'متقن · اضغط للمراجعة':(skipped?'متاح للمراجعة · '+count(l.items.length,'تمرين','تمارين'):count(l.items.length,'تمرين','تمارين'))):'يفتح بعد الدرس السابق',
-        act:av?`openLesson('${l.id}')`:''
-      })}).join('');
+    const ls=planStops(u.n);
     const gate=`${cpBtn(u.n)}${retBtn(u.n)}`;
-    const extra=unitOpen(u.n)?convoHtml(u.n)+stop({
+    const extra=unitOpen(u.n)?stop({
       id:'st-g-'+u.n,
       last:true,lit:!!S.cp[u.n],
       dot:S.cp[u.n]?`<div class="dot done">${svg('check',13,'var(--onGreen)')}</div>`:`<div class="dot mic">${svg('shield',13)}</div>`,
@@ -86,21 +107,6 @@ export function courseView(){
     }).replace('</div></div>',`<div class="row" style="justify-content:flex-start">${gate}</div></div></div>`):'';
     h+=card(`الوحدة ${u.n}: ${u.t} ${unitStatus(u.n)}`, unitOpen(u.n)?(unitDone(u.n)?'<details><summary class=muted>عرض دروس الوحدة للمراجعة</summary>'+ls+extra+'</details>':ls+extra):'<p class="muted">🔒 تُفتح بعد اجتياز اختبار الوحدة السابقة واختبار استبقائها</p>');
   }
-  h+=card('اختبار الإملاء',
-    '<p class="muted">عشر جمل تسمعها وتكتبها — أصدق قياس للاستماع في البرنامج.</p>'
-    +resultLine('dictation')
-    +'<div class="row" style="justify-content:flex-start"><button class="btn" onclick="examDictStart()">ابدأ اختبار الإملاء</button></div>');
-  h+=card('اختبار القراءة',
-    '<p class="muted">نصّ قصير من الحياة اليومية ثم أسئلة عليه، ويُقاس زمن قراءتك معه.</p>'
-    +resultLine('read')
-    +'<div class="row" style="justify-content:flex-start"><button class="btn" onclick="examReadStart()">ابدأ اختبار القراءة</button></div>');
-  h+=card('اختبار الكتابة',
-    '<p class="muted">إحدى عشرة مسألة تكتبها بيدك: ترتيب كلمات، وإكمال ناقص، وكتابة جملة، وكتابة موجّهة. لا خيارات.</p>'
-    +resultLine('write')
-    +'<div class="row" style="justify-content:flex-start"><button class="btn" onclick="examWriteStart(0)">ابدأ اختبار الكتابة</button></div>');
-  h+=card('اختبار الترجمة',
-    '<p class="muted">ست جمل عربية تكتب ترجمتها بنفسك — بلا خيارات ولا جملة أمامك تقلّدها. وهو أصدق مقياس لما تستطيع إنتاجه فعلاً.</p>'
-    +'<div class="row" style="justify-content:flex-start"><button class="btn" onclick="startTranslation()">ابدأ اختبار الترجمة</button></div>');
   /* امتحانٌ لكل مستوى بُني، لا امتحان واحد: ولولا ذلك لسأل امتحانُ A1
      عن الماضي والمستقبل بمجرّد إضافة وحدات A2. */
   LEVELS_BUILT.forEach(lv=>{
@@ -121,7 +127,16 @@ export function goToStep(){
 }
 export function openLesson(id){S.open=id;S.tab='course';save();hooks.render();window.scrollTo(0,0)}
 export function cpBtn(u){
-  if(!unitLessons(u).every(l=>S.lessons[l.id])||!convoList(u).every(c=>S.conv[c.id])) return '';
+  /* الشرطُ من gateOpen لا من قائمةٍ هنا: كان يفحص الدروسَ والمحادثة
+     وحدهما، فتُفتح البوابةُ على وحدةٍ لم تُقرأ ولم تُكتب ولم تُملَ
+     ولم تُترجَم — وهي نصفُ ما تقيسه الشهادة.
+
+     ومن نزل إلى الخريطة كان يجد الزرَّ مفتوحاً وإن منعته «الخطوةُ
+     التالية»، فيبقى البابُ مفتوحاً من جهةٍ ومُقفَلاً من أخرى. */
+  if(!gateOpen(u)){
+    const left=nextInUnit(u);
+    return left?`<p class="muted" style="margin:0">تبقى قبل البوابة: <b>${esc(left.t)}</b></p>`:'';
+  }
   if(S.cp[u]) return '<span class="pill">✓ اختبار الوحدة مُجتاز</span>';
   if(S.drill&&S.drill.unit===u) return drillBtn();
   return `<button class="btn" onclick="launch('cp',${u})">اختبار الوحدة ${ar(u)}</button>`;

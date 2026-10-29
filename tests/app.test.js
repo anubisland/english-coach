@@ -4,6 +4,16 @@ const { run, report } = require('./harness.js');
 (async () => {
   console.log('— الحالة والترقية —');
 
+  /* محطّةُ المفردات أوّلُ محطّاتِ الوحدة، فبذرةٌ تصف ما بعدها
+     تُتمّها — وإلّا كانت الخطوةُ التالية هي المفرداتِ أبداً. */
+  /* المشهدُ الحيّ صار محطّةً في الرحلة، فبذرةٌ تصف ما بعده تُتمّه. */
+  const SCENES_DONE = Object.fromEntries(
+    (await (await import('../content/scenes.js')).SCENES || [])
+      .map(s => [s.les || ('t:' + s.t), true]));
+
+  const WORDS_DONE = Object.fromEntries(
+    Array.from({ length: 24 }, (_, i) => [i + 1, 100]));
+
   await run('مستخدم جديد يُقلع بحالة كاملة', {}, (ctx, ev) => {
     const S = ev('S');
     for (const k of ['errs', 'chat', 'lessons', 'conv', 'cp', 'ret'])
@@ -55,7 +65,7 @@ const { run, report } = require('./harness.js');
     });
 
   await run('المستخدم القديم يُستأنف من خطوته التالية بالضبط',
-    { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true } }) },
+    { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true } , words: WORDS_DONE, scenes: SCENES_DONE }) },
     (ctx, ev) => {
       const h = ctx.homeView();
       if (!h.includes('تابع من حيث توقفت')) throw new Error('لا بطاقة استئناف');
@@ -63,7 +73,7 @@ const { run, report } = require('./harness.js');
     });
 
   await run('بطاقة الاستئناف تنتقل إلى المحادثة ثم البوابة',
-    { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true, '1.2': true, '1.3': true } }) },
+    { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true, '1.2': true, '1.3': true } , words: WORDS_DONE, scenes: SCENES_DONE }) },
     (ctx, ev) => { if (!ctx.homeView().includes('محادثة:')) throw new Error('لم تُقترح المحادثة بعد إتمام الدروس') });
 
   await run('تبويب محفوظ غير صالح يعود إلى الرئيسية',
@@ -144,7 +154,12 @@ const { run, report } = require('./harness.js');
     (ctx, ev) => {
       const html = ctx.speakView();
       const c = ev('S').chat;
-      if (c.sc !== 0 || c.ti !== 0) throw new Error('لم يُضبط المؤشر');
+      /* لا إلى الفهرس صفر بالضرورة: المشهدُ الأوّل قد يكون فوق ما
+         بلغ المتعلّم، فالضابطُ يردّ إلى أوّل ما بلغه. */
+      const u = ev('sceneUnit')(ev('SCENES')[c.sc]);
+      if (c.ti !== 0) throw new Error('لم يُضبط المؤشر');
+      if (u !== undefined && u > ev('reachedUnit')())
+        throw new Error('رُدّ إلى مشهدٍ فوق ما بلغ');
       if (html.includes('ملاحظة قديمة')) throw new Error('عُرضت ملاحظة جرامر من مشهد آخر');
       if (html.includes('He goes to school')) throw new Error('عُرضت جملة مصححة من مشهد آخر');
       if (c.stage !== 'reply') throw new Error('بقيت مرحلة التغذية الراجعة القديمة');
@@ -213,7 +228,8 @@ const { run, report } = require('./harness.js');
 
   console.log('— المسار والاختبارات —');
 
-  await run('اجتياز درس يفتح الدرس التالي', {}, (ctx, ev) => {
+  await run('اجتياز درس يفتح الدرس التالي',
+    { 'eng-coach-v3': JSON.stringify({ placed: true, words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.launch('lesson', '1.1');
     const n = ev('S.q.items.length');
     for (let i = 0; i < n; i++) { ctx.pick(ev('S.q.items[S.q.i].a')); ctx.nextQ() }
@@ -231,12 +247,27 @@ const { run, report } = require('./harness.js');
     }
   });
 
-  await run('الامتحان النهائي يسحب 10 أسئلة بلا تكرار', {}, (ctx, ev) => {
+  /* كان الامتحانُ عشرةَ أسئلةٍ عشوائيّة، فكان يمكن أن يخرج بلا سؤالٍ
+     عن نصف تراكيب المستوى ثمّ يُقال «أتممتَ A1». فصار لكلّ تركيبٍ
+     فارقٍ سؤالُه — والحارسُ يقيس التغطية لا العدد.
+
+     والتكرارُ يبقى ممنوعاً: الدرسُ الواحد قد يحمل قاعدتين فيقع
+     تمرينُه في بركتيهما، وقد وقع هذا فعلاً. */
+  await run('الامتحان النهائي يقيس كلَّ تركيبٍ بلا تكرار', {}, (ctx, ev) => {
+    /* كلُّ مستوًى كُتب مطلبُه، لا A1 وحده: كان الاسمُ مثبّتاً،
+       فحين يأتي A2 يبقى الحارسُ أخضرَ وA2 بلا قياس. */
+    const specd = ev('LEVELS_SPECD').filter(l => ev('LEVELS_BUILT').includes(l));
+    const lv = specd[0];
+    const want = ev('examSpec')(lv).length;
     for (let t = 0; t < 40; t++) {
-      ctx.launch('exam');
+      ctx.launch('exam', lv);
       const qs = ev('S.q.items.map(x=>x.q)');
-      if (new Set(qs).size !== 10) throw new Error('سؤال مكرر داخل الامتحان');
+      if (new Set(qs).size !== qs.length) throw new Error('سؤال مكرر داخل الامتحان');
+      if (qs.length !== want)
+        throw new Error('الامتحان ' + qs.length + ' سؤالاً والمطلوب قياسُه ' + want + ' تركيباً');
     }
+    const un = specd.flatMap(l => ev('examUncovered')(l));
+    if (un.length) throw new Error('تراكيبُ بلا سؤال: ' + un.map(g => g.t).join('، '));
   });
 
   await run('كل الشاشات تُرسَم بلا خطأ', {}, (ctx, ev) => {
@@ -267,7 +298,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('أدوات المطور محذوفة من الكود والواجهة',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     if (typeof ctx.devUnlock !== 'undefined' || typeof ctx.devReset !== 'undefined')
       throw new Error('دوال المطور ما زالت معرَّفة');
     if (ctx.courseView().includes('فتح كل الدروس')) throw new Error('زر المطور ما زال في الواجهة');
@@ -296,7 +327,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('الشرح يظهر قبل الدرس',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.openLesson('1.1');
     const h = ctx.courseView();
     if (!h.includes('لماذا يخطئ العربي هنا؟')) throw new Error('لا بطاقة قاعدة في شاشة الدرس');
@@ -338,7 +369,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('بطاقة الشرح تظهر في كل درس من التسعة',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ev('LESSONS.map(l=>l.id)').forEach(id => {
       ctx.openLesson(id);
       if (!ctx.courseView().includes('لماذا يخطئ العربي هنا؟'))
@@ -387,7 +418,7 @@ const { run, report } = require('./harness.js');
     (ctx, ev) => { if (ev('S').theme !== 'dark') throw new Error('لم يُستعد الوضع المحفوظ') });
 
   await run('هدف الكلام اليومي يُحفظ',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.setGoal(20);
     if (ev('S').goal !== 20) throw new Error('لم يتغيّر الهدف');
     if (!ctx._store['eng-coach-v3'].includes('"goal":20')) throw new Error('الهدف لم يُحفظ');
@@ -401,7 +432,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('الرئيسية تعرض حلقة التقدّم',
-    { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true } }) },
+    { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true } , words: WORDS_DONE, scenes: SCENES_DONE }) },
     (ctx, ev) => {
       const h = ctx.homeView();
       if (!h.includes('<svg')) throw new Error('لا حلقة');
@@ -410,7 +441,7 @@ const { run, report } = require('./harness.js');
     });
 
   await run('خريطة الرحلة ترسم خطاً ومحطات',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
       const h = ctx.courseView();
       if (!h.includes('class="spine')) throw new Error('لا خط رحلة');
       if (!h.includes('stopCard')) throw new Error('لا محطات');
@@ -514,7 +545,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('render يرسم كل أنواع الاختبارات بلا انهيار',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     [['lesson','1.1'],['cp',1],['exam',null],['conv','c1']].forEach(([k,id]) => {
       ctx.launch(k, id);
       const html = ctx._els.app.innerHTML;
@@ -532,7 +563,7 @@ const { run, report } = require('./harness.js');
   console.log('— متابعة الرحلة —');
 
   await run('بعد آخر درس في الوحدة، أعلى المسار يعرض الخطوة التالية لا أولها',
-    { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true, '1.2': true } }) },
+    { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true, '1.2': true }, words: WORDS_DONE, scenes: SCENES_DONE }) },
     (ctx, ev) => {
       ctx.launch('lesson', '1.3'); finishQuiz(ctx, ev);
       const html = ctx._els.app.innerHTML;
@@ -543,7 +574,7 @@ const { run, report } = require('./harness.js');
     });
 
   await run('nextStep تعطي مرساة موجودة فعلاً في صفحة المسار',
-    { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true } }) },
+    { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true } , words: WORDS_DONE, scenes: SCENES_DONE }) },
     (ctx, ev) => {
       const nx = ctx.nextStep();
       if (!nx || !nx.anchor) throw new Error('nextStep بلا مرساة');
@@ -552,7 +583,7 @@ const { run, report } = require('./harness.js');
     });
 
   await run('إغلاق الاختبار ينقل إلى مرساة الخطوة التالية لا إلى الأعلى',
-    { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true, '1.2': true } }) },
+    { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true, '1.2': true }, words: WORDS_DONE, scenes: SCENES_DONE }) },
     (ctx, ev) => {
       ctx.launch('lesson', '1.3'); finishQuiz(ctx, ev);
       if (!ctx._scrolledTo) throw new Error('لم يُطلب أي انتقال');
@@ -566,6 +597,8 @@ const { run, report } = require('./harness.js');
         placed: true,
         lessons: { '1.1': true, '1.2': true, '1.3': true },
         conv: { c1: true, c2: true },
+        skills: { 1: { read: 80, write: 80, dict: 80, tr: 80 } },
+        words: WORDS_DONE, scenes: SCENES_DONE,
         cp: { 1: true }
       })
     },
@@ -664,7 +697,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('التخطي يفتح الوحدة ولا يدّعي إتمامها',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.startFrom(2);
     const S = ev('S');
     if (!S.skipped[1]) throw new Error('لم تُسجَّل الوحدة 1 متخطّاة');
@@ -674,7 +707,7 @@ const { run, report } = require('./harness.js');
     if (!nx || !nx.label.includes('2.1')) throw new Error('الخطوة التالية ليست أول الوحدة 2: ' + (nx && nx.label));
     const html = ctx.courseView();
     if (!html.includes('تخطّيتها بالاختبار')) throw new Error('لا توضيح أن الوحدة متخطّاة');
-    if (!html.includes('1.1 —')) throw new Error('الوحدة المتخطّاة اختفت، والمفروض أن تبقى للمراجعة');
+    if (!html.includes('الدرس 1.1')) throw new Error('الوحدة المتخطّاة اختفت، والمفروض أن تبقى للمراجعة');
   });
 
   await run('كل تمرين موسوم بمهارة معروفة', {}, (ctx, ev) => {
@@ -690,10 +723,14 @@ const { run, report } = require('./harness.js');
   console.log('— التدريب الموجَّه عند الرسوب —');
 
   /* حالة: الوحدة 1 جاهزة لبوابتها */
+  /* وحدةٌ أُتمّت محطّاتُها كلُّها: مفرداتٌ ودروسٌ ومحادثةٌ ومهارات.
+     والمفرداتُ والمهاراتُ أُضيفتا حين صارتا محطّتين في المسار. */
   const READY = JSON.stringify({
     placed: true,
+    words: WORDS_DONE, scenes: SCENES_DONE,
     lessons: { '1.1': true, '1.2': true, '1.3': true },
-    conv: { c1: true, c2: true }
+    conv: { c1: true, c2: true },
+    skills: { 1: { read: 80, write: 80, dict: 80, tr: 80 } }
   });
 
   const failGate = (ctx, ev, kind) => {
@@ -798,7 +835,7 @@ const { run, report } = require('./harness.js');
   console.log('— الإعدادات —');
 
   await run('شاشة الإعدادات تعرض كل الأقسام',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.go('settings');
     const h = ctx._els.app.innerHTML;
     ['المظهر','هدف الكلام','نقل تقدّمك','إعادة البداية','عن التطبيق']
@@ -958,7 +995,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('دورة الاختبار كاملة حتى النسبة',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.startTranslation(3);
     for (let i = 0; i < ctx.TRANSLATE_N; i++) {
       const t = ev('S').tr;
@@ -989,7 +1026,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('قلم المصحّح يظهر للجملة القريبة فقط',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.startTranslation(3);
     const t = ev('S').tr, it = t.items[0];
     // قريبة: نحذف كلمة واحدة من الصيغة المقبولة
@@ -1014,7 +1051,7 @@ const { run, report } = require('./harness.js');
     });
 
   await run('الوحدة المتخطّاة بلا محطة حالية',
-    { 'eng-coach-v3': JSON.stringify({ placed: true, skipped: { 1: true, 2: true } }) },
+    { 'eng-coach-v3': JSON.stringify({ placed: true, skipped: { 1: true, 2: true }, words: WORDS_DONE, scenes: SCENES_DONE }) },
     (ctx, ev) => {
       const h = ctx.courseView();
       const nows = (h.match(/dot now/g) || []).length;
@@ -1027,7 +1064,7 @@ const { run, report } = require('./harness.js');
   console.log('— صدق القياس —');
 
   await run('الكتابة في اختبار المحادثة لا تُسجَّل درجة نطق',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.launch('conv', 'c1');
     ctx.pick(ev('S').q.items[0].a);
     ctx._els.ctxt2.value = ev('S').q.items[0].o[ev('S').q.items[0].a];
@@ -1039,7 +1076,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('النطق الحقيقي يُسجَّل درجةً',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.launch('conv', 'c1');
     const it = ev('S').q.items[0];
     ctx.pick(it.a);
@@ -1099,7 +1136,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('التدريب يميّز الكلمة المنطوقة من أختها',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.startSound('p');
     const pair = ev("SOUND['p'].pairs")[0];      // ['pen','Ben']
     ctx.soundHeard(pair[0]);
@@ -1111,7 +1148,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('العبارة حول الكلمة لا تُحسب خطأ',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.startSound('p');
     const want = ev("SOUND['p'].pairs")[0][0];
     ctx.soundHeard('a ' + want + ' please');     // المحرّك يردّ عبارة أحياناً
@@ -1119,7 +1156,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('الصمت يُفرَّق عن النطق غير الواضح',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.startSound('p');
     ctx.soundHeard('   ');
     if (ev('S').snd.slots['0:0'] !== 'silent') throw new Error('الصمت حُسب نطقاً خاطئاً');
@@ -1129,7 +1166,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('الإعادة تستبدل ولا تخفض النتيجة',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.startSound('p');
     const pairs = ev("SOUND['p'].pairs");
     ctx.soundHeard(pairs[0][1]);                 // أخطأ
@@ -1144,7 +1181,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('نتيجة متأخّرة بعد إنهاء التدريب تُهمَل',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.startSound('p');
     ctx.closeSound();
     ctx.startSound('v');                         // جلسة جديدة
@@ -1155,7 +1192,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('التدريب ينتهي بنسبة',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.startSound('v');
     const pairs = ev("SOUND['v'].pairs");
     for (let i = 0; i < pairs.length * 2; i++) {
@@ -1267,7 +1304,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('اختبار المحادثة يمشي إلى النهاية ويعطي تقريراً',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.examConvStart('x-air');
     const sc = ev("EXAM_SCENE['x-air']");
     sc.turns.forEach(t => ctx.examConvAnswer(t.model, 0.9));
@@ -1285,7 +1322,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('الاختبار لا يسرّب الإجابة قبل أن تُجيب',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.examConvStart('x-bank');
     const h = ctx.examConvView();
     const sc = ev("EXAM_SCENE['x-bank']");
@@ -1294,7 +1331,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('النتيجة تُحفظ والجلسة تُمحى',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.examConvStart('x-shop');
     ev("EXAM_SCENE['x-shop']").turns.forEach(t => ctx.examConvAnswer(t.model, 0.9));
     const pc = ctx.examConvResult().pc;
@@ -1356,7 +1393,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('الصلة تضع سقفاً: لا نجاح بكلام سليم خارج الموضوع',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.examConvStart('x-clinic');
     /* نحو سليم ونطق واضح، ولا إجابة واحدة عن السؤال المطروح. */
     ['I like football very much', 'The sun is hot today', 'My car is red', 'I like pizza',
@@ -1370,7 +1407,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('الترتيب بين المتعلّمين صادق',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     const runOne = ans => {
       ctx.examConvStart('x-clinic');
       ans.forEach(a => ctx.examConvAnswer(a, 0.9));
@@ -1461,7 +1498,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('الورقة متوازنة بين الأنواع',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     for (let i = 0; i < 5; i++) {
       const paper = ctx.pickWrite(0);
       const kinds = new Set(paper.map(t => t.k));
@@ -1554,7 +1591,7 @@ const { run, report } = require('./harness.js');
      رسم، ولا خبر، ولا طلب. فالحارس يسلك الطريق الذي يسلكه المتعلّم:
      يضغط ويقرأ ما ظهر. */
   await run('زرّ المراجعة يسلك طريقه كاملاً ولا يسقط صامتاً',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, async (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, async (ctx, ev) => {
     const S = ev('S');
     ctx.examWriteStart(0);
     /* بلا مفتاحٍ ولا موافقة: لا زرّ أصلاً، ولا نداء. */
@@ -1565,9 +1602,13 @@ const { run, report } = require('./harness.js');
     const realFetch = global.fetch;
     global.fetch = () => { called++; return Promise.reject(new TypeError('offline')) };
     try {
-      /* نُفعّله كما يفعّله صاحبُه، ثمّ نبلغ بنداً حرّاً. */
-      ctx.setReviewerKey('sk-ant-test-not-a-real-key');
-      ctx.setReviewerCfg({agreed: true});
+      /* نُفعّله كما يفعّله صاحبُه، ثمّ نبلغ بنداً حرّاً.
+
+         والتفعيلُ من المحرّك مباشرةً لا من النافذة: setReviewerKey
+         تمسّ مفتاحاً، فلا تُصدَّر عالمياً لمجرّد أن يصلها اختبار. */
+      const rev = await import('../engine/reviewer.js');
+      rev.setReviewerKey('sk-ant-test-not-a-real-key');
+      rev.setReviewerCfg({agreed: true});
       while (!S.wx.finished && (ctx.examWriteTask() || {}).k !== 'free') {
         ctx.examWriteAnswer('x'); ctx.examWriteNext();
       }
@@ -1585,12 +1626,14 @@ const { run, report } = require('./harness.js');
         throw new Error('فشل الطلب ولم يُخبَر المتعلّم');
     } finally {
       global.fetch = realFetch;
-      ctx.forgetReviewer();
+      /* المصدَّرُ إلى النافذة هو reviewerForget من اللوحة، لا
+         forgetReviewer من المحرّك — وهذا طريقُ الزرّ نفسه. */
+      ctx.reviewerForget();
     }
   });
 
   await run('اختبار الكتابة يمشي إلى النهاية',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.examWriteStart(0);
     const n = ev('S').wx.items.length;
     for (let i = 0; i < n; i++) {
@@ -1607,7 +1650,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('من ترك كل شيء فارغاً لا ينجح',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.examWriteStart(0);
     const n = ev('S').wx.items.length;
     for (let i = 0; i < n; i++) { ctx.examWriteAnswer(''); ctx.examWriteNext() }
@@ -1617,7 +1660,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('النتيجة تُحفظ وجلسة الكتابة لا تُستورد',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.examWriteStart(0);
     const n = ev('S').wx.items.length;
     for (let i = 0; i < n; i++) { ctx.examWriteAnswer(ctx.examWriteTask().ok[0]); ctx.examWriteNext() }
@@ -1639,7 +1682,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('مطابقة العدد العربية في تقرير الكتابة',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.examWriteStart(0);
     const n = ev('S').wx.items.length;
     for (let i = 0; i < n; i++) { ctx.examWriteAnswer(ctx.examWriteTask().ok[0]); ctx.examWriteNext() }
@@ -1907,7 +1950,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('اختبار القراءة يمشي إلى النهاية',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.examReadStart('r-note');
     if (ev('S').rx.stage !== 'read') throw new Error('لم يبدأ بالقراءة');
     const html = ctx.examReadView();
@@ -1934,7 +1977,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('النصّ يبقى متاحاً أثناء الأسئلة',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.examReadStart('r-note');
     ctx.examReadDone();
     const h = ctx.examReadView();
@@ -1943,7 +1986,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('«لا أعرف» تُحتسب خطأ لا تُتجاهَل',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.examReadStart('r-note');
     ctx.examReadDone();
     const n = ev("READ['r-note']").qs.length;
@@ -1954,7 +1997,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('النتيجة تُحفظ وجلسة القراءة لا تُستورد',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.examReadStart('r-note');
     ctx.examReadDone();
     ev("READ['r-note']").qs.forEach(q => ctx.examReadAnswer(q.k === 'tf' ? q.a : q.ok[0]));
@@ -2014,7 +2057,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('التمرين المكتوب يُصحَّح بلا خيارات',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.launch('lesson', '1.1');
     const q = ev('S').q;
     while (q.i < q.items.length && !ctx.itemTyped(q.items[q.i])) { ctx.pick(q.items[q.i].a); ctx.nextQ() }
@@ -2030,7 +2073,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('الإجابة الخطأ تعرض الصواب ولا تُقبل',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.launch('lesson', '1.1');
     const q = ev('S').q;
     while (q.i < q.items.length && !ctx.itemTyped(q.items[q.i])) { ctx.pick(q.items[q.i].a); ctx.nextQ() }
@@ -2043,7 +2086,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('«لا أعرف» تُحتسب خطأ وتكشف الصواب',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.launch('lesson', '1.1');
     const q = ev('S').q;
     while (q.i < q.items.length && !ctx.itemTyped(q.items[q.i])) { ctx.pick(q.items[q.i].a); ctx.nextQ() }
@@ -2054,7 +2097,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('لا يُحتسب الجواب مرّتين ولا يُقبل الفراغ',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.launch('lesson', '1.1');
     const q = ev('S').q;
     while (q.i < q.items.length && !ctx.itemTyped(q.items[q.i])) { ctx.pick(q.items[q.i].a); ctx.nextQ() }
@@ -2068,7 +2111,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('درس كامل يُجتاز بالكتابة والاختيار معاً',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.launch('lesson', '2.2');
     const q = ev('S').q;
     const n = q.items.length;
@@ -2175,7 +2218,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('الإجابة في الدرس تُسجَّل في المراجعة',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     if (Object.keys(ev('S').srs).length) throw new Error('بدأ غير فارغ');
     ctx.launch('lesson', '1.1');
     const q = ev('S').q;
@@ -2199,7 +2242,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('جلسة المراجعة تبني طابورها من المستحقّ',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     const S = ev('S'), DAY = ev('DAY');
     const items = ev('LESSONS')[0].items.slice(0, 3);
     items.forEach(it => { S.srs[it.q] = { b: 1, due: Date.now() - DAY, seen: Date.now() - 2 * DAY } });
@@ -2211,7 +2254,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('المراجعة لا تتجاوز اثني عشر في الجلسة',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     const S = ev('S'), DAY = ev('DAY');
     ev('LESSONS').flatMap(l => l.items).forEach(it => {
       S.srs[it.q] = { b: 1, due: Date.now() - DAY, seen: Date.now() - 2 * DAY };
@@ -2222,7 +2265,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('بطاقة المراجعة تظهر في الصفحة الأولى',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     const S = ev('S'), DAY = ev('DAY');
     if (ctx.homeView().includes('مراجعة اليوم')) throw new Error('ظهرت بلا أي سجلّ');
     const it = ev('LESSONS')[0].items[0];
@@ -2267,7 +2310,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('المراجعة لا تعرض «أعد المحاولة»',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     const S = ev('S'), DAY = ev('DAY');
     const items = ev('LESSONS')[0].items.filter(i => !ctx.itemTyped(i)).slice(0, 2);
     items.forEach(it => { S.srs[it.q] = { b: 1, due: Date.now() - DAY, seen: Date.now() } });
@@ -2375,7 +2418,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('المحادثة تعرض سبب عدم المناسبة',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.chatPick(0);
     const turn = ctx.chatTurn();
     ctx.chatReply('blah');
@@ -2388,7 +2431,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('اختبار المحادثة يفرّق بين المجيب والخارج عن الموضوع',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     const sc = ev("EXAM_SCENE['x-air']");
     const run1 = ans => {
       ctx.examConvStart('x-air');
@@ -2434,7 +2477,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('شاشة الإملاء تُسمع ولا تعرض الجملة',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     let found = null, lesson = null;
     ev('LESSONS').forEach(l => l.items.forEach((it, i) => {
       if (!found && it.k === 'listen') { found = it; lesson = {id: l.id, i} }
@@ -2520,7 +2563,7 @@ const { run, report } = require('./harness.js');
 
   /* الرقم المعروض يجب أن يصف القدرة لا أحسن الحظّ. */
   await run('المعروض هو النتيجة الأخيرة لا أفضلها',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.keepResult('conv', 40);
     ctx.keepResult('conv', 90);
     ctx.keepResult('conv', 55);
@@ -2536,7 +2579,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('المحاولة الأولى لا تعرض عدّاداً',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.keepResult('read', 70);
     const line = ctx.resultLine('read');
     if (!line.includes('٧٠')) throw new Error('لا نتيجة');
@@ -2565,7 +2608,7 @@ const { run, report } = require('./harness.js');
   console.log('— الإملاء والمعيار الدولي —');
 
   await run('اختبار الإملاء يمشي إلى النهاية',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     if (ctx.dictationPool().length < 30) throw new Error('مخزون قليل');
     ctx.examDictStart();
     const d = ev('S').dx;
@@ -2586,7 +2629,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('مرّات السماع تُحصى وتُعرض',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ctx.examDictStart();
     ctx.examDictPlay(); ctx.examDictPlay(); ctx.examDictPlay();
     if (ev('S').dx.plays !== 3) throw new Error('العدّ: ' + ev('S').dx.plays);
@@ -2597,7 +2640,7 @@ const { run, report } = require('./harness.js');
 
   /* إعادة الاختبار على مشهدٍ جُرّب تقيس الحفظ لا القدرة. */
   await run('مشهد المحادثة لا يتكرّر قبل أن تدور المواقف',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     const total = ev('EXAM_SCENES').length;
     const seen = [];
     for (let i = 0; i < total; i++) {
@@ -2613,7 +2656,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('القدرة لا تُحتسب مُثبَتة بالدرس وحده',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     const cap = ev('CEFR_A1').find(c => c.exam === 'read');
     let st = ctx.capabilityState(cap);
     if (st.level !== 'locked') throw new Error('بدأ غير مقفل: ' + st.level);
@@ -2733,7 +2776,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('الامتحان النهائي يسحب من كل الوحدات',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     const last = ev('LAST_UNIT');
     const all = ctx.itemsUpTo(last).length;
     const allItems = ev('LESSONS').flatMap(l => l.items).length;
@@ -2765,7 +2808,7 @@ const { run, report } = require('./harness.js');
   /* صار لكل مستوى امتحانه، فالاختبار على مستوىً لا على البرنامج كلّه.
      والأهمّ هنا: وحدات A2 لا تؤثّر في فتح امتحان A1 ولا في إغلاقه. */
   await run('امتحان المستوى لا تؤثّر فيه وحدات مستوىً آخر',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     const S = ev('S');
     const built = ev('LEVELS_BUILT');
     const first = built[0];
@@ -2801,7 +2844,7 @@ const { run, report } = require('./harness.js');
 
   /* ولولا هذا لسأل امتحانُ A1 عن الماضي بمجرّد إضافة وحدات A2. */
   await run('امتحان المستوى يسحب من وحداته وحدها',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     ev('LEVELS_BUILT').forEach(lv => {
       const own = new Set(ctx.levelItems(lv));
       ctx.launch('exam', lv);
@@ -2816,7 +2859,7 @@ const { run, report } = require('./harness.js');
   });
 
   await run('امتحان المستوى يُفتح باجتياز وحداته هو',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     const S = ev('S'), lv = ev('LEVELS_BUILT')[0];
     S.cp = {}; S.ret = {};
     if (ctx.levelExamOpen(lv)) throw new Error('مفتوح بلا اجتياز');
@@ -2856,7 +2899,7 @@ const { run, report } = require('./harness.js');
      A1 وثلاثَ وحدات. فبقيت تقولها لمن بلغ C2، وcefrReport بلا وسيطٍ
      ترجع A1 دائماً فكانت الأرقامُ أرقامَ A1 أيضاً. */
   await run('الرئيسية تتبع مستوى المتعلّم لا مستوىً مكتوباً',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     const S = ev('S'), ids = ev('LEVEL_IDS');
     /* أثبِت قدرات المستوى الأول كلَّها، فينتقل «الحاليّ» إلى ما بعده. */
     const first = ids.find(id => ctx.cefrReport(id).total);
@@ -2903,7 +2946,7 @@ const { run, report } = require('./harness.js');
   /* السهم يدلّ على موضع واحد. ووحداتٌ كثيرة تكون مفتوحة معاً، فلو وُسمت
      كلّها «الوحدة الحالية» لم يَدُلّ السهم على شيء. */
   await run('سهم «الوحدة الحالية» يشير إلى وحدة واحدة لا إلى كل المفتوح',
-    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     const lessons = ev('LESSONS'), units = ev('UNIT_NS');
     units.forEach(u => { ev('S').cp[u] = true; ev('S').ret[u] = true });
     lessons.forEach(l => { ev('S').lessons[l.id] = 100 });
@@ -3008,6 +3051,298 @@ const { run, report } = require('./harness.js');
         if (!(i in bank) || !bank[i])
           throw new Error(name + ': ثقبٌ عند الموضع ' + i + ' — فاصلةٌ زائدة');
     });
+  });
+
+  /* migrate لا تُنقص تقدّماً مشروعاً.
+
+     وكانت قوائمُ السماح مكتوبةً بأرقامٍ ثابتة: الوحداتُ ['1','2','3']
+     والمحادثاتُ c1..c6، والمنهجُ أربعٌ وعشرون وحدةً وثمانٍ وأربعون
+     محادثة. فمن اجتاز بوابةَ الوحدة الرابعة فقدها عند أوّل فتحٍ
+     للتطبيق — صامتاً، بلا خطأ. وmergeInto تمرّ بـmigrate كذلك،
+     فتقدّمُ الجهاز الآخر يُجرَّد قبل أن يُدمَج.
+
+     والحارسُ يمشي على المحتوى لا على أرقام: تُعلَّم كلُّ وحدةٍ وكلُّ
+     محادثةٍ ثمّ يُطلَب استرجاعُها. */
+  await run('migrate لا تُسقط تقدّماً من أيّ وحدةٍ أو محادثة', {}, (ctx, ev) => {
+    const migrate = ev('migrate'), UNITS = ev('UNITS'), CONVO = ev('CONVO');
+    const all = {placed: true, cp: {}, ret: {}, skipped: {}, conv: {}};
+    UNITS.forEach(u => { all.cp[u.n] = true; all.ret[u.n] = true; all.skipped[u.n] = true });
+    CONVO.forEach(c => { all.conv[c.id] = true });
+
+    const back = migrate(JSON.parse(JSON.stringify(all)));
+    ['cp', 'ret', 'skipped'].forEach(k => {
+      const lost = UNITS.filter(u => !back[k][u.n]).map(u => u.n);
+      if (lost.length) throw new Error(k + ': سقطت الوحدات ' + lost.join('، '));
+    });
+    const lostC = CONVO.filter(c => !back.conv[c.id]).map(c => c.id);
+    if (lostC.length) throw new Error('conv: سقطت ' + lostC.length + ' محادثة، منها ' + lostC[0]);
+  });
+
+  /* سؤالُ المفردات يُجاب بالمعرفة لا بالحظّ.
+
+     وكان too وalso كلاهما «أيضاً» في حقلٍ واحد، فيُعرض زرّان
+     متطابقان ويُخطَّأ أحدُهما — والمتعلّم يرى ما يُرسَم لا ما
+     يُخزَّن. ثمّ لمّا نُقّيت نَقَص السؤالُ خياراً، فتُكمَل من بركةٍ
+     أوسع: لا متطابقان ولا ناقص. */
+  await run('خياراتُ المفردات أربعةٌ متمايزة', {}, (ctx, ev) => {
+    const wordsItems = ev('wordsItems');
+    let dup = 0, short = 0, badA = 0, n = 0;
+    for (let k = 0; k < 60; k++) [1, 2, 3, 4, 5].forEach(u => {
+      wordsItems(u).forEach(it => {
+        n++;
+        if (new Set(it.o).size !== it.o.length) dup++;
+        if (it.o.length !== 4) short++;
+        if (typeof it.a !== 'number' || it.a < 0 || it.a >= it.o.length) badA++;
+      });
+    });
+    if (!n) throw new Error('لم يُولَّد سؤالٌ واحد');
+    if (dup) throw new Error(dup + ' سؤالاً فيه خياران متطابقان من ' + n);
+    if (short) throw new Error(short + ' سؤالاً خياراتُه ليست أربعة');
+    if (badA) throw new Error(badA + ' سؤالاً فهرسُ جوابه خارج خياراته');
+  });
+
+  /* تبويبُ التحدّث ليس باباً جانبيّاً.
+
+     وكان يعرض المشاهدَ الستّةَ والسبعين جميعاً بلا تصفية، فيرى
+     المبتدئُ في وحدته الأولى مشاهدَ C2 ويستطيع أن يترك الرحلةَ
+     كلَّها ويقضي وقته فيه.
+
+     والقاعدة: مشاهدُ الدروس إلى ما بلغ، والموضوعيّةُ حرّةٌ دائماً —
+     فهي عونٌ لا طريقٌ بديل. */
+  await run('تبويبُ التحدّث يعرض ما بلغه المتعلّم لا المنهجَ كلَّه',
+    { 'eng-coach-v3': JSON.stringify({placed: true, lessons: {'1.1': true}}) },
+    (ctx, ev) => {
+      const SC = ev('SCENES'), sceneUnit = ev('sceneUnit');
+      const html = ctx.speakView();
+      const beyond = SC.filter(s => {
+        const u = sceneUnit(s);
+        return u !== undefined && u > ev('reachedUnit')();
+      });
+      if (!beyond.length) throw new Error('لا مشاهدَ فوق ما بلغ — البذرةُ لا تقيس شيئاً');
+      const leaked = beyond.filter(s => html.includes('درس ' + s.les));
+      if (leaked.length)
+        throw new Error(leaked.length + ' مشهداً فوق ما بلغ معروضٌ في التبويب، منها درس ' + leaked[0].les);
+
+      /* والموضوعيّةُ تبقى: هي عونٌ لا طريقٌ بديل. */
+      const free = SC.filter(s => sceneUnit(s) === undefined);
+      if (free.length && !free.some(s => html.includes(s.t)))
+        throw new Error('المشاهدُ الحرّةُ اختفت، وهي ليست من المنهج حتى تُقفَل');
+    });
+
+  /* البوابةُ مقفلةٌ في الخريطة كما هي في «الخطوة التالية».
+
+     وكان زرُّ البوابة يفحص الدروسَ والمحادثةَ وحدهما، فمن نزل إلى
+     الخريطة وجده مفتوحاً على وحدةٍ لم تُقرأ ولم تُكتب — بابٌ من
+     جهةٍ مُقفَلٌ ومن أخرى مفتوح. */
+  await run('زرُّ البوابة لا يظهر على وحدةٍ لم تُخدَم',
+    { 'eng-coach-v3': JSON.stringify({
+        placed: true, words: { 1: 100 }, scenes: SCENES_DONE,
+        lessons: { '1.1': true, '1.2': true, '1.3': true },
+        conv: { c1: true, c2: true }
+      }) },
+    (ctx, ev) => {
+      if (ev('gateOpen')(1)) throw new Error('البوابة مفتوحةٌ والمهاراتُ لم تُؤدَّ');
+      if (ctx.cpBtn(1).includes('launch(\'cp\''))
+        throw new Error('زرُّ البوابة معروضٌ على وحدةٍ لم تُخدَم');
+      if (!ctx.cpBtn(1).includes('تبقى قبل البوابة'))
+        throw new Error('لا يُقال للمتعلّم ما الذي يُبقي بوابتَه مغلقة');
+
+      /* ومتى خُدمت ظهر الزرّ. */
+      ev('S').skills = { 1: { read: 80, write: 80, dict: 80, tr: 80 } };
+      if (!ctx.cpBtn(1).includes('launch(\'cp\''))
+        throw new Error('خُدمت الوحدةُ ولم يظهر زرُّ البوابة');
+    });
+
+  /* محطّةُ الوحدة تقيس الوحدةَ نفسَها.
+
+     وكانت «قراءةُ الوحدة ١» تنادي examReadStart(0, 1)، وREAD[0] لا
+     وجودَ له (المفاتيحُ نصوصٌ كـr-note)، فتسقط إلى سحبٍ عشوائيٍّ من
+     المستوى: يأتي نصُّ الوحدة الثانية، ثمّ تُسجَّل درجتُه في
+     S.skills[1].read فتُفتح به بوابةُ وحدةٍ لم تُقرأ. */
+  await run('محطّاتُ المهارة تسحب من وحدتها هي', {}, (ctx, ev) => {
+    const readPool = ev('readPool'), dictationPool = ev('dictationPool');
+    const READS = ev('READS'), LESSONS = ev('LESSONS');
+    [1, 4, 5].forEach(u => {
+      const r = readPool(u);
+      const bad = r.filter(t => t.u !== u);
+      if (!r.length || bad.length)
+        throw new Error('قراءةُ الوحدة ' + u + ' تسحب من ' + (bad[0] ? 'الوحدة ' + bad[0].u : 'لا شيء'));
+
+      const ids = new Set(LESSONS.filter(l => l.u === u).flatMap(l => l.items));
+      const d = dictationPool(u);
+      if (!d.length || d.some(i => !ids.has(i)))
+        throw new Error('إملاءُ الوحدة ' + u + ' يسحب من خارجها');
+    });
+    /* وبلا وحدة يبقى السلوكُ القديم: ما بلغه المتعلّم. */
+    if (!readPool().length) throw new Error('السحبُ بلا وحدةٍ صار فارغاً');
+  });
+
+  /* وحدةٌ تُمشى إلى آخرها تَفتح بوابتَها.
+
+     وكانت keepSkill مكتوبةً بلا نادٍ: الاختباراتُ الأربعة تُسجّل في
+     S.res ولا تمسّ S.skills، فلا تتمّ محطّةُ مهارةٍ أبداً، فلا تُفتح
+     بوابةُ وحدةٍ واحدة في البرنامج كلِّه. ومرّ ذلك لأنّ كلَّ اختبارٍ
+     كان يزرع S.skills في بذرته فيقفز فوق الثقب.
+
+     فالحارسُ هنا لا يزرع شيئاً: يمشي الطريقَ الذي يمشيه المتعلّم. */
+  await run('وحدةٌ تُمشى إلى آخرها تَفتح بوابتَها',
+    { 'eng-coach-v3': JSON.stringify({
+        placed: true,
+        lessons: { '1.1': true, '1.2': true, '1.3': true, '2.4': false },
+        conv: { c1: true, c2: true },
+        words: { 1: 100 }
+      }) },
+    (ctx, ev) => {
+      /* gateOpen من progress.js: هي unitOpen وgateReady معاً، وكانت
+         مصدَّرةً بلا نادٍ — فيُختبَر بها البابُ والمفتاح. */
+      const gateReady = ev('gateOpen');
+      if (gateReady(1)) throw new Error('البوابة مفتوحةٌ قبل المهارات');
+
+      /* القراءة */
+      ctx.examReadStart(0, 1);
+      const t = ctx.examReadText();
+      t.qs.forEach((q, i) => { ev('S').rx.ans[i] = q.k === 'tf' ? q.a : (q.ok ? q.ok[0] : '') });
+      ev('S').rx.done = true;
+      ctx.examReadFinish();
+
+      /* الكتابة */
+      ctx.examWriteStart(1);
+      while (ev('S').wx && !ev('S').wx.finished) {
+        ctx.examWriteAnswer((ctx.examWriteTask().ok || [''])[0]);
+        ctx.examWriteNext();
+      }
+      ctx.examWriteFinish();
+
+      /* الإملاء */
+      ctx.examDictStart(1);
+      while (ev('S').dx && !ev('S').dx.finished) {
+        ctx.examDictAnswer((ctx.examDictItem().ok || [''])[0]);
+        ctx.examDictNext();
+      }
+      ctx.examDictFinish();
+
+      /* الترجمة */
+      ctx.startTranslation(1, 1);
+      while (ev('S').tr && !ev('S').tr.done) {
+        /* submitTranslation تقرأ من الحقل لا من وسيط — كبقيّة
+           اختبارات الترجمة في هذا الملفّ. */
+        ctx._els.trInput.value = ev('S').tr.items[ev('S').tr.i].en[0];
+        ctx.submitTranslation();
+        ctx.nextTranslation();
+      }
+
+      /* والمشهدُ الحيّ: يُؤدّى دوراً دوراً كما يفعل المتعلّم. */
+      const SC = ev('SCENES');
+      const mine = SC.map((x, i) => ({x, i})).filter(o => ['1.1','1.2','1.3'].includes(o.x.les));
+      if (!mine.length) throw new Error('لا مشاهدَ للوحدة ١');
+      mine.forEach(({i}) => {
+        ctx.chatPick(i);
+        for (let t = 0; t < SC[i].turns.length; t++) ctx.chatNext();
+      });
+      const notDone = mine.filter(({x}) => !ev('S').scenes[x.les]);
+      if (notDone.length) throw new Error('مشاهدُ أُدّيت ولم تُسجَّل: ' + notDone.length);
+
+      const sk = ev('S').skills[1] || {};
+      const missing = ['read', 'write', 'dict', 'tr'].filter(k => sk[k] === undefined);
+      if (missing.length)
+        throw new Error('مهاراتٌ لم تُسجَّل بعد أداء اختبارها: ' + missing.join('، '));
+      if (!gateReady(1))
+        throw new Error('مُشِيت الوحدةُ كلُّها والبوابةُ لم تُفتح');
+    });
+
+  /* كلُّ ما يُقفل بوابةَ الوحدة يجب أن يَعبر المزامنة.
+
+     وكانت skills وwords خارج السياسة، وكلتاهما محطّةٌ في المسار:
+     فمن أتمّهما على هاتفه وجد البوابة مغلقةً على لوحه فأعاد العمل.
+     ومزامنةٌ تُعيد العملَ كمزامنةٍ تمحوه.
+
+     والحارسُ يقارن حقولَ defaultState كلَّها بما يُرسَل: فحقلٌ جديد
+     لا يُزامَن ولا يُذكر سببُ استثنائه يُسقطه. فلا يُنسى حقلٌ صامتاً،
+     ولا يُكتشف ذلك على جهاز المتعلّم. */
+  await run('كلُّ حقلٍ في الحالة مُصنَّفٌ: يُزامَن أو يُستثنى بقصد', {}, (ctx, ev) => {
+    /* من نطاق الوحدة لا النافذة: sync-merge تُصدَّر ولا تُبَثّ. */
+    const syncable = ev('syncable'), mergeInto = ev('mergeInto');
+
+    /* ما لا يُزامَن عن قصد، ولكلٍّ سببُه. وحقلٌ جديد لا في المزامنة
+       ولا هنا يُسقط هذا الاختبار — وهو المقصود: يُجبَر كاتبُه على
+       أن يقرّر، لا أن ينسى. */
+    const NOT_SYNCED = {
+      q: 'اختبارٌ جارٍ — لحظيّ',
+      wx: 'ورقةُ كتابةٍ جارية — لحظيّة',
+      rx: 'ورقةُ قراءةٍ جارية — لحظيّة',
+      dx: 'ورقةُ إملاءٍ جارية — لحظيّة',
+      tr: 'ورقةُ ترجمةٍ جارية — لحظيّة',
+      rev: 'رأيُ المراجع في نصٍّ بعينه — لا يغادر الجهاز',
+      chat: 'مشهدٌ جارٍ — لحظيّ',
+      drill: 'تدريبٌ مشتقٌّ من بوابةٍ على جهازه',
+      theme: 'تفضيلُ جهازٍ: لا يُفرض ليلُ جهازٍ على نهار آخر',
+      goal: 'تفضيلُ جهازٍ: دقائقُ اليوم',
+      open: 'آخرُ درسٍ مفتوحٍ على الشاشة — عرضٌ لا تقدّم',
+      tab: 'التبويبُ المعروض — عرضٌ لا تقدّم',
+      v: 'رقمُ مخطّط الحالة — محلّيّ',
+      syncBusy: 'مزامنةٌ جاريةٌ على هذا الجهاز — لحظيّة',
+      snd: 'تدريبُ أصواتٍ جارٍ — لحظيّ',
+      cx: 'اختبارُ محادثةٍ جارٍ — لحظيّ',
+      ruleOpen: 'بطاقةُ القاعدة المفتوحة — عرضٌ لا تقدّم'
+    };
+
+    const sent = syncable(ev('S'));
+    const fields = Object.keys(ev('defaultState')());
+    const unclassified = fields.filter(k => !(k in sent) && !(k in NOT_SYNCED));
+    if (unclassified.length)
+      throw new Error('حقولٌ بلا تصنيف: ' + unclassified.join('، ')
+        + ' — إمّا تُزامَن أو تُذكر في NOT_SYNCED بسببها');
+
+    /* وما يُقفل البوابة يُزامَن قطعاً. */
+    const gating = ['lessons', 'conv', 'cp', 'ret', 'skipped', 'skills', 'words'];
+    const missing = gating.filter(k => !(k in sent));
+    if (missing.length)
+      throw new Error('خارج المزامنة: ' + missing.join('، ') + ' — وهي تُقفل البوابة');
+
+    /* ولا يكفي أن تُرسَل: يجب أن تُدمَج بلا نقص. */
+    const S = ev('S');
+    S.words = {1: 100};
+    S.skills = {1: {read: 80}};
+    mergeInto(S, {words: {2: 60}, skills: {1: {write: 70}}});
+    if (S.words[1] !== 100 || S.words[2] !== 60)
+      throw new Error('دمجُ words ينقص: ' + JSON.stringify(S.words));
+    if (S.skills[1].read !== 80 || S.skills[1].write !== 70)
+      throw new Error('دمجُ skills ينقص: ' + JSON.stringify(S.skills));
+  });
+
+  /* التركيبُ يُدرَّس في موضعه ثمّ يتسرّب إلى جملةٍ حاملةٍ في مستوًى
+     أدنى: درسُ الملكيّة في A1 كان يسأل «Have you seen ___ bag?»،
+     فالمقصودُ your وهو A1 والجملةُ حاضرٌ تامٌّ وهو B1. والمتعلّم
+     يقرأ الجملة كلَّها لا الفراغَ وحده.
+
+     ومدقّقُ التراكيب لا يجد هذا: هو يسأل «أنُعلّم هذا؟» لا «أنستعمل
+     ما لم نُعلّمه؟». فحارسٌ ثانٍ لسؤالٍ ثانٍ. */
+  await run('لا تركيبَ فوق المستوى في محتواه', {}, async (ctx, ev) => {
+    const {leaks} = await import('../scripts/level-fit.mjs');
+    /* كلُّ مستوًى كُتب مطلبُه لا A1 وحده. */
+    const found = ev('LEVELS_SPECD').flatMap(l => leaks(l));
+    if (found.length)
+      throw new Error(found.length + ' تسرّباً — مثاله ' + found[0].where
+        + ': ' + found[0].t + ' في «' + found[0].s + '»');
+  });
+
+  /* بنكُ المفردات مولَّدٌ من المحتوى، فإن أُضيف درسٌ ولم يُعَد توليدُه
+     انفصل عنه صامتاً: يقول البرنامج «بلغتَ ٣٦٨» وهي أكثر، ولا خطأ
+     يظهر. فيُعاد الاستخراجُ هنا ويُقارَن بالمكتوب. */
+  await run('بنكُ المفردات مطابقٌ للمحتوى', {}, async () => {
+    const {lexicon, CORE_MIN} = await import('../scripts/vocab.mjs');
+    /* كلُّ مستوًى وُلِّد بنكُه، لا A1 وحده. */
+    const banks = {A1: (await import('../content/vocab-a1.js')).VOCAB_A1,
+                   A2: (await import('../content/vocab-a2.js')).VOCAB_A2};
+    for (const [lv, bank] of Object.entries(banks)) {
+      const fresh = lexicon(lv).filter(x => x.n >= CORE_MIN);
+      if (fresh.length !== bank.length)
+        throw new Error(lv + ': البنك ' + bank.length + ' والمحتوى ' + fresh.length
+          + ' — أعد توليده: node scripts/vocab.mjs ' + lv + ' --write');
+      const have = new Set(bank.map(x => x.w));
+      const miss = fresh.filter(x => !have.has(x.w)).map(x => x.w);
+      if (miss.length) throw new Error(lv + ': كلماتٌ في المحتوى وليست في البنك: ' + miss.slice(0, 5).join('، '));
+    }
   });
 
   /* pickWrite تصفّي المهامّ بوحدتها، فإن خلت الوحدةُ منها سقطت صامتةً

@@ -511,7 +511,101 @@ export const WRITE = [
    ask:[{t:'اعرض رأيك', re:/\b(in my opinion|i believe|i think|should)\b/i},
         {t:'افتح المخالف بـon the other hand', re:/\bon the other hand\b/i},
         {t:'ردَّ عليه بـhowever أو nevertheless', re:/\b(however|nevertheless|yet)\b/i}],
-   ok:['In my opinion, buses should be free in large cities. On the other hand, some people argue that the cost falls on the taxpayer. However, the cost of wider roads is paid by the taxpayer as well.']}
+   ok:['In my opinion, buses should be free in large cities. On the other hand, some people argue that the cost falls on the taxpayer. However, the cost of wider roads is paid by the taxpayer as well.']},
+
+  /* الوحدة ٨ كانت بلا بندٍ حرّ، والنوعُ مطلوبٌ في كلّ ورقة. */
+  {k:'free', u:8, skill:'compare-er',
+   ar:'قارِن بين مدينتين تعرفهما في ثلاث جمل: أيُّهما أكبر، وأيُّهما أرخص، وأيُّهما أفضل.', min:3,
+   ask:[{t:'استعمل صيغة المقارنة (er أو more)', re:/\b(\w+er|more)\b/i},
+        {t:'استعمل than', re:/\bthan\b/i},
+        {t:'استعمل better أو worse', re:/\b(better|worse)\b/i}],
+   ok:['Cairo is bigger than Tanta. Tanta is cheaper than Cairo. The air is better there.']},
+
+  /* الوحدة ١٠ */
+  {k:'build', u:10, skill:'perfect', ar:'اكتب جملة بالحاضر التامّ تصف أثراً باقياً.',
+   w:['lost','keys'], ok:['I have lost my keys.','I have lost my keys']},
+
+  /* الوحدة ١١ */
+  {k:'order', u:11, skill:'past-cont', ar:'اكتب الجملة الصحيحة مستعملاً هذه الكلمات كلّها.',
+   w:['raining','was','it','when','arrived','I'], ok:['It was raining when I arrived']},
+  {k:'gap', u:11, skill:'narrate', ar:'أداة الربط التي تصف فعلاً طويلاً يقطعه آخر.',
+   before:'I was reading', after:'the phone rang.', ok:['when']},
+  {k:'free', u:11, skill:'past-cont', ar:'صِف ما كنتَ تفعله أمسِ في وقتٍ معيّن، وما قطعه، في ثلاث جمل.', min:3,
+   ask:[{t:'استعمل الماضي المستمرّ', re:/\b(was|were)\s+\w+ing\b/i},
+        {t:'استعمل الماضي البسيط لحدثٍ قاطع', re:/\b(when|then|suddenly)\b/i},
+        {t:'اذكر وقتاً', re:/\b(at|yesterday|last|evening|morning)\b/i}],
+   ok:['I was reading at nine. Then the phone rang. It was my brother.']},
+
+  /* الوحدة ١٢ */
+  {k:'order', u:12, skill:'cond2', ar:'اكتب الجملة الصحيحة مستعملاً هذه الكلمات كلّها.',
+   w:['had','I','if','time','would','I','travel'], ok:['If I had time I would travel']},
+  {k:'gap', u:12, skill:'cond1', ar:'الفعل المناسب بعد if في الشرط الأوّل.',
+   before:'If it', after:'tomorrow, we will stay in.', ok:['rains']},
+
+  /* الوحدة ١٣ */
+  {k:'order', u:13, skill:'modal-duty', ar:'اكتب الجملة الصحيحة مستعملاً هذه الكلمات كلّها.',
+   w:['wear','must','you','badge','your'], ok:['You must wear your badge']},
+  {k:'gap', u:13, skill:'modal-deduce', ar:'أداة الاستنتاج اليقينيّ.',
+   before:'He worked all night, so he', after:'be tired.', ok:['must']},
+  {k:'free', u:13, skill:'modal-duty', ar:'اكتب ثلاث قواعد لمكانٍ تعرفه: ما يجب، وما يُمنع، وما لا يلزم.', min:3,
+   ask:[{t:'استعمل must', re:/\bmust\b/i},
+        {t:'استعمل mustn’t أو must not', re:/\bmust\s*n|must not/i},
+        /* الفاصلةُ العليا تأتي مستقيمةً ومنحنيةً بحسب لوحة المفاتيح،
+           فتُقبَلان معاً — وإلّا رُفض جوابٌ صحيحٌ لعلامةِ ترقيم. */
+        {t:'استعمل don’t have to', re:/\bdo\s*n['’]?t\s+have\s+to\b|\bdo not have to\b/i}],
+   ok:['You must sign the book. You mustn’t smoke inside. You don’t have to wear a suit.']},
+
+  /* الوحدة ١٤ */
+  {k:'build', u:14, skill:'passive', ar:'اكتب جملة بالمبنيّ للمجهول عن مكانٍ تُصنع فيه السيّارات.',
+   w:['cars','made'], ok:['Cars are made in Egypt.','Cars are made in Egypt']},
+
+  {k:'order', u:15, skill:'past-perfect', ar:'اكتب الجملة الصحيحة مستعملاً هذه الكلمات كلّها.',
+   w:['had','left','when','arrived','I','he'], ok:['He had left when I arrived']},
+  {k:'gap', u:15, skill:'past-perf-cont', ar:'أكمل بصيغة الاستمرار السابق للفعل work.',
+   before:'He was tired because he had been', after:'all night.', ok:['working']},
+  {k:'build', u:15, skill:'modal-past', ar:'اكتب جملة فيها لومٌ على ماضٍ مستعملاً should.',
+   w:['should','told'], ok:['You should have told me.','You should have told me']},
+  {k:'free', u:15, skill:'past-perfect', ar:'احكِ حدثاً وقع لك، واذكر ما كان قد حدث قبله، في أربع جمل.', min:4,
+   /* ظرفٌ أو نفيٌ قد يتوسّط: «had already left» و«had not checked»،
+      فلا يُشترط التجاورُ وإلّا رُفض جوابٌ صحيح. */
+   ask:[{t:'استعمل الماضي التامّ',
+         re:/\bhad\s+(?:not\s+|never\s+|already\s+|just\s+)?\w+(ed|en|ne|ght|pt|me|un|ft|rd)\b/i},
+        {t:'استعمل الماضي البسيط', re:/\b(went|saw|came|found|said|took|arrived|started)\b/i},
+        {t:'استعمل رابطَ زمن', re:/\b(when|after|before|by the time)\b/i}],
+   ok:['I arrived at the station at eight. The train had already left. I had not checked the timetable before I set out. After that, I always checked it.']},
+
+  {k:'order', u:16, skill:'reported', ar:'اكتب الجملة الصحيحة مستعملاً هذه الكلمات كلّها.',
+   w:['said','would','he','come','that','he'], ok:['He said that he would come']},
+  {k:'gap', u:16, skill:'reporting-v', ar:'أكمل بصيغة الفعل المناسبة بعد admitted.',
+   before:'He admitted', after:'the money.', ok:['taking']},
+  {k:'build', u:16, skill:'passive-adv', ar:'حوّل إلى المجهول الموسَّع: People say the building is very old.',
+   w:['said','building'], ok:['The building is said to be very old.','The building is said to be very old']},
+
+  {k:'order', u:17, skill:'cond3', ar:'اكتب الجملة الصحيحة مستعملاً هذه الكلمات كلّها.',
+   w:['had','known','if','I','would','told','have','I','you'], ok:['If I had known I would have told you']},
+  {k:'gap', u:17, skill:'wish', ar:'أكمل بصيغة التمنّي عن ماضٍ للفعل ask.',
+   before:'I wish I had', after:'earlier.', ok:['asked']},
+  {k:'build', u:17, skill:'mixed-cond', ar:'اكتب شرطاً مختلطاً: ماضٍ وأثرُه حاضرٌ الآن.',
+   w:['had','would','now'], ok:['If I had studied, I would be a doctor now.','If I had studied I would be a doctor now']},
+
+  {k:'order', u:18, skill:'gerund', ar:'اكتب الجملة الصحيحة مستعملاً هذه الكلمات كلّها.',
+   w:['enjoy','reading','I','night','at'], ok:['I enjoy reading at night']},
+  {k:'gap', u:18, skill:'gerund-change', ar:'أكمل: توقّف **ليشتري** ماءً.',
+   before:'He stopped', after:'some water.', ok:['to buy']},
+  {k:'build', u:18, skill:'participle', ar:'اختصر بالمشتقّ: After she had finished the report, she went home.',
+   w:['Having','finished'], ok:['Having finished the report, she went home.','Having finished the report she went home']},
+  {k:'free', u:18, skill:'gerund', ar:'اكتب أربع جمل عن عادةٍ تريد تغييرها: ما تتوقّف عنه وما تبدأه ولماذا.', min:4,
+   ask:[{t:'استعمل فعلاً + ing', re:/\b\w+ing\b/i},
+        {t:'استعمل to + فعل', re:/\bto\s+[a-z]+\b/i},
+        {t:'استعمل رابطَ سبب', re:/\b(because|since|as|so that)\b/i}],
+   ok:['I want to stop checking my phone at night. I have decided to read instead. I enjoy reading, so it is easier to keep. I started doing this because I was sleeping badly.']},
+
+  {k:'order', u:19, skill:'contrast', ar:'اكتب الجملة الصحيحة مستعملاً هذه الكلمات كلّها.',
+   w:['although','was','it','late','came','he'], ok:['Although it was late he came']},
+  {k:'gap', u:19, skill:'linking-adv', ar:'أكمل برابطٍ يفيد النتيجة.',
+   before:'Prices rose.', after:', sales fell.', ok:['Therefore','Consequently']},
+  {k:'build', u:19, skill:'hedge-b2', ar:'اكتب جملةً متحفّظةً مستعملاً tend to.',
+   w:['tend','rise'], ok:['Prices tend to rise in summer.','Prices tend to rise in summer']}
 ];
 
 export const WRITE_KINDS = {

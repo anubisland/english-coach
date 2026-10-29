@@ -2,6 +2,7 @@
    الميزان في engine/read-score.js. */
 import {READS, READ} from '../content/read-texts.js';
 import {S, save, keepResult} from './state.js';
+import {keepSkill} from './unit-plan.js';
 import {hooks} from './bus.js';
 import {gradeRead, readTotals, countWords, wpm} from './read-score.js';
 import {reachedUnit, unitLevel} from './progress.js';
@@ -15,7 +16,18 @@ import {reachedUnit, unitLevel} from './progress.js';
 
    والمدى ما بلغه لا ما يقف عنده وحده: المراجعة بنصٍّ أسهل مقصودة،
    وإنما يُؤثَر مستواه حين يوجد فيه نصّ. */
-export function readPool() {
+/* بوحدةٍ معيَّنة: نصوصُ تلك الوحدة وحدها — فمحطّةُ الوحدة تقيسها هي.
+
+   وكانت المحطّةُ تنادي examReadStart(0, u)، وREAD[0] لا وجودَ له
+   (المفاتيحُ نصوصٌ كـr-note)، فتسقط إلى سحبٍ عشوائيٍّ من المستوى
+   كلِّه: يُطلَب «قراءةُ الوحدة ١» فيأتي نصُّ الوحدة ٢، ثمّ تُسجَّل
+   درجتُه في S.skills[1].read فتُفتح بها بوابةُ وحدةٍ لم تُقرأ. */
+export function readPool(unit) {
+  const u = Number(unit) || 0;
+  if (u) {
+    const own = READS.filter(t => t.u === u);
+    if (own.length) return own;
+  }
   const upto = reachedUnit();
   const reached = READS.filter(t => t.u <= upto);
   if (!reached.length) return READS.slice();
@@ -24,10 +36,11 @@ export function readPool() {
   return own.length ? own : reached;
 }
 
-export function examReadStart(id) {
-  const pool = readPool();
+export function examReadStart(id, unit) {
+  const pool = readPool(unit);
   const t = READ[id] || pool[Math.floor(Math.random() * pool.length)];
-  S.rx = {id: t.id, stage: 'read', began: Date.now(), ms: 0, i: 0, ans: {}, done: false};
+  /* u تُحمَل من البدء: الخاتمةُ تحتاج أن تعرف لأيّ وحدةٍ تُسجّل. */
+  S.rx = {id: t.id, u: Number(unit) || 0, stage: 'read', began: Date.now(), ms: 0, i: 0, ans: {}, done: false};
   S.tab = 'examread';
   save(); hooks.render();
 }
@@ -92,7 +105,11 @@ export function examReadResult() {
 
 export function examReadFinish() {
   const res = examReadResult();
-  if (res) { keepResult('read', res.pc); S.xp += Math.round(res.pc / 5) }
+  if (res) {
+    keepResult('read', res.pc);
+    keepSkill(S.rx && S.rx.u, 'read', res.pc);
+    S.xp += Math.round(res.pc / 5);
+  }
   S.rx = null; S.tab = 'course';
   save(); hooks.render();
 }

@@ -8,6 +8,7 @@
    ما كتبه هو ما سمعه. */
 import {LESSONS} from '../content/lessons.js';
 import {S, save, keepResult} from './state.js';
+import {keepSkill} from './unit-plan.js';
 import {reachedUnit} from './progress.js';
 import {hooks} from './bus.js';
 import {typedOk} from './quiz.js';
@@ -19,10 +20,14 @@ const N = 10;
    كان يسحب من المنهج كلِّه، فيُملي على مَن في الوحدة الثالثة جملةً
    من C2 — وهو لم يرَ كلماتها بعد. والإملاءُ قياسُ سمعٍ لما تعلّمه،
    لا امتحانُ ما لم يصل إليه. */
-export function dictationPool() {
+/* بوحدةٍ معيَّنة: إملاءُ تلك الوحدة وحدها — فمحطّةُ الوحدة تقيسها هي.
+   وبلا وحدة: ما بلغه المتعلّم، لا المنهجَ كلَّه. */
+export function dictationPool(unit) {
+  const u = Number(unit) || 0;
   const upto = reachedUnit();
-  return LESSONS.filter(l => l.u <= upto)
-    .flatMap(l => l.items.filter(i => i.k === 'listen'));
+  const own = u ? LESSONS.filter(l => l.u === u) : [];
+  const pool = own.length ? own : LESSONS.filter(l => l.u <= upto);
+  return pool.flatMap(l => l.items.filter(i => i.k === 'listen'));
 }
 
 function shuffle(a) {
@@ -31,8 +36,8 @@ function shuffle(a) {
   return x;
 }
 
-export function examDictStart() {
-  S.dx = {items: shuffle(dictationPool()).slice(0, N), i: 0, done: [], shown: null, finished: false, plays: 0};
+export function examDictStart(unit) {
+  S.dx = {items: shuffle(dictationPool(unit)).slice(0, N), u: Number(unit) || 0, i: 0, done: [], shown: null, finished: false, plays: 0};
   S.tab = 'examdict';
   save(); hooks.render();
 }
@@ -90,7 +95,11 @@ export function dictBand(pc) {
 
 export function examDictFinish() {
   const r = examDictResult();
-  if (r) { keepResult('dictation', r.pc); S.xp += Math.round(r.pc / 5) }
+  if (r) {
+    keepResult('dictation', r.pc);
+    keepSkill(S.dx && S.dx.u, 'dict', r.pc);
+    S.xp += Math.round(r.pc / 5);
+  }
   S.dx = null; S.tab = 'course';
   save(); hooks.render();
 }

@@ -6,6 +6,7 @@ import {S, save, keepResult} from './state.js';
 import {reachedUnit} from './progress.js';
 import {hooks} from './bus.js';
 import {gradeWrite, writeTotals} from './write-score.js';
+import {keepSkill} from './unit-plan.js';
 
 const ORDER = ['order', 'gap', 'build', 'free'];
 
@@ -34,7 +35,7 @@ export function pickWrite(unit) {
 
 export function examWriteStart(unit) {
   const items = pickWrite(Number(unit) || 0);
-  S.wx = {items, i: 0, done: [], shown: null, finished: false};
+  S.wx = {items, u: Number(unit) || 0, i: 0, done: [], shown: null, finished: false};
   S.rev = null;   /* رأيُ ورقةٍ سابقة لا يُعرض على ورقةٍ جديدة */
   S.tab = 'examwrite';
   save(); hooks.render();
@@ -90,7 +91,11 @@ export function examWriteResult() {
 
 export function examWriteFinish() {
   const r = examWriteResult();
-  if (r) { keepResult('write', r.pc); S.xp += Math.round(r.pc / 5) }
+  if (r) {
+    keepResult('write', r.pc);
+    keepSkill(S.wx && S.wx.u, 'write', r.pc);
+    S.xp += Math.round(r.pc / 5);
+  }
   S.wx = null; S.tab = 'course';
   save(); hooks.render();
 }

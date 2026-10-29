@@ -2,12 +2,15 @@
    أنواعه: lesson, cp, ret, exam, conv, place. */
 import {LESSONS} from '../content/lessons.js';
 import {CONVO} from '../content/convo.js';
-import {S,save,addXp} from './state.js';
+import {S,save,addXp,logError} from './state.js';
 import {hooks} from './bus.js';
 import {unitItems,itemsUpTo,shuffle,PLACE,lessonOpen,unitOf,skillOf,UNIT_NS,LAST_UNIT,levelItems,LEVELS_BUILT} from './progress.js';
 import {words,lev} from './pronounce.js';
 import {normalize} from './translate.js';
 import {record,dueKeys,dueSoon,boxCounts,masteredCount,BOXES} from './srs.js';
+import {examItems,examNeed} from './exam-level.js';
+import {levelSpec} from '../content/standard.js';
+import {wordsItems,keepWords,WORDS_PASS} from './words.js';
 
 /* 12 سؤالاً: ثلاثة لكل وحدة ليكون حكمها ذا معنى، وثلاثة لجسّ A2.
    النتيجة تقرر تخطي وحدات كاملة، فدقتها أهم من قِصَرها. */
@@ -19,9 +22,29 @@ export function _launch(kind,id){
   if(kind==='lesson'){const l=LESSONS.find(x=>x.id===id);Object.assign(q,{items:l.items,title:'درس '+l.id,need:l.items.length})}
   else if(kind==='cp'){Object.assign(q,{items:shuffle(unitItems(id)).slice(0,8),title:'اختبار الوحدة '+id,need:7})}
   else if(kind==='ret'){Object.assign(q,{items:shuffle(itemsUpTo(id)).slice(0,4),title:'اختبار الاستبقاء (حتى الوحدة '+id+')',need:3})}
+  /* الامتحان النهائيّ: سؤالٌ لكلّ تركيبٍ فارقٍ في المستوى — لا عشرةٌ
+     عشوائيّة قد تترك نصفَه بلا قياس. وتفصيلُه في exam-level.js.
+
+     وإن لم يُكتَب للمستوى مطلبٌ بعدُ رجع إلى العشوائيّ كما كان، فلا
+     ينكسر مستوًى لم يبلغه العمل. */
   else if(kind==='exam'){
     const lv=LEVELS_BUILT.includes(id)?id:LEVELS_BUILT[0];
-    Object.assign(q,{lv,items:shuffle(levelItems(lv)).slice(0,10),title:'الامتحان النهائي '+lv,need:8});
+    const spec=examItems(lv);
+    /* السقوطُ إلى العشوائيّ مقبولٌ لمستوًى لم يُكتب مطلبُه بعد،
+       ومُنكَرٌ لمستوًى كُتب مطلبُه ثمّ لم يُخرج سؤالاً — الأوّلُ
+       انتظار، والثاني عطبٌ في الوصل يجب أن يُسمَع. */
+    if(!spec.length&&levelSpec(lv))
+      logError('امتحان '+lv,new Error('مطلبُ المستوى مكتوبٌ ولم يُخرج سؤالاً — تحقّق من معرّفات القواعد'));
+    const items=spec.length?spec:shuffle(levelItems(lv)).slice(0,10);
+    /* ولا امتحانَ بصفر أسئلة: need يصير صفراً فيُحسَب نجاحاً ويُعلَن
+       المستوى تامّاً بلا سؤالٍ واحد. */
+    if(!items.length){logError('امتحان '+lv,new Error('لا أسئلة'));hooks.toast('تعذّر بناء الامتحان');return}
+    Object.assign(q,{lv,items,title:'الامتحان النهائي '+lv,need:examNeed(items.length)});
+  }
+  /* محطّةُ المفردات: تُولَّد من بنك كلمات الوحدة لا من تمارينها. */
+  else if(kind==='words'){
+    const items=wordsItems(id);
+    Object.assign(q,{items,title:'مفردات الوحدة '+id,need:Math.ceil(items.length*WORDS_PASS/100)});
   }
   else if(kind==='conv'){const c=CONVO.find(x=>x.id===id);Object.assign(q,{title:'محادثة: '+c.t,items:c.turns.map(t=>({q:t.p,o:t.o,a:t.a,tip:t.tip})),need:c.turns.length})}
   /* pickPlace تقرأ q.items لتتجنّب تكرار سؤال، فيجب أن توجد قبل أول نداء. */
@@ -189,6 +212,15 @@ export function endQ(){
     /* التدريب علاجي، فلا يُجتاز إلا كاملاً. */
     q.pass=q.score===q.items.length;
     if(q.pass){S.drill=null;addXp(25)}
+  }
+  /* ورقةٌ فارغةٌ لا تُجتاز: وحدةٌ بلا بنك مفرداتٍ تُخرج صفرَ أسئلة،
+     فـneed صفرٌ وq.score صفرٌ فتُحسَب نجاحاً، وتُسجَّل NaN نسبةً.
+     فلا تُعَدّ محطّةٌ مخدومةً بلا سؤالٍ واحد. */
+  else if(q.kind==='words'){
+    if(!q.items.length){q.pass=false;return}
+    q.pass=q.score>=q.need;
+    keepWords(q.id,Math.round(q.score/q.items.length*100));
+    if(q.pass)addXp(35);
   }
   else if(q.kind==='conv'){q.pass=q.score===q.items.length;if(q.pass){S.conv[q.id]=true;addXp(40)}}
   else if(q.kind==='exam'){q.pass=q.score>=q.need;if(q.pass){S.exam=true;if(q.lv)S.levelDone[q.lv]=true;addXp(100)}}

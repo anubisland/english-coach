@@ -1,6 +1,8 @@
 /* حالة التطبيق: تعريفها الكامل، وترقية المحفوظ القديم، وحفظها.
    أي حقل جديد يُضاف إلى defaultState أولاً، وإلا انهار التطبيق عند أول استخدام. */
 import {LESSONS,UNITS} from '../content/lessons.js';
+import {CONVO} from '../content/convo.js';
+import {SCENES} from '../content/scenes.js';
 import {RULE} from '../content/rules.js';
 import {GR} from './grammar.js';
 import {hooks} from './bus.js';
@@ -30,6 +32,9 @@ export function defaultState(){return{
   cxSeen:[],                // مشاهد المحادثة التي جرّبها، فلا تتكرّر
   levelDone:{},             // المستويات التي اجتاز امتحانها النهائي
   res:{},                   // سجلّ الاختبارات: {last,best,n,at} لكل اختبار
+  skills:{},                // لكل وحدة: ما أتمّه فيها من المهارات الأربع {read,write,dict,tr}
+  words:{},                 // لكل وحدة: أعلى نتيجةٍ في محطّة المفردات
+  scenes:{},                // المشاهد الحيّة المُؤدّاة: مفتاحُ المشهد -> true
   srs:{},                   // صناديق المراجعة المتباعدة: نصّ السؤال -> {b,due,seen}
   ruleOpen:null,            // بطاقة القاعدة المفتوحة حالياً
   theme:'light',            // النهاري هو الافتراضي، والليلي اختيار
@@ -49,7 +54,12 @@ const QKEYS=new Set(LESSONS.flatMap(l=>l.items.map(i=>i.q)).filter(Boolean));
 
 const KNOWN={
   lessons:LESSONS.map(l=>l.id),
-  conv:['c1','c2','c3','c4','c5','c6'],
+  /* من المحتوى لا مكتوبةً: كانت ستّةً والبنكُ ثمانٍ وأربعون، فكان
+     من أتمّ محادثةَ الوحدة الرابعة يفقدها عند أوّل فتح. */
+  conv:CONVO.map(c=>c.id),
+  /* skills هنا معرّفاتُ القواعد التي يُبنى منها التدريبُ الموجَّه
+     (cleanDrill)، لا درجاتِ المهارات الأربع في S.skills — اسمان
+     متشابهان لشيئين، فلا يُحذف أحدهما ظنّاً أنّه الآخر. */
   skills:Object.keys(RULE),
   errs:GR.map(r=>r.ar)
 };
@@ -136,8 +146,17 @@ export function migrate(saved){
   S.drill=cleanDrill(saved.drill);
   for(const k of ['lessons','conv'])
     if(saved[k]&&typeof saved[k]==='object')S[k]=pickKeys(saved[k],KNOWN[k]);
+  /* الوحداتُ من المحتوى لا رقماً مكتوباً.
+
+     وكانت ['1','2','3'] — وهي قائمةُ سماحٍ، فما خرج عنها يُحذف بلا
+     أثر. فلمّا صار المنهجُ أربعاً وعشرين وحدةً كان من يجتاز بوابةَ
+     الرابعة يفقدها عند أوّل فتحٍ للتطبيق: تعود الوحدةُ الخامسةُ
+     مقفلةً وبوابةُ الرابعة غيرَ مجتازة، صامتاً بلا خطأ يظهر.
+
+     وأسوأُ منه أنّ mergeInto تُمرّر الوارد من الوسيط بـmigrate،
+     فجهازٌ يرفع تقدّمَه في الوحدة الخامسة يُجرَّد منه قبل الدمج. */
   for(const k of ['cp','ret','skipped'])
-    if(saved[k]&&typeof saved[k]==='object')S[k]=pickKeys(saved[k],['1','2','3']);
+    if(saved[k]&&typeof saved[k]==='object')S[k]=pickKeys(saved[k],UNIT_NS.map(String));
   if(saved.errs&&typeof saved.errs==='object')S.errs=cleanErrs(saved.errs);
   if(saved.attempts&&typeof saved.attempts==='object')S.attempts=cleanAttempts(saved.attempts);
   if(saved.chat&&typeof saved.chat==='object')Object.assign(S.chat,cleanChat(saved.chat));
@@ -146,6 +165,9 @@ export function migrate(saved){
   /* نسبة وحدها تُستورد، بعد قسرها عدداً في مداها. */
   S.srs=cleanSrs(saved.srs);
   S.res=cleanRes(saved.res);
+  S.skills=cleanSkills(saved.skills);
+  S.words=cleanUnitPc(saved.words);
+  S.scenes=cleanScenes(saved.scenes);
   S.levelDone={};
   if(saved.levelDone&&typeof saved.levelDone==='object')
     LEVELS.forEach(lv=>{if(saved.levelDone[lv]===true)S.levelDone[lv]=true});
@@ -158,6 +180,59 @@ export const LEVELS=['A1','A2','B1','B2','C1','C2'];
 /* كل حقل يُقسر إلى مداه: صندوق خارج ١..٥ أو موعد غير عدد يُفسد الطابور. */
 /* سجلّ النتائج يُستورد من ملفّ غير موثوق، فلا يُقبل إلا ما عرفنا مفتاحه،
    وتُقسر أرقامه إلى مداها. */
+/* مهاراتُ الوحدة: رقمُ الوحدة مفتاحاً، وأربعُ درجاتٍ لا خامسة.
+   ويُقسر كلُّ شيء إلى مداه كسجلّ النتائج — الملفّ المستورَد
+   والوسيطُ كلاهما غيرُ موثوق. */
+const SKILL_KEYS=['read','write','dict','tr'];
+function cleanSkills(o){
+  const out={};
+  if(!o||typeof o!=='object')return out;
+  Object.keys(o).forEach(k=>{
+    const u=Number(k);
+    /* وحدةٌ معروفةٌ لا رقمٌ في مدًى: كان ١–٩٩٩، فيستطيع من عرف
+       رمزَ المزامنة أن يحشو تسعَ مئةِ مفتاحٍ لا تُحذف أبداً — فالدمجُ
+       لا ينقص بالتصميم. وcleanDrill في هذا الملفّ تفعل الصواب. */
+    if(!UNIT_NS.includes(u))return;
+    const e=o[k]; if(!e||typeof e!=='object')return;
+    const one={};
+    SKILL_KEYS.forEach(sk=>{
+      /* رقماً لا ما يُشبه الرقم: Number(null) صفرٌ وNumber(true) واحد
+         وNumber('85') خمسةٌ وثمانون. فملفٌّ تالفٌ أو وثيقةٌ من الوسيط
+         تُسجّل درجةً لامتحانٍ لم يُؤدَّ — وقد تفتح بوابة. وcleanRes
+         وcleanSrs تفحصان النوع قبل القسر، فتُطابَقان. */
+      const v=e[sk];
+      if(typeof v==='number'&&Number.isFinite(v))one[sk]=Math.max(0,Math.min(100,Math.round(v)));
+    });
+    if(Object.keys(one).length)out[u]=one;
+  });
+  return out;
+}
+
+/* محطّةُ المفردات: وحدةٌ ونسبة. ويُقسر كلُّ شيءٍ إلى مداه كغيره،
+   فالملفُّ المستورَد والوسيطُ كلاهما غيرُ موثوق. */
+function cleanUnitPc(o){
+  const out={};
+  if(!o||typeof o!=='object')return out;
+  Object.keys(o).forEach(k=>{
+    /* رقماً لا ما يُشبه الرقم، كـcleanSkills: null وtrue و'85' كلُّها
+       كانت تمرّ فتُسجَّل درجةً لمحطّةٍ لم تُخَض. */
+    const u=Number(k), v=o[k];
+    if(!UNIT_NS.includes(u)||typeof v!=='number'||!Number.isFinite(v))return;
+    out[u]=Math.max(0,Math.min(100,Math.round(v)));
+  });
+  return out;
+}
+
+/* مشاهدُ المنهج: مفتاحٌ معروفٌ وقيمةٌ صادقة. وغيرُها لا يُقبَل —
+   كبقيّة المنقّيات، فالوسيطُ والملفُّ كلاهما غيرُ موثوق. */
+const SCENE_KEYS=new Set(SCENES.map(s=>s.les||('t:'+s.t)));
+function cleanScenes(o){
+  const out={};
+  if(!o||typeof o!=='object')return out;
+  Object.keys(o).forEach(k=>{ if(SCENE_KEYS.has(k)&&o[k]===true)out[k]=true });
+  return out;
+}
+
 const RES_SLOTS=['conv','write','read','translate','dictation'];
 function cleanRes(o){
   const out={};

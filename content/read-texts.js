@@ -83,7 +83,7 @@ The ticket office is open from seven in the morning to nine at night.
 
 Tickets to Alexandria are forty pounds. Children under six are free.
 
-The train to Alexandria leaves from platform three. It is not possible to buy food on this train, but there is a small shop next to platform one.
+The train to Alexandria leaves from platform three. You cannot buy food on this train. There is a small shop next to platform one.
 
 Please do not smoke in the station.`,
  qs:[
@@ -100,7 +100,7 @@ Please do not smoke in the station.`,
 {id:'r-day', u:2, t:'يوم في حياة سائق', cat:'وصف',
  text:`Mahmoud is a taxi driver in Alexandria. He gets up at five o'clock every morning. He drinks tea but he does not eat breakfast at home.
 
-He starts work at six. In the morning he takes people to their offices. He usually stops at one o'clock and eats lunch in a small restaurant near the sea.
+He starts work at six. In the morning he takes people to their offices. He usually stops at one o'clock. He eats lunch in a small restaurant near the sea.
 
 He does not work on Friday. On Friday he stays at home with his family and watches football on television.`,
  qs:[
@@ -122,7 +122,7 @@ A new restaurant in the city centre needs a cook.
 
 You work from four in the afternoon to eleven at night. You do not work on Sunday.
 
-We want somebody who speaks English and Arabic. You do not need many years of experience, but you need to be fast and clean.
+We want somebody who speaks English and Arabic. You do not need many years of experience. You need to be fast and clean.
 
 The money is good. Please call Mr Adel on 0100 555 1234.`,
  qs:[
@@ -138,35 +138,35 @@ The money is good. Please call Mr Adel on 0100 555 1234.`,
 {id:'r-clinic', u:3, t:'مواعيد العيادة', cat:'جدول',
  text:`DOCTOR'S CLINIC — OPENING TIMES
 
-Doctor Hana works on Monday, Tuesday and Thursday, from nine in the morning until two in the afternoon.
+Doctor Hana works on Monday, Tuesday and Thursday. She works from nine in the morning until two in the afternoon.
 
 Doctor Karim works in the evening, from five until eight. He does not work on Thursday.
 
 There is a pharmacy in the same building, on the first floor. It is open every day.
 
-If the clinic is closed and your problem is serious, please go to the hospital behind the park.`,
+The clinic is closed at night. Please go to the hospital behind the park.`,
  qs:[
   {k:'tf', q:'Doctor Hana works in the evening.', a:false, why:'من التاسعة صباحاً حتى الثانية ظهراً.'},
   {k:'tf', q:'Doctor Karim works on Thursday.', a:false, why:'He does not work on Thursday.'},
   {k:'tf', q:'The pharmacy opens every day.', a:true, why:'It is open every day.'},
   {k:'short', ar:'أين الصيدلية؟ أجب بالإنجليزية.',
    ok:['on the first floor','first floor','in the same building','on the first floor of the same building']},
-  {k:'short', ar:'أين تذهب إذا كانت العيادة مغلقة ومشكلتك خطيرة؟ أجب بالإنجليزية.',
+  {k:'short', ar:'أين تذهب إذا كانت العيادة مغلقة؟ أجب بالإنجليزية.',
    ok:['to the hospital','the hospital','hospital','the hospital behind the park','go to the hospital']},
-  {k:'word', ar:'ما الكلمة في النص التي تعني «خطير»؟', ok:['serious']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «صيدلية»؟', ok:['pharmacy']},
   {k:'word', ar:'ما الكلمة في النص التي تعني «خلف»؟', ok:['behind']}]},
 
 {id:'r-street', u:3, t:'شارعنا', cat:'وصف',
  text:`I live in a quiet street near the market. There are twelve houses in our street and there is one small shop.
 
-Opposite my house there is a school. In the morning there are many children in the street, so it is not quiet then.
+Opposite my house there is a school. In the morning there are many children in the street. It is not quiet then.
 
 There is a bus stop at the end of the street. The bus to the city centre comes every twenty minutes.
 
-There are no cafes in our street, but there is a very good one in the next street.`,
+There are no cafes in our street. There is a very good cafe in the next street.`,
  qs:[
   {k:'tf', q:'There is a school opposite the writer\'s house.', a:true, why:'Opposite my house there is a school.'},
-  {k:'tf', q:'The street is quiet in the morning.', a:false, why:'so it is not quiet then.'},
+  {k:'tf', q:'The street is quiet in the morning.', a:false, why:'It is not quiet then.'},
   {k:'tf', q:'There is a cafe in the writer\'s street.', a:false, why:'There are no cafes in our street.'},
   {k:'short', ar:'كم بيتاً في الشارع؟ أجب بالإنجليزية.',
    ok:['twelve','12','twelve houses','there are twelve houses']},
@@ -293,7 +293,12 @@ I have never worked at night, but I can learn. I have already finished a short c
 I have not received your last email yet. Could you send it again?
 
 Thank you,
-Kareem`,
+Kareem
+
+I have also helped two shops to organise their stock, and I have trained three new sellers since last year.
+I have not managed a team by myself, but I have worked closely with a manager.
+
+I have attached my references. I have known both of them for more than five years.`,
  qs:[
   {k:'tf', q:'Kareem has worked as a seller for four years.', a:true, why:'I have worked as a seller for four years.'},
   {k:'tf', q:'He has worked at night before.', a:false, why:'I have never worked at night'},
@@ -316,7 +321,14 @@ While the wind was blowing, a tree fell on an old car. Nobody was sitting in it,
 
 Mr Samir, who lives at number twelve, said: "I was reading when I heard a loud noise. I looked out of the window and I saw the tree."
 
-The lights came back after three hours.`,
+The lights came back after three hours.
+
+The electricity company said that four streets were affected. Engineers were working in the rain until after midnight.
+
+Mrs Nadia, who was walking home when the storm began, said that she had never seen the street so dark.
+People were opening their doors and calling to each other, and somebody was carrying a lamp from flat to flat.
+
+The council has promised to cut the old trees before the winter.`,
  qs:[
   {k:'tf', q:'The lights went out on Tuesday.', a:true, why:'Last Tuesday the lights went out'},
   {k:'tf', q:'Somebody was hurt in the car.', a:false, why:'Nobody was sitting in it, so nobody was hurt.'},
@@ -341,7 +353,15 @@ If you are ill, you have to call the office before eight.
 
 You may take your break at any time between twelve and two. You might find the small room quieter than the kitchen.
 
-If you had a problem with any of this, you would speak to your manager first.`,
+If you had a problem with any of this, you would speak to your manager first.
+
+You should read the safety notes in the corridor during your first week.
+You don't have to learn them by heart, but you must know where the exits are.
+
+Your computer password has to be changed every three months.
+You mustn't write it down near your desk, and you shouldn't use the same one for your personal accounts.
+
+If you are not sure about a rule, you should ask rather than guess.`,
  qs:[
   {k:'tf', q:'You must arrive before nine.', a:true, why:'You have to arrive before nine'},
   {k:'tf', q:'You must wear a suit.', a:false, why:"You don't have to wear a suit"},
@@ -364,7 +384,15 @@ The old photographs which you see on the first floor were taken between 1900 and
 
 Tickets are sold at the door. Students who show a card pay half price.
 
-The room where the oldest objects are kept is closed on Fridays.`,
+The room where the oldest objects are kept is closed on Fridays.
+
+The garden behind the museum was added in 1992.
+It is planted with trees which were common in this area a hundred years ago, and each one is marked with a small sign.
+
+School groups are welcomed on weekday mornings, but they must be booked two weeks in advance.
+A short talk is given by a guide who knows the history of every room.
+
+The shop, which is run by volunteers, sells copies of the old photographs.`,
  qs:[
   {k:'tf', q:'The building was built in 1890.', a:true, why:'This building was built in 1890.'},
   {k:'tf', q:'The museum was opened in 1890.', a:false, why:'The museum was opened to the public in 1975.'},
@@ -386,7 +414,15 @@ Sara asked when the training would begin. The manager answered that it would sta
 
 Omar asked if the staff had to come at the weekend. The manager said they did not have to, although some of them might want to.
 
-He told everybody to read the new guide before the training.`,
+He told everybody to read the new guide before the training.
+
+The committee had asked for the figures twice before the deadline, and had been told each time that they were nearly ready.
+When they finally arrived, three of the five tables had been left blank.
+
+It is understood that the delay was caused by a change of software, which had been introduced without training.
+Staff who had used the old system for years were given two days to learn the new one.
+
+The chair said that no blame should be attached to individuals. Nevertheless, she asked for a written explanation within a week.`,
  qs:[
   {k:'tf', q:'The new system will start in March.', a:true, why:'the new system would start in March'},
   {k:'tf', q:'The staff have to come at the weekend.', a:false, why:'they did not have to — فهو إعفاء لا إلزام.'},
@@ -412,7 +448,17 @@ If you had called me, I would have changed my plans at once.
 I hope we can meet soon. If you are free next week, I will cook for you.
 
 Sorry again,
-Mona`,
+Mona
+
+I had been thinking about writing to you for some time, but I kept postponing it.
+Having read your last message twice, I realised that I owed you a proper answer rather than another short note.
+
+You asked whether I regretted the decision. Honestly, I do not. If I had stayed, I would be comfortable now, but I would also be bored.
+I wish I had explained this better at the time; nevertheless, I think you understood.
+
+Do write back when you can. I would rather hear a difficult reply than none at all.
+
+One more thing. Having thought about it again, I believe the difficulty was never the decision itself but the way I announced it.`,
  qs:[
   {k:'tf', q:'Mona came to the party.', a:false, why:'If I had known about the party, I would have come — فهي لم تعلم ولم تأتِ.'},
   {k:'tf', q:'Mona had promised to help her brother.', a:true, why:'I had already promised to help my brother'},
@@ -437,7 +483,15 @@ I will never forget feeling so tired after ten minutes. But I kept going, and af
 
 Now I look forward to running every morning. I have learned that starting is the hardest part.
 
-If you are thinking about it, try running for five minutes only. Remember to begin slowly.`,
+If you are thinking about it, try running for five minutes only. Remember to begin slowly.
+
+What surprised me was how quickly the habit became ordinary.
+Having set aside twenty minutes a day, I stopped thinking of it as an effort and started treating it as part of the morning.
+
+Friends who had tried the same thing told me that they had given up within a month.
+In most cases they had chosen something ambitious: an hour, or five days a week, or a target they could not keep on a bad day.
+
+The lesson appears to be simple. A small commitment that survives a difficult week is worth more than a large one that does not.`,
  qs:[
   {k:'tf', q:'The writer used to avoid running.', a:true, why:'I avoided running because I thought it was too hard'},
   {k:'tf', q:'A friend suggested going with her.', a:true, why:'a friend suggested going with her in the morning'},
@@ -462,7 +516,15 @@ Despite the low prices, the food was excellent. I had a large bowl of hot vegeta
 
 The place was full. However, we did not wait long for our table.
 
-Even though the evening was cold, we sat outside under the lights. We will certainly go again.`,
+Even though the evening was cold, we sat outside under the lights. We will certainly go again.
+
+The film has been praised for its photography; nevertheless, several critics have questioned its length.
+At nearly three hours, it asks a great deal of an audience that has not been given much reason to wait.
+
+The performances are strong. The lead actor, who had not worked in cinema for a decade, is said to have prepared for a year.
+Moreover, the quieter scenes are handled with a confidence that the louder ones lack.
+
+On balance, it is a film worth seeing once. Whether it will be remembered is a different question.`,
  qs:[
   {k:'tf', q:'The street is quiet.', a:false, why:'Although the street is noisy — الشارع صاخب، والحديقة هي الهادئة.'},
   {k:'tf', q:'The prices were low.', a:true, why:'Despite the low prices'},
@@ -619,7 +681,193 @@ Nadia`,
   {k:'short', ar:'بأيِّ جملةٍ ألمحت نادية إلى أنّها تريد إنهاء الرسالة؟ أجب بالإنجليزية.',
    ok:['I have an early start tomorrow','i have an early start','an early start tomorrow']},
   {k:'word', ar:'ما العبارة في النص التي تعني «مثقلٌ بالعمل»؟', ok:['drowning in work','drowning']},
-  {k:'word', ar:'ما العبارة في النص التي تعني «يُذهب الحرج بين الناس»؟', ok:['breaking the ice','break the ice']}]}
+  {k:'word', ar:'ما العبارة في النص التي تعني «يُذهب الحرج بين الناس»؟', ok:['breaking the ice','break the ice']}]},
+
+  /* الوحدة ٤ — نصُّها الثاني. والجمعُ والملكيةُ والإشارةُ وhave got
+     كلُّها فيه عاملةً، لا مذكورةً: المتعلّم يقرؤها في سياقٍ قبل أن
+     يُسأل عنها. */
+  {id:'r-shop4', u:4, t:'في السوق', cat:'وصف',
+   text:"This is my father's shop. It is not big, but it has got many things.\n\nThese boxes are new. Those bags are old. We have got twenty bags today.\n\nMy brothers work here on Friday. Their hands are always busy.",
+   qs:[
+     {k:'tf', q:'The shop is big.', a:false, why:'It is not big.'},
+     {k:'tf', q:"The shop belongs to the writer's father.", a:true, why:"This is my father's shop."},
+     {k:'tf', q:'They have got twenty bags.', a:true, why:'We have got twenty bags today.'},
+     {k:'short', ar:'متى يعمل إخوته؟ أجب بالإنجليزية.', ok:['on friday','friday','they work on friday']},
+     {k:'word', ar:'ما الكلمة في النص التي تعني «صناديق»؟', ok:['boxes','box']}]},
+
+  {id:'r-class5', u:5, t:'في الصفّ الآن', cat:'وصف',
+   text:"It is nine o'clock. The lesson is starting now.\n\nSara can read English well, but she can't write it fast. Listen to the teacher. Don't open your books now.\n\nTwo students are writing. One student is drinking water. At ten we can go out.",
+   qs:[
+     {k:'tf', q:'Sara can write English fast.', a:false, why:"she can't write it fast."},
+     {k:'tf', q:'The lesson starts at nine.', a:true, why:"It is nine o'clock."},
+     {k:'tf', q:'Three students are writing.', a:false, why:'Two students are writing.'},
+     {k:'short', ar:'ماذا يفعل طالبٌ واحد؟ أجب بالإنجليزية.', ok:['drinking water','he is drinking water','one student is drinking water']},
+     {k:'word', ar:'ما الكلمة في النص التي تعني «استمعْ»؟', ok:['listen']}]},
+
+  /* الوحدة ٦ — الماضي: نفيُه وسؤالُه وظروفُه. */
+  {id:'r-school6', u:6, t:'يومٌ لم يسِر كما خُطّط له', cat:'سرد',
+   text:"Last Tuesday I woke up late.\n\nI didn't hear my alarm, so I missed the first bus. I ran to the station, but the train left two minutes before I arrived.\n\nI called my manager and told him the problem. He wasn't angry. He said, \"Take the next one.\"\n\nI finally reached the office at ten. It was a bad morning, but the rest of the day went well.",
+   qs:[
+     {k:'tf', q:'He heard his alarm.', a:false, why:"I didn't hear my alarm."},
+     {k:'tf', q:'The train left before he arrived.', a:true, why:'the train left two minutes before I arrived.'},
+     {k:'tf', q:'His manager was angry.', a:false, why:"He wasn't angry."},
+     {k:'short', ar:'متى وصل إلى المكتب؟ أجب بالإنجليزية.', ok:['at ten','ten','he reached the office at ten']},
+     {k:'word', ar:'ما الكلمة في النص التي تعني «فاته»؟', ok:['missed','miss']}]},
+
+  /* الوحدة ٧ — المستقبل: الموعدُ المرتَّب والغرض. */
+  {id:'r-move7', u:7, t:'خطّةُ الانتقال', cat:'رسالة',
+   text:"Hi Yara,\n\nI'm moving to a new flat next month. The owner is giving me the keys on the first of May.\n\nI'm taking two days off work to carry my things. My brother is helping me, so I don't need a van.\n\nI'm writing to ask you something. Are you free on Saturday? I want you to help me choose the curtains.\n\nWrite back soon,\n\nDina",
+   qs:[
+     {k:'tf', q:'She is moving next month.', a:true, why:"I'm moving to a new flat next month."},
+     {k:'tf', q:'She needs a van.', a:false, why:"My brother is helping me, so I don't need a van."},
+     {k:'tf', q:'She wants help with the curtains.', a:true, why:'I want you to help me choose the curtains.'},
+     {k:'short', ar:'متى يُعطيه المالكُ المفاتيح؟ أجب بالإنجليزية.', ok:['on the first of may','the first of may','first of may']},
+     {k:'word', ar:'ما الكلمة في النص التي تعني «ستائر»؟', ok:['curtains','curtain']}]},
+
+  /* الوحدة ٨ — المقارنة والكيفيّة والكفاية. */
+  {id:'r-cities8', u:8, t:'مدينتان', cat:'موازنة',
+   text:"I lived in two cities. The first one was bigger and much noisier than the second.\n\nRent there was too expensive for me, and the flats were not big enough for a family. But the work was better and the buses ran more often.\n\nThe second city is quieter and cheaper. People speak more slowly and drive more carefully.\n\nI visit the first city twice a year, but I don't want to live there again.",
+   qs:[
+     {k:'tf', q:'The first city was quieter.', a:false, why:'the first one was bigger and much noisier.'},
+     {k:'tf', q:'Rent in the first city was cheap.', a:false, why:'Rent there was too expensive for me.'},
+     {k:'tf', q:'He visits the first city twice a year.', a:true, why:'I visit the first city twice a year.'},
+     {k:'short', ar:'كيف يقود الناسُ في المدينة الثانية؟ أجب بالإنجليزية.', ok:['more carefully','carefully','they drive more carefully']},
+     {k:'word', ar:'ما الكلمة في النص التي تعني «إيجار»؟', ok:['rent']}]},
+
+  /* الوحدة ٩ — المقدارُ والترتيبُ والحركة. */
+  {id:'r-day9', u:9, t:'كيف أُعِدُّ الشاي', cat:'إرشاد',
+   text:"First, put a little water in the pot and wait for it to boil.\n\nThen add two spoons of tea and a few leaves of mint. Don't add a lot of sugar at this point.\n\nAfter that, move the pot away from the heat and leave it for three minutes.\n\nFinally, pour the tea into small glasses. If you want it sweeter, add the sugar now.\n\nI make tea this way twice a day, and my guests always ask me for the recipe.",
+   qs:[
+     {k:'tf', q:'You add the tea before the water boils.', a:false, why:'Then add two spoons of tea'},
+     {k:'tf', q:'You should add a lot of sugar at the start.', a:false, why:"Don't add a lot of sugar at this point."},
+     {k:'tf', q:'He makes tea twice a day.', a:true, why:'I make tea this way twice a day.'},
+     {k:'short', ar:'كم دقيقةً يُترَك الإبريق؟ أجب بالإنجليزية.', ok:['three minutes','three','for three minutes']},
+     {k:'word', ar:'ما الكلمة في النص التي تعني «نعناع»؟', ok:['mint']}]},
+
+  /* الوحدة ١٠ — الحاضر التامّ: الخبرةُ والتغيّر. */
+  {id:'r-shop10', u:10, t:'محلٌّ صغير صمد', cat:'تقرير',
+   text:"Hassan has owned a small bookshop in the old market for twenty-two years.\n\nHe has seen the street change around him. Three cafes have opened since 2019, and two clothes shops have closed. He says he has never thought about moving, although the rent has risen twice in the last five years.\n\n\"I have learnt one thing,\" he told us. \"People still come in for the same reason. They want somebody to talk to about a book.\"\n\nHe has recently started selling coffee at the back of the shop. It was his daughter's idea. She has worked with him since she finished university, and she has already built a small online shop for rare books.\n\nBusiness has not been easy. But Hassan has not lost his customers, and some of them have been coming since they were children.",
+   qs:[
+     {k:'tf', q:'Hassan has owned the shop for more than twenty years.', a:true, why:'for twenty-two years.'},
+     {k:'tf', q:'He has thought about moving the shop.', a:false, why:'he has never thought about moving.'},
+     {k:'tf', q:'The coffee was his own idea.', a:false, why:"It was his daughter's idea."},
+     {k:'tf', q:'His daughter has built an online shop.', a:true, why:'she has already built a small online shop for rare books.'},
+     {k:'short', ar:'كم مقهًى فُتح منذ ٢٠١٩؟ أجب بالإنجليزية.', ok:['three','three cafes','3']},
+     {k:'word', ar:'ما الكلمة في النص التي تعني «الإيجار»؟', ok:['rent']}]},
+
+  /* الوحدة ١١ — السرد والماضي المستمرّ. */
+  {id:'r-storm11', u:11, t:'ليلةُ العاصفة', cat:'سرد',
+   text:"It was raining heavily when the lights went out.\n\nI was reading in the kitchen and my sister was washing the dishes. At first we thought it was only our flat. But while I was looking for a candle, I heard our neighbour shouting in the corridor.\n\nThe whole building was dark. Somebody was knocking on doors to check on the older people on the top floor. My sister took a torch and went up with her.\n\nI stayed by the window. Cars were moving very slowly in the street below, and the wind was pushing the rain against the glass.\n\nThe power came back after two hours. While we were sitting in the dark my sister told me a story about a night like this when she was a child. I had never heard it before.",
+   qs:[
+     {k:'tf', q:'The writer was reading when the lights went out.', a:true, why:'I was reading in the kitchen.'},
+     {k:'tf', q:'Only their flat was dark.', a:false, why:'The whole building was dark.'},
+     {k:'tf', q:'The sister went upstairs with the neighbour.', a:true, why:'My sister took a torch and went up with her.'},
+     {k:'tf', q:'The power came back in ten minutes.', a:false, why:'The power came back after two hours.'},
+     {k:'short', ar:'ماذا كانت أختُه تفعل حين انقطعت الكهرباء؟ أجب بالإنجليزية.', ok:['washing the dishes','she was washing the dishes']},
+     {k:'word', ar:'ما الكلمة في النص التي تعني «مصباح يدويّ»؟', ok:['torch']}]},
+
+  /* الوحدة ١٢ — الشرط: نصّان. */
+  {id:'r-water12', u:12, t:'لو قلّ الماء', cat:'مقال',
+   text:"If a city loses a quarter of its water, life changes in a week.\n\nExperts say that if we do not repair old pipes, we will lose more water under the streets than we drink. In some cities, nearly a third of the clean water never reaches a tap.\n\nIf every family saved ten litres a day, the city would save millions of litres a year. That sounds small, but it is the easiest change to make. If the government raised prices instead, poor families would suffer first.\n\nFarmers face a harder question. If they changed their crops, they would need new machines and new training, and many would not survive the first bad year.\n\nSo the answer is not one decision. If we want a real result, we have to repair, teach and plan at the same time.",
+   qs:[
+     {k:'tf', q:'Some cities lose about a third of their clean water.', a:true, why:'nearly a third of the clean water never reaches a tap.'},
+     {k:'tf', q:'Raising prices would hurt rich families first.', a:false, why:'poor families would suffer first.'},
+     {k:'tf', q:'Changing crops is easy for farmers.', a:false, why:'they would need new machines and new training.'},
+     {k:'tf', q:'The writer says one decision is enough.', a:false, why:'the answer is not one decision.'},
+     {k:'short', ar:'كم لتراً يقترح أن توفّر كلّ أسرةٍ يوميّاً؟ أجب بالإنجليزية.', ok:['ten litres','ten','10 litres']},
+     {k:'word', ar:'ما الكلمة في النص التي تعني «أنابيب»؟', ok:['pipes','pipe']}]},
+
+  {id:'r-job12', u:12, t:'لو عاد بي الزمن', cat:'رسالة',
+   text:"Dear Mona,\n\nYou asked me what I would do if I could start again. It is a good question, and I have thought about it all week.\n\nIf I were twenty today, I would not choose the same subject. I studied law because my family expected it, and if I am honest, I was afraid to say no. If I had the choice now, I would study design.\n\nBut I would keep two things. If you take away the years in the office, you take away the people I met there, and I would not accept that.\n\nMy advice is simple. If an idea keeps coming back to you for a year, it is not a passing wish. Try it while the risk is small. If it fails, you will still be young enough to change again.\n\nWrite soon,\n\nSamir",
+   qs:[
+     {k:'tf', q:'He studied law because he wanted to.', a:false, why:'I studied law because my family expected it.'},
+     {k:'tf', q:'He would study design if he had the choice now.', a:true, why:'If I had the choice now, I would study design.'},
+     {k:'tf', q:'He regrets the people he met at work.', a:false, why:'I would not accept that.'},
+     {k:'tf', q:'He advises trying an idea while the risk is small.', a:true, why:'Try it while the risk is small.'},
+     {k:'short', ar:'كم مضى على تفكيره في السؤال؟ أجب بالإنجليزية.', ok:['all week','a week','one week']},
+     {k:'word', ar:'ما الكلمة في النص التي تعني «رغبة عابرة»؟', ok:['a passing wish','passing wish','wish']}]},
+
+  /* الوحدة ١٣ — الواجب والنصيحة والاستنتاج. */
+  {id:'r-rules13', u:13, t:'قواعدُ المبنى', cat:'لائحة',
+   text:"NOTICE TO ALL RESIDENTS\n\nVisitors must sign the book at the entrance. The guard has to keep it until the end of the month, so please write clearly.\n\nYou should not leave bicycles in the corridor. If a bicycle blocks the stairs, the fire officer may remove it without warning, and the owner will have to pay for its return.\n\nRubbish has to be in a closed bag before ten at night. Bags left outside the door in the morning might attract animals, and residents on the ground floor have complained about this twice.\n\nThe lift must not carry more than six people. It could stop between floors, and an engineer may take two hours to arrive.\n\nIf you need a repair, you should write to the office rather than call the guard. He cannot approve any work himself.",
+   qs:[
+     {k:'tf', q:'Visitors must sign a book.', a:true, why:'Visitors must sign the book at the entrance.'},
+     {k:'tf', q:'Bicycles are allowed in the corridor.', a:false, why:'You should not leave bicycles in the corridor.'},
+     {k:'tf', q:'Rubbish must be out before ten at night.', a:true, why:'Rubbish has to be in a closed bag before ten at night.'},
+     {k:'tf', q:'The guard can approve repairs.', a:false, why:'He cannot approve any work himself.'},
+     {k:'short', ar:'كم شخصاً يحمل المصعد على الأكثر؟ أجب بالإنجليزية.', ok:['six','six people','6']},
+     {k:'word', ar:'ما الكلمة في النص التي تعني «سكّان»؟', ok:['residents','resident']}]},
+
+  /* الوحدة ١٤ — المجهول وجملة الوصل. */
+  {id:'r-paper14', u:14, t:'كيف يُصنع الورق', cat:'شرح',
+   text:"Paper is made from wood, which is cut into very small pieces at the factory.\n\nThe pieces are mixed with water and chemicals until a soft grey material is produced. This material, which is called pulp, is then cleaned several times. Any ink that comes from recycled paper is removed at this stage.\n\nThe pulp is spread on a wide moving belt that carries it under heavy rollers. Most of the water is pressed out, and the thin sheet which remains is dried by hot air.\n\nFinally the paper is cut to size and packed. Sheets that are not perfect are collected and sent back to the beginning of the process.\n\nAbout half of the paper which is used in Europe is now made from recycled material. The trees that are planted for paper are usually replaced within ten years.",
+   qs:[
+     {k:'tf', q:'Pulp is made from wood and water.', a:true, why:'The pieces are mixed with water and chemicals.'},
+     {k:'tf', q:'Ink from recycled paper stays in the pulp.', a:false, why:'Any ink that comes from recycled paper is removed.'},
+     {k:'tf', q:'Imperfect sheets are thrown away.', a:false, why:'Sheets that are not perfect are collected and sent back.'},
+     {k:'tf', q:'About half of Europe\u2019s paper is recycled material.', a:true, why:'About half of the paper which is used in Europe is now made from recycled material.'},
+     {k:'short', ar:'بمَ يُجفَّف الورق؟ أجب بالإنجليزية.', ok:['hot air','by hot air','dried by hot air']},
+     {k:'word', ar:'ما الكلمة في النص التي تعني «عجينة الورق»؟', ok:['pulp']}]},
+
+  {id:'r-town15', u:15, t:'ما الذي تغيّر في البلدة', cat:'تقرير',
+   text:"By the time the new road opened in 2019, the town had already changed more than its people realised.\n\nThe factory had closed four years earlier, and most of the younger families had left before the first machines were removed. Those who stayed had been waiting for a decision that never came. When the council finally announced its plan, it had been discussing the site for almost a decade.\n\nThe plan itself was modest. A small business park would replace the factory, and the old railway yard would become a car park. Nobody had expected either to transform the town, and neither did.\n\nWhat changed was less visible. Because the road made the city reachable in forty minutes, people who had been looking for cheaper housing began to arrive. By 2023 the primary school, which had been losing pupils every year since 2011, reported its first increase.\n\nNot everyone welcomed this. Shopkeepers who had served the same families for thirty years found that the newcomers shopped elsewhere. Rents rose faster than wages, and two of the three cafes that had opened in the first year had closed by the end of the second.\n\nThe council now says it had underestimated how quickly the population would change. Critics reply that it had been told, repeatedly, and had chosen not to listen.",
+   qs:[
+     {k:'tf', q:'The factory closed after the new road opened.', a:false, why:'The factory had closed four years earlier.'},
+     {k:'tf', q:'The council discussed the site for nearly ten years.', a:true, why:'it had been discussing the site for almost a decade.'},
+     {k:'tf', q:'The school had been gaining pupils since 2011.', a:false, why:'which had been losing pupils every year since 2011.'},
+     {k:'tf', q:'All three new cafes survived.', a:false, why:'two of the three cafes … had closed.'},
+     {k:'short', ar:'كم دقيقةً صارت المدينةُ على بُعدها بعد الطريق؟ أجب بالإنجليزية.', ok:['forty minutes','forty','40 minutes']},
+     {k:'word', ar:'ما الكلمة في النص التي تعني «القادمون الجدد»؟', ok:['newcomers','newcomer']}]},
+
+  {id:'r-remote15', u:15, t:'ثلاث سنوات من العمل عن بُعد', cat:'مقال',
+   text:"When the office closed in March, nobody had planned for more than a few weeks.\n\nThree years later, the company has not returned to its old building. Staff who had been commuting for ninety minutes a day now start work at eight and finish at four. Managers who had been sceptical admit that output has not fallen.\n\nBut the picture is not simple. Those who had already built relationships at work adapted easily. New employees, who had never met their colleagues in person, took far longer to feel part of anything. One survey found that staff hired after the change were twice as likely to leave within a year.\n\nThe company has since introduced two office days a week. It says this is a compromise. Critics inside the firm call it the worst of both arrangements: those who live far away must now travel for meetings that could have been calls.\n\nWhat has changed permanently is expectation. Candidates who would once have accepted a daily commute now ask about flexibility in the first interview. A manager who had spent twenty years in the same building told us that he had stopped using the word normal altogether.\n\nThe lesson, perhaps, is that arrangements made in an emergency rarely stay temporary. Having worked differently for three years, few people are willing to pretend the old way was better simply because it was older.",
+   qs:[
+     {k:'tf', q:'The company returned to its old building.', a:false, why:'the company has not returned to its old building.'},
+     {k:'tf', q:'Managers expected output to fall.', a:true, why:'Managers who had been sceptical admit that output has not fallen.'},
+     {k:'tf', q:'New employees adapted faster than older staff.', a:false, why:'New employees … took far longer.'},
+     {k:'tf', q:'Candidates now ask about flexibility early.', a:true, why:'now ask about flexibility in the first interview.'},
+     {k:'short', ar:'كم يوماً في المكتب أدخلت الشركةُ أسبوعيّاً؟ أجب بالإنجليزية.', ok:['two','two days','two office days']},
+     {k:'word', ar:'ما الكلمة في النص التي تعني «تسوية»؟', ok:['compromise']}]},
+
+  {id:'r-claim16', u:16, t:'ما قالوه وما قيل عنهم', cat:'تقرير',
+   text:"The company announced on Monday that no customer data had been lost.\n\nBy Wednesday its own security team had admitted finding evidence of access to at least two systems. A spokesperson said that the earlier statement had been based on incomplete information, and insisted that the company had not intended to mislead anyone.\n\nRegulators are said to be examining whether the delay broke reporting rules. Under the law, a breach is believed to require notification within seventy-two hours, and the company is understood to have known about the problem for at least five days.\n\nThe chief executive denied hiding anything. He acknowledged that the first announcement had been premature, but refused to accept that it had been dishonest. He suggested publishing a full timeline, and promised to answer questions once the review was complete.\n\nNot everyone was convinced. One former employee, who asked not to be named, claimed that concerns had been raised internally a year earlier and had been dismissed as alarmist. The company declined to comment on that allegation.\n\nHaving been criticised twice before for slow disclosure, the firm is said to be under pressure from its largest investors. It is thought to have hired an external auditor this week, although it has not confirmed this publicly.",
+   qs:[
+     {k:'tf', q:'The company first said no data had been lost.', a:true, why:'announced on Monday that no customer data had been lost.'},
+     {k:'tf', q:'The chief executive admitted being dishonest.', a:false, why:'refused to accept that it had been dishonest.'},
+     {k:'tf', q:'A former employee said concerns were raised a year earlier.', a:true, why:'concerns had been raised internally a year earlier.'},
+     {k:'tf', q:'The company confirmed hiring an auditor.', a:false, why:'it has not confirmed this publicly.'},
+     {k:'short', ar:'في كم ساعةً يُفترض الإبلاغُ عن الاختراق؟ أجب بالإنجليزية.', ok:['seventy-two hours','seventy-two','72 hours']},
+     {k:'word', ar:'ما الكلمة في النص التي تعني «ادّعاء»؟', ok:['allegation','claimed','claim']}]},
+
+  {id:'r-choice17', u:17, t:'لو أنّهم اختاروا غير ذلك', cat:'مقال',
+   text:"If the city had built the bridge in 1998, the eastern district would be a different place today.\n\nThe plan was ready. Funding had been agreed, and the land had been bought. But a change of council meant the project was shelved, and within two years the money had been moved elsewhere. If the decision had held, traffic would not be crossing the old bridge in both directions now. The hospital on the eastern side would probably have been expanded rather than closed.\n\nIt is easy to be certain about the past. Supporters of the original plan argue that if the bridge had opened, business would have followed. Opponents reply that if the money had gone to the bridge, the two schools built in its place would not exist. Several thousand children would have travelled much further for years.\n\nBoth claims are plausible, and neither can be tested. What can be said is narrower. Had the bridge been built, the eastern district would almost certainly be larger. Whether its residents would be better off is a different question.\n\nToday the council is considering the same route again. If it approves the plan this year, the bridge would open around 2032. Several members have said privately that if they had been on the council in 1998, they would have voted differently. That is, of course, the easiest vote anyone ever casts.",
+   qs:[
+     {k:'tf', q:'The bridge was built in 1998.', a:false, why:'the project was shelved.'},
+     {k:'tf', q:'Two schools were built instead of the bridge.', a:true, why:'the two schools built in its place.'},
+     {k:'tf', q:'The writer says both claims can be tested.', a:false, why:'neither can be tested.'},
+     {k:'tf', q:'The council is considering the route again.', a:true, why:'the council is considering the same route again.'},
+     {k:'short', ar:'متى يُفتح الجسرُ لو أُقرّ هذا العام؟ أجب بالإنجليزية.', ok:['around 2032','2032']},
+     {k:'word', ar:'ما الكلمة في النص التي تعني «أُرجئ · رُفّ»؟', ok:['shelved']}]},
+
+  {id:'r-habits18', u:18, t:'أن تبدأ وأن تتوقّف', cat:'مقال',
+   text:"Most people who decide to change a habit begin by trying to stop doing something.\n\nResearch suggests this is the harder route. Giving up a behaviour leaves a gap, and the mind tends to fill that gap with the very thing it has just removed. Choosing to start something instead avoids this problem, because the new action occupies the time the old one used to take.\n\nConsider reading. Someone who wants to stop looking at a phone before bed usually fails within a week. Someone who decides to read ten pages instead often continues for months, having replaced one routine with another rather than leaving an empty hour.\n\nScale matters too. People who commit to running five kilometres three times a week frequently give up; those who agree to walk for ten minutes a day rarely do. The small version is easy to keep on a bad day, and keeping it on bad days is what makes it a habit at all.\n\nThere is one exception worth remembering. Where a behaviour is genuinely harmful, stopping cannot be postponed until a replacement is found. But for ordinary habits — eating late, checking messages, putting off difficult work — the evidence points the same way.\n\nThe question is not whether you can force yourself to stop. It is what you intend to do instead, and whether you would still manage it on your worst day.",
+   qs:[
+     {k:'tf', q:'Stopping a behaviour is the easier route.', a:false, why:'this is the harder route.'},
+     {k:'tf', q:'Replacing a habit works better than removing it.', a:true, why:'having replaced one routine with another.'},
+     {k:'tf', q:'Large commitments are kept more often.', a:false, why:'People who commit to running five kilometres … frequently give up.'},
+     {k:'tf', q:'Harmful behaviour should wait for a replacement.', a:false, why:'stopping cannot be postponed.'},
+     {k:'short', ar:'كم صفحةً يقترح النصُّ قراءتَها بدلاً من الهاتف؟ أجب بالإنجليزية.', ok:['ten pages','ten','10 pages']},
+     {k:'word', ar:'ما الكلمة في النص التي تعني «استثناء»؟', ok:['exception']}]},
+
+  {id:'r-debate19', u:19, t:'هل تُفيد الواجباتُ المنزليّة؟', cat:'مقال رأي',
+   text:"Few school policies divide parents as sharply as homework.\n\nSupporters argue that it builds independence. Moreover, they say, it allows parents to see what is being taught. Without it, the only picture of a child's progress comes from reports written twice a year.\n\nCritics are not persuaded. They point out that the evidence for younger children is weak; indeed, several large studies have found no measurable benefit before the age of eleven. Furthermore, homework tends to widen the gap between pupils, since a quiet room and an adult who can help are not equally available to everyone.\n\nBoth sides tend to overstate their case. Homework is arguably neither the cause of poor results nor the reason for good ones. It may well matter less than how it is set: ten minutes of focused practice appears to help, while an hour of copying does not.\n\nOn balance, the research supports a narrower claim than either camp would like. Homework seems to be useful for older pupils, in moderate amounts, when it revisits something already taught. Beyond that, the benefit is difficult to demonstrate.\n\nSchools that have reduced homework for younger classes report no fall in attainment; nevertheless, some parents have objected strongly, which suggests that the argument is not only about evidence. For many families, homework has become a sign that the school is serious — whatever the research says.",
+   qs:[
+     {k:'tf', q:'Studies found clear benefits for children under eleven.', a:false, why:'no measurable benefit before the age of eleven.'},
+     {k:'tf', q:'The writer says both sides overstate their case.', a:true, why:'Both sides tend to overstate their case.'},
+     {k:'tf', q:'Schools reducing homework reported lower attainment.', a:false, why:'report no fall in attainment.'},
+     {k:'tf', q:'The writer thinks how homework is set matters.', a:true, why:'It may well matter less than how it is set.'},
+     {k:'short', ar:'كم دقيقةً من التدريب المركَّز تبدو نافعة؟ أجب بالإنجليزية.', ok:['ten minutes','ten','10 minutes']},
+     {k:'word', ar:'ما الكلمة في النص التي تعني «التحصيل»؟', ok:['attainment']}]}
 ];
 
 export const READ = Object.fromEntries(READS.map(r => [r.id, r]));

@@ -1,5 +1,6 @@
 /* شاشة اختبار الترجمة: جملة عربية، يكتب ترجمتها، ثم تقييم فوري. */
-import {S, save} from '../engine/state.js';
+import {S, save, keepResult} from '../engine/state.js';
+import {keepSkill} from '../engine/unit-plan.js';
 import {hooks} from '../engine/bus.js';
 import {RULE} from '../content/rules.js';
 import {gradeOne, pickTranslation, summarize} from '../engine/translate.js';
@@ -9,12 +10,12 @@ import {reachedUnit} from '../engine/progress.js';
 
 export const TRANSLATE_N = 6;
 
-export function startTranslation(maxUnit) {
+export function startTranslation(maxUnit, unit) {
   S.tr = {
     /* السقف من تقدّم المتعلّم لا رقماً مكتوباً: كان ٣، فبقيت جُمل
        الوحدات من ٤ إلى ٩ في البنك لا تُعرض على أحد. */
     items: pickTranslation(TRANSLATE_N, maxUnit || reachedUnit()),
-    results: [], i: 0, graded: null, done: false
+    results: [], u: Number(unit) || 0, i: 0, graded: null, done: false
   };
   S.tab = 'translate';
   save(); hooks.render();
@@ -37,7 +38,14 @@ export function nextTranslation() {
   t.results.push(t.graded);
   t.graded = null;
   t.i++;
-  if (t.i >= t.items.length) { t.done = true; t.summary = summarize(t.items, t.results) }
+  if (t.i >= t.items.length) {
+    t.done = true;
+    t.summary = summarize(t.items, t.results);
+    /* وكانت الترجمةُ لا تُسجَّل البتّة — لا في res ولا في skills —
+       فيُمتحَن فيها المتعلّم ولا يُحسَب له امتحانُه. */
+    keepResult('translate', t.summary.percent);
+    keepSkill(t.u, 'tr', t.summary.percent);
+  }
   save(); hooks.render();
 }
 

@@ -1,5 +1,7 @@
 /* شاشة المحادثة: فقاعات الحوار، وقلم المصحّح، والمقاييس. */
 import {SCENES} from '../content/scenes.js';
+import {sceneUnit, sceneDone, sceneInReach} from '../engine/scene.js';
+import {reachedUnit} from '../engine/progress.js';
 import {S} from '../engine/state.js';
 import {chatClamp,penDiff} from '../engine/chat.js';
 import {card,svg,ar,pronHtml,ruleCard,esc,resultLine} from './ui.js';
@@ -75,11 +77,24 @@ export function speakView(){
     +(on?'':';background:var(--surf2);color:var(--mute)');
 
   const catBar=`<div class="hscroll" style="display:flex;gap:6px;padding:2px 0 6px">${
-    cats.map(k=>`<button class="btn${k===pickedCat?'':' ghost'}" style="${chip(k===pickedCat)}" onclick="chatCat('${k}')">${k}${k==='الكل'?' ('+ar(SCENES.length)+')':''}</button>`).join('')}</div>`;
+    cats.map(k=>`<button class="btn${k===pickedCat?'':' ghost'}" style="${chip(k===pickedCat)}" onclick="chatCat('${k}')">${k}${k==='الكل'?' ('+ar(SCENES.filter(sceneInReach).length)+')':''}</button>`).join('')}</div>`;
 
-  const list=SCENES.map((x,i)=>({x,i})).filter(o=>pickedCat==='الكل'||o.x.cat===pickedCat);
+  /* ما بلغه المتعلّم وحده، لا المنهجُ كلُّه.
+
+     وكان التبويبُ يعرض المشاهدَ الستّةَ والسبعين جميعاً بلا تصفية،
+     فيرى المبتدئُ في وحدته الأولى مشاهدَ C2 — وهو بابٌ جانبيٌّ
+     يستطيع أن يترك به الرحلةَ كلَّها.
+
+     ومشاهدُ الدروس صارت محطّاتٍ في وحداتها، فتُعرض هنا إلى ما بلغ.
+     والموضوعيّةُ (المطعم والمطار…) حرّةٌ كما كانت: عونٌ لمن أراد،
+     لا طريقٌ بديل. */
+  const upto=reachedUnit();
+  const inReach=o=>{const u=sceneUnit(o.x);return u===undefined||u<=upto};
+  const list=SCENES.map((x,i)=>({x,i}))
+    .filter(o=>sceneInReach(o.x))
+    .filter(o=>pickedCat==='الكل'||o.x.cat===pickedCat);
   const picker=catBar+`<div class="hscroll" style="display:flex;gap:7px;padding:2px 0 4px">${
-    list.map(o=>`<button class="btn${o.i===c.sc?'':' ghost'}" style="${chip(o.i===c.sc)};font-size:12.5px;padding:8px 14px" onclick="chatPick(${o.i})">${o.x.les?'درس '+o.x.les:o.x.t}</button>`).join('')}</div>`;
+    list.map(o=>`<button class="btn${o.i===c.sc?'':' ghost'}" style="${chip(o.i===c.sc)};font-size:12.5px;padding:8px 14px" onclick="chatPick(${o.i})">${sceneDone(o.x)?'✓ ':''}${o.x.les?'درس '+o.x.les:o.x.t}</button>`).join('')}</div>`;
 
   /* نقاط تقدّم المشهد */
   const dots=sc.turns.map((_,i)=>

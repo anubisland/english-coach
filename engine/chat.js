@@ -1,4 +1,6 @@
 /* محرّك المحادثة الحيّة: الأدوار، والتصحيح، وقلم المصحّح. */
+import {keepScene, nextSceneIndex, sceneInReach} from './scene.js';
+import {reachedUnit} from './progress.js';
 import {SCENES} from '../content/scenes.js';
 import {S,save,logError} from './state.js';
 import {hooks} from './bus.js';
@@ -8,6 +10,18 @@ import {relevance} from './relevance.js';
 
 export function chatClamp(){const c=S.chat;let moved=false;
   if(!Number.isInteger(c.sc)||c.sc<0||c.sc>=SCENES.length){c.sc=0;c.ti=0;moved=true}
+  /* وفوقَ ما بلغ المتعلّم: يُردّ بلا ضجيج.
+
+     والمشهدُ الأوّل في البنك من الوحدة الرابعة، فكان المبتدئُ يفتح
+     التبويبَ فيجد نفسه في مشهدٍ لم يبلغ وحدتَه.
+
+     وهذا **تعديلٌ متوقَّع** لا خلل، فلا يُسجَّل خطأً ولا يُقال له
+     «تغيّرت المشاهد» — بخلاف المؤشّر الخارج عن الحدود أعلاه، فذاك
+     أثرُ حالةٍ تالفةٍ يستحقّ أن يُعلَن. */
+  {if(!sceneInReach(SCENES[c.sc])){
+     const i=SCENES.findIndex(sceneInReach);
+     if(i>=0&&i!==c.sc){c.sc=i;c.ti=0;c.stage='reply';c.ok=null;c.g=null;c.said=null;c.fixed=null;c.pr=null;c.hint=false;save()}
+   }}
   const t=SCENES[c.sc].turns;
   if(!Number.isInteger(c.ti)||c.ti<0||c.ti>=t.length){c.ti=0;moved=true}
   if(moved){
@@ -34,7 +48,9 @@ export function chatModelTyped(){
   save();hooks.render();
 }
 export function chatPick(i){const c=S.chat;c.sc=i;if(SCENES[i]&&SCENES[i].cat&&c.cat!=='الكل')c.cat=SCENES[i].cat;c.ti=0;c.stage='reply';c.ok=null;c.g=null;c.fixed=null;c.pr=null;c.fb=null;c.hint=false;save();hooks.render();setTimeout(chatSay,300)}
-export function chatNext(){const c=S.chat,sc=SCENES[c.sc];c.ti++;if(c.ti>=sc.turns.length){c.ti=0;c.sc=(c.sc+1)%SCENES.length}c.miss=0;c.stage='reply';c.ok=null;c.g=null;c.fixed=null;c.pr=null;c.fb=null;c.hint=false;save();hooks.render();setTimeout(chatSay,300)}
+/* بلوغُ آخر دورٍ هو تمامُ المشهد، فيُسجَّل هنا — ولولا سجلٌّ ما
+   صحّ أن يكون المشهدُ محطّةً في الرحلة. */
+export function chatNext(){const c=S.chat,sc=SCENES[c.sc];c.ti++;if(c.ti>=sc.turns.length){keepScene(sc);c.ti=0;c.sc=(c.sc+1)%SCENES.length}c.miss=0;c.stage='reply';c.ok=null;c.g=null;c.fixed=null;c.pr=null;c.fb=null;c.hint=false;save();hooks.render();setTimeout(chatSay,300)}
 
 /* تغيير التصنيف لا يغيّر المشهد الجاري، فلا يفقد المتعلم مكانه. */
 export function chatCat(k){S.chat.cat=k;save();hooks.render()}
@@ -78,3 +94,12 @@ export function penDiff(said,fixed){
 }
 
 /* مقاييس من بيانات حقيقية فقط: لا نعرض رقماً لا نحسبه. */
+
+/* من محطّة الوحدة إلى مشهدها: يُفتح أوّلُ ما لم يُؤدَّ منها، لا
+   أوّلُ المنهج ولا ما وقف عليه المتعلّم في جولةٍ سابقة. */
+export function startUnitScene(u){
+  const i=nextSceneIndex(Number(u)||0);
+  if(i<0)return;
+  S.tab='speak';
+  chatPick(i);
+}

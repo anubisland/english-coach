@@ -106,7 +106,10 @@ async function run(label, stored, steps, opts) {
 
   try { mod.bootState(); mod.render() }
   catch (e) { results.fail++; console.log('  ✗ ' + label + '\n      انهار عند الإقلاع: ' + e.message); return }
-  try { steps(ctx, ev); results.pass++; console.log('  ✓ ' + label) }
+  /* await لا استدعاءٌ مجرّد: خطوةٌ غير متزامنة تُرجع وعداً، فيقع رفضُه
+     خارج هذه الـtry فلا يُلتقَط — ويُعَدّ الاختبار ناجحاً أبداً مهما
+     كُسر ما يحرسه. وقد وقع هذا فعلاً عند أوّل اختبارٍ غير متزامن. */
+  try { await steps(ctx, ev); results.pass++; console.log('  ✓ ' + label) }
   catch (e) { results.fail++; console.log('  ✗ ' + label + '\n      ' + e.constructor.name + ': ' + e.message) }
 }
 

@@ -6,6 +6,9 @@ import * as grammar from './engine/grammar.js';
 import * as pronounce from './engine/pronounce.js';
 import * as progress from './engine/progress.js';
 import * as quiz from './engine/quiz.js';
+import * as examLevel from './engine/exam-level.js';
+import * as wordsEng from './engine/words.js';
+import * as sceneEng from './engine/scene.js';
 import * as chat from './engine/chat.js';
 import * as ui from './views/ui.js';
 import * as home from './views/home.js';
@@ -106,7 +109,7 @@ const VIEWS={home:home.homeView,course:course.courseView,speak:speak.speakView,s
 
 /* المعالجات داخل الـ HTML (onclick) تحتاج أسماءً عامة. */
 Object.assign(window,{
-  ...state,...grammar,...pronounce,...progress,...quiz,...chat,...ui,...home,...course,...quizv,...speak,...settings,...reviewerPanel,...syncPanel,...translate,...trEngine,...sounds,...examScore,...examConv,...examConvView,...writeScore,...examWrite,...examWriteView,...readScore,...examRead,...examReadView,...examDict,...examDictView,...cefrEng,...cefrView,...roadmapContent,...roadmapView,...srs,...relevanceEng,
+  ...state,...grammar,...pronounce,...progress,...quiz,...examLevel,...wordsEng,...sceneEng,...chat,...ui,...home,...course,...quizv,...speak,...settings,...reviewerPanel,...syncPanel,...translate,...trEngine,...sounds,...examScore,...examConv,...examConvView,...writeScore,...examWrite,...examWriteView,...readScore,...examRead,...examReadView,...examDict,...examDictView,...cefrEng,...cefrView,...roadmapContent,...roadmapView,...srs,...relevanceEng,
   render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme,setTheme
 });
 /* S مرتبط حيّاً لأنه يُعاد بناؤه عند كل إقلاع. */

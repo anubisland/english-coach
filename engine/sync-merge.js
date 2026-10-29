@@ -17,10 +17,19 @@
 import {migrate} from './state.js';
 
 /* الحقول المنقولة، ولكلٍّ طريقةُ دمجه. وما ليس هنا لا يُرسَل أصلاً. */
-const UNION = ['lessons', 'conv', 'cp', 'ret', 'skipped', 'levelDone'];
+const UNION = ['lessons', 'conv', 'cp', 'ret', 'skipped', 'levelDone', 'scenes'];
 const MAXNUM = ['xp'];
 const ANYTRUE = ['placed', 'exam'];
-const MAXMAP = ['errs', 'attempts'];
+/* words: {الوحدة: نسبة} — الأعلى يغلب كبقيّة الدرجات.
+
+   وكانت خارج السياسة هي وskills، وكلتاهما تُقفل بوابةَ الوحدة: فمن
+   أتمّ مفرداتِ وحدةٍ ومهاراتِها على هاتفه وجد بوابتَها مغلقةً على
+   لوحه، وأعادها. ومزامنةٌ تُعيد العملَ كمزامنةٍ تمحوه. */
+const MAXMAP = ['errs', 'attempts', 'words'];
+
+/* skills: {الوحدة: {read,write,dict,tr}} — خريطةٌ في خريطة، فلا
+   يكفيها maxMap: هي تأخذ الأكبرَ من القيم لا من الكائنات. */
+const MAXMAP2 = ['skills'];
 
 const obj = v => (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
 const num = v => (typeof v === 'number' && isFinite(v)) ? v : 0;
@@ -38,6 +47,17 @@ function maxMap(a, b) {
   Object.entries(obj(b)).forEach(([k, v]) => {
     if (typeof v === 'number') out[k] = Math.max(num(out[k]), v);
     else if (!(k in out)) out[k] = v;
+  });
+  return out;
+}
+
+/* خريطةٌ في خريطة: لكلّ وحدةٍ درجاتُها، ويُؤخذ الأعلى لكلّ درجةٍ على
+   حدة — فمن أتقن القراءةَ هنا والكتابةَ هناك بقيتا له معاً. */
+function maxMap2(a, b) {
+  const out = {};
+  Object.entries(obj(a)).forEach(([k, v]) => { out[k] = {...obj(v)} });
+  Object.entries(obj(b)).forEach(([k, v]) => {
+    out[k] = maxMap(out[k], v);
   });
   return out;
 }
@@ -84,7 +104,7 @@ function mergeSrs(a, b) {
 /* ما يُرسَل إلى الوسيط: المنقولُ وحده، لا الحالةُ كلُّها. */
 export function syncable(S) {
   const out = {};
-  UNION.concat(MAXMAP).forEach(k => { out[k] = obj(S[k]) });
+  UNION.concat(MAXMAP, MAXMAP2).forEach(k => { out[k] = obj(S[k]) });
   MAXNUM.forEach(k => { out[k] = num(S[k]) });
   ANYTRUE.forEach(k => { out[k] = !!S[k] });
   out.res = obj(S.res);
@@ -104,6 +124,7 @@ export function mergeInto(S, remote) {
   const r = obj(migrate(obj(remote)));
   UNION.forEach(k => { S[k] = unionTruthy(S[k], r[k]) });
   MAXMAP.forEach(k => { S[k] = maxMap(S[k], r[k]) });
+  MAXMAP2.forEach(k => { S[k] = maxMap2(S[k], r[k]) });
   MAXNUM.forEach(k => { S[k] = Math.max(num(S[k]), num(r[k])) });
   ANYTRUE.forEach(k => { S[k] = !!S[k] || !!r[k] });
   S.res = mergeRes(S.res, r.res);
