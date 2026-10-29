@@ -7,9 +7,11 @@ import {WORDS as W_A1} from './words-a1.js';
 import {WORDS as W_A2} from './words-a2.js';
 import {WORDS as W_B1} from './words-b1.js';
 import {WORDS as W_B2} from './words-b2.js';
+import {WORDS as W_C1} from './words-c1.js';
+import {WORDS as W_C2} from './words-c2.js';
 import {UNITS} from './lessons.js';
 
-export const BANKS = {A1: W_A1, A2: W_A2, B1: W_B1, B2: W_B2};
+export const BANKS = {A1: W_A1, A2: W_A2, B1: W_B1, B2: W_B2, C1: W_C1, C2: W_C2};
 
 const unitLv = new Map(UNITS.map(u => [u.n, u.lv || 'A1']));
 

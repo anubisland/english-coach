@@ -351,4 +351,59 @@ export const SCENES=[
 {p:'Describe something in your room using two adjectives.',need:/\b(a|an|the)\s+\w+\s+\w+\b/i,model:'I have a small wooden desk.'},
 {p:'How well do you speak English?',need:/\b(well|badly|fluently|a little|not)\b/i,model:'I speak English quite well.'},
 {p:'How often do you practise it?',need:/\b(always|never|often|usually|sometimes|rarely|every)\b/i,model:'I always practise it in the evening.'}]}
+,
+{t:'درس 20.3: قدِّم ما تريد إبرازه',cat:'درس',les:'20.3',turns:[
+{p:'Tell me the one thing that matters most in your report.',need:/\b(what|it (is|was))\b/i,model:'What matters most is the cost.'},
+{p:'Say the same thing while putting the cost first.',need:/\bcost\b.*\b(is|was|we|they|I)\b/i,model:'The cost, we have not yet agreed.'},
+{p:'Now begin with a negative word and invert.',need:/\b(never|rarely|seldom|little|not only|under no)\b/i,model:'Never have we seen a figure this high.'},
+{p:'Use an it-cleft to name who decided.',need:/\bit (is|was)\b.*\b(who|that)\b/i,model:'It was the board that decided.'},
+{p:'Avoid repeating the verb. Use do so.',need:/\bdid so\b|\bdo so\b|\bdone so\b/i,model:'They asked us to revise it, and we did so.'},
+{p:'Avoid repeating the noun. Use one.',need:/\b(one|ones)\b/i,model:'The old plan failed, so we wrote a new one.'},
+{p:'Now say the whole point in one sentence to a colleague.',need:/\b(cost|figure|plan|report)\b/i,model:'What worries me is the cost, not the plan.'},
+{p:'And how would you put that to the client instead?',need:/\b(would|may|might|appears|seems|perhaps)\b/i,model:'The cost may require further discussion.'}]},
+
+{t:'درس 21.3: اكتب بالأسلوب الاسميّ',cat:'درس',les:'21.3',turns:[
+{p:'You are writing to a ministry. How do you open?',need:/\b(dear|sir|madam)\b/i,model:'Dear Sir or Madam,'},
+{p:'Say that prices rose, but use a noun not a verb.',need:/\b(rise|increase|growth)\b/i,model:'There has been a rise in prices.'},
+{p:'Say that the committee approved it, in the nominal style.',need:/\b(approval|approved)\b/i,model:'The approval of the committee was obtained.'},
+{p:'Suggest formally that he should attend.',need:/\b(suggest|recommend|propose)\b.*\b(he|she|they)\b/i,model:'We suggest that he attend the next session.'},
+{p:'Now soften a firm request.',need:/\b(grateful|obliged|would|could|perhaps)\b/i,model:'We would be grateful if you could confirm the date.'},
+{p:'Say the same thing to a close colleague instead.',need:/\b(can|could|know|tell)\b/i,model:'Can you let me know the date?'},
+{p:'Which of the two would you send to a minister, and why?',need:/\b(formal|first|grateful|official|rules)\b/i,model:'The first, because a formal register suits a minister.'}]},
+
+{t:'درس 22.3: علاماتُ الخطاب والتعبير',cat:'درس',les:'22.3',turns:[
+{p:'Agree with me, but add a reservation.',need:/\b(that said|mind you|then again|however|although)\b/i,model:'I agree. That said, the timing worries me.'},
+{p:'Now correct a wrong impression politely.',need:/\b(actually|in fact|to be fair|well)\b/i,model:'Actually, the figure was lower than that.'},
+{p:'Return to your main point after the digression.',need:/\b(anyway|as I was saying|in any case|to return)\b/i,model:'Anyway, as I was saying, the deadline stands.'},
+{p:'Use an idiom to say the problem is bigger than it looks.',need:/\b(iceberg|beginning|surface)\b/i,model:'This is only the tip of the iceberg.'},
+{p:'Use an idiom to say you will stop avoiding a hard choice.',need:/\b(bullet|music|plunge)\b/i,model:'We will have to bite the bullet and cut the budget.'},
+{p:'Tell me plainly what you want, with no idiom at all.',need:/\b(want|need|ask|request)\b/i,model:'I want two more weeks and one more reviewer.'},
+{p:'Now say that to a senior committee.',need:/\b(would|request|propose|respectfully|may)\b/i,model:'I would respectfully request an extension of two weeks.'}]},
+
+{t:'درس 23.3: الاتّساقُ وإعادةُ الصياغة',cat:'درس',les:'23.3',turns:[
+{p:'Here is a claim: the scheme cut waiting times. Say it in your own words.',need:/\b(scheme|waiting|shorter|reduced|cut|fell)\b/i,model:'Waiting times fell after the scheme began.'},
+{p:'Now join two sentences without repeating the noun.',need:/\b(this|that|it|which|these)\b/i,model:'The scheme began in May. This cut waiting times.'},
+{p:'Refer back to the whole idea with one word.',need:/\b(this|that|such|it)\b/i,model:'Such a change was not expected.'},
+{p:'Say the same thing more briefly.',need:/\b(briefly|shorter|cut|fell|dropped)\b/i,model:'Waiting times dropped.'},
+{p:'Now paraphrase without changing the strength of the claim.',need:/\b(appears|suggest|suggests|may|seems|reported)\b/i,model:'The figures suggest that waiting times dropped.'},
+{p:'What would be wrong with saying the scheme proved it?',need:/\b(strong|prove|proof|not|cannot)\b/i,model:'It is too strong. The figures do not prove cause.'},
+{p:'Give me your one-sentence summary for a busy reader.',need:/\b(waiting|times|scheme|fell|dropped|fallen)\b/i,model:'Waiting times appear to have fallen since the scheme began.'}]},
+
+{t:'درس 24.3: لخِّص واحفظ النسب',cat:'درس',les:'24.3',turns:[
+{p:'A report says two thirds agreed and one third did not. Summarise it.',need:/\b(thirds|most|majority|third|minority)\b/i,model:'A majority agreed, though a third did not.'},
+{p:'Now summarise it without losing the minority.',need:/\b(third|minority|but|while|although|however)\b/i,model:'Two thirds agreed, while one third objected.'},
+{p:'Emphasise the minority instead, using structure not words.',need:/\b(it was|what|third)\b/i,model:'It was a full third who objected.'},
+{p:'Say the finding to a colleague in one line.',need:/\b(most|agreed|third|against)\b/i,model:'Most agreed, but a third were against it.'},
+{p:'Now say it in a formal written summary.',need:/\b(respondents|proportion|indicated|majority)\b/i,model:'A majority of respondents indicated agreement.'},
+{p:'What would be dishonest to leave out?',need:/\b(third|minority|objected|opposed|against)\b/i,model:'Leaving out the third who objected would mislead.'},
+{p:'Give the whole finding in one fair sentence.',need:/\b(thirds|third)\b/i,model:'Two thirds agreed and one third objected.'}]},
+
+{t:'درس 24.4: بدِّل سجلَّك في النصّ الواحد',cat:'درس',les:'24.4',turns:[
+{p:'You must tell a client that the delivery is late. Start formally.',need:/\b(regret|unfortunately|inform|apologise)\b/i,model:'We regret to inform you that the delivery has been delayed.'},
+{p:'Now give the reason plainly, without excuses.',need:/\b(because|due to|supplier|delay|reason|missed)\b/i,model:'The supplier missed its own deadline.'},
+{p:'Offer something concrete.',need:/\b(will|can|offer|refund|discount|deliver)\b/i,model:'We will deliver by Thursday at no extra cost.'},
+{p:'Close the message formally.',need:/\b(apologise|regret|sincerely|understanding|inconvenience)\b/i,model:'We apologise for the inconvenience and thank you for your understanding.'},
+{p:'Now tell the same thing to your own team, informally.',need:/\b(we|team|late|slipped|behind|promising)\b/i,model:'The delivery has slipped. We are promising Thursday.'},
+{p:'What changed between the two messages?',need:/\b(register|tone|formal|informal|words|style|facts)\b/i,model:'The register changed, but the facts did not.'},
+{p:'Say one sentence that would be wrong in both.',need:/\b(not|never|blaming|blame|wrong|excuse)\b/i,model:'Blaming the client would be wrong in both.'}]}
 ];

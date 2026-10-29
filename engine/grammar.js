@@ -75,7 +75,7 @@ export const GR=[
 {re:/\bdoesn't (i|you|we|they)\b/gi,f:(m,p)=>"don't "+p,rid:'present-neg',ar:"مع I / you / we / they نستخدم don't"},
 {re:/\bdoes (i|you|we|they) /gi,f:(m,p)=>'do '+p+' ',rid:'present-neg',ar:'مع I / you / we / they نستخدم do في السؤال'},
 {re:/\bdoes (he|she|it) (\w+s)\b/gi,f:(m,p,v)=>'does '+p+' '+base(v.toLowerCase()),rid:'present-neg',ar:'بعد does نستخدم الفعل بدون s'},
-{re:/\bdo (he|she|it) /gi,f:(m,p)=>'does '+p+' ',rid:'present-neg',ar:'مع he / she / it نستخدم does في السؤال'},
+{re:/(?<!\b(?:to|can|can't|could|will|won't|would|should|must|may|might|shall|let|make|help|did|didn't|doesn't|don't) )\bdo (he|she|it) /gi,f:(m,p)=>'does '+p+' ',rid:'present-neg',ar:'مع he / she / it نستخدم does في السؤال'},
 {re:/\ba (?!(?:university|user|one|useful|unique|european|eu)\b)(?=[aeiou])/gi,f:()=>'an ',rid:'article-a-an',ar:'نستخدم an قبل الكلمة التي تبدأ بحرف متحرك'},
 {re:/\ban (?=[bcdfgjklmnpqrstvwxyz])/gi,f:()=>'a ',rid:'article-a-an',ar:'نستخدم a قبل الكلمة التي تبدأ بحرف ساكن'},
 {re:/\bi am agree\b/gi,f:()=>'I agree',ar:'نقول I agree بدون am'},
@@ -224,7 +224,10 @@ export const GR=[
 /* قواعد الوحدة الثامنة عشرة: المصدر والـ ing. */
 {re:/\b(enjoy|enjoys|enjoyed|finish|finishes|finished|avoid|avoids|avoided|mind|minds|minded|suggest|suggests|suggested|practise|practises|practised|miss|misses|missed|keep|keeps|kept)\s+to\s+(travel|listen|write|study|watch|drive|learn|teach|visit|clean|dance|read|work|play|swim|cook|talk|wait|walk|sing|help|sell|call|stay|eat|run|buy|go)\b/gi,f:(m,v,x)=>v+' '+ING2T[x.toLowerCase()],rid:'gerund',ar:'بعد enjoy و finish وأخواتهما يأتي الفعل بـ ing لا to'},
 {re:/\b(want|wants|wanted|need|needs|needed|decide|decides|decided|hope|hopes|hoped|plan|plans|planned|promise|promises|promised|agree|agrees|agreed|offer|offers|offered|refuse|refuses|refused|manage|manages|managed)\s+(traveling|listening|swimming|studying|watching|learning|teaching|visiting|cleaning|reading|working|playing|writing|running|cooking|talking|waiting|walking|driving|singing|helping|selling|calling|dancing|staying|eating|buying|going)\b/gi,f:(m,v,x)=>v+' to '+BARE2T[x.toLowerCase()],rid:'gerund',ar:'بعد want و need وأخواتهما يأتي to + الفعل لا ing'},
-{re:/\b(at|of|about|for|in|on|before|after|without|by|instead of)\s+(swim|eat|read|write|cook|listen|learn|teach|buy|sell|clean|sing|travel|leave|arrive)\b(?!\s*(to|the|a|an|this|that|it|them|him|her|us|me|you))/gi,f:(m,p,x)=>p+' '+ING2T[x.toLowerCase()],rid:'gerund',ar:'بعد حرف الجرّ يأتي الفعل بـ ing: good at swimming'},
+/* وof وحدَها مرفوعةٌ من القائمة: ما بعدها اسمٌ في الغالب —
+   the cost of travel — فكانت تُنذر إنذاراً كاذباً. وinstead of
+   باقيةٌ لأنّ ما بعدها فعلٌ حقّاً. */
+{re:/\b(at|about|for|in|on|before|after|without|by|instead of)\s+(swim|eat|read|write|cook|listen|learn|teach|buy|sell|clean|sing|travel|leave|arrive)\b(?!\s*(to|the|a|an|this|that|it|them|him|her|us|me|you))/gi,f:(m,p,x)=>p+' '+ING2T[x.toLowerCase()],rid:'gerund',ar:'بعد حرف الجرّ يأتي الفعل بـ ing: good at swimming'},
 /* قواعد الوحدة التاسعة عشرة: الربط المتقدّم والأسلوب. */
 {re:/\b(despite|in spite of)\s+(i|you|he|she|it|we|they|there)\s+(was|were|is|are|had|has|have|did|do)\b/gi,f:(m,d,p,v)=>'although '+p+' '+v,rid:'contrast',ar:'despite يليها اسم أو ing، والجملة التامّة تأخذ although'},
 {re:/\b(although|though|even though)\s+((?:\w+[,]?\s+){1,10}?)but\s/gi,f:(m,a,x)=>a+' '+x,rid:'contrast',ar:'لا يُجمع although مع but — واحدةٌ تكفي'},

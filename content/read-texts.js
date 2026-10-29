@@ -547,7 +547,19 @@ No sooner had the first train left than the platform filled again. Hardly had th
 
 It was the engineers who finished the work three months early. What surprised the mayor was the cost: it came to less than the first estimate.
 
-Only then did the council agree to plan a second line.`,
+Only then did the council agree to plan a second line.
+
+Little did the first passengers know that the line would carry twice its planned number within a month. Scarcely had the timetable been printed when it had to be revised.
+
+What the council had not expected was the effect on the old road. Traffic on it fell by a third, and the shops along it reported quieter mornings but busier evenings.
+
+It is the second line, not the first, that will decide whether the project pays for itself. Under no circumstances will the council approve it without a full study of the cost.
+
+Nor is the city alone in this. Two neighbouring towns have asked to join the network, and only when their figures arrive will the plan be complete.
+
+So successful has the opening been that the mayor now speaks of a third line. That, as one engineer put it, is a decision for another year.
+
+The first line, at least, has already paid for the study that doubted it.`,
  qs:[
   {k:'tf', q:'The new line is cheaper than the old road.', a:true, why:'it is also cheaper for daily travellers'},
   {k:'tf', q:'The work finished three months late.', a:false, why:'finished the work three months early — بل قبل موعدها بثلاثة أشهر'},
@@ -573,7 +585,22 @@ Our staff will assist your team with the forms on arrival. Visitors require a va
 We apologise for the change and look forward to hearing from you.
 
 Yours sincerely,
-Dr Amal Farouk`,
+Dr Amal Farouk
+
+We would be grateful if you could confirm, at your earliest convenience, whether the revised date is acceptable to your colleagues.
+
+Should the new date prove unsuitable, we should be happy to consider any alternative you may wish to propose. We are, in principle, free on any afternoon in the second half of the month.
+
+It is perhaps worth noting that the report you requested is now complete. A copy is enclosed, and a second copy has been sent to your office by post.
+
+You will observe that the figures in section three differ slightly from those discussed at our last meeting. The difference arises from a correction to the April returns rather than from any change of method.
+
+We regret the inconvenience that this postponement may cause, and we thank you for your understanding in the matter.
+
+We look forward to hearing from you.
+
+Yours sincerely,
+A. Rashid`,
  qs:[
   {k:'tf', q:'The laboratory will be open on Monday.', a:false, why:'The laboratory will be closed for repairs on that day'},
   {k:'tf', q:'The writer suggests Thursday instead.', a:true, why:'postpone the visit until Thursday'},
@@ -598,7 +625,17 @@ Pay attention to the time. Arriving early gives a good first impression.
 
 If the panel asks a hard question, take a moment before you answer. It is better to think than to make a mistake in a hurry.
 
-Afterwards, write a short note of thanks. Few candidates do this, and it is remembered.`,
+Afterwards, write a short note of thanks. Few candidates do this, and it is remembered.
+
+Prepare three questions of your own before you arrive. An interview in which only one side asks questions tells you very little about the place you may spend your next five years in.
+
+Read the job description twice. The second reading is the useful one: it is then that you notice which duties are described in detail and which are passed over in a single line.
+
+Do not learn answers by heart. A memorised answer is easy to hear and hard to follow up, and the follow-up question is where interviews are won or lost.
+
+If you are asked about a failure, name a real one. Say what you did about it and what you would do differently. A candidate who has never failed has rarely tried anything difficult.
+
+Finally, write to them afterwards. A short message that refers to something actually said in the room is worth more than a long one that could have been sent to anybody.`,
  qs:[
   {k:'tf', q:'The writer advises leaving preparation until the last evening.', a:false, why:'Do not put off your preparation until the last evening'},
   {k:'tf', q:'Arriving early helps the first impression.', a:true, why:'Arriving early gives a good first impression'},
@@ -621,7 +658,21 @@ Replace long phrases with short ones. Write because, not due to the fact that. W
 
 Be exact as well as short. Use fewer with what you can count and less with what you cannot, and keep amount for money and number for people.
 
-A short sentence is not an empty one. If you cut a word and lose a meaning, put the word back.`,
+A short sentence is not an empty one. If you cut a word and lose a meaning, put the word back.
+
+Cut the opening sentence. In nine drafts out of ten it says that the subject is important, which the reader has already assumed by reading on.
+
+Prefer the verb to the noun built from it. "The committee decided" is shorter and clearer than "a decision was taken by the committee", and it says who decided.
+
+Watch the words that do no work. "In order to" is "to". "At this point in time" is "now". "Due to the fact that" is "because". None of these is wrong; all of them are long.
+
+Beware of the qualifier that qualifies nothing. "Somewhat unique", "rather essential" and "very complete" add length and remove meaning.
+
+Keep the strength of a claim honest when you shorten it. "The figures suggest" must not become "the figures prove" merely because the shorter verb fits the line.
+
+Read the finished text aloud. The sentence you cannot say in one breath is the sentence your reader will have to read twice.
+
+When you have cut everything you can, cut the last paragraph as well. It usually repeats the first.`,
  qs:[
   {k:'tf', q:'The writer says good writing means writing more.', a:false, why:'Good writing is not writing more'},
   {k:'tf', q:'The writer prefers "because" to "due to the fact that".', a:true, why:'Write because, not due to the fact that'},
@@ -644,7 +695,19 @@ Furthermore, poorer families would save money each month. For them the fare is n
 
 On the other hand, some people argue that the cost would fall on the taxpayer. That is a fair point. However, the cost of wider roads and of treating sick lungs is also paid by the taxpayer, and it is paid later and at a higher price.
 
-In conclusion, the benefits appear to outweigh the cost. The question is not whether a city can afford free buses, but whether it can afford the traffic it has now.`,
+In conclusion, the benefits appear to outweigh the cost. The question is not whether a city can afford free buses, but whether it can afford the traffic it has now.
+
+It might be argued that the money would be better spent on roads. The objection deserves an answer rather than a dismissal.
+
+Roads, however, fill as fast as they are widened. Every study of urban traffic for forty years has found the same pattern: new capacity is taken up within a few years by journeys that were not made before.
+
+Public transport behaves differently. A line that is full is a line that pays, and a line that pays can be extended.
+
+Admittedly, the first years are expensive, and the benefit is felt by people who did not pay for it. That is an argument for how the cost is shared, not for refusing to bear it.
+
+Taken as a whole, the case rests on three findings: the cost falls over time, the use rises with frequency, and the alternative does not solve the problem it claims to solve.
+
+In conclusion, the benefits outweigh the cost, provided the plan is judged over a generation rather than a single budget.`,
  qs:[
   {k:'tf', q:'The writer is against free buses.', a:false, why:'Public transport should be free in large cities'},
   {k:'tf', q:'The writer mentions the opposite view.', a:true, why:'On the other hand, some people argue that the cost would fall on the taxpayer'},
@@ -670,7 +733,22 @@ Yesterday I stayed until eight. As I was leaving, Omar looked up and said, "Half
 Anyway, I am drowning in work this month, so forgive the short letter. Come and visit when you can. I have an early start tomorrow, so I will stop here.
 
 Yours,
-Nadia`,
+Nadia
+
+You will be delighted to hear that the builders returned on Tuesday, as promised, only eleven days after the Tuesday they had in mind.
+
+They have now finished the kitchen, or rather they have finished everything in the kitchen except the parts that water passes through, which they describe as detail.
+
+I am told the delay was nobody's fault, a phrase I have come to admire for the amount of work it does in four words.
+
+Meanwhile the neighbours have been wonderfully understanding, by which I mean they have said nothing at all and have begun to use the back door.
+
+Still, I should not complain. The house is standing, the roof keeps the rain where it belongs, and I have learned a great deal about plumbing that I never wished to know.
+
+Come and see it when it is done. On present evidence you have plenty of time to arrange the trip.
+
+Write soon,
+Mona`,
  qs:[
   {k:'tf', q:'Nadia is pleased that the lift is broken.', a:false, why:'Wonderful — سخرية: يُقال الحسن ويُراد ضدُّه، والقرينةُ أنّ تعطّل المصعد لا يُعجب أحداً'},
   {k:'tf', q:'The manager was satisfied with the first report.', a:false, why:'This will need another look — تلميحٌ بأنّ التقرير يحتاج إعادة كتابة'},
@@ -867,7 +945,139 @@ Nadia`,
      {k:'tf', q:'Schools reducing homework reported lower attainment.', a:false, why:'report no fall in attainment.'},
      {k:'tf', q:'The writer thinks how homework is set matters.', a:true, why:'It may well matter less than how it is set.'},
      {k:'short', ar:'كم دقيقةً من التدريب المركَّز تبدو نافعة؟ أجب بالإنجليزية.', ok:['ten minutes','ten','10 minutes']},
-     {k:'word', ar:'ما الكلمة في النص التي تعني «التحصيل»؟', ok:['attainment']}]}
+     {k:'word', ar:'ما الكلمة في النص التي تعني «التحصيل»؟', ok:['attainment']}]},
+
+{id:'r-c1-review', u:20, t:'مراجعة كتاب: ما لم يُقَل', cat:'مقال',
+ text:`A QUIET BOOK ABOUT A LOUD YEAR
+
+Seldom does a short book carry so much. In fewer than two hundred pages, the author describes a single year in a single street, and somehow describes a country.
+
+What makes the book unusual is not its subject but its method. It was the small details that the author chose to record: the price of bread, the hour the bus came, the week the barber closed.
+
+Not once does she tell the reader what to think. Nor does she raise her voice. The facts are set down, one after another, and the reader is left to draw the line between them.
+
+Only in the final chapter does the method show its purpose. By then the street has changed so completely that the opening pages read like a description of another place.
+
+Some readers will find this frustrating. They will want a judgement, and none is offered. Others will find in that refusal the book's chief virtue.
+
+Little is said about the author herself. We learn that she lived on the street for eleven years and that she left in the spring. Of her reasons for leaving, nothing.
+
+Rarely have I finished a book and immediately begun it again. This one I did, and the second reading was the better of the two.
+
+It is a book about absence, and it is written in the only way such a book can be written: by leaving things out.
+
+Not that the book is flawless. The middle chapters repeat one another, and a reader in a hurry could skip twenty pages without loss.`,
+ qs:[
+  {k:'tf', q:'The author tells the reader what to think.', a:false, why:'Not once does she tell the reader what to think'},
+  {k:'tf', q:'The book is longer than two hundred pages.', a:false, why:'In fewer than two hundred pages'},
+  {k:'tf', q:'The reviewer read the book twice.', a:true, why:'immediately begun it again'},
+  {k:'tf', q:'The author explains why she left the street.', a:false, why:'Of her reasons for leaving, nothing'},
+  {k:'short', ar:'كم سنةً عاشت الكاتبة في الشارع؟ أجب بالإنجليزية.',
+   ok:['eleven','eleven years','11','for eleven years']},
+  {k:'short', ar:'ما الذي يَعُدّه بعضُ القرّاء فضيلةَ الكتاب الكبرى؟ أجب بالإنجليزية.',
+   ok:['the refusal','that refusal','refusing to judge','the refusal to judge','leaving things out']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «نادراً ما»؟', ok:['seldom','rarely']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «غياب»؟', ok:['absence']}]},
+
+{id:'r-c1-notice', u:21, t:'تعميم إداريّ: تغيير الإجراءات', cat:'إعلان',
+ text:`NOTICE TO ALL DEPARTMENTS
+
+With effect from 1 September, the procedure for requesting equipment will be revised.
+
+Requests are at present submitted on paper to the department head, who forwards them to Finance. Under the new arrangement, submission will be made directly through the online form.
+
+It is requested that staff familiarise themselves with the form before the date of change. Guidance notes are available from the intranet and, on request, in printed form.
+
+Heads of department will continue to approve requests, but approval will now be recorded within the system rather than by signature. The removal of the paper stage is expected to shorten the average wait from three weeks to five working days.
+
+Requests already in progress on 1 September will be completed under the old procedure. No request need be submitted twice.
+
+It should be noted that the change does not affect the limits on spending. Any item above the stated figure will continue to require the approval of the Finance Committee, which meets monthly.
+
+Should any difficulty arise, staff are asked to contact the Equipment Office in the first instance rather than Finance. Questions of policy, as distinct from questions of procedure, should be directed to the Secretary.
+
+We are grateful for your cooperation during the transition.
+
+The Office of the Registrar
+
+Departments are reminded that the online form replaces the paper request in full. Paper requests received after 1 September will be returned rather than processed, and the delay will fall on the department that sent them.
+
+Training sessions will be held in the last week of August. Attendance is not compulsory, but departments that have sent nobody will not be given priority in the first month.`,
+ qs:[
+  {k:'tf', q:'The new procedure begins on 1 September.', a:true, why:'With effect from 1 September'},
+  {k:'tf', q:'Spending limits are changed by this notice.', a:false, why:'the change does not affect the limits on spending'},
+  {k:'tf', q:'Requests already in progress must be submitted again.', a:false, why:'No request need be submitted twice'},
+  {k:'tf', q:'Heads of department no longer approve requests.', a:false, why:'Heads of department will continue to approve requests'},
+  {k:'short', ar:'إلى كم يومٍ يُتوقَّع أن تقصر مدّة الانتظار؟ أجب بالإنجليزية.',
+   ok:['five','five days','five working days','5']},
+  {k:'short', ar:'بمن يتّصل الموظّف عند الصعوبة أوّلاً؟ أجب بالإنجليزية.',
+   ok:['the equipment office','equipment office']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «الإرشادات»؟', ok:['guidance']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «الانتقال من حالٍ إلى حال»؟', ok:['transition']}]},
+
+{id:'r-c1-talk', u:22, t:'حوار منقول: ما وراء العبارة', cat:'مقال',
+ text:`WHAT PEOPLE MEAN WHEN THEY SAY IT
+
+Every office has its own language, and most of it is not in any dictionary.
+
+When a colleague says "I take your point", the point has usually been taken and set down somewhere out of the way. "That said" is the sound of a disagreement putting on its coat.
+
+"With respect" has never once in the history of meetings been followed by respect. "Mind you" is kinder: it adds something the speaker thinks you have missed, and it does not mind if you missed it.
+
+Some phrases do real work. "Let me come back to you on that" buys a day and costs nothing, provided the speaker does come back. "I may be wrong, but" is genuine hedging in some mouths and pure theatre in others, and only the tone tells you which.
+
+The phrases that run into trouble are the ones that pretend to be neutral. "As previously discussed" rarely refers to a discussion. "Going forward" means from now on, which is when things happen anyway.
+
+Learn to hear the difference between a phrase that softens a true statement and a phrase that replaces one. The first is politeness. The second is fog.
+
+The safest rule is this: when you find yourself reaching for a phrase because you do not want to say the thing plainly, say the thing plainly instead, and then soften it if it needs softening.
+
+You will be understood more often, and misquoted less.
+
+None of this is new, and none of it is peculiar to offices. Families have the same phrases, and use them for the same reasons.`,
+ qs:[
+  {k:'tf', q:'The writer thinks every office phrase is dishonest.', a:false, why:'Some phrases do real work'},
+  {k:'tf', q:'"Mind you" is described as kinder than "with respect".', a:true, why:'Mind you is kinder'},
+  {k:'tf', q:'The writer advises softening a statement before saying it plainly.', a:false, why:'say the thing plainly instead, and then soften it'},
+  {k:'tf', q:'According to the writer, tone can tell you whether hedging is genuine.', a:true, why:'only the tone tells you which'},
+  {k:'short', ar:'ما العبارة التي تشتري يوماً ولا تكلّف شيئاً؟ أجب بالإنجليزية.',
+   ok:['let me come back to you','let me come back to you on that','i will come back to you']},
+  {k:'short', ar:'بماذا يَصف الكاتب العبارةَ التي تحلّ محلّ القول الصريح؟ أجب بالإنجليزية.',
+   ok:['fog','it is fog','the second is fog']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «التلطيف والتحفّظ»؟', ok:['hedging']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «تمثيلٌ ومظهرٌ لا حقيقة»؟', ok:['theatre']}]},
+
+{id:'r-c2-report', u:23, t:'تقرير مُحكَم: نتائج التجربة', cat:'مقال',
+ text:`EVALUATION OF THE EVENING CLINIC: SUMMARY OF FINDINGS
+
+This report summarises the first twelve months of the evening clinic and assesses whether it met the three aims set out at its opening.
+
+The first aim was to reduce waiting times. Waiting times fell from a median of nineteen days to a median of eleven. The fall was largest in the first quarter and has since levelled off.
+
+It should be noted that a second clinic opened in a neighbouring district during the same period. Some of the improvement may therefore be attributable to that clinic rather than to this one, and the figures cannot separate the two effects.
+
+The second aim was to reach patients who work during the day. Here the evidence is stronger. The proportion of appointments taken by patients in full-time employment rose from eighteen per cent to forty-one, a change too large to be explained by chance alone.
+
+The third aim was to do this without raising the cost per appointment. The cost rose by four per cent in real terms. Staff rates in the evening are higher, and this was foreseen; the rise is smaller than the estimate of nine per cent made before opening.
+
+Two limitations should be stated plainly. The sample covers a single district, so the findings may not generalise. And satisfaction was measured by a form returned by fewer than half of those who attended, which is likely to over-represent the satisfied.
+
+On balance, the clinic appears to have met two of its three aims in full and the third in part. The evidence supports continuation for a further year, together with a second evaluation using a comparison district.
+
+It does not, on the present figures, support expansion to a third site.
+
+A full technical appendix, including the confidence intervals for each figure quoted above, is available on request from the evaluation team.`,
+ qs:[
+  {k:'tf', q:'Waiting times fell to a median of eleven days.', a:true, why:'to a median of eleven'},
+  {k:'tf', q:'The report recommends opening a third site now.', a:false, why:'It does not, on the present figures, support expansion to a third site'},
+  {k:'tf', q:'The cost per appointment stayed exactly the same.', a:false, why:'The cost rose by four per cent in real terms'},
+  {k:'tf', q:'The report says the satisfaction figure may be too favourable.', a:true, why:'likely to over-represent the satisfied'},
+  {k:'short', ar:'إلى كم نسبةٍ ارتفع نصيبُ المواعيد لمن يعملون بدوامٍ كامل؟ أجب بالإنجليزية.',
+   ok:['forty-one','forty one','41','forty-one per cent','41 per cent']},
+  {k:'short', ar:'لماذا لا يُنسَب كلُّ التحسّن إلى هذه العيادة؟ أجب بالإنجليزية.',
+   ok:['a second clinic opened','another clinic opened','a second clinic','because a second clinic opened nearby']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «يُعزى إلى»؟', ok:['attributable']},
+  {k:'word', ar:'ما الكلمة في النص التي تعني «يُعمَّم على غيره»؟', ok:['generalise']}]}
 ];
 
 export const READ = Object.fromEntries(READS.map(r => [r.id, r]));

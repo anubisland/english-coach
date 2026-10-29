@@ -254,55 +254,90 @@ export const CONVO=[
 {p:`You have worked in three countries. Was that hard?`,o:[`Never have I regretted it.`,`Never I have regretted it.`,`Never regretted I it.`],a:0,tip:`never المتصدّرة تقلب المساعد والفاعل`},
 {p:`And what did you gain there?`,o:[`Not only did I learn the language, I also learned the work.`,`Not only I learned the language, I also learned the work.`,`Not only learned I the language, I also learned the work.`],a:0,tip:`not only تلزمها did مع الفاعل بعدها`},
 {p:`When did you decide to come back?`,o:[`Only then did I understand what I wanted.`,`Only then I understood what I wanted.`,`Only then understood I what I wanted.`],a:0,tip:`only then تستلزم القلب بـdid`},
-{p:`Is this the main reason?`,o:[`This may well be the main reason.`,`This may well to be the main reason.`,`This well may be the main reason.`],a:0,tip:`may well ترجيحٌ لا مجرّدُ إمكان`},
-{p:`Do prices always rise in summer?`,o:[`They tend to rise, but not always.`,`They tend to rising, but not always.`,`They tend rise, but not always.`],a:0,tip:`tend to ثمّ فعلٌ مجرّد`},
-{p:`What do the results show?`,o:[`They appear to support the idea.`,`They appear supporting the idea.`,`They appear that support the idea.`],a:0,tip:`appear to ثمّ فعلٌ مجرّد`},
-{p:`Is this the main reason?`,o:[`This may well be the main reason.`,`This may well to be the main reason.`,`This well may be the main reason.`],a:0,tip:`may well ترجيحٌ لا مجرّدُ إمكان`},
-{p:`Do prices always rise in summer?`,o:[`They tend to rise, but not always.`,`They tend to rising, but not always.`,`They tend rise, but not always.`],a:0,tip:`tend to ثمّ فعلٌ مجرّد`},
-{p:`What do the results show?`,o:[`They appear to support the idea.`,`They appear supporting the idea.`,`They appear that support the idea.`],a:0,tip:`appear to ثمّ فعلٌ مجرّد`}]},
+{p:`Did you expect the work to be so different?`,o:[`Little did I know how different it would be.`,`Little I knew how different it would be.`,`Little knew I how different it would be.`],a:0,tip:`little المتصدّرة تقلب كذلك`},
+{p:`Was there a moment you nearly gave up?`,o:[`Rarely have I felt so close to leaving.`,`Rarely I have felt so close to leaving.`,`Rarely felt I so close to leaving.`],a:0,tip:`rarely من ظروف النفي شبه التامّ، فتقلب`},
+{p:`And if the project had failed?`,o:[`Had it failed, I would have started again.`,`If it had failed, I would started again.`,`Had it failed, I would started again.`],a:0,tip:`الشرط يُقلب بحذف if وتقديم had`},
+{p:`What would you say to someone starting out?`,o:[`Under no circumstances should they rush the first year.`,`Under no circumstances they should rush the first year.`,`Under no circumstances rush they the first year.`],a:0,tip:`العبارة النافية المتصدّرة تقلب المساعد`},
+{p:`So you would do it again?`,o:[`Not for a moment would I hesitate.`,`Not for a moment I would hesitate.`,`Not for a moment hesitate I would.`],a:0,tip:`not for a moment متصدّرةً تقلب المساعد`}]},
 
 {id:'c-c1-2',u:20,t:'مراجعة تقرير: الصيغة المُجزَأة',turns:[
 {p:`Who found the mistake in the report?`,o:[`It was Omar who found it.`,`It was Omar which found it.`,`It were Omar who found it.`],a:0,tip:`للعاقل who، وفعل الكينونة مفرد`},
 {p:`And what exactly did he find?`,o:[`What he found was a wrong date.`,`What he found were a wrong date.`,`That he found was a wrong date.`],a:0,tip:`صيغة What تُبرز المفعول، وفعلها مفرد`},
-{p:`Was the problem in the numbers or the dates?`,o:[`It was the dates that were wrong.`,`It were the dates that were wrong.`,`It was the dates which was wrong.`],a:0,tip:`It was مفردٌ دائماً، ولو كان المُبرَز جمعاً`}]},
+{p:`Was the problem in the numbers or the dates?`,o:[`It was the dates that were wrong.`,`It were the dates that were wrong.`,`It was the dates which was wrong.`],a:0,tip:`It was مفردٌ دائماً، ولو كان المُبرَز جمعاً`},
+{p:`When did anyone notice it?`,o:[`It was only yesterday that anyone noticed.`,`It was only yesterday when anyone noticed.`,`It was only yesterday which anyone noticed.`],a:0,tip:`بعد الظرف المُبرَز تأتي that لا when`},
+{p:`Why does the date matter so much?`,o:[`The reason it matters is that the contract starts then.`,`The reason it matters is because the contract starts then.`,`The reason why it matters is because the contract starts then.`],a:0,tip:`The reason … is that، وbecause بعدها حشوٌ`},
+{p:`What do you want us to do now?`,o:[`What I want is a second check before Friday.`,`What I want it is a second check before Friday.`,`That I want is a second check before Friday.`],a:0,tip:`صيغة What لا يُعاد فيها الضمير`},
+{p:`Is the rest of the report sound?`,o:[`All that remains is to confirm the figures.`,`All what remains is to confirm the figures.`,`All that remains it is to confirm the figures.`],a:0,tip:`All that لا All what`}]},
 
 {id:'c-c1-3',u:21,t:'بريد العمل: السجلّ الرسميّ',turns:[
 {p:`We cannot meet on Monday. How do we write that to the client?`,o:[`We regret that we are unable to meet on Monday.`,`We can't meet on Monday, sorry.`,`We are not able to meet on Monday, no.`],a:0,tip:`الرسميّ يتجنّب الاختصار ويؤثر المفردة اللاتينية`},
 {p:`And we want the meeting moved to Thursday.`,o:[`We would be grateful if you could postpone it until Thursday.`,`Can you put it off until Thursday?`,`Please put off the meeting to Thursday.`],a:0,tip:`would be grateful if أرسمُ صيغ الطلب، وpostpone رسميّ`},
-{p:`How should the message end?`,o:[`We look forward to hearing from you.`,`Write back soon, please.`,`Waiting your answer.`],a:0,tip:`look forward to hearing from you خاتمةُ الرسالة الرسمية`}]},
+{p:`How should the message end?`,o:[`We look forward to hearing from you.`,`Write back soon, please.`,`Waiting your answer.`],a:0,tip:`look forward to hearing from you خاتمةُ الرسالة الرسمية`},
+{p:`How do we open it when we do not know the name?`,o:[`Dear Sir or Madam,`,`Hi there,`,`To whoever reads this,`],a:0,tip:`Dear Sir or Madam للمجهول`},
+{p:`We need the papers before the meeting. How do we ask?`,o:[`We should be obliged if you could send the documents in advance.`,`Send us the documents before, please.`,`We want the documents before the meeting.`],a:0,tip:`should be obliged if أرفعُ درجةً من would be grateful`},
+{p:`And if we must refuse their request?`,o:[`Regrettably, we are not in a position to agree to this.`,`Sorry, we can't do that.`,`No, this is not possible for us.`],a:0,tip:`not in a position to رفضٌ مهذّبٌ رسميّ`},
+{p:`How do we say we attached the file?`,o:[`Please find the report attached.`,`I send you the report here.`,`The report is in the mail with this.`],a:0,tip:`Please find … attached صيغةٌ ثابتة`}]},
 
 {id:'c-c1-4',u:21,t:'عرض نتائج: التحفّظ في الرأي',turns:[
 {p:`Is the new method faster than the old one?`,o:[`It appears to be faster in most cases.`,`It is always faster, everyone knows that.`,`It is faster, and nobody doubts it.`],a:0,tip:`appears to be وin most cases أدبُ التحفّظ`},
 {p:`Does the data prove that?`,o:[`The data suggest a clear link between them.`,`The data prove a clear link between them.`,`The data show, without any doubt, a link.`],a:0,tip:`suggest تنسب ولا تطلق، وprove جزمٌ يحتاج دليلاً قاطعاً`},
-{p:`So the cost will fall?`,o:[`The cost is likely to fall next year.`,`The cost will certainly fall next year.`,`The cost must fall next year.`],a:0,tip:`is likely to بدل will certainly`}]},
+{p:`So the cost will fall?`,o:[`The cost is likely to fall next year.`,`The cost will certainly fall next year.`,`The cost must fall next year.`],a:0,tip:`is likely to بدل will certainly`},
+{p:`Can we say the change caused the rise?`,o:[`The change may have contributed to the rise.`,`The change caused the rise.`,`The change is the only reason for the rise.`],a:0,tip:`may have contributed to إسنادٌ متحفّظ`},
+{p:`How confident are you in the sample?`,o:[`The sample is somewhat smaller than we would like.`,`The sample is very bad.`,`The sample is perfect.`],a:0,tip:`somewhat تُخفّف الحكم دون إنكاره`},
+{p:`Would you recommend the method now?`,o:[`On balance, I would tend to recommend it.`,`I recommend it, no question.`,`I tend recommend it on balance.`],a:0,tip:`tend to ثمّ فعلٌ مجرّد، وon balance ترجيحٌ`},
+{p:`And if the board asks for one sentence?`,o:[`The results are promising, though further work is needed.`,`The results are final and complete.`,`The results are promising and nothing is needed.`],a:0,tip:`though further work is needed تحفّظٌ لازم`}]},
 
 {id:'c-c1-5',u:22,t:'في المكتب: ما يصاحب الكلمة',turns:[
 {p:`Have you decided about the new office?`,o:[`We made a decision yesterday.`,`We did a decision yesterday.`,`We gave a decision yesterday.`],a:0,tip:`make a decision — مصاحبةٌ تُحفظ`},
 {p:`And did the team finish the study?`,o:[`They did the research last month.`,`They made the research last month.`,`They gave the research last month.`],a:0,tip:`do research لا make research`},
-{p:`Shall I write the main points down?`,o:[`Yes, please take notes.`,`Yes, please do notes.`,`Yes, please pay notes.`],a:0,tip:`take notes — وmake notes فصيحةٌ أيضاً`}]},
+{p:`Shall I write the main points down?`,o:[`Yes, please take notes.`,`Yes, please do notes.`,`Yes, please pay notes.`],a:0,tip:`take notes — وmake notes فصيحةٌ أيضاً`},
+{p:`Did anyone object to the plan?`,o:[`Two people raised an objection.`,`Two people made an objection up.`,`Two people did an objection.`],a:0,tip:`raise an objection`},
+{p:`Will the delay cost us anything?`,o:[`It will do serious damage to the schedule.`,`It will make serious damage to the schedule.`,`It will give serious damage to the schedule.`],a:0,tip:`do damage لا make damage`},
+{p:`Should we tell the client today?`,o:[`Yes, we must keep our promise.`,`Yes, we must hold our promise.`,`Yes, we must do our promise.`],a:0,tip:`keep a promise`},
+{p:`And if they are unhappy?`,o:[`Then we take full responsibility.`,`Then we do full responsibility.`,`Then we make full responsibility.`],a:0,tip:`take responsibility`}]},
 
 {id:'c-c1-6',u:22,t:'ترتيبات: الأفعال المركّبة',turns:[
 {p:`The meeting is at three, but Sara cannot come.`,o:[`Then we should put it off.`,`Then we should put off it.`,`Then we should off put it.`],a:0,tip:`الضمير يُفصَل: put it off`},
 {p:`Who will take care of the visitors?`,o:[`Hana will look after them.`,`Hana will look them after.`,`Hana will after look them.`],a:0,tip:`look after لا يُفصَل أبداً`},
-{p:`And what about the old chairs?`,o:[`We can give them away.`,`We can give away them.`,`We can away give them.`],a:0,tip:`give away قابلٌ للفصل، والضمير يُفصَل`}]}
-,
+{p:`And what about the old chairs?`,o:[`We can give them away.`,`We can give away them.`,`We can away give them.`],a:0,tip:`give away قابلٌ للفصل، والضمير يُفصَل`},
+{p:`The printer stopped again.`,o:[`I will look into it this morning.`,`I will look it into this morning.`,`I will into look it this morning.`],a:0,tip:`look into لا يُفصَل`},
+{p:`We are short of paper.`,o:[`We have run out of it.`,`We have run it out of.`,`We have run out it of.`],a:0,tip:`run out of ثلاثيٌّ لا يُفصَل`},
+{p:`What happened to the old proposal?`,o:[`The board turned it down.`,`The board turned down it.`,`The board down turned it.`],a:0,tip:`turn down قابلٌ للفصل، والضمير يُفصَل`},
+{p:`And the new figures?`,o:[`Please go over them before noon.`,`Please go them over before noon.`,`Please over go them before noon.`],a:0,tip:`go over لا يُفصَل`}]},
+
 {id:'c-c2-1',u:23,t:'مراجعة تقرير: الكلمة الأدقّ',turns:[
 {p:`How many people came this year?`,o:[`Fewer people came than last year.`,`Less people came than last year.`,`Fewer people came as last year.`],a:0,tip:`المعدود يأخذ fewer لا less`},
 {p:`And how much was spent?`,o:[`A large amount of money was spent.`,`A large number of money was spent.`,`A large amount of pounds was spent.`],a:0,tip:`غير المعدود يأخذ amount of`},
-{p:`Did the new rule change anything?`,o:[`It had a clear effect on prices.`,`It had a clear affect on prices.`,`It had a clear effect in prices.`],a:0,tip:`effect اسمٌ، وaffect فعل`}]},
+{p:`Did the new rule change anything?`,o:[`It had a clear effect on prices.`,`It had a clear affect on prices.`,`It had a clear effect in prices.`],a:0,tip:`effect اسمٌ، وaffect فعل`},
+{p:`Does the report say the rule is wise?`,o:[`It implies that, but it does not say it.`,`It infers that, but it does not say it.`,`It implies that, but it does not infer it.`],a:0,tip:`الكاتب يُلمّح implies، والقارئ يَستنتج infers`},
+{p:`Were the two tests the same?`,o:[`They were continual, not continuous.`,`They were continuous, not continual.`,`They were continuing, not continual.`],a:0,tip:`continual متكرّرٌ بانقطاع، وcontinuous متّصلٌ بلا انقطاع`},
+{p:`How do we describe a change we did not want?`,o:[`The effect was adverse.`,`The effect was averse.`,`The effect was adversed.`],a:0,tip:`adverse ضارّ، وaverse نافر`},
+{p:`And the final line?`,o:[`The principal reason is cost.`,`The principle reason is cost.`,`The principled reason is cost.`],a:0,tip:`principal رئيسٌ، وprinciple مبدأ`}]},
 
 {id:'c-c2-2',u:23,t:'تحرير نصّ: حذف الحشو',turns:[
 {p:`The report repeats itself. How do we say the outcome plainly?`,o:[`The result was clear.`,`The end was clear.`,`The final end result was clear.`],a:0,tip:`end حشوٌ مع result`},
 {p:`And how do we say that he gave the book to the library again?`,o:[`He returned the book.`,`He returned back it.`,`He gave back return the book.`],a:0,tip:`back حشوٌ مع return`},
-{p:`What about "due to the fact that the test was fair"?`,o:[`Because the test was fair.`,`Due to the test was fair.`,`Because of the test was fair.`],a:0,tip:`because تقوم مقام due to the fact that`}]},
+{p:`What about "due to the fact that the test was fair"?`,o:[`Because the test was fair.`,`Due to the test was fair.`,`Because of the test was fair.`],a:0,tip:`because تقوم مقام due to the fact that`},
+{p:`Shorten "at this moment in time".`,o:[`Now.`,`At this time now.`,`In this present moment.`],a:0,tip:`at this moment in time إطنابٌ مكانُه now`},
+{p:`And "in the event that it rains"?`,o:[`If it rains.`,`In event it rains.`,`In the event it will rain.`],a:0,tip:`if تكفي`},
+{p:`Tighten "he made a decision to leave".`,o:[`He decided to leave.`,`He made the decision for leaving.`,`He did a decision to leave.`],a:0,tip:`الفعلُ أوجزُ من الاسم ومساعدِه`},
+{p:`And "there are many people who believe this"?`,o:[`Many people believe this.`,`There is many people believing this.`,`It is many people who believe this.`],a:0,tip:`there are … who افتتاحٌ يُستغنى عنه`}]},
 
 {id:'c-c2-3',u:24,t:'نقاش: ربط الحجّة',turns:[
 {p:`The plan is cheap, but it is slow. How do you join that?`,o:[`The plan is cheap. However, it is slow.`,`The plan is cheap. Moreover, it is slow.`,`The plan is cheap. Therefore, it is slow.`],a:0,tip:`however رابطُ المخالفة`},
 {p:`The road was closed, so we were late.`,o:[`The road was closed. Therefore, we arrived late.`,`The road was closed. However, we arrived late.`,`The road was closed. For instance, we arrived late.`],a:0,tip:`therefore رابطُ النتيجة`},
-{p:`Some people disagree. How do you open that side?`,o:[`On the other hand, some people disagree.`,`In the other hand, some people disagree.`,`On the other side, some people disagree.`],a:0,tip:`on the other hand — بـon لا in`}]},
+{p:`Some people disagree. How do you open that side?`,o:[`On the other hand, some people disagree.`,`In the other hand, some people disagree.`,`On the other side, some people disagree.`],a:0,tip:`on the other hand — بـon لا in`},
+{p:`You want to add a second reason of the same kind.`,o:[`Moreover, the cost falls each year.`,`However, the cost falls each year.`,`Nevertheless, the cost falls each year.`],a:0,tip:`moreover للإضافة لا للمخالفة`},
+{p:`You concede a point before answering it.`,o:[`Admittedly, the first year is expensive.`,`Consequently, the first year is expensive.`,`Likewise, the first year is expensive.`],a:0,tip:`admittedly تنازلٌ تمهيديّ`},
+{p:`And then you answer it.`,o:[`Even so, the saving over ten years is large.`,`Even though, the saving over ten years is large.`,`Even if, the saving over ten years is large.`],a:0,tip:`even so ردٌّ بعد التنازل`},
+{p:`How do you close the argument?`,o:[`The evidence, taken together, favours the plan.`,`The evidence, taken together, favour the plan.`,`The evidence taken together favours the plan, however.`],a:0,tip:`evidence مفردٌ لا يُجمع، والخاتمة لا تُفتتح بـhowever`}]},
 
 {id:'c-c2-4',u:24,t:'مقال رأي: بناء الفقرة',turns:[
 {p:`Where does the main idea of a paragraph go?`,o:[`In the first sentence.`,`In the last sentence only.`,`In every sentence equally.`],a:0,tip:`جملةُ الفكرة تفتح الفقرة ثمّ يأتي السند`},
 {p:`How do you open your own view in an essay?`,o:[`In my opinion, the rule is unfair.`,`According to me, the rule is unfair.`,`In my point of view, the rule is unfair.`],a:0,tip:`according to لغير المتكلّم، وfrom my point of view لا in`},
-{p:`And how should the essay end?`,o:[`In conclusion, the benefits outweigh the cost.`,`For instance, the benefits outweigh the cost.`,`Firstly of all, the benefits outweigh the cost.`],a:0,tip:`in conclusion للخاتمة`}]}
+{p:`And how should the essay end?`,o:[`In conclusion, the benefits outweigh the cost.`,`For instance, the benefits outweigh the cost.`,`Firstly of all, the benefits outweigh the cost.`],a:0,tip:`in conclusion للخاتمة`},
+{p:`How do you bring in a piece of evidence?`,o:[`A recent study found that costs fell by a fifth.`,`A recent study found costs fell by a fifth, for example as well.`,`As an example for instance, costs fell by a fifth.`],a:0,tip:`دليلٌ واحدٌ بأداةٍ واحدة`},
+{p:`How do you link the evidence back to your claim?`,o:[`This suggests that the policy is working.`,`This suggest that the policy is working.`,`This is suggesting that the policy working.`],a:0,tip:`جملةُ الربط تُعيد الدليل إلى الدعوى`},
+{p:`How do you answer the strongest objection?`,o:[`It might be argued that the saving is temporary.`,`It might argue that the saving is temporary.`,`Someone can say the saving is temporary maybe.`],a:0,tip:`It might be argued that صيغةُ عرض الاعتراض`},
+{p:`And the last line before the conclusion?`,o:[`Taken as a whole, the case for the policy is strong.`,`Taking as a whole, the case for the policy is strong.`,`Taken as whole, the case for the policy is strong.`],a:0,tip:`Taken as a whole حالٌ من الحجّة كلّها`}]}
 ];
