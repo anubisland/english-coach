@@ -8,13 +8,21 @@
    ما كتبه هو ما سمعه. */
 import {LESSONS} from '../content/lessons.js';
 import {S, save, keepResult} from './state.js';
+import {reachedUnit} from './progress.js';
 import {hooks} from './bus.js';
 import {typedOk} from './quiz.js';
 
 const N = 10;
 
+/* من الدروس التي بلغها وحدها.
+
+   كان يسحب من المنهج كلِّه، فيُملي على مَن في الوحدة الثالثة جملةً
+   من C2 — وهو لم يرَ كلماتها بعد. والإملاءُ قياسُ سمعٍ لما تعلّمه،
+   لا امتحانُ ما لم يصل إليه. */
 export function dictationPool() {
-  return LESSONS.flatMap(l => l.items.filter(i => i.k === 'listen'));
+  const upto = reachedUnit();
+  return LESSONS.filter(l => l.u <= upto)
+    .flatMap(l => l.items.filter(i => i.k === 'listen'));
 }
 
 function shuffle(a) {

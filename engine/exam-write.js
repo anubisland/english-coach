@@ -3,6 +3,7 @@
    وإدارة الجلسة شأن آخر. */
 import {WRITE} from '../content/write-tasks.js';
 import {S, save, keepResult} from './state.js';
+import {reachedUnit} from './progress.js';
 import {hooks} from './bus.js';
 import {gradeWrite, writeTotals} from './write-score.js';
 
@@ -17,14 +18,18 @@ function shuffle(a) {
 /* ورقة متوازنة: من كل نوع نصيبه، ومن داخل النوع اختيار عشوائي —
    فلا يحفظ المتعلّم ورقةً بعينها، ولا يغيب نوع عن القياس. */
 export function pickWrite(unit) {
-  const pool = WRITE.filter(t => !unit || t.u === unit);
+  /* بلا وحدةٍ معيَّنة: ما بلغه المتعلّم، لا المنهج كلُّه. وكانت
+     الشاشة تنادي pickWrite(0) فتأتيه ورقةٌ فيها A1 وB2 وC1 معاً
+     وهو في الوحدة الثالثة. */
+  const upto = reachedUnit();
+  const pool = WRITE.filter(t => unit ? t.u === unit : t.u <= upto);
   const want = {order: 3, gap: 4, build: 3, free: 1};
   const out = [];
   ORDER.forEach(k => {
     const of = shuffle(pool.filter(t => t.k === k));
     out.push(...of.slice(0, want[k]));
   });
-  return out.length ? out : shuffle(WRITE).slice(0, 8);
+  return out.length ? out : shuffle(WRITE.filter(t => t.u <= upto)).slice(0, 8);
 }
 
 export function examWriteStart(unit) {

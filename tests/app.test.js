@@ -1650,6 +1650,29 @@ const { run, report } = require('./harness.js');
     });
   });
 
+  /* الاختباراتُ الأربعة تسحب ممّا بلغه المتعلّم، لا من المنهج كلِّه.
+
+     وكان اثنان منها يخالفان: ورقةُ الكتابة تُنادى من الشاشة بلا
+     وحدةٍ معيَّنة فتأتي فيها مهامُّ A1 وB2 وC1 معاً، والإملاءُ
+     يُملي جملةً من C2 على مَن في الوحدة الثالثة. والقياسُ بما لم
+     يُدرَّس ليس قياساً. */
+  await run('كل اختبارٍ يسحب ممّا بلغه المتعلّم وحده', {}, (ctx, ev) => {
+    const S = ev('S'), LESSONS = ev('LESSONS');
+    S.lessons = {'1.1': true, '1.2': true, '1.3': true, '2.1': true};
+    const upto = ctx.reachedUnit();
+    const unitOf = it => (LESSONS.find(l => l.items.includes(it)) || {}).u;
+
+    const beyond = (name, list, u) => {
+      const bad = list.filter(x => (u(x) || 0) > upto);
+      if (bad.length) throw new Error(name + ': ' + bad.length
+        + ' بنداً فوق الوحدة ' + upto);
+    };
+    beyond('الكتابة', ctx.pickWrite(0), t => t.u);
+    beyond('الإملاء', ctx.dictationPool(), unitOf);
+    beyond('القراءة', ctx.readPool(), t => t.u);
+    beyond('الترجمة', ctx.pickTranslation(20, upto), t => t.u);
+  });
+
   console.log('— المزامنة بين الأجهزة —');
 
   /* دالّةٌ كلُّ غرضها «لا تُضيّع تقدّماً» شُحنت بلا اختبارٍ واحد.
