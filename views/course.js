@@ -12,8 +12,14 @@ export function stop(o){
   const card=`<div class="stopCard ${o.cls||''}"><span style="flex:1;min-width:0">
       <b>${o.title}</b><span class="muted" style="display:block;font-size:11.5px">${o.meta}</span></span>
       ${o.act?`<span class="btn ghost" style="margin:0;padding:8px 13px;min-height:0;font-size:12px">${o.cls==='now'?'تابع':'افتح'}</span>`:''}</div>`;
+  /* foot: ما يُلحَق تحت البطاقة داخل عمودها — أزرارُ البوابة مثلاً.
+
+     وكان يُحقَن بـreplace على أوّل '</div></div>'، وأوّلُها قفلُ
+     النقطةِ والعمودِ الرفيع لا جسمُ البطاقة، فكان نصُّ البوابة يقع
+     في شريط الخطّ فيُقرأ حرفاً تحت حرف. */
   return `<div class="unit"${o.id?` id="${o.id}"`:''}><div class="spine ${o.lit?'lit':''} ${o.first?'first':''} ${o.last?'last':''}"><i></i>${o.dot}</div>
-    <div class="stop">${o.act?`<a href="javascript:void(0)" onclick="${o.act}" style="text-decoration:none;color:inherit;display:block">${card}</a>`:card}</div></div>`;
+    <div class="stop">${o.act?`<a href="javascript:void(0)" onclick="${o.act}" style="text-decoration:none;color:inherit;display:block">${card}</a>`:card}${
+      o.foot?`<div class="row" style="justify-content:flex-start;margin-top:8px">${o.foot}</div>`:''}</div></div>`;
 }
 export function convoHtml(u){
   const L=convoList(u);
@@ -68,6 +74,31 @@ function planStops(n){
   }).join('');
 }
 
+/* سطرُ الحال وزرُّ الطيّ: ما يراه المتعلّم عن وحدةٍ مطويّة.
+
+   ويُقال فيه ما أُنجز وما بقي، فلا يُفتَح إلّا لحاجة. */
+function unitSummary(n, expanded){
+  const plan=unitPlan(n), done=plan.filter(x=>x.done).length;
+  const left=plan.length-done;
+  const txt=left===0?'كلُّ محطّاتها تمّت'
+    :`${ar(done)} من ${ar(plan.length)} محطّات · بقي ${ar(left)}`;
+  const bar=plan.length?Math.round(done/plan.length*100):0;
+  return `<div class="row" style="justify-content:space-between;align-items:center;gap:10px;margin:0 0 ${expanded?'10px':'0'}">
+      <span class="muted" style="flex:1;min-width:0;font-size:12.5px">${txt}</span>
+      <button class="btn ghost" style="margin:0;padding:8px 14px;min-height:0;font-size:12.5px;white-space:nowrap"
+        onclick="toggleUnit(${n})">${expanded?'اطوِ ▴':'افتح ▾'}</button></div>
+    <div style="height:4px;border-radius:2px;background:var(--line);overflow:hidden;margin-bottom:${expanded?'12px':'2px'}">
+      <i style="display:block;height:100%;width:${bar}%;background:var(--ind)"></i></div>`;
+}
+
+/* الطيُّ والفتح: وحدةٌ واحدةٌ مفتوحةٌ في كلّ وقت. ومن طوى المفتوحةَ
+   بقيت الشاشةُ كلُّها مطويّةً حتى يختار. */
+export function toggleUnit(n){
+  S.openUnit = (S.openUnit===n) ? -1 : n;
+  save();
+  hooks.render();
+}
+
 export function unitStatus(n){
   if(unitDone(n))return '<span class="pill">✅ مكتملة</span>';
   if(S.skipped[n])return '<span class="pill" style="background:var(--surf2);color:var(--mute)">⏭️ تخطّيتها بالاختبار</span>';
@@ -103,9 +134,22 @@ export function courseView(){
       dot:S.cp[u.n]?`<div class="dot done">${svg('check',13,'var(--onGreen)')}</div>`:`<div class="dot mic">${svg('shield',13)}</div>`,
       cls:'locked',
       title:`بوابة الوحدة ${ar(u.n)}`,
-      meta:S.cp[u.n]?'مُجتازة':'٨ أسئلة · تحتاج ٧ صحيحة'
-    }).replace('</div></div>',`<div class="row" style="justify-content:flex-start">${gate}</div></div></div>`):'';
-    h+=card(`الوحدة ${u.n}: ${u.t} ${unitStatus(u.n)}`, unitOpen(u.n)?(unitDone(u.n)?'<details><summary class=muted>عرض دروس الوحدة للمراجعة</summary>'+ls+extra+'</details>':ls+extra):'<p class="muted">🔒 تُفتح بعد اجتياز اختبار الوحدة السابقة واختبار استبقائها</p>');
+      meta:S.cp[u.n]?'مُجتازة':'٨ أسئلة · تحتاج ٧ صحيحة',
+      foot:gate
+    }):'';
+    /* وحدةٌ واحدةٌ مفتوحةٌ في الشاشة: التي عليها الدور، أو التي
+       فتحها المتعلّم بنفسه.
+
+       وكانت كلُّ وحدةٍ مفتوحةٍ تُفرَد بمحطّاتها كاملةً، فمن بلغ
+       الوحدةَ العاشرة وجد أمامه مئةَ محطّةٍ مصفوفةً، ولا يَصل إلى
+       ما هو فيه إلّا بتمريرٍ طويلٍ من أوّل الصفحة في كلّ مرّة.
+
+       والمطويُّ يُغني عن ذلك: عنوانٌ وسطرُ حال، ويُفتح بلمسة. */
+    const expanded = S.openUnit===u.n || (S.openUnit===undefined||S.openUnit===null) && u.n===currentUnit();
+    h+=card(`الوحدة ${u.n}: ${u.t} ${unitStatus(u.n)}`,
+      unitOpen(u.n)
+        ? unitSummary(u.n, expanded) + (expanded?ls+extra:'')
+        : '<p class="muted">🔒 تُفتح بعد اجتياز اختبار الوحدة السابقة واختبار استبقائها</p>');
   }
   /* امتحانٌ لكل مستوى بُني، لا امتحان واحد: ولولا ذلك لسأل امتحانُ A1
      عن الماضي والمستقبل بمجرّد إضافة وحدات A2. */
@@ -119,11 +163,18 @@ export function courseView(){
   return h;
 }
 /* ينقل الشاشة إلى محطة الخطوة التالية على الخط. */
+/* ومع الطيّ لا يكفي التمرير: المحطّةُ المقصودةُ قد تكون في وحدةٍ
+   مطويّةٍ فلا وجودَ لها في الصفحة. فتُفتَح وحدتُها، ثمّ يُمرَّر
+   إليها بعد إعادة الرسم. */
 export function goToStep(){
   const nx=nextStep();
   if(!nx)return;
-  const el=document.getElementById&&document.getElementById(nx.anchor);
-  if(el&&el.scrollIntoView)el.scrollIntoView({block:'center',behavior:'smooth'});
+  if(nx.unit&&S.openUnit!==nx.unit){S.openUnit=nx.unit;save();hooks.render()}
+  const scroll=()=>{
+    const el=document.getElementById&&document.getElementById(nx.anchor);
+    if(el&&el.scrollIntoView)el.scrollIntoView({block:'center',behavior:'smooth'});
+  };
+  if(typeof requestAnimationFrame==='function')requestAnimationFrame(scroll); else scroll();
 }
 export function openLesson(id){S.open=id;S.tab='course';save();hooks.render();window.scrollTo(0,0)}
 export function cpBtn(u){

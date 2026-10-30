@@ -16,7 +16,7 @@ export function defaultState(){return{
   placed:false,             // الدخول الأول يبدأ باختبار تحديد المستوى
   level:'A1',
   lessons:{},conv:{},cp:{},ret:{},exam:false,xp:0,
-  tab:'home',q:null,open:null,place:null,
+  tab:'home',q:null,open:null,openUnit:null,place:null,
   rev:null,                 // رأيُ المراجع الاختياريّ: لحظيّ، لا يُحفظ ولا يُصدَّر
   syncBusy:false,           // مزامنةٌ جارية: لحظيّ، وmigrate تُسقطه عمداً
   errs:{},                  // عدّاد أخطاء الجرامر المتكررة

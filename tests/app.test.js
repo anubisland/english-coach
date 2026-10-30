@@ -707,7 +707,15 @@ const { run, report } = require('./harness.js');
     if (!nx || !nx.label.includes('2.1')) throw new Error('الخطوة التالية ليست أول الوحدة 2: ' + (nx && nx.label));
     const html = ctx.courseView();
     if (!html.includes('تخطّيتها بالاختبار')) throw new Error('لا توضيح أن الوحدة متخطّاة');
-    if (!html.includes('الدرس 1.1')) throw new Error('الوحدة المتخطّاة اختفت، والمفروض أن تبقى للمراجعة');
+
+    /* والوحداتُ مطويّةٌ إلّا التي عليها الدور، فلا يُطلَب ظهورُ
+       محطّاتها في الصفحة ابتداءً — بل أن تكون مفتوحةَ المنال:
+       لها بطاقةٌ وزرُّ فتحٍ يُظهر محطّاتها. */
+    if (!html.includes('toggleUnit(1)'))
+      throw new Error('الوحدة المتخطّاة اختفت: لا بطاقةَ لها ولا زرَّ فتح');
+    ctx.toggleUnit(1);
+    if (!ctx.courseView().includes('الدرس 1.1'))
+      throw new Error('فُتحت الوحدة المتخطّاة فلم تَظهر محطّاتُها');
   });
 
   await run('كل تمرين موسوم بمهارة معروفة', {}, (ctx, ev) => {
@@ -1058,7 +1066,11 @@ const { run, report } = require('./harness.js');
       if (nows !== 1) throw new Error('عدد المحطات الحالية ' + nows + ' والمتوقع واحدة فقط');
       const nx = ctx.nextStep();
       if (!nx.anchor.includes('3.1')) throw new Error('المحطة الحالية ليست في الوحدة 3: ' + nx.anchor);
-      if (!h.includes('متاح للمراجعة')) throw new Error('لا توضيح أن دروس الوحدة المتخطّاة للمراجعة');
+
+      /* ومحطّاتُ المتخطّاة تُقرأ بعد فتحها، فالوحداتُ مطويّة. */
+      ctx.toggleUnit(1);
+      if (!ctx.courseView().includes('متاح للمراجعة'))
+        throw new Error('لا توضيح أن دروس الوحدة المتخطّاة للمراجعة');
     });
 
   console.log('— صدق القياس —');
@@ -3310,7 +3322,8 @@ const { run, report } = require('./harness.js');
       syncBusy: 'مزامنةٌ جاريةٌ على هذا الجهاز — لحظيّة',
       snd: 'تدريبُ أصواتٍ جارٍ — لحظيّ',
       cx: 'اختبارُ محادثةٍ جارٍ — لحظيّ',
-      ruleOpen: 'بطاقةُ القاعدة المفتوحة — عرضٌ لا تقدّم'
+      ruleOpen: 'بطاقةُ القاعدة المفتوحة — عرضٌ لا تقدّم',
+      openUnit: 'الوحدةُ المفرودةُ على الشاشة — عرضٌ لا تقدّم'
     };
 
     const sent = syncable(ev('S'));
