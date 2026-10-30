@@ -12,6 +12,7 @@ import {linesOf, errHistory, errLevel, wrongIndex, bookStats, lines} from '../en
 import {dayKey, lastActiveDay, dayReport} from '../engine/journal.js';
 import {hasPlan, paceStatus, arDate, arWeeks, arNum} from '../engine/plan.js';
 import {RULE} from '../content/rules.js';
+import {GR} from '../engine/grammar.js';
 import {currentLevel} from '../engine/cefr.js';
 import {LESSONS} from '../content/lessons.js';
 import {ar, esc, card, svg} from './ui.js';
@@ -69,6 +70,17 @@ export function todayView(nx, startHtml){
           : `<br>وفي <b>${ar(mine.length)}</b> من جُمَلك غلطة — ما أقولُها لك، <b>دُلَّ عليها</b>.`)
       : '<br>ولا غلطةَ في جُمَلك. أحسنتَ.'));
   } else {
+    /* ومن له تاريخٌ قبل أن يُبنى السجلُّ اليوميّ لا يُستقبَل استقبالَ
+       الغريب.
+
+       فالسجلُّ بالأيّام جديد، ومن كان في وحدته الثالثة قبلَه ليس له
+       فيه يوم — فكان يُقال له «أهلاً بك، هذه أوّلُ محطّةٍ في طريقك»
+       وهو في منتصف الطريق. والبرنامجُ يَعرف ما أتمّه وما يُخطئ فيه،
+       وإن لم يَعرف متى، فيُقال له ذلك. */
+    const past = legacy();
+    if (past) h += say(past);
+    else
+
     /* أوّلُ يومٍ: جملةٌ واحدةٌ تُسمّي ما يبدأ به، لا أكثر.
 
        وكانت تقول «ابدأ بالمحطّة التي فوق» — وموضعُ الشيء على الشاشة
@@ -224,3 +236,35 @@ const dayAr = d => {
   const M = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
   return arNum(+dd) + ' ' + M[+m - 1];
 };
+
+/* ما يُعرَف عن ماضيه بلا سجلٍّ بالأيّام: ما أتمّه، وما يُخطئ فيه.
+
+   وS.errs تَعُدّ الخطأ بنصّه العربيّ لا بهويّة قاعدته — فيُرَدّ
+   النصُّ إلى قاعدته من بنك القواعد، ومنها إلى الدرس الذي يُصلحها. */
+const ridOfText = t => (GR.find(r => r.ar === t) || {}).rid;
+
+function legacy(){
+  const ls = Object.keys(S.lessons || {});
+  const errs = Object.entries(S.errs || {}).sort((a, b) => b[1] - a[1]);
+  if (!ls.length && !errs.length) return '';
+
+  /* بلا pop: تَنزع عنصراً من المصفوفة، فيَنقص العددُ المعروضُ واحداً. */
+  const last = ls.slice().sort()[ls.length - 1];
+  let out = ls.length
+    ? `أنت معنا من قبل: أتممتَ <b>${ar(ls.length)}</b> ${ls.length === 1 ? 'درساً' : 'دروس'}`
+      + (last ? `، آخرُها <b>الدرس ${last}</b>` : '') + '.'
+    : 'أنت معنا من قبل.';
+
+  if (errs.length) {
+    const [txt, n] = errs[0];
+    const rid = ridOfText(txt);
+    const les = rid ? lessonFor(rid) : null;
+    out += `<br>وأكثرُ ما تُخطئ فيه: <b>${esc(txt)}</b> — وقعتَ فيه ${ar(n)} ${n === 2 ? 'مرّتين' : 'مرّات'}`
+      + (les ? ` ويُصلَح في <b>درس ${les}</b>` : '') + '.';
+  }
+
+  /* ولا يُقال له متى كان ذلك: السجلُّ بالأيّام لم يكن موجوداً حينها،
+     والادّعاءُ بتاريخٍ لا نَعرفه أسوأُ من السكوت عنه. */
+  out += '<br><span class="coach-sub">ومن اليوم أحفظ لك كلَّ جملةٍ تكتبها وأُريك إيّاها هنا.</span>';
+  return out;
+}
