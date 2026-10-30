@@ -2282,7 +2282,8 @@ const { run, report } = require('./harness.js');
   });
 
   await run('بطاقة المراجعة تظهر في الصفحة الأولى',
-    { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
+    /* ولمن ذاكر فعلاً: اختبارُ التحديد وحدَه لا يَجعل له تاريخاً. */
+    { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: {'1.1': true}, words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     const S = ev('S'), DAY = ev('DAY');
     if (ctx.homeView().includes('راجِع قبل أن تُنسى')) throw new Error('ظهرت بلا أي سجلّ');
     const it = ev('LESSONS')[0].items[0];
