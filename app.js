@@ -16,6 +16,8 @@ import * as course from './views/course.js';
 import * as planSetup from './views/plan-setup.js';
 import * as planEng from './engine/plan.js';
 import * as journal from './engine/journal.js';
+import * as book from './engine/book.js';
+import * as todayView from './views/today.js';
 import * as quizv from './views/quiz.js';   // ليس quizView: الاسم يحجب الدالة
 import * as speak from './views/speak.js';
 import * as settings from './views/settings.js';
@@ -112,7 +114,7 @@ const VIEWS={home:home.homeView,plan:planSetup.planView,course:course.courseView
 
 /* المعالجات داخل الـ HTML (onclick) تحتاج أسماءً عامة. */
 Object.assign(window,{
-  ...state,...grammar,...pronounce,...progress,...quiz,...examLevel,...wordsEng,...sceneEng,...chat,...ui,...home,...course,...planSetup,...planEng,...journal,...quizv,...speak,...settings,...reviewerPanel,...syncPanel,...translate,...trEngine,...sounds,...examScore,...examConv,...examConvView,...writeScore,...examWrite,...examWriteView,...readScore,...examRead,...examReadView,...examDict,...examDictView,...cefrEng,...cefrView,...roadmapContent,...roadmapView,...srs,...relevanceEng,
+  ...state,...grammar,...pronounce,...progress,...quiz,...examLevel,...wordsEng,...sceneEng,...chat,...ui,...home,...course,...planSetup,...planEng,...journal,...book,...todayView,...quizv,...speak,...settings,...reviewerPanel,...syncPanel,...translate,...trEngine,...sounds,...examScore,...examConv,...examConvView,...writeScore,...examWrite,...examWriteView,...readScore,...examRead,...examReadView,...examDict,...examDictView,...cefrEng,...cefrView,...roadmapContent,...roadmapView,...srs,...relevanceEng,
   render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme,setTheme
 });
 /* S مرتبط حيّاً لأنه يُعاد بناؤه عند كل إقلاع. */
@@ -174,6 +176,8 @@ export * from './views/course.js';
 export * from './views/plan-setup.js';
 export * from './engine/plan.js';
 export * from './engine/journal.js';
+export * from './engine/book.js';
+export * from './views/today.js';
 export * from './views/quiz.js';
 export * from './views/speak.js';
 export * from './views/settings.js';

@@ -437,10 +437,12 @@ const { run, report } = require('./harness.js');
     { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true } , words: WORDS_DONE, scenes: SCENES_DONE }) },
     (ctx, ev) => {
       const h = ctx.homeView();
-      if (!h.includes('أين أنت الآن')) throw new Error('لا بيانَ لموضعه');
-      /* محطّاتُ وحدته مرسومةً: ما تمّ وما هو فيه وما بقي. */
-      if (!h.includes('أنجزتَ')) throw new Error('لا عددَ لما أنجزه في وحدته');
-      if (!h.includes('هدف الكلام اليومي')) throw new Error('لا اختيار للهدف');
+      /* ولا نسبةَ مجرّدةٌ في «اليوم»: مكانُها الرحلةُ والتفصيل.
+         وكانت نسبةٌ من المستوى كلِّه تُعرَض بجانب أصفارٍ تَنقضها. */
+      if (/d+s*٪|٪/.test(h.replace(/٨٧٪/g,''))) throw new Error('عادت النسبةُ المجرّدة إلى اليوم');
+      if (!h.includes('ابدأ الآن')) throw new Error('لا بيانَ لما يفعله الآن');
+      if (!/كتابُك|صفحتك|ما خطّتُك|متأخّر|ماشٍ على خطّتك/.test(h))
+        throw new Error('لا بيانَ لحاله: لا كتابَ ولا خطّة');
     });
 
   await run('خريطة الرحلة ترسم خطاً ومحطات',
@@ -3309,20 +3311,19 @@ const { run, report } = require('./harness.js');
   await run('لا رقمَ في الرئيسية يناقض وجهةَ البرنامج',
     { 'eng-coach-v3': JSON.stringify({placed:true, skipped:{1:true,2:true}}) },
     (ctx, ev) => {
-      const lp = ctx.levelProgress(), nx = ctx.nextStep();
+      const nx = ctx.nextStep();
       if (!nx || nx.unit < 3) throw new Error('البذرةُ لا تقيس: الوجهةُ ' + (nx && nx.unit));
-      if (lp.pct === 0)
-        throw new Error('الحلقة ٠٪ والبرنامجُ يسوقه إلى الوحدة ' + nx.unit + ' — رقمٌ يناقض وجهة');
 
-      /* ولا يُرفَع الرقمُ صامتاً: يُقال من أين جاء. */
-      const h = ctx.homeView();
-      if (!h.includes('أعفاك'))
-        throw new Error('رُفع الرقمُ ولم يُقَل إنّ مصدرَه اختبارُ التحديد');
-
-      /* والمقياسُ واحدٌ في الشاشة: لا بسطَ مستوًى على مقامِ منهج. */
-      const total = ev('LESSONS').length;
-      if (h.includes('/' + ev('ar')(total)))
-        throw new Error('مربّعُ الدروس يَقيس المنهجَ كلَّه تحت حلقةٍ تقيس مستوًى واحداً');
+      /* ما أعفاه منه اختبارُ التحديد ليس عليه، فلا يُحسَب في الباقي
+         ولا يُطوّل موعدَه. وكان يُحسَب، فيُحاسَب على ما لم يُطلَب. */
+      const all = ctx.levelLeft('A1').left;
+      ctx.clearPlan();
+      const S = ev('S');
+      const was = S.skipped; S.skipped = {};
+      const withSkipped = ctx.levelLeft('A1').left;
+      S.skipped = was;
+      if (!(all < withSkipped))
+        throw new Error('الوحدتان المُعفى منهما محسوبتان في الباقي: ' + all + ' من ' + withSkipped);
     });
 
   /* ولا يُقال «مقفول» لما هو مفتوح. */
@@ -3336,6 +3337,38 @@ const { run, report } = require('./harness.js');
         throw new Error('الامتحانُ مفتوحٌ والبطاقةُ تقول إنّه مقفول');
       if (!/launch\('exam'/.test(h))
         throw new Error('الامتحانُ مفتوحٌ ولا زرَّ يدخل به المتعلّم');
+    });
+
+  /* «كتابُك»: جملةُ المتعلّم تعود إليه تمريناً، والتصحيحُ يتصاعد.
+
+     والغلطةُ التي لا تُعالَج تتحجّر، فلا يُقال فيها القولُ نفسُه
+     كلَّ مرّة: تُصحَّح، ثمّ يُطلَب منه أن يجدها، ثمّ تُشرَح. */
+  await run('جملةُ المتعلّم تعود تمريناً، والتصحيحُ يتصاعد',
+    { 'eng-coach-v3': JSON.stringify({placed:true}) },
+    (ctx, ev) => {
+      const add = (t,f) => ctx.noteSentence({text:t,fix:f,rids:['present-s'],src:'ترجمة',u:3});
+      add('My brother go to school.','My brother goes to school.');
+      if (ctx.errLevel('present-s') !== 1) throw new Error('أوّلُ مرّةٍ ليست المرتبة الأولى');
+
+      add('She go home early.','She goes home early.');
+      if (ctx.errLevel('present-s') !== 2) throw new Error('ثانيةٌ ليست المرتبة الثانية');
+
+      add('He go there often.','He goes there often.');
+      if (ctx.errLevel('present-s') !== 3) throw new Error('ثالثةٌ ليست المرتبة الثالثة');
+
+      /* وموضعُ الكلمة يُستخرَج بموازنةِ الأصل بالمُصحَّح. */
+      if (ctx.wrongIndex(ctx.lines()[0]) !== 2) throw new Error('لم يُعرَف موضعُ الكلمة الغلط');
+
+      const h = ctx.homeView();
+      if (!h.includes('brother')) throw new Error('جملةُ المتعلّم لا تُعرَض');
+      if (!h.includes('دُلَّ عليها')) throw new Error('أُعطي الجوابَ بلا أن يُطلَب منه أن يجده');
+      if (h.includes('goes')) throw new Error('كُشف الصوابُ قبل أن يَدُلَّ عليه');
+
+      ctx.todayFound(0);
+      const h2 = ctx.homeView();
+      if (!h2.includes('goes')) throw new Error('دلَّ عليها فلم يُعرَض الصواب');
+      if (!/ارجع إلى درس/.test(h2)) throw new Error('لا سبيلَ من الغلطة إلى درسها');
+      if (!/العرب/.test(h2)) throw new Error('المرتبةُ الثالثة بلا شرحِ سببِ وقوع العربيّ فيها');
     });
 
   await run('كلُّ حقلٍ في الحالة مُصنَّفٌ: يُزامَن أو يُستثنى بقصد', {}, (ctx, ev) => {
@@ -3364,7 +3397,8 @@ const { run, report } = require('./harness.js');
       cx: 'اختبارُ محادثةٍ جارٍ — لحظيّ',
       ruleOpen: 'بطاقةُ القاعدة المفتوحة — عرضٌ لا تقدّم',
       openUnit: 'الوحدةُ المفرودةُ على الشاشة — عرضٌ لا تقدّم',
-      setup: 'مفاوضةُ الخطّة الجارية — لحظيّة، والخطّةُ نفسُها تُزامَن'
+      setup: 'مفاوضةُ الخطّة الجارية — لحظيّة، والخطّةُ نفسُها تُزامَن',
+      found: 'ما دُلَّ عليه في صفحة اليوم — عرضٌ لا تقدّم'
     };
 
     const sent = syncable(ev('S'));

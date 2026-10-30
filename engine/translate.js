@@ -8,6 +8,7 @@
    ومن يخسر في الجرامر يحتاج قاعدة — وهما علاجان مختلفان. */
 import {TRANSLATE} from '../content/translate.js';
 import {checkGrammar, fixText} from './grammar.js';
+import {noteSentence} from './book.js';
 
 /* نوحّد الصيغة قبل المقارنة: الحالة، وعلامات الترقيم، والمسافات،
    والاختصارات الشائعة — فـ I'm و I am إجابة واحدة لا اثنتان. */
@@ -68,6 +69,9 @@ export function gradeOne(item, said) {
   /* الجرامر لا يُنقذ جملة ليست الجملة المطلوبة: من كتب جملة أخرى سليمة
      لا يستحق ثلاثين بالمئة على سلامتها. فوزن الجرامر يتلاشى كلما ابتعد. */
   const grammarWeight = Math.min(1, match * 1.6);
+
+  noteSentence({text, fix: exact ? null : (match >= 0.6 ? best : fixText(text)),
+    rids: notes.map(n => n.rid), src: 'ترجمة', u: item.u});
 
   return {
     score: Math.round(match * 70 + grammar * 30 * grammarWeight),

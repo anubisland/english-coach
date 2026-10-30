@@ -101,6 +101,20 @@ function mergeSrs(a, b) {
   return out;
 }
 
+/* الكتاب: اتّحادٌ بمفتاح (الوقت + النصّ)، مرتَّبٌ بالوقت.
+
+   ولا يُجمَع بالإلحاق: الرفعُ يقع مرّاتٍ في اليوم، فتتضاعف الجملةُ
+   بكلّ مزامنة — والدمجُ يجب أن يكون عديمَ الأثر عند التكرار. */
+function mergeBook(a, b) {
+  const A = Array.isArray(a) ? a : [], B = Array.isArray(b) ? b : [];
+  const seen = new Map();
+  A.concat(B).forEach(x => {
+    if (!x || typeof x !== 'object' || typeof x.t !== 'string') return;
+    seen.set((x.at || 0) + '|' + x.t, x);
+  });
+  return [...seen.values()].sort((x, y) => (x.at || 0) - (y.at || 0)).slice(-240);
+}
+
 /* سجلُّ الأيّام: اتّحادُ الأيّام، وفي اليوم الواحد يُؤخَذ الأكبر.
 
    ولا يُجمَع: الرفعُ يقع مرّاتٍ في اليوم، فلو جُمع تضاعف عملُ اليوم
@@ -130,6 +144,7 @@ export function syncable(S) {
   out.res = obj(S.res);
   out.srs = obj(S.srs);
   out.cxSeen = Array.isArray(S.cxSeen) ? S.cxSeen : [];
+  out.book = Array.isArray(S.book) ? S.book : [];
   out.days = obj(S.days);
   out.plan = S.plan || null;
   out.place = S.place || null;
@@ -149,6 +164,7 @@ export function mergeInto(S, remote) {
   MAXMAP2.forEach(k => { S[k] = maxMap2(S[k], r[k]) });
   MAXNUM.forEach(k => { S[k] = Math.max(num(S[k]), num(r[k])) });
   ANYTRUE.forEach(k => { S[k] = !!S[k] || !!r[k] });
+  S.book = mergeBook(S.book, r.book);
   S.days = mergeDays(S.days, r.days);
   S.plan = S.plan || r.plan || null;
   S.res = mergeRes(S.res, r.res);

@@ -23,6 +23,8 @@ export function defaultState(){return{
   days:{},                  // سجلّ الأيّام: ما تمّ وما صحّ وما أُخطئ فيه
   plan:null,                // خطّة المتعلّم: دقائقه وأيّامه وغرضه
   setup:null,               // مفاوضةُ الخطّة الجارية — لحظيّة لا تُحفظ
+  book:[],                  // كتابُك: جُمَلُ المتعلّم بنسختَيها
+  found:{},                 // ما دُلَّ عليه في صفحة اليوم — لحظيّ
   skipped:{},               // وحدات تخطّاها اختبار تحديد المستوى
   attempts:{},              // عدد محاولات كل اختبار: النجاح من السابعة ليس كالأولى
   drill:null,               // تدريب موجَّه إلزامي بعد الرسوب في بوابة
@@ -173,6 +175,7 @@ export function migrate(saved){
   S.skills=cleanSkills(saved.skills);
   S.words=cleanUnitPc(saved.words);
   S.scenes=cleanScenes(saved.scenes);
+  S.book=cleanBook(saved.book);
   S.days=cleanDays(saved.days);
   S.plan=cleanPlan(saved.plan);
   S.levelDone={};
@@ -270,6 +273,22 @@ export function keepResult(slot, pc) {
    والملفُّ المستورد غير موثوق، فلا يُقبَل مفتاحٌ ليس تاريخاً ولا
    عددٌ ليس عدداً — وإلّا حُسبت خطّةُ المتعلّم على NaN. */
 const DATE_KEY=/^\d{4}-\d{2}-\d{2}$/;
+
+/* الكتاب: نصوصٌ وأوقات. والملفُّ المستورد غير موثوق، فلا يُقبَل نصٌّ
+   بلا حدٍّ ولا وقتٌ ليس عدداً — ولا يُترك العددُ ينمو بلا سقف. */
+function cleanBook(a){
+  if(!Array.isArray(a))return [];
+  const str=(v,n)=>typeof v==='string'?v.slice(0,n):'';
+  return a.filter(x=>x&&typeof x==='object'&&typeof x.t==='string'&&x.t.length)
+    .map(x=>({
+      t:str(x.t,300), fix:x.fix?str(x.fix,300):null,
+      r:Array.isArray(x.r)?x.r.filter(v=>typeof v==='string'&&v.length<64).slice(0,4):[],
+      src:str(x.src,40), u:Number(x.u)||null,
+      at:Number.isFinite(Number(x.at))?Number(x.at):Date.now(),
+      d:DATE_KEY.test(x.d)?x.d:null
+    })).slice(-240);
+}
+
 function cleanDays(o){
   const out={};
   if(!o||typeof o!=='object')return out;
@@ -294,9 +313,10 @@ function cleanDays(o){
 function cleanPlan(p){
   if(!p||typeof p!=='object')return null;
   const n=(v,lo,hi)=>{const x=Math.round(Number(v));return Number.isFinite(x)&&x>=lo&&x<=hi?x:null};
-  const mins=n(p.mins,1,240), days=n(p.days,1,7), pace=n(p.pace,1,60);
-  if(mins===null||days===null||pace===null)return null;
-  return {mins,days,pace,from:DATE_KEY.test(p.from)?p.from:null};
+  const mins=n(p.mins,1,240), days=n(p.days,1,7);
+  if(mins===null||days===null)return null;
+  return {why:typeof p.why==='string'?p.why.slice(0,12):'talk', mins, days,
+          from:DATE_KEY.test(p.from)?p.from:null};
 }
 
 function cleanSrs(o){

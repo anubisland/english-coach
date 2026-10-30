@@ -5,6 +5,7 @@ import {hooks} from '../engine/bus.js';
 import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen,UNIT_NS,
         levelUnits,unitLevel,levelExamOpen,currentUnit} from '../engine/progress.js';
 import {nextInUnit,unitPlan} from '../engine/unit-plan.js';
+import {todayView} from './today.js';
 import {reviewStats} from '../engine/quiz.js';
 import {cefrReport,currentLevel} from '../engine/cefr.js';
 import {vocabReport} from '../engine/vocab.js';
@@ -90,7 +91,7 @@ export function homeView(){
   /* ترتيبُ الشاشة: ما تفعله الآن أوّلاً، ثمّ أين أنت، ثمّ ما استحقّ
      المراجعة. وما ليس من اليوم فليس في «اليوم». */
   return startCard(nx)+
-  (h?ringCard(h):'')+
+  todayView(nx)+
   reviewCard()+
   (top?card('خطؤك المتكرر',
     `<div style="display:flex;align-items:center;gap:11px">
@@ -98,11 +99,8 @@ export function homeView(){
        <span style="flex:1;min-width:0"><span class="muted" style="display:block">${esc(top[0])}</span>
        <span class="muted" style="display:block;font-size:12px">تكرر ${ar(top[1])} مرة</span></span>
        <button class="btn ghost" style="margin:0" onclick="go('speak')">درّبني</button></div>`):'')+
-  cefrCard()+
-  /* ولا تُعرَض بطاقةُ الامتحان إلّا إن كان له اليومَ شأن: مفتوحاً
-     أو مُجتازاً. وكانت تُعرَض لمن في وحدته الأولى تقول له «مقفول»،
-     وهو خبرٌ لا يَنفعه ولا يَفعل به شيئاً. */
-  examCard(lv);
+  /* والامتحانُ لا يُذكَر إلّا إن كان له اليومَ شأن. */
+  (levelExamOpen(lv)||(S.levelDone||{})[lv] ? examCard(lv) : '');
 }
 
 /* أوّلُ ما يراه: ما يفعله الآن، باسمه ورقمِ وحدته ومقدارِه.

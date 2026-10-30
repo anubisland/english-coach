@@ -1,5 +1,5 @@
 /* محرّك المحادثة الحيّة: الأدوار، والتصحيح، وقلم المصحّح. */
-import {keepScene, nextSceneIndex, sceneInReach, firstFreeIndex} from './scene.js';
+import {keepScene, nextSceneIndex, sceneInReach, firstFreeIndex, sceneUnit} from './scene.js';
 import {reachedUnit} from './progress.js';
 import {SCENES} from '../content/scenes.js';
 import {S,save,logError} from './state.js';
@@ -8,6 +8,7 @@ import {checkGrammar,fixText} from './grammar.js';
 import {pronScore} from './pronounce.js';
 import {relevance} from './relevance.js';
 import {noteError} from './journal.js';
+import {noteSentence} from './book.js';
 
 export function chatClamp(){const c=S.chat;let moved=false;
   /* لم يَختر بعدُ: يُفتح له مشهدٌ حرٌّ لا مشهدُ درس. ومن فتح التبويبَ
@@ -42,7 +43,7 @@ export function chatSay(){hooks.say(chatTurn().p)}
 export function chatListen(cb){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R){cb(null,'التعرف على الصوت غير متاح هنا، اكتب الإجابة في المربع');return}const r=new R();r.lang='en-US';r.onresult=e=>cb(e.results[0][0].transcript.trim(),null);r.onerror=e=>cb(null,'تعذّر التسجيل ('+e.error+')');try{r.start()}catch(x){cb(null,'تعذّر بدء التسجيل')}}
 export function chatMic(){chatListen((t,err)=>{if(err){S.chat.fb=err;hooks.render();return}chatReply(t)})}
 export function chatType(){const v=(document.getElementById('chatTxt')||{}).value;if(v&&v.trim())chatReply(v.trim())}
-export function chatReply(text){const c=S.chat,T=chatTurn();c.said=text;const rel=relevance(T.p,text,T.need);c.ok=rel.level==='on';c.rel=rel.level;c.relWhy=rel.why;c.g=checkGrammar(text);c.fixed=fixText(text);c.g.forEach(x=>{S.errs[x.ar]=(S.errs[x.ar]||0)+1;noteError(x.rid)});if(!c.ok)c.miss++;c.stage='fb';c.pr=null;c.fb=null;save();hooks.render()}
+export function chatReply(text){const c=S.chat,T=chatTurn();c.said=text;const rel=relevance(T.p,text,T.need);c.ok=rel.level==='on';c.rel=rel.level;c.relWhy=rel.why;c.g=checkGrammar(text);c.fixed=fixText(text);c.g.forEach(x=>{S.errs[x.ar]=(S.errs[x.ar]||0)+1;noteError(x.rid)});noteSentence({text,fix:c.fixed,rids:c.g.map(x=>x.rid),src:'مشهد: '+(SCENES[c.sc]||{}).t,u:sceneUnit(SCENES[c.sc])});if(!c.ok)c.miss++;c.stage='fb';c.pr=null;c.fb=null;save();hooks.render()}
 export function chatRetry(){const c=S.chat;c.stage='reply';c.ok=null;c.g=null;c.pr=null;c.fb=null;save();hooks.render()}
 export function chatModel(){chatListen((t,err)=>{const c=S.chat;if(err){c.fb=err;hooks.render();return}c.pr=pronScore(chatTurn().model,t);c.fb=null;save();hooks.render()})}
 export function chatModelTyped(){
