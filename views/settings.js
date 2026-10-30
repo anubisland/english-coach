@@ -5,13 +5,15 @@ import {LESSONS} from '../content/lessons.js';
 import {card, svg, ar, toast} from './ui.js';
 import {reviewerPanel} from './reviewer-panel.js';
 import {syncCard} from './sync-panel.js';
+import {hasPlan} from '../engine/plan.js';
+import {currentUnit, UNIT_NS} from '../engine/progress.js';
 
 /* مصدرُ رقم النسخة الوحيد. يقرؤه scripts/build-apk.mjs ليضعه في
    الـAPK، ويحرس tests/apk.test.mjs أنّ package.json يطابقه.
 
    وكان رقماً مستقلّاً («٤») لا صلة له برقم الحزمة، فنزّل المستخدم
    ١٫١٫٠ ورأى في التطبيق «إصدار ٤». الحقيقة الواحدة تُكتب مرّةً. */
-export const APP_VERSION = '1.12.0';
+export const APP_VERSION = '1.12.1';
 
 /* ما يُصدَّر: الحالة بلا الاختبار الجاري، فهو لحظي لا يُنقل. */
 function snapshot() {
@@ -95,12 +97,15 @@ export function settingsView() {
        <button class="btn${S.theme === 'light' ? '' : ' ghost'}" style="${pick(S.theme === 'light')}" onclick="setTheme('light')">نهاري</button>
        <button class="btn${S.theme === 'dark' ? '' : ' ghost'}" style="${pick(S.theme === 'dark')}" onclick="setTheme('dark')">ليلي</button>
      </div>`)
-  + card('هدف الكلام اليومي',
-    `<p class="muted">كم دقيقة تريد أن تتكلّم كل يوم؟</p>
+  /* ودقائقُ اليوم تُؤخَذ من الخطّة، فلا تُسأَل مرّتين.
+     وكان يُسأل هنا «كم دقيقة تريد أن تتكلّم كل يوم» وقد أجاب عنه
+     في خطّته — فأيُّهما يُصدَّق إن اختلفا؟ */
+  + (hasPlan() ? '' : card('هدف الكلام اليومي',
+    `<p class="muted">كم دقيقة تريد أن تتكلّم كل يوم؟ (ويضبطها وضعُ الخطّة كذلك)</p>
      <div class="row" style="justify-content:flex-start;margin-top:4px">
        ${[5, 10, 20].map(g =>
          `<button class="btn${g === S.goal ? '' : ' ghost'}" style="${pick(g === S.goal)}" onclick="setGoal(${g})">${ar(g)} دقائق</button>`).join('')}
-     </div>`)
+     </div>`))
   + card('نقل تقدّمك إلى جهاز آخر',
     syncCard()
     + `<details style="margin-top:12px">
@@ -119,9 +124,10 @@ export function settingsView() {
   /* لا نقول «مستواك A1» — البرنامج يغطّي أساسيات A1 وحدها، فلا يملك
      أن يُحدّد مستوى المتعلّم على السلّم العالمي، وإنّما نقطةَ بدايته فيه. */
   + card('نقطة بدايتك',
-    `<p class="muted">بدأتَ من الوحدة ${ar((S.place && S.place.suggest) || 1)} من ثلاث.
-      أعد الاختبار إن شعرت أنها لم تناسبك.</p>
-     <div class="row" style="justify-content:flex-start;margin-top:4px">
+    (done
+      ? `<p class="muted">بدأتَ من الوحدة ${ar((S.place && S.place.suggest) || 1)}، وأنت الآن في الوحدة ${ar(currentUnit() || 1)} من ${ar(UNIT_NS.length)}.</p>`
+      : `<p class="muted">نقطةُ بدايتك الوحدة ${ar((S.place && S.place.suggest) || 1)} من ${ar(UNIT_NS.length)}. أعد الاختبار إن شعرتَ أنّها لم تناسبك.</p>`)
+    + `<div class="row" style="justify-content:flex-start;margin-top:4px">
        <button class="btn ghost" onclick="launch('place')">أعد تحديد نقطة البداية</button>
      </div>`)
   + card('إعادة البداية',

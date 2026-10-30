@@ -40,6 +40,9 @@ export function setPlan(p){
     days: clamp(p.days, 1, 7),
     from: dayKey()
   };
+  /* ودقائقُ الخطّة هي هدفُ اليوم نفسُه: رقمان لمعنًى واحدٍ يختلفان
+     يوماً ما، فيُقاس المتعلّمُ بأحدهما ويُعرَض عليه الآخر. */
+  S.goal = S.plan.mins;
   save();
   return S.plan;
 }
