@@ -172,7 +172,8 @@ function planLine(){
       <b>خطّتُك</b>
       <span>${ar(p.plan.mins)} دقيقةً، ${ar(p.plan.days)} أيّامٍ في الأسبوع —
         وهذا يُنهي ${esc(currentLevel())} يوم ${arDate(p.date)}.<br>
-        ${fresh ? '' : `أنجزتَ ${ar(p.stations)} محطّةً هذا الأسبوع.`}</span></div>`;
+        ${fresh ? '' : `أنجزتَ ${ar(p.stations)} محطّةً هذا الأسبوع.`}</span>
+      <button class="btn ghost sm" onclick="planStart()">التعريف بالبرنامج وخطّتك</button></div>`;
 
   const late = !p.onTrack;
   return `<div class="plan-line ${late ? 'late' : 'ok'}">

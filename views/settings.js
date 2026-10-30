@@ -11,7 +11,7 @@ import {syncCard} from './sync-panel.js';
 
    وكان رقماً مستقلّاً («٤») لا صلة له برقم الحزمة، فنزّل المستخدم
    ١٫١٫٠ ورأى في التطبيق «إصدار ٤». الحقيقة الواحدة تُكتب مرّةً. */
-export const APP_VERSION = '1.11.0';
+export const APP_VERSION = '1.11.1';
 
 /* ما يُصدَّر: الحالة بلا الاختبار الجاري، فهو لحظي لا يُنقل. */
 function snapshot() {
@@ -83,7 +83,13 @@ export function settingsView() {
   const pick = (on) => 'margin:0;padding:9px 16px;min-height:0;border-radius:999px;font-size:13px'
     + (on ? '' : ';background:var(--surf2);color:var(--mute)');
 
-  return card('المظهر',
+  /* وبابٌ إلى التعريف والخطّة بعد أوّل مرّة: كان لا يُعرَض إلّا
+     للداخل حديثاً، فمن عنده تقدّمٌ لا سبيلَ له إلى مراجعته. */
+  return card('البرنامج وخطّتك',
+    '<p class="muted">تعريفٌ بالبرنامج وترتيبِ وحداته، ثمّ خطّتُك — دقائقُك وأيّامُك وموعدُ فراغك.</p>'
+    + '<div class="row" style="justify-content:flex-start">'
+    + '<button class="btn" onclick="planStart()">شاهد التعريف واضبط خطّتك</button></div>')
+  + card('المظهر',
     `<p class="muted">الوضع النهاري هو الافتراضي.</p>
      <div class="row" style="justify-content:flex-start;margin-top:4px">
        <button class="btn${S.theme === 'light' ? '' : ' ghost'}" style="${pick(S.theme === 'light')}" onclick="setTheme('light')">نهاري</button>
