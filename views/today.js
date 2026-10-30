@@ -167,12 +167,17 @@ function after(rec, rid, lvl, hist){
   return `<div class="after show">${body}</div>`;
 }
 
+/* الخطّةُ تُوضَع في الإعدادات، وتُذكَّر هنا تذكيراً.
+
+   وهذا قرارُ صاحب البرنامج: موضعُ التعريف والخطّة الإعدادات، و«اليوم»
+   لا يُعيد سؤالَه عمّا أجاب عنه — إنّما يُذكّره بما اختار. */
 function planLine(){
   if (!hasPlan())
-    return card('ما خطّتُك؟',
-      '<p class="muted">لم نتّفق على خطّةٍ بعد — دقائقُك وأيّامُك وموعدُ فراغك من <span class="en">'+esc(currentLevel())+'</span>.</p>'
+    return card('ابدأ من هنا',
+      '<p>قبل أن تبدأ، اذهب إلى <b>الإعدادات</b> ⚙️ — هناك تعريفٌ بالبرنامج، '
+      + 'ومنه تضع خطّتك: دقائقُك وأيّامُك وموعدُ فراغك من <span class="en">'+esc(currentLevel())+'</span>.</p>'
       + '<div class="row" style="justify-content:flex-start">'
-      + '<button class="btn" onclick="planStart()">ضَع خطّتك</button></div>');
+      + '<button class="btn" onclick="go(\'settings\')">افتح الإعدادات</button></div>');
 
   const p = paceStatus();
   if (!p) return '';
@@ -194,7 +199,7 @@ function planLine(){
       <span>${ar(p.plan.mins)} دقيقةً، ${ar(p.plan.days)} أيّامٍ في الأسبوع —
         وهذا يُنهي ${esc(currentLevel())} يوم ${arDate(p.date)}.<br>
         ${fresh ? '' : `أنجزتَ ${ar(p.stations)} محطّةً هذا الأسبوع.`}</span>
-      <button class="btn ghost sm" onclick="planStart()">التعريف بالبرنامج وخطّتك</button></div>`;
+      <button class="btn ghost sm" onclick="go('settings')">التعريف بالبرنامج والخطّة</button></div>`;
 
   const late = !p.onTrack;
   return `<div class="plan-line ${late ? 'late' : 'ok'}">
@@ -202,7 +207,7 @@ function planLine(){
     <span>وعدتَ بـ${ar(p.plan.mins)} دقيقةً ${ar(p.plan.days)} أيّامٍ في الأسبوع ·
       أنجزتَ ${ar(p.stations)} محطّةً هذا الأسبوع من ${ar(p.stationsPerWeek)}.<br>
       وبهذه السرعة تُنهي ${esc(currentLevel())} في ${arWeeks(p.weeks)} — يوم ${arDate(p.date)}.</span>
-    <button class="btn ghost sm" onclick="planStart()">غيّر خطّتك</button></div>`;
+    <button class="btn ghost sm" onclick="go('settings')">التعريف بالبرنامج والخطّة</button></div>`;
 }
 
 const daysSince = key => {

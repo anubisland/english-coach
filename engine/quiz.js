@@ -314,7 +314,9 @@ export function startFrom(u){
      وكان يُلقى به إلى الخريطة فوراً: مئةُ محطّةٍ ولا موعدَ ولا وعد،
      فشاشةُ «اليوم» بعدها تقول له «اليوم» ولا شيءَ يُقاس إليه اليوم.
      فتُؤخَذ منه خطّتُه أوّلاً — دقائقُه وأيّامُه وغرضُه. */
-  if(!hasPlan()){ S.setup={step:0,why:null,mins:null,days:null}; S.tab='plan'; save(); hooks.render(); return }
+  /* ولا تُفتَح عليه المفاوضةُ فجأةً: موضعُها الإعدادات،
+     و«اليوم» يدلّه عليها. */
+  if(!hasPlan()){ S.tab='home'; save(); hooks.render(); return }
 
   S.tab='course';save();hooks.render();
   if(hooks.goToStep)hooks.goToStep();
