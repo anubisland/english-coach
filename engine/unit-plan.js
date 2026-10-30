@@ -67,7 +67,7 @@ export function unitPlan(u) {
       kind: 'words', id: 'st-w-' + u, key: 'words',
       /* بلا رقمٍ كأخواتها («قراءة الوحدة»): الرقمُ اللاتينيّ هنا
          يخالف أرقامَ الواجهة العربيّة، وموضعُ المحطّة يُغني عنه. */
-      t: 'مفردات الوحدة',
+      t: 'كلماتٌ جديدة',
       meta: sc === undefined
         ? wordsOf(u).length + ' كلمة في ' + topicsOf(u).length + ' حقول'
         : 'نتيجتك ' + sc + '٪' + (sc >= WORDS_PASS ? '' : ' — المطلوب ' + WORDS_PASS + '٪'),
@@ -84,7 +84,7 @@ export function unitPlan(u) {
 
   convosOf(u).forEach(c => out.push({
     kind: 'convo', id: 'st-c-' + c.id, key: c.id,
-    t: 'محادثة: ' + c.t, meta: 'تدرّب على القاعدة في حوار',
+    t: 'حوار: ' + c.t, meta: 'تدرّب على القاعدة في حوار',
     done: !!(st().conv || {})[c.id], act: `launch('conv','${c.id}')`, cta: 'ابدأ المحادثة'
   }));
 
@@ -115,7 +115,7 @@ export function unitPlan(u) {
     const left = sc.filter(x => !sceneDone(x)).length;
     out.push({
       kind: 'scene', id: 'st-sc-' + u, key: 'scene',
-      t: 'المشهد الحيّ',
+      t: 'تكلَّم بصوتك',
       meta: left ? 'تتكلّم بصوتك في ' + sc.length + ' مواقف — بقي ' + left
                  : 'أدّيتَ مواقفَ الوحدة كلَّها',
       done: left === 0,

@@ -59,7 +59,7 @@ export function todayView(nx){
       ? `<br>وفي <b>${ar(mine.length)}</b> من جُمَلك غلطة — ما أقولُها لك، <b>دُلَّ عليها</b>.`
       : '<br>ولا غلطةَ في جُمَلك. أحسنتَ.'));
   } else {
-    h += say('لم تبدأ بعد. أوّلُ محطّةٍ تحتها، وأنا أُسجّل لك من اليوم.');
+    h += say('أهلاً بك. ابدأ بالمحطّة التي فوق، وأنا أُسجّل لك كلَّ ما تكتبه من اليوم — ثمّ أُريك إيّاه هنا.');
   }
 
   /* ٢ — جُمَلُك: كلُّ واحدةٍ تمرينٌ قائمٌ بذاته. */
@@ -155,14 +155,39 @@ function planLine(){
 
   const p = paceStatus();
   if (!p) return '';
+
+  /* ولا يُقال لمن لم يَبدأ «أنت متأخّر».
+
+     وكان يُقال: من وَضع خطّتَه قبل دقيقةٍ يُفتَح له البرنامجُ بـ«متأخّرٌ
+     عن خطّتك · أنجزتَ ٠ من ١٩» — وهذا حكمٌ على عملٍ لم يُطلَب بعد،
+     ولا مدرّبَ يَستقبل تلميذَه في أوّل يومٍ بأنّه قصّر.
+
+     فالمحاسبةُ لا تبدأ إلّا بعد أن يمرَّ أسبوعٌ على الخطّة وقد عمل
+     فيه شيئاً. وقبل ذلك تُذكَّر الخطّةُ تذكيراً لا تقريعاً. */
+  const fresh = !p.stations && !p.worked;
+  const young = p.plan.from && daysSince(p.plan.from) < 7;
+
+  if (fresh || young)
+    return `<div class="plan-line ok">
+      <b>خطّتُك</b>
+      <span>${ar(p.plan.mins)} دقيقةً، ${ar(p.plan.days)} أيّامٍ في الأسبوع —
+        وهذا يُنهي ${esc(currentLevel())} يوم ${arDate(p.date)}.<br>
+        ${fresh ? '' : `أنجزتَ ${ar(p.stations)} محطّةً هذا الأسبوع.`}</span></div>`;
+
   const late = !p.onTrack;
   return `<div class="plan-line ${late ? 'late' : 'ok'}">
     <b>${late ? 'متأخّرٌ عن خطّتك' : 'ماشٍ على خطّتك'}</b>
     <span>وعدتَ بـ${ar(p.plan.mins)} دقيقةً ${ar(p.plan.days)} أيّامٍ في الأسبوع ·
       أنجزتَ ${ar(p.stations)} محطّةً هذا الأسبوع من ${ar(p.stationsPerWeek)}.<br>
-      وبهذه السرعة تُنهي <span class="en">${esc(currentLevel())}</span> في ${arWeeks(p.weeks)} — يوم ${arDate(p.date)}.</span>
+      وبهذه السرعة تُنهي ${esc(currentLevel())} في ${arWeeks(p.weeks)} — يوم ${arDate(p.date)}.</span>
     <button class="btn ghost sm" onclick="planStart()">غيّر خطّتك</button></div>`;
 }
+
+const daysSince = key => {
+  if (!key) return 999;
+  const [y, m, d] = key.split('-').map(Number);
+  return Math.floor((Date.now() - new Date(y, m - 1, d).getTime()) / 86400000);
+};
 
 const ORD = ['', 'أوّل', 'ثاني', 'ثالث', 'رابع', 'خامس', 'سادس'];
 const ordinal = n => ORD[n] || arNum(n);

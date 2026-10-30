@@ -76,7 +76,7 @@ const { run, report } = require('./harness.js');
 
   await run('بطاقة الاستئناف تنتقل إلى المحادثة ثم البوابة',
     { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true, '1.2': true, '1.3': true } , words: WORDS_DONE, scenes: SCENES_DONE }) },
-    (ctx, ev) => { if (!ctx.homeView().includes('محادثة:')) throw new Error('لم تُقترح المحادثة بعد إتمام الدروس') });
+    (ctx, ev) => { if (!ctx.homeView().includes('حوار:')) throw new Error('لم تُقترح المحادثة بعد إتمام الدروس') });
 
   await run('تبويب محفوظ غير صالح يعود إلى الرئيسية',
     { 'eng-coach-v3': JSON.stringify({ tab: 'hacked' }) },
@@ -2284,12 +2284,14 @@ const { run, report } = require('./harness.js');
   await run('بطاقة المراجعة تظهر في الصفحة الأولى',
     { 'eng-coach-v3': JSON.stringify({ placed: true , words: WORDS_DONE, scenes: SCENES_DONE }) }, (ctx, ev) => {
     const S = ev('S'), DAY = ev('DAY');
-    if (ctx.homeView().includes('مراجعة اليوم')) throw new Error('ظهرت بلا أي سجلّ');
+    if (ctx.homeView().includes('راجِع قبل أن تُنسى')) throw new Error('ظهرت بلا أي سجلّ');
     const it = ev('LESSONS')[0].items[0];
     /* مستحقّ الآن */
     S.srs[it.q] = { b: 1, due: Date.now() - 1000, seen: Date.now() - DAY };
     const h = ctx.homeView();
-    if (!h.includes('مراجعة اليوم')) throw new Error('لم تظهر مع وجود مستحقّ');
+    if (!h.includes('راجِع قبل أن تُنسى')) throw new Error('لم تظهر مع وجود مستحقّ');
+    /* وبلغةِ المتعلّم: «صندوق ٣٥ يوماً» اصطلاحٌ داخليّ. */
+    if (h.includes('صندوق')) throw new Error('عاد اصطلاحُ الصناديق إلى وجه المتعلّم');
     if (!h.includes('ابدأ المراجعة')) throw new Error('لا زر');
     /* لم يحن بعد */
     S.srs[it.q] = { b: 2, due: Date.now() + 2 * DAY, seen: Date.now() };

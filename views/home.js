@@ -116,7 +116,7 @@ function startCard(nx){
     <h2 style="color:#fff">ابدأ الآن</h2>
     <p style="color:#fff;font-size:17px;font-weight:700;line-height:1.5;margin:2px 0 4px">${esc(nx.label)}${
       nx.unit?` <span style="font-weight:600;opacity:.85">— الوحدة ${ar(nx.unit)}</span>`:''}</p>
-    ${nx.meta?`<p style="color:#E4E0FF;font-size:13px;margin:0 0 4px">${esc(String(nx.meta).split(' · اضغط')[0])}</p>`:''}
+    ${nx.meta?`<p style="color:#E4E0FF;font-size:13px;margin:0 0 4px">${esc(String(nx.meta).split(' · اضغط')[0]).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[+d])}</p>`:''}
     <div class="row" style="justify-content:flex-start">
       <button class="btn" style="background:#fff;color:var(--ind)" onclick="${nx.act}">${nx.cta||'ابدأ'}</button>
       <button class="btn" style="background:transparent;color:#E4E0FF" onclick="go('course')">أرني مكانها في الرحلة</button>
@@ -169,56 +169,42 @@ export function setGoal(g){S.goal=g;save();hooks.render()}
    وإن لم يستحقّ شيء لا نعرض بطاقة فارغة، بل نطمئنه أن الموعد آتٍ. */
 function reviewCard(){
   const r=reviewStats();
+
+  /* ولا تُعرَض لمن لم يُجب بعدُ عن شيء: بطاقةٌ تقول «أتقنتَ ٠ من ٠»
+     لا تُفيده، وإنّما تزيد الشاشةَ أصفاراً. */
   if(!r.tracked)return '';
 
+  /* ومن لا مستحقَّ عليه يُطمأن في سطر، لا يُترك يَظنّ أنّ المراجعة
+     تعطّلت. ولا بطاقةَ أصلاً لمن لم يُجب عن شيءٍ بعد. */
   if(!r.due)
-    return card('المراجعة المتباعدة',
-      '<p class="muted">لا شيء مستحقّ اليوم. '
-      +(r.soon?'يستحقّ غداً '+count(r.soon,'سؤال','أسئلة')+'.':'ولا غداً.')+'</p>'
-      +boxBar(r));
+    return card('المراجعة','<p class="muted">لا شيء مستحقّ اليوم. '
+      +(r.soon?'يستحقّ غداً '+count(r.soon,'سؤال','أسئلة')+'.':'ولا غداً.')+'</p>');
 
-  return card('مراجعة اليوم',
-    '<p class="muted">استحقّ '+count(r.due,'سؤال','أسئلة')
-    +' مراجعتها اليوم — أسئلة أجبتَ عنها من قبل، تعود قبل أن تُنسى.</p>'
-    +boxBar(r)
+  /* وبلغةِ المتعلّم لا بلغةِ المحرّك: «من صندوق اليوم إلى صندوق ٣٥
+     يوماً» اصطلاحٌ داخليٌّ لا شأنَ له به، ولا يَفعل به شيئاً. */
+  return card('راجِع قبل أن تُنسى',
+    '<p class="muted">'+count(r.due,'سؤال','أسئلة')
+    +' أجبتَ عنها من قبل، وحان وقتُ تثبيتها.</p>'
     +'<div class="row" style="justify-content:flex-start;margin-top:10px">'
-    +'<button class="btn" onclick=\'launch("review")\'>ابدأ المراجعة</button></div>');
+    +'<button class="btn" onclick=\'launch("review")\'>ابدأ المراجعة ('+ar(r.due)+')</button></div>');
 }
 
-/* شريط الصناديق: يرى المتعلّم أين هو من الإتقان لا رقماً مجرّداً. */
-function boxBar(r){
-  const tones=['var(--coral)','var(--amber)','var(--ind2)','var(--ind)','var(--green)'];
-  return '<div style="display:flex;gap:4px;margin-top:10px;align-items:flex-end">'
-    +r.boxes.map((n,i)=>'<div style="flex:1;text-align:center">'
-      +'<div style="height:'+(6+Math.min(26,n*2))+'px;background:'+tones[i]
-      +';border-radius:6px;opacity:'+(n?1:0.25)+'"></div>'
-      +'<span class="muted" style="font-size:10.5px">'+ar(n)+'</span></div>').join('')
-    +'</div>'
-    +'<p class="muted" style="font-size:11.5px;margin-top:5px">من صندوق اليوم إلى صندوق '
-    +ar(BOXES[BOXES.length-1])+' يوماً · أتقنت '+ar(r.mastered)+' من '+ar(r.tracked)+'</p>';
-}
-
-/* بطاقة «أين أنت من …»: المستوى منسوباً إلى مرجع لا إلى أنفسنا.
-
-   وكان اسمُ المستوى مكتوباً A1 في العنوان وفي متنه، وcefrReport بلا
-   وسيطٍ ترجع A1 دائماً — فكان من بلغ B2 يُقال له «أين أنت من A1»
-   ويُعرض عليه عددُ قدرات A1. فالمستوى يُشتقّ الآن ويُمرَّر. */
 /* بطاقةُ الامتحان النهائيّ: تقول حالَه كما هو، وتُعطي الزرَّ إن فُتح. */
 function examCard(lv){
   if(S.levelDone&&S.levelDone[lv])
     return card('الامتحان النهائي',
-      `<p>🎉 أتممتَ مستوى <span class="en">${esc(lv)}</span></p>
+      `<p>🎉 أتممتَ مستوى ${esc(lv)}</p>
        <div class="row" style="justify-content:flex-start"><button class="btn ghost" onclick="go('course')">عرض الرحلة كاملة</button></div>`);
 
   if(levelExamOpen(lv))
     return card('الامتحان النهائي',
-      `<p>امتحانُ <span class="en">${esc(lv)}</span> مفتوحٌ لك الآن — اجتزتَ وحداتِه كلَّها.</p>
+      `<p>امتحانُ ${esc(lv)} مفتوحٌ لك الآن — اجتزتَ وحداتِه كلَّها.</p>
        <div class="row" style="justify-content:flex-start">
          <button class="btn" onclick="launch('exam','${esc(lv)}')">ابدأ الامتحان النهائي</button>
          <button class="btn ghost" onclick="go('course')">عرض الرحلة كاملة</button></div>`);
 
   return card('الامتحان النهائي',
-    `<p class="muted">يُفتح بعد اجتياز وحدات <span class="en">${esc(lv)}</span> واختبارات الاستبقاء</p>
+    `<p class="muted">يُفتح بعد اجتياز وحدات ${esc(lv)} واختبارات الاستبقاء</p>
      <div class="row" style="justify-content:flex-start"><button class="btn ghost" onclick="go('course')">عرض الرحلة كاملة</button></div>`);
 }
 
