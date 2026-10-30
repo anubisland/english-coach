@@ -3129,6 +3129,33 @@ const { run, report } = require('./harness.js');
         throw new Error('المشاهدُ الحرّةُ اختفت، وهي ليست من المنهج حتى تُقفَل');
     });
 
+  /* القرارُ: مشهدُ الدرس محطّةٌ في وحدته، والتبويبُ للعامّ وحده.
+
+     وكان التبويبُ يعرض مشاهدَ الدروس أيضاً «إلى ما بلغ» — وهذا
+     يُغني عن المرور بالوحدة، وهو البابُ الجانبيُّ نفسُه الذي أُغلق. */
+  await run('تبويبُ التحدّث للمشاهد الحرّة وحدها: لا درسَ فيه',
+    { 'eng-coach-v3': JSON.stringify({placed: true, u: 24, cp: {}, lessons: {}}) },
+    (ctx, ev) => {
+      const SC = ev('SCENES'), sceneUnit = ev('sceneUnit');
+      const html = ctx.speakView();
+
+      const lessons = SC.filter(s => s.les);
+      if (!lessons.length) throw new Error('لا مشاهدَ دروسٍ — البذرةُ لا تقيس شيئاً');
+
+      const leaked = lessons.filter(s => html.includes('درس ' + s.les));
+      if (leaked.length)
+        throw new Error(leaked.length + ' مشهدَ درسٍ معروضٌ في تبويب التحدّث، منها ' + leaked[0].les
+          + ' — مكانُه محطّةُ المشهد في وحدته');
+
+      if (html.includes('>درس<') || html.includes('>درس '))
+        throw new Error('تصنيفُ «درس» ما زال في شريط التصنيفات');
+
+      /* والحرُّ يبقى معروضاً، وإلّا فالتبويبُ فارغ. */
+      const free = SC.filter(s => sceneUnit(s) === undefined);
+      if (!free.some(s => html.includes(s.t)))
+        throw new Error('التبويبُ خلا من المشاهد الحرّة أيضاً');
+    });
+
   /* البوابةُ مقفلةٌ في الخريطة كما هي في «الخطوة التالية».
 
      وكان زرُّ البوابة يفحص الدروسَ والمحادثةَ وحدهما، فمن نزل إلى

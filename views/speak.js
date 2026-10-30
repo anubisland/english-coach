@@ -1,13 +1,14 @@
 /* شاشة المحادثة: فقاعات الحوار، وقلم المصحّح، والمقاييس. */
 import {SCENES} from '../content/scenes.js';
-import {sceneUnit, sceneDone, sceneInReach} from '../engine/scene.js';
-import {reachedUnit} from '../engine/progress.js';
+import {sceneUnit, sceneDone, sceneInReach, sceneFree} from '../engine/scene.js';
 import {S} from '../engine/state.js';
 import {chatClamp,penDiff} from '../engine/chat.js';
 import {card,svg,ar,pronHtml,ruleCard,esc,resultLine} from './ui.js';
 
-/* ترتيب العرض: الأقرب إلى درس المتعلم أولاً، ثم اتساعاً نحو الحياة العامة. */
-const CAT_ORDER=['درس','يومي','اجتماعي','تسوّق','سفر','صحة','عمل'];
+/* ترتيبُ العرض: من اليوميّ إلى العامّ.
+
+   و«درس» ليس منها: مشاهدُ الدروس محطّاتٌ في وحداتها لا أصنافٌ هنا. */
+const CAT_ORDER=['يومي','اجتماعي','تسوّق','سفر','صحة','عمل'];
 
 export function chatMeters(c){
   const gn=(c.g||[]).length;
@@ -71,13 +72,14 @@ export function speakView(){
 
   /* 38 مشهداً لا تُعرض في شريط واحد: نصنّفها، ثم نعرض مشاهد التصنيف المختار.
      ويبقى تصنيف المشهد الحالي مختاراً تلقائياً حتى لا يختفي من أمام المتعلم. */
-  const cats=['الكل',...CAT_ORDER.filter(k=>SCENES.some(x=>x.cat===k))];
+  const free=x=>sceneFree(x)&&sceneInReach(x);
+  const cats=['الكل',...CAT_ORDER.filter(k=>SCENES.some(x=>free(x)&&x.cat===k))];
   const pickedCat=cats.includes(c.cat)?c.cat:'الكل';
   const chip=(on)=>'margin:0;padding:7px 13px;min-height:0;border-radius:999px;font-size:12px;white-space:nowrap'
     +(on?'':';background:var(--surf2);color:var(--mute)');
 
   const catBar=`<div class="hscroll" style="display:flex;gap:6px;padding:2px 0 6px">${
-    cats.map(k=>`<button class="btn${k===pickedCat?'':' ghost'}" style="${chip(k===pickedCat)}" onclick="chatCat('${k}')">${k}${k==='الكل'?' ('+ar(SCENES.filter(sceneInReach).length)+')':''}</button>`).join('')}</div>`;
+    cats.map(k=>`<button class="btn${k===pickedCat?'':' ghost'}" style="${chip(k===pickedCat)}" onclick="chatCat('${k}')">${k}${k==='الكل'?' ('+ar(SCENES.filter(free).length)+')':''}</button>`).join('')}</div>`;
 
   /* ما بلغه المتعلّم وحده، لا المنهجُ كلُّه.
 
@@ -85,16 +87,17 @@ export function speakView(){
      فيرى المبتدئُ في وحدته الأولى مشاهدَ C2 — وهو بابٌ جانبيٌّ
      يستطيع أن يترك به الرحلةَ كلَّها.
 
-     ومشاهدُ الدروس صارت محطّاتٍ في وحداتها، فتُعرض هنا إلى ما بلغ.
-     والموضوعيّةُ (المطعم والمطار…) حرّةٌ كما كانت: عونٌ لمن أراد،
-     لا طريقٌ بديل. */
-  const upto=reachedUnit();
-  const inReach=o=>{const u=sceneUnit(o.x);return u===undefined||u<=upto};
+     ومشاهدُ الدروس **لا تُعرَض هنا أصلاً**: صارت محطّاتٍ في وحداتها
+     يُدخَل إليها من المسار. وعرضُها هنا كذلك يُعيد البابَ الجانبيَّ
+     الذي أُغلق، ويُغني عن المرور بالوحدة.
+
+     فالباقي هو الموضوعيُّ وحده (المطعم والمطار والسوق…): عونٌ حرٌّ
+     لمن أراد، لا طريقٌ بديل. */
   const list=SCENES.map((x,i)=>({x,i}))
-    .filter(o=>sceneInReach(o.x))
+    .filter(o=>free(o.x))
     .filter(o=>pickedCat==='الكل'||o.x.cat===pickedCat);
   const picker=catBar+`<div class="hscroll" style="display:flex;gap:7px;padding:2px 0 4px">${
-    list.map(o=>`<button class="btn${o.i===c.sc?'':' ghost'}" style="${chip(o.i===c.sc)};font-size:12.5px;padding:8px 14px" onclick="chatPick(${o.i})">${sceneDone(o.x)?'✓ ':''}${o.x.les?'درس '+o.x.les:o.x.t}</button>`).join('')}</div>`;
+    list.map(o=>`<button class="btn${o.i===c.sc?'':' ghost'}" style="${chip(o.i===c.sc)};font-size:12.5px;padding:8px 14px" onclick="chatPick(${o.i})">${sceneDone(o.x)?'✓ ':''}${o.x.t}</button>`).join('')}</div>`;
 
   /* نقاط تقدّم المشهد */
   const dots=sc.turns.map((_,i)=>

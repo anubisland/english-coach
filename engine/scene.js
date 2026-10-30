@@ -61,3 +61,16 @@ export const sceneInReach = s => {
   const u = sceneUnit(s);
   return u === undefined || unitOpen(u);
 };
+
+/* المشهدُ الحرّ: ما لا درسَ له — المطعمُ والمطارُ والسوق.
+
+   وهذا وحدَه ما يُعرَض في تبويب التحدّث. ومشهدُ الدرس محطّةٌ في
+   وحدته يُدخَل إليها من المسار، فعرضُه هنا أيضاً يُخرجه من الوحدة
+   ويُعيد البابَ الجانبيَّ الذي أُغلق. */
+export const sceneFree = s => !!s && !s.les;
+
+/* أوّلُ مشهدٍ حرٍّ — مبدأُ التبويب حين لا يأتي المتعلّم من وحدة. */
+export const firstFreeIndex = () => {
+  const i = SCENES.findIndex(s => sceneFree(s) && sceneInReach(s));
+  return i >= 0 ? i : SCENES.findIndex(sceneInReach);
+};

@@ -1,5 +1,5 @@
 /* محرّك المحادثة الحيّة: الأدوار، والتصحيح، وقلم المصحّح. */
-import {keepScene, nextSceneIndex, sceneInReach} from './scene.js';
+import {keepScene, nextSceneIndex, sceneInReach, firstFreeIndex} from './scene.js';
 import {reachedUnit} from './progress.js';
 import {SCENES} from '../content/scenes.js';
 import {S,save,logError} from './state.js';
@@ -9,7 +9,11 @@ import {pronScore} from './pronounce.js';
 import {relevance} from './relevance.js';
 
 export function chatClamp(){const c=S.chat;let moved=false;
-  if(!Number.isInteger(c.sc)||c.sc<0||c.sc>=SCENES.length){c.sc=0;c.ti=0;moved=true}
+  /* لم يَختر بعدُ: يُفتح له مشهدٌ حرٌّ لا مشهدُ درس. ومن فتح التبويبَ
+     ابتداءً جاء يتدرّب على المطعم والسوق، ومشهدُ الدرس يُدخَل إليه من
+     وحدته. وهذا ليس خللاً فلا يُسجَّل خطأً — بخلاف ما بعده. */
+  if(c.sc===null||c.sc===undefined){c.sc=Math.max(0,firstFreeIndex());c.ti=0}
+  if(!Number.isInteger(c.sc)||c.sc<0||c.sc>=SCENES.length){c.sc=Math.max(0,firstFreeIndex());c.ti=0;moved=true}
   /* وفوقَ ما بلغ المتعلّم: يُردّ بلا ضجيج.
 
      والمشهدُ الأوّل في البنك من الوحدة الرابعة، فكان المبتدئُ يفتح
@@ -19,7 +23,7 @@ export function chatClamp(){const c=S.chat;let moved=false;
      «تغيّرت المشاهد» — بخلاف المؤشّر الخارج عن الحدود أعلاه، فذاك
      أثرُ حالةٍ تالفةٍ يستحقّ أن يُعلَن. */
   {if(!sceneInReach(SCENES[c.sc])){
-     const i=SCENES.findIndex(sceneInReach);
+     const i=firstFreeIndex();
      if(i>=0&&i!==c.sc){c.sc=i;c.ti=0;c.stage='reply';c.ok=null;c.g=null;c.said=null;c.fixed=null;c.pr=null;c.hint=false;save()}
    }}
   const t=SCENES[c.sc].turns;

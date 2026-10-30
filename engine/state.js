@@ -39,7 +39,9 @@ export function defaultState(){return{
   ruleOpen:null,            // بطاقة القاعدة المفتوحة حالياً
   theme:'light',            // النهاري هو الافتراضي، والليلي اختيار
   goal:10,                  // هدف دقائق الكلام اليومي
-  chat:{sc:0,ti:0,miss:0,stage:'reply',ok:null,g:null,said:null,fixed:null,pr:null,fb:null,hint:false,cat:'الكل'}
+  /* sc:null — لم يَختر مشهداً بعد، فيُفتح له أوّلُ مشهدٍ حرّ. وكان
+     صفراً، وهو «درس ٤٫١»، فكان التبويبُ يَستقبله بدرسٍ لا بمشهدٍ حرّ. */
+  chat:{sc:null,ti:0,miss:0,stage:'reply',ok:null,g:null,said:null,fixed:null,pr:null,fb:null,hint:false,cat:'الكل'}
 }}
 
 /* الحالة المحفوظة قد تأتي من ملف يستورده المتعلم من شخص آخر، فهي مدخل
