@@ -90,8 +90,7 @@ export function homeView(){
 
   /* ترتيبُ الشاشة: ما تفعله الآن أوّلاً، ثمّ أين أنت، ثمّ ما استحقّ
      المراجعة. وما ليس من اليوم فليس في «اليوم». */
-  return startCard(nx)+
-  todayView(nx)+
+  return todayView(nx, startCard(nx))+
   reviewCard()+
   (top?card('خطؤك المتكرر',
     `<div style="display:flex;align-items:center;gap:11px">
