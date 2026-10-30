@@ -3,7 +3,7 @@ import {LESSONS} from '../content/lessons.js';
 import {S,save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
 import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen,UNIT_NS,
-        levelUnits,unitLevel} from '../engine/progress.js';
+        levelUnits,unitLevel,levelExamOpen} from '../engine/progress.js';
 import {nextInUnit} from '../engine/unit-plan.js';
 import {reviewStats} from '../engine/quiz.js';
 import {cefrReport,currentLevel} from '../engine/cefr.js';
@@ -40,10 +40,26 @@ export function nextStep(){
    فكان الرقمُ شيئاً والعنوانُ شيئاً آخر. */
 export function levelProgress(){
   const lv=currentLevel();
-  const ls=levelUnits(lv).flatMap(unitLessons);
-  const done=ls.filter(l=>S.lessons[l.id]).length;
-  return {lv, done, total:ls.length,
-    pct: ls.length?Math.round(done/ls.length*100):0};
+  const us=levelUnits(lv);
+  const ls=us.flatMap(unitLessons);
+
+  /* وما تخطّاه اختبارُ التحديد محسوبٌ مُغطّى.
+
+     وكان يُعَدّ ناقصاً، فيَقرأ من وُضع في الوحدة الثالثة «تقدّمك
+     صفر» والبرنامجُ يسوقه إلى الثالثة — رقمٌ يناقض وجهةً، ولا
+     يَفهم المتعلّم أيَّهما يصدّق.
+
+     ويُفصَل العددان ليبقى الرقمُ صادقاً: ما أتقنه بنفسه، وما
+     أعفاه منه الاختبار. */
+  const skipped=ls.filter(l=>S.skipped[l.u]).length;
+  const done=ls.filter(l=>S.lessons[l.id]&&!S.skipped[l.u]).length;
+
+  /* ومن اجتاز بوابةَ وحدةٍ فقد غُطّيت: البوابةُ لا تُفتح إلّا بعد
+     محطّاتها كلِّها، فلا يُقال له بعدها «لم تُنجز شيئاً». */
+  const passed=ls.filter(l=>S.cp[l.u]&&!S.skipped[l.u]&&!S.lessons[l.id]).length;
+  const covered=done+skipped+passed;
+  return {lv, done, skipped, covered, total:ls.length,
+    pct: ls.length?Math.round(covered/ls.length*100):0};
 }
 
 export function homeView(){
@@ -55,10 +71,19 @@ export function homeView(){
   const lp=levelProgress();
   const top=Object.entries(S.errs||{}).sort((a,b)=>b[1]-a[1])[0];
 
+  /* والمربّعُ يقيس المستوى الحاليّ كالحلقة، لا المنهجَ كلَّه.
+
+     وكان بسطُه دروسَ المستوى ومقامُه دروسَ المنهج الاثنين والثمانين،
+     فيقرأ صاحبُ A1 «صفر من ٨٢» تحت حلقةٍ تقول ٣٣٪ — مقياسان
+     مختلطان في شاشةٍ واحدة. */
+  const lvLessons=levelUnits(lp.lv).flatMap(unitLessons);
+  const lvDone=lvLessons.filter(l=>S.lessons[l.id]).length;
+  const lvCp=levelUnits(lp.lv).filter(u=>S.cp[u]).length;
+
   return ringCard(lp)+
   `<div class="stats">
-    <div class="stat s1"><b>${ar(done)}<span style="font-size:14px">/${ar(LESSONS.length)}</span></b><span>دروس متقنة</span></div>
-    <div class="stat s2"><b>${ar(Object.keys(S.cp).length)}<span style="font-size:14px">/${ar(UNIT_NS.length)}</span></b><span>وحدات مجتازة</span></div>
+    <div class="stat s1"><b>${ar(lvDone)}<span style="font-size:14px">/${ar(lvLessons.length)}</span></b><span>دروس أتقنتَها</span></div>
+    <div class="stat s2"><b>${ar(lvCp)}<span style="font-size:14px">/${ar(levelUnits(lp.lv).length)}</span></b><span>وحدات اجتزتَها</span></div>
     <div class="stat s3"><b>${ar(S.xp)}</b><span>نقاط XP</span></div></div>`+
   cefrCard()+
   reviewCard()+
@@ -71,10 +96,11 @@ export function homeView(){
        <span style="flex:1;min-width:0"><span class="muted" style="display:block">${esc(top[0])}</span>
        <span class="muted" style="display:block;font-size:12px">تكرر ${ar(top[1])} مرة</span></span>
        <button class="btn ghost" style="margin:0" onclick="go('speak')">درّبني</button></div>`):'')+
-  card('الامتحان النهائي',
-    `<p class="muted">${S.exam?`🎉 أتممت مستوى ${esc(lp.lv)}`
-      :`يُفتح بعد اجتياز وحدات ${esc(lp.lv)} واختبارات الاستبقاء`}</p>
-     <div class="row" style="justify-content:flex-start"><button class="btn ghost" onclick="go('course')">عرض الرحلة كاملة</button></div>`);
+  /* والبطاقةُ تقرأ حالَ الامتحان لا حالَ الاجتياز وحده.
+
+     وكانت تقول «يُفتح بعد اجتياز وحدات A1» لمن اجتازها كلَّها —
+     فيَقرأ أنّه مقفولٌ وهو مفتوح، ولا زرَّ أمامه يدخل به. */
+  examCard(lp.lv);
 }
 
 /* أرقام عربية-هندية في الواجهة العربية، والإنجليزية تبقى كما هي. */
@@ -105,6 +131,9 @@ export function ringCard(lp){
         <span class="muted" style="font-size:12px">من أساسيات <span class="en">${esc(lv)}</span></span>
       </div>
     </div>
+    ${lp&&lp.skipped?`<div class="muted" style="font-size:12px;margin-top:8px;text-align:center;line-height:1.7">
+      <b>${ar(lp.skipped)}</b> درساً أعفاك منها اختبارُ التحديد${
+        lp.done?`، و<b>${ar(lp.done)}</b> أتقنتَها بنفسك`:''}.</div>`:''}
     <div class="muted" style="font-size:12px;margin-top:10px">هدف الكلام اليومي</div>
     <div role="group" aria-label="هدف اليوم" style="display:flex;gap:5px;background:var(--surf2);border-radius:999px;padding:4px;margin-top:7px">${goals}</div>
   </div>`;
@@ -151,6 +180,25 @@ function boxBar(r){
    وكان اسمُ المستوى مكتوباً A1 في العنوان وفي متنه، وcefrReport بلا
    وسيطٍ ترجع A1 دائماً — فكان من بلغ B2 يُقال له «أين أنت من A1»
    ويُعرض عليه عددُ قدرات A1. فالمستوى يُشتقّ الآن ويُمرَّر. */
+/* بطاقةُ الامتحان النهائيّ: تقول حالَه كما هو، وتُعطي الزرَّ إن فُتح. */
+function examCard(lv){
+  if(S.levelDone&&S.levelDone[lv])
+    return card('الامتحان النهائي',
+      `<p>🎉 أتممتَ مستوى <span class="en">${esc(lv)}</span></p>
+       <div class="row" style="justify-content:flex-start"><button class="btn ghost" onclick="go('course')">عرض الرحلة كاملة</button></div>`);
+
+  if(levelExamOpen(lv))
+    return card('الامتحان النهائي',
+      `<p>امتحانُ <span class="en">${esc(lv)}</span> مفتوحٌ لك الآن — اجتزتَ وحداتِه كلَّها.</p>
+       <div class="row" style="justify-content:flex-start">
+         <button class="btn" onclick="launch('exam','${esc(lv)}')">ابدأ الامتحان النهائي</button>
+         <button class="btn ghost" onclick="go('course')">عرض الرحلة كاملة</button></div>`);
+
+  return card('الامتحان النهائي',
+    `<p class="muted">يُفتح بعد اجتياز وحدات <span class="en">${esc(lv)}</span> واختبارات الاستبقاء</p>
+     <div class="row" style="justify-content:flex-start"><button class="btn ghost" onclick="go('course')">عرض الرحلة كاملة</button></div>`);
+}
+
 function cefrCard(){
   const lv=currentLevel();
   const r=cefrReport(lv);
@@ -165,6 +213,13 @@ function cefrCard(){
     +(v?'<p class="muted" style="margin-top:6px">وبلغتَ <b style="color:var(--ind2)">'
       +ar(v.met)+' من '+ar(v.total)+'</b> كلمة'
       +(v.nextCount?'، وفي الوحدة التالية '+ar(v.nextCount)+' جديدة':'')+'.</p>':'')
+    /* ومن أعفاه الاختبارُ من وحداتٍ يُقال له لماذا رقمُه صفر، وإلّا
+       ظنّ البرنامجَ لا يحسب له شيئاً. ولا يُرفَع الرقمُ له: اثنا عشر
+       سؤالاً لا تُثبت قدراتِ سبعةِ دروس، والقياسُ إن كذب مرّةً لم
+       يُصدَّق بعدها. */
+    +(Object.keys(S.skipped||{}).length
+      ?'<p class="muted" style="margin-top:6px;font-size:12px">وما أعفاك منه اختبارُ التحديد لم تُقَس قدراتُه — '
+       +'تُحسب لك حين تمرّ بمحطّاته متى شئت.</p>':'')
     +'<div class="bar" style="margin-top:9px"><i style="width:'+Math.round(r.proven/r.total*100)+'%"></i></div>'
     +'<div class="row" style="justify-content:flex-start;margin-top:10px">'
     +'<button class="btn ghost" onclick=\'go("cefr")\'>اعرض التفصيل</button>'

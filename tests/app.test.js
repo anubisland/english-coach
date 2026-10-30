@@ -3298,6 +3298,43 @@ const { run, report } = require('./harness.js');
      والحارسُ يقارن حقولَ defaultState كلَّها بما يُرسَل: فحقلٌ جديد
      لا يُزامَن ولا يُذكر سببُ استثنائه يُسقطه. فلا يُنسى حقلٌ صامتاً،
      ولا يُكتشف ذلك على جهاز المتعلّم. */
+  /* أرقامُ الشاشة الواحدة لا تتناقض.
+
+     وشكا صاحبُ البرنامج بحقّ: الحلقةُ تقول «تقدّمك صفر» والبرنامجُ
+     يسوقه إلى الوحدة الثالثة. والسببُ أنّ الحلقةَ تعدّ ما أنجزه
+     بيده وحدَه، وما أعفاه منه اختبارُ التحديد لا يُعَدّ شيئاً. */
+  await run('لا رقمَ في الرئيسية يناقض وجهةَ البرنامج',
+    { 'eng-coach-v3': JSON.stringify({placed:true, skipped:{1:true,2:true}}) },
+    (ctx, ev) => {
+      const lp = ctx.levelProgress(), nx = ctx.nextStep();
+      if (!nx || nx.unit < 3) throw new Error('البذرةُ لا تقيس: الوجهةُ ' + (nx && nx.unit));
+      if (lp.pct === 0)
+        throw new Error('الحلقة ٠٪ والبرنامجُ يسوقه إلى الوحدة ' + nx.unit + ' — رقمٌ يناقض وجهة');
+
+      /* ولا يُرفَع الرقمُ صامتاً: يُقال من أين جاء. */
+      const h = ctx.homeView();
+      if (!h.includes('أعفاك'))
+        throw new Error('رُفع الرقمُ ولم يُقَل إنّ مصدرَه اختبارُ التحديد');
+
+      /* والمقياسُ واحدٌ في الشاشة: لا بسطَ مستوًى على مقامِ منهج. */
+      const total = ev('LESSONS').length;
+      if (h.includes('/' + ev('ar')(total)))
+        throw new Error('مربّعُ الدروس يَقيس المنهجَ كلَّه تحت حلقةٍ تقيس مستوًى واحداً');
+    });
+
+  /* ولا يُقال «مقفول» لما هو مفتوح. */
+  await run('بطاقةُ الامتحان النهائيّ تقول حالَه كما هو',
+    { 'eng-coach-v3': JSON.stringify({placed:true,
+        cp:{1:true,2:true,3:true,4:true,5:true}, ret:{1:true,2:true,3:true,4:true,5:true}}) },
+    (ctx, ev) => {
+      if (!ctx.levelExamOpen('A1')) throw new Error('البذرةُ لا تقيس: الامتحانُ غيرُ مفتوح');
+      const h = ctx.homeView();
+      if (h.includes('يُفتح بعد اجتياز وحدات'))
+        throw new Error('الامتحانُ مفتوحٌ والبطاقةُ تقول إنّه مقفول');
+      if (!/launch\('exam'/.test(h))
+        throw new Error('الامتحانُ مفتوحٌ ولا زرَّ يدخل به المتعلّم');
+    });
+
   await run('كلُّ حقلٍ في الحالة مُصنَّفٌ: يُزامَن أو يُستثنى بقصد', {}, (ctx, ev) => {
     /* من نطاق الوحدة لا النافذة: sync-merge تُصدَّر ولا تُبَثّ. */
     const syncable = ev('syncable'), mergeInto = ev('mergeInto');

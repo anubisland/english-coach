@@ -80,7 +80,10 @@ function planStops(n){
 function unitSummary(n, expanded){
   const plan=unitPlan(n), done=plan.filter(x=>x.done).length;
   const left=plan.length-done;
-  const txt=left===0?'كلُّ محطّاتها تمّت'
+  /* والمتخطّاةُ بالاختبار لا «يبقى» عليها شيء: أُعفي منها، وإنّما
+     تُفتح للمراجعة متى شاء. فقولُ «بقي ١١» يُوهمه بدَينٍ عليه. */
+  const txt=S.skipped[n]?`أعفاك منها اختبارُ التحديد · ${ar(plan.length)} محطّاتٍ للمراجعة`
+    :left===0?'كلُّ محطّاتها تمّت'
     :`${ar(done)} من ${ar(plan.length)} محطّات · بقي ${ar(left)}`;
   const bar=plan.length?Math.round(done/plan.length*100):0;
   return `<div class="row" style="justify-content:space-between;align-items:center;gap:10px;margin:0 0 ${expanded?'10px':'0'}">
