@@ -68,8 +68,10 @@ const { run, report } = require('./harness.js');
     { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true } , words: WORDS_DONE, scenes: SCENES_DONE }) },
     (ctx, ev) => {
       const h = ctx.homeView();
-      if (!h.includes('تابع من حيث توقفت')) throw new Error('لا بطاقة استئناف');
+      if (!h.includes('ابدأ الآن')) throw new Error('لا بطاقة استئناف');
       if (!h.includes('الدرس 1.2')) throw new Error('الخطوة التالية خاطئة');
+      /* وباسمِ وحدتها: «مفردات الوحدة» وحدَها لا تقول أيَّ وحدة. */
+      if (!/الوحدة\s*[١٢٣٤٥٦٧٨٩٠\d]/.test(h)) throw new Error('الخطوة التالية بلا رقم وحدتها');
     });
 
   await run('بطاقة الاستئناف تنتقل إلى المحادثة ثم البوابة',
@@ -435,8 +437,9 @@ const { run, report } = require('./harness.js');
     { 'eng-coach-v3': JSON.stringify({ placed: true, lessons: { '1.1': true } , words: WORDS_DONE, scenes: SCENES_DONE }) },
     (ctx, ev) => {
       const h = ctx.homeView();
-      if (!h.includes('<svg')) throw new Error('لا حلقة');
-      if (!h.includes('stroke-dashoffset')) throw new Error('الحلقة بلا تقدّم');
+      if (!h.includes('أين أنت الآن')) throw new Error('لا بيانَ لموضعه');
+      /* محطّاتُ وحدته مرسومةً: ما تمّ وما هو فيه وما بقي. */
+      if (!h.includes('أنجزتَ')) throw new Error('لا عددَ لما أنجزه في وحدته');
       if (!h.includes('هدف الكلام اليومي')) throw new Error('لا اختيار للهدف');
     });
 
@@ -3360,7 +3363,8 @@ const { run, report } = require('./harness.js');
       snd: 'تدريبُ أصواتٍ جارٍ — لحظيّ',
       cx: 'اختبارُ محادثةٍ جارٍ — لحظيّ',
       ruleOpen: 'بطاقةُ القاعدة المفتوحة — عرضٌ لا تقدّم',
-      openUnit: 'الوحدةُ المفرودةُ على الشاشة — عرضٌ لا تقدّم'
+      openUnit: 'الوحدةُ المفرودةُ على الشاشة — عرضٌ لا تقدّم',
+      setup: 'مفاوضةُ الخطّة الجارية — لحظيّة، والخطّةُ نفسُها تُزامَن'
     };
 
     const sent = syncable(ev('S'));

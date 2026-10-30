@@ -19,7 +19,10 @@ export function defaultState(){return{
   tab:'home',q:null,open:null,openUnit:null,place:null,
   rev:null,                 // رأيُ المراجع الاختياريّ: لحظيّ، لا يُحفظ ولا يُصدَّر
   syncBusy:false,           // مزامنةٌ جارية: لحظيّ، وmigrate تُسقطه عمداً
-  errs:{},                  // عدّاد أخطاء الجرامر المتكررة
+  errs:{},                  // عدّاد أخطاء الجرامر المتكررة بنصّها
+  days:{},                  // سجلّ الأيّام: ما تمّ وما صحّ وما أُخطئ فيه
+  plan:null,                // خطّة المتعلّم: دقائقه وأيّامه وغرضه
+  setup:null,               // مفاوضةُ الخطّة الجارية — لحظيّة لا تُحفظ
   skipped:{},               // وحدات تخطّاها اختبار تحديد المستوى
   attempts:{},              // عدد محاولات كل اختبار: النجاح من السابعة ليس كالأولى
   drill:null,               // تدريب موجَّه إلزامي بعد الرسوب في بوابة
@@ -170,6 +173,8 @@ export function migrate(saved){
   S.skills=cleanSkills(saved.skills);
   S.words=cleanUnitPc(saved.words);
   S.scenes=cleanScenes(saved.scenes);
+  S.days=cleanDays(saved.days);
+  S.plan=cleanPlan(saved.plan);
   S.levelDone={};
   if(saved.levelDone&&typeof saved.levelDone==='object')
     LEVELS.forEach(lv=>{if(saved.levelDone[lv]===true)S.levelDone[lv]=true});
@@ -258,6 +263,40 @@ export function keepResult(slot, pc) {
   S.res[slot] = {last: pc, best: Math.max(r.best || 0, pc), n: (r.n || 0) + 1, at: Date.now()};
   save();
   return S.res[slot];
+}
+
+/* سجلُّ الأيّام: مفتاحُه تاريخٌ، وما فيه أعدادٌ وقوائمُ نصوص.
+
+   والملفُّ المستورد غير موثوق، فلا يُقبَل مفتاحٌ ليس تاريخاً ولا
+   عددٌ ليس عدداً — وإلّا حُسبت خطّةُ المتعلّم على NaN. */
+const DATE_KEY=/^\d{4}-\d{2}-\d{2}$/;
+function cleanDays(o){
+  const out={};
+  if(!o||typeof o!=='object')return out;
+  Object.keys(o).forEach(k=>{
+    if(!DATE_KEY.test(k))return;
+    const d=o[k];
+    if(!d||typeof d!=='object')return;
+    const num=v=>{const n=Number(v);return Number.isFinite(n)&&n>=0?Math.round(n):0};
+    const errs={};
+    if(d.errs&&typeof d.errs==='object')
+      Object.keys(d.errs).forEach(r=>{if(typeof r==='string'&&r.length<64)errs[r]=num(d.errs[r])});
+    out[k]={
+      done:Array.isArray(d.done)?d.done.filter(x=>typeof x==='string'&&x.length<96).slice(0,200):[],
+      right:num(d.right), wrong:num(d.wrong), errs
+    };
+  });
+  return out;
+}
+
+/* الخطّةُ عهدٌ، فتُقبَل كاملةً أو تُترَك: نصفُ خطّةٍ يُحاسَب عليها
+   المتعلّمُ بما لم يَعِد به. */
+function cleanPlan(p){
+  if(!p||typeof p!=='object')return null;
+  const n=(v,lo,hi)=>{const x=Math.round(Number(v));return Number.isFinite(x)&&x>=lo&&x<=hi?x:null};
+  const mins=n(p.mins,1,240), days=n(p.days,1,7), pace=n(p.pace,1,60);
+  if(mins===null||days===null||pace===null)return null;
+  return {mins,days,pace,from:DATE_KEY.test(p.from)?p.from:null};
 }
 
 function cleanSrs(o){

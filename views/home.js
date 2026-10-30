@@ -1,10 +1,10 @@
 /* الرئيسية: حلقة التقدّم، وهدف الكلام، والخطوة التالية، والخطأ المتكرر. */
-import {LESSONS} from '../content/lessons.js';
+import {LESSONS,UNITS} from '../content/lessons.js';
 import {S,save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
 import {unitLessons,convoList,unitOpen,lessonOpen,convoOpen,examOpen,UNIT_NS,
-        levelUnits,unitLevel,levelExamOpen} from '../engine/progress.js';
-import {nextInUnit} from '../engine/unit-plan.js';
+        levelUnits,unitLevel,levelExamOpen,currentUnit} from '../engine/progress.js';
+import {nextInUnit,unitPlan} from '../engine/unit-plan.js';
 import {reviewStats} from '../engine/quiz.js';
 import {cefrReport,currentLevel} from '../engine/cefr.js';
 import {vocabReport} from '../engine/vocab.js';
@@ -22,7 +22,7 @@ export function nextStep(){
        وكانت المهاراتُ الأربع خارج هذه الحلقة، فلا يُرشَد إليها
        أحدٌ أبداً — وهي نصفُ ما تقيسه الشهادة. */
     const st=nextInUnit(u);
-    if(st)return{label:st.t,act:st.act,cta:st.cta,anchor:st.id,unit:u};
+    if(st)return{label:st.t,meta:st.meta,act:st.act,cta:st.cta,anchor:st.id,unit:u};
 
     if(S.drill&&S.drill.unit===u)
       return{label:'تدريب موجَّه على ما أخطأت فيه',act:`launch('drill',${u})`,cta:'ابدأ التدريب',anchor:'st-g-'+u,unit:u};
@@ -62,80 +62,105 @@ export function levelProgress(){
     pct: ls.length?Math.round(covered/ls.length*100):0};
 }
 
+/* موضعُ المتعلّم الآن: محطّاتُ وحدته الحاليّة.
+
+   وهذا ما يتحرّك كلَّ يومٍ ويَصدُق في كلّ حال — بخلاف نسبةٍ من
+   المستوى كلِّه: من أعفاه اختبارُ التحديد من وحدتين كان يقرأ نسبةً
+   كبيرةً وتحتها ستّةُ أصفار، فلا يدري أيَّهما يصدّق. */
+function hereNow(){
+  const u=currentUnit();
+  if(!u)return null;
+  const plan=unitPlan(u);
+  const done=plan.filter(x=>x.done).length;
+  const us=levelUnits(currentLevel());
+  return {u, done, total:plan.length, lv:currentLevel(),
+    idx:us.indexOf(u)+1, units:us.length,
+    pct: plan.length?Math.round(done/plan.length*100):0};
+}
+
 export function homeView(){
-  const done=LESSONS.filter(l=>S.lessons[l.id]).length;
   if(!S.placed) return card('أهلاً بك 👋',
     '<p class="muted">قبل أن نبدأ، اختبار قصير من 12 سؤالاً يحدد نقطة انطلاقك. يستغرق دقيقتين، ولا توجد إجابة تُحسب عليك.</p><div class="row"><button class="btn" onclick="launch(\'place\')">ابدأ اختبار تحديد المستوى</button></div>');
 
   const nx=nextStep();
-  const lp=levelProgress();
+  const h=hereNow();
+  const lv=currentLevel();
   const top=Object.entries(S.errs||{}).sort((a,b)=>b[1]-a[1])[0];
 
-  /* والمربّعُ يقيس المستوى الحاليّ كالحلقة، لا المنهجَ كلَّه.
-
-     وكان بسطُه دروسَ المستوى ومقامُه دروسَ المنهج الاثنين والثمانين،
-     فيقرأ صاحبُ A1 «صفر من ٨٢» تحت حلقةٍ تقول ٣٣٪ — مقياسان
-     مختلطان في شاشةٍ واحدة. */
-  const lvLessons=levelUnits(lp.lv).flatMap(unitLessons);
-  const lvDone=lvLessons.filter(l=>S.lessons[l.id]).length;
-  const lvCp=levelUnits(lp.lv).filter(u=>S.cp[u]).length;
-
-  return ringCard(lp)+
-  `<div class="stats">
-    <div class="stat s1"><b>${ar(lvDone)}<span style="font-size:14px">/${ar(lvLessons.length)}</span></b><span>دروس أتقنتَها</span></div>
-    <div class="stat s2"><b>${ar(lvCp)}<span style="font-size:14px">/${ar(levelUnits(lp.lv).length)}</span></b><span>وحدات اجتزتَها</span></div>
-    <div class="stat s3"><b>${ar(S.xp)}</b><span>نقاط XP</span></div></div>`+
-  cefrCard()+
+  /* ترتيبُ الشاشة: ما تفعله الآن أوّلاً، ثمّ أين أنت، ثمّ ما استحقّ
+     المراجعة. وما ليس من اليوم فليس في «اليوم». */
+  return startCard(nx)+
+  (h?ringCard(h):'')+
   reviewCard()+
-  (nx?card('تابع من حيث توقفت',
-    `<p style="font-size:15px;font-weight:600;line-height:1.6">${nx.label}</p>
-     <div class="row" style="justify-content:flex-start"><button class="btn" onclick="${nx.act}">${svg('mic',18,'#fff')} ${nx.cta}</button></div>`):'')+
   (top?card('خطؤك المتكرر',
     `<div style="display:flex;align-items:center;gap:11px">
        <span style="width:40px;height:40px;flex:0 0 40px;display:grid;place-items:center;background:var(--badBg);border-radius:13px;color:var(--coral)">${svg('alert',19)}</span>
        <span style="flex:1;min-width:0"><span class="muted" style="display:block">${esc(top[0])}</span>
        <span class="muted" style="display:block;font-size:12px">تكرر ${ar(top[1])} مرة</span></span>
        <button class="btn ghost" style="margin:0" onclick="go('speak')">درّبني</button></div>`):'')+
-  /* والبطاقةُ تقرأ حالَ الامتحان لا حالَ الاجتياز وحده.
+  cefrCard()+
+  /* ولا تُعرَض بطاقةُ الامتحان إلّا إن كان له اليومَ شأن: مفتوحاً
+     أو مُجتازاً. وكانت تُعرَض لمن في وحدته الأولى تقول له «مقفول»،
+     وهو خبرٌ لا يَنفعه ولا يَفعل به شيئاً. */
+  examCard(lv);
+}
 
-     وكانت تقول «يُفتح بعد اجتياز وحدات A1» لمن اجتازها كلَّها —
-     فيَقرأ أنّه مقفولٌ وهو مفتوح، ولا زرَّ أمامه يدخل به. */
-  examCard(lp.lv);
+/* أوّلُ ما يراه: ما يفعله الآن، باسمه ورقمِ وحدته ومقدارِه.
+
+   وكانت تقول «مفردات الوحدة» وحدَها في ذيل الصفحة — أيُّ وحدة؟
+   وكم فيها؟ ولماذا هي التالية؟ */
+function startCard(nx){
+  if(!nx)return card('🎉 أتممتَ ما فُتح لك',
+    '<p class="muted">لم يبقَ شيءٌ مفتوحٌ الآن. راجع ما شئتَ من محطّاتك.</p>'
+    +'<div class="row" style="justify-content:flex-start"><button class="btn ghost" onclick="go(\'course\')">افتح الرحلة</button></div>');
+
+  return `<div class="card" style="background:var(--ind);border-color:var(--ind)">
+    <h2 style="color:#fff">ابدأ الآن</h2>
+    <p style="color:#fff;font-size:17px;font-weight:700;line-height:1.5;margin:2px 0 4px">${esc(nx.label)}${
+      nx.unit?` <span style="font-weight:600;opacity:.85">— الوحدة ${ar(nx.unit)}</span>`:''}</p>
+    ${nx.meta?`<p style="color:#E4E0FF;font-size:13px;margin:0 0 4px">${esc(String(nx.meta).split(' · اضغط')[0])}</p>`:''}
+    <div class="row" style="justify-content:flex-start">
+      <button class="btn" style="background:#fff;color:var(--ind)" onclick="${nx.act}">${nx.cta||'ابدأ'}</button>
+      <button class="btn" style="background:transparent;color:#E4E0FF" onclick="go('course')">أرني مكانها في الرحلة</button>
+    </div></div>`;
 }
 
 /* أرقام عربية-هندية في الواجهة العربية، والإنجليزية تبقى كما هي. */
 
-export function ringCard(lp){
-  const pct=typeof lp==='number'?lp:lp.pct;
-  const lv=typeof lp==='number'?currentLevel():lp.lv;
-  const C=414.7, p=Math.max(0,Math.min(1,pct/100));
-  const lens=[6,11,4,13,7,9,5,14,8,6,12,5];
-  let ticks='';
-  for(let i=0;i<48;i++){
-    const a=(-90+i*7.5)*Math.PI/180, len=lens[i%lens.length];
-    const x1=(100+81*Math.cos(a)).toFixed(1), y1=(100+81*Math.sin(a)).toFixed(1);
-    const x2=(100+(81+len)*Math.cos(a)).toFixed(1), y2=(100+(81+len)*Math.sin(a)).toFixed(1);
-    ticks+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${i/48<p?'var(--ind)':'var(--line)'}" stroke-width="2.4" stroke-linecap="round"/>`;
-  }
+/* أين أنت الآن: وحدتُك كاملةً محطّةً محطّة.
+
+   وكانت حلقةٌ تقول نسبةً من المستوى كلِّه، ولا سبيلَ للمتعلّم أن
+   يعرف من أين جاءت ولا ما يفعله ليُحرّكها. والشريطُ يُريه الطريقَ
+   نفسَه: ما مضى، وما هو فيه، وما بقي — وهو يتحرّك بكلّ محطّة.
+
+   ولا يتناقض مع شيء، لأنّه لا يَدّعي إتقاناً ولا يَحسب ما لم يُنجَز. */
+export function ringCard(h){
+  const u=h.u, plan=unitPlan(u);
+  const title=(UNITS.find(x=>x.n===u)||{}).t||'';
+  const nextId=(nextInUnit(u)||{}).id;
+
+  const dots=plan.map(st=>{
+    const now=st.id===nextId;
+    const bg=st.done?'var(--green)':now?'var(--ind)':'var(--line)';
+    const size=now?13:10;
+    return `<span title="${esc(st.t)}" style="width:${size}px;height:${size}px;border-radius:50%;background:${bg};flex:0 0 auto;${
+      now?'box-shadow:0 0 0 4px var(--soft)':''}"></span>`;
+  }).join('<i style="flex:1;height:2px;background:var(--line);min-width:4px"></i>');
+
   const goals=[5,10,20].map(g=>`<button class="btn${g===S.goal?'':' ghost'}" style="margin:0;padding:8px 15px;min-height:0;border-radius:999px;font-size:12.5px${g===S.goal?'':';background:transparent;color:var(--mute)'}" onclick="setGoal(${g})">${ar(g)} د</button>`).join('');
-  return `<div class="card tone1" style="display:flex;flex-direction:column;align-items:center;padding-top:10px">
-    <div style="position:relative;width:186px;height:186px">
-      <svg width="186" height="186" viewBox="0 0 200 200" role="img" aria-label="أتممتَ ${pct} بالمئة من دروس المستوى">
-        <circle cx="100" cy="100" r="66" fill="none" stroke="var(--line)" stroke-width="13"/>
-        <circle cx="100" cy="100" r="66" fill="none" stroke="var(--ind)" stroke-width="13" stroke-linecap="round"
-                stroke-dasharray="${C}" stroke-dashoffset="${(C*(1-p)).toFixed(1)}" transform="rotate(-90 100 100)"/>
-        ${ticks}
-      </svg>
-      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-        <span class="dsp" style="font-size:44px;line-height:1">${ar(pct)}<span style="font-size:20px">٪</span></span>
-        <span class="muted" style="font-size:12px">من أساسيات <span class="en">${esc(lv)}</span></span>
-      </div>
-    </div>
-    ${lp&&lp.skipped?`<div class="muted" style="font-size:12px;margin-top:8px;text-align:center;line-height:1.7">
-      <b>${ar(lp.skipped)}</b> درساً أعفاك منها اختبارُ التحديد${
-        lp.done?`، و<b>${ar(lp.done)}</b> أتقنتَها بنفسك`:''}.</div>`:''}
-    <div class="muted" style="font-size:12px;margin-top:10px">هدف الكلام اليومي</div>
-    <div role="group" aria-label="هدف اليوم" style="display:flex;gap:5px;background:var(--surf2);border-radius:999px;padding:4px;margin-top:7px">${goals}</div>
+
+  return `<div class="card tone1">
+    <h2>أين أنت الآن</h2>
+    <p style="font-size:16px;font-weight:700;margin:2px 0 2px">الوحدة ${ar(u)}: ${esc(title)}</p>
+    <p class="muted" style="font-size:12.5px;margin:0">الوحدة ${ar(h.idx)} من ${ar(h.units)} في <span class="en">${esc(h.lv)}</span></p>
+
+    <div style="display:flex;align-items:center;margin:14px 0 8px">${dots}</div>
+    <p class="muted" style="font-size:12.5px;margin:0">
+      أنجزتَ <b style="color:var(--ind2)">${ar(h.done)}</b> من ${ar(h.total)} محطّة في هذه الوحدة${
+        h.done===0?' — ابدأ بالمحطّة الأولى أعلاه':''}.</p>
+
+    <div class="muted" style="font-size:12px;margin-top:14px">هدف الكلام اليومي</div>
+    <div role="group" aria-label="هدف اليوم" style="display:flex;gap:5px;background:var(--surf2);border-radius:999px;padding:4px;margin-top:7px;width:max-content">${goals}</div>
   </div>`;
 }
 export function setGoal(g){S.goal=g;save();hooks.render()}

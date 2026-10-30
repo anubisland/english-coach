@@ -6,6 +6,8 @@ import {S,save,addXp,logError} from './state.js';
 import {hooks} from './bus.js';
 import {unitItems,itemsUpTo,shuffle,PLACE,lessonOpen,unitOf,skillOf,UNIT_NS,LAST_UNIT,levelItems,LEVELS_BUILT} from './progress.js';
 import {words,lev} from './pronounce.js';
+import {noteDone,noteAnswer} from './journal.js';
+import {hasPlan} from './plan.js';
 import {normalize} from './translate.js';
 import {record,dueKeys,dueSoon,boxCounts,masteredCount,BOXES} from './srs.js';
 import {examItems,examNeed} from './exam-level.js';
@@ -253,8 +255,23 @@ export function endQ(){
     S.place={a1,a2,n1:r1.length,n2:r2.length,acc,suggest};
     q.pass=true;
   }
+
+  /* ويُقيَّد في سجلّ اليوم ما تمّ وما صحّ وما خاب.
+
+     ولم يكن للبرنامج ذاكرةٌ بالأيّام، فلم يكن يستطيع أن يقول لصاحبه
+     «أمسِ عملتَ كذا» ولا «أنت متأخّرٌ عن خطّتك». */
+  if (q.kind !== 'place') {
+    for (let i = 0; i < q.items.length; i++) noteAnswer(!!q.got[i]);
+    if (q.pass && DONE_KIND[q.kind]) noteDone(DONE_KIND[q.kind], String(q.id));
+  }
+
   save();
 }
+
+/* ما يُعَدّ محطّةً تمّت في سجلّ اليوم. والمراجعةُ والتدريبُ عملٌ
+   يُحسب أيضاً، وإن لم يَفتحا محطّةً جديدة. */
+const DONE_KIND = {lesson:'درس', cp:'بوابة', ret:'استبقاء', conv:'محادثة',
+                   words:'مفردات', exam:'امتحان', review:'مراجعة', drill:'تدريب'};
 
 /* النصّ المكتوب ليس نطقاً. كان يُمرَّر إلى الحساب نفسه فيُحتسب «دقة نطق»
    لمن لم ينطق حرفاً — وهو ما يُفقد أي نسبة لاحقة معناها.
@@ -290,7 +307,16 @@ export function speakTurn(said,typed){
 export function startFrom(u){
   S.skipped={};
   for(let i=1;i<u;i++)S.skipped[i]=true;
-  S.q=null;S.tab='course';S.open=null;save();hooks.render();
+  S.q=null;S.open=null;
+
+  /* ثمّ الخطّة قبل الرحلة.
+
+     وكان يُلقى به إلى الخريطة فوراً: مئةُ محطّةٍ ولا موعدَ ولا وعد،
+     فشاشةُ «اليوم» بعدها تقول له «اليوم» ولا شيءَ يُقاس إليه اليوم.
+     فتُؤخَذ منه خطّتُه أوّلاً — دقائقُه وأيّامُه وغرضُه. */
+  if(!hasPlan()){ S.setup={step:0,why:null,mins:null,days:null}; S.tab='plan'; save(); hooks.render(); return }
+
+  S.tab='course';save();hooks.render();
   if(hooks.goToStep)hooks.goToStep();
 }
 export function retryQ(){const q=S.q;launch(q.kind,q.id)}
