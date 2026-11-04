@@ -3374,6 +3374,27 @@ const { run, report } = require('./harness.js');
       if (!/العرب/.test(h2)) throw new Error('المرتبةُ الثالثة بلا شرحِ سببِ وقوع العربيّ فيها');
     });
 
+  /* «إعادة البداية» تَفصل المزامنة، وإلّا عاد ما مُحي.
+
+     والدمجُ يزيد ولا ينقص — وهو الصواب — فمن مَحا والمزامنةُ موصولةٌ
+     رَجع إليه تقدّمُه كلُّه عند أوّل سحب، فيَظنّ أنّ المحوَ لا يعمل.
+     وكودُ المزامنة خارج الحالة، فلا يَمحوه إفراغُها. */
+  await run('إعادةُ البداية تَفصل المزامنة فلا يعود ما مُحي',
+    { 'eng-coach-v3': JSON.stringify({placed:true, lessons:{'1.1':true}, xp:120}),
+      'ec-sync-code': 'ABCD12345678' },
+    (ctx, ev) => {
+      if (!ctx.syncOn()) throw new Error('البذرةُ لا تقيس: المزامنةُ غيرُ موصولة');
+      ev('globalThis').confirm = () => true;
+
+      ctx.resetProgress();
+
+      const S = ev('S');
+      if (Object.keys(S.lessons || {}).length) throw new Error('بقي درسٌ بعد المحو');
+      if (S.xp) throw new Error('بقيت نقاطٌ بعد المحو');
+      if (ctx.syncOn())
+        throw new Error('مُحي التقدّمُ والمزامنةُ موصولةٌ — يعود كلُّه عند أوّل سحب');
+    });
+
   await run('كلُّ حقلٍ في الحالة مُصنَّفٌ: يُزامَن أو يُستثنى بقصد', {}, (ctx, ev) => {
     /* من نطاق الوحدة لا النافذة: sync-merge تُصدَّر ولا تُبَثّ. */
     const syncable = ev('syncable'), mergeInto = ev('mergeInto');

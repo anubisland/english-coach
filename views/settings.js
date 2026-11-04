@@ -5,6 +5,7 @@ import {LESSONS} from '../content/lessons.js';
 import {card, svg, ar, toast} from './ui.js';
 import {reviewerPanel} from './reviewer-panel.js';
 import {syncCard} from './sync-panel.js';
+import {syncOn, forgetSync} from '../engine/sync.js';
 import {hasPlan} from '../engine/plan.js';
 import {currentUnit, UNIT_NS} from '../engine/progress.js';
 
@@ -13,7 +14,7 @@ import {currentUnit, UNIT_NS} from '../engine/progress.js';
 
    وكان رقماً مستقلّاً («٤») لا صلة له برقم الحزمة، فنزّل المستخدم
    ١٫١٫٠ ورأى في التطبيق «إصدار ٤». الحقيقة الواحدة تُكتب مرّةً. */
-export const APP_VERSION = '1.12.2';
+export const APP_VERSION = '1.12.3';
 
 /* ما يُصدَّر: الحالة بلا الاختبار الجاري، فهو لحظي لا يُنقل. */
 function snapshot() {
@@ -71,13 +72,30 @@ export function importProgress(ev) {
 }
 
 export function resetProgress() {
-  if (typeof confirm === 'function' && !confirm('سيُمحى كل تقدّمك ولا يمكن التراجع. متأكد؟')) return;
+  /* ويُفصَل عن المزامنة معه.
+
+     والدمجُ يزيد ولا ينقص — وهو الصوابُ لئلّا يَمحوَ جهازٌ متأخّرٌ
+     تقدّمَ غيره. فمن مَحا هنا والمزامنةُ موصولةٌ رَجع إليه تقدّمُه
+     كلُّه عند أوّل سحب، فيَظنّ أنّ «إعادة البداية» لا تعمل.
+
+     وكودُ المزامنة خارج الحالة، فلا يَمحوه إفراغُها.
+
+     ولا تُمحى النسخةُ في الوسيط: أجهزتُه الأخرى قد تكون عليها، ومن
+     أراد العودةَ إليها أدخل الكودَ من جديد. */
+  const wasSynced = syncOn();
+  const msg = wasSynced
+    ? 'سيُمحى كل تقدّمك على هذا الجهاز، وسيُفصَل عن المزامنة لئلّا يعود.\n'
+      + 'والنسخة في السحابة تبقى، وتستعيدها بإدخال الكود من جديد. متأكد؟'
+    : 'سيُمحى كل تقدّمك ولا يمكن التراجع. متأكد؟';
+  if (typeof confirm === 'function' && !confirm(msg)) return;
+
   const theme = S.theme;
   Object.keys(S).forEach(k => { delete S[k] });
   Object.assign(S, defaultState());
   S.theme = theme;                      // الوضع تفضيل عرض لا تقدّم
+  if (wasSynced) forgetSync();
   save(); hooks.render();
-  toast('بدأنا من جديد');
+  toast(wasSynced ? 'بدأنا من جديد، وفُصلت المزامنة' : 'بدأنا من جديد');
 }
 
 export function settingsView() {
