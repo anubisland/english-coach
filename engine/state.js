@@ -173,6 +173,9 @@ export function migrate(saved){
   if(saved.chat&&typeof saved.chat==='object')Object.assign(S.chat,cleanChat(saved.chat));
   /* اختبار الترجمة جلسة لحظية: لا يُستورد ولا يُستعاد. */
   S.tr=null;S.snd=null;S.cx=null;S.wx=null;S.rx=null;S.dx=null;
+  /* ويُستأنَف ما يُستأنَف، بعد تنقيته: ملفٌّ مستوردٌ قد يحمل ورقةً
+     ملفّقةً، ومحرّكُ الاختبار يقرأ منها بلا سؤال. */
+  S.q=cleanQ(saved.q);
   /* نسبة وحدها تُستورد، بعد قسرها عدداً في مداها. */
   S.srs=cleanSrs(saved.srs);
   S.res=cleanRes(saved.res);
@@ -323,6 +326,28 @@ function cleanPlan(p){
           from:DATE_KEY.test(p.from)?p.from:null};
 }
 
+/* الورقةُ الجارية: لا تُقبَل إلّا من نوعٍ يُستأنَف، وبعناصرَ من
+   المحتوى نفسِه لا من الملفّ. فالملفُّ المستورد غير موثوق، ومحرّكُ
+   الاختبار يقرأ من items بلا سؤال. */
+function cleanQ(q){
+  if(!q||typeof q!=='object')return null;
+  if(!RESUMABLE.includes(q.kind))return null;
+  if(!Array.isArray(q.items)||!q.items.length)return null;
+
+  const n=q.items.length;
+  const i=Math.round(Number(q.i));
+  const got=Array.isArray(q.got)?q.got.slice(0,n).map(x=>!!x):[];
+  /* مؤشّرٌ خارج الورقة يُسقطها: استئنافٌ من موضعٍ لا وجودَ له يَنهار. */
+  if(!Number.isFinite(i)||i<0||i>=n)return null;
+
+  return Object.assign({},q,{
+    i, got,
+    wrong:Array.isArray(q.wrong)?q.wrong.slice(0,n):[],
+    picked:null, done:false,
+    score:got.filter(Boolean).length
+  });
+}
+
 function cleanSrs(o){
   const out={};
   if(!o||typeof o!=='object')return out;
@@ -358,8 +383,19 @@ export function logError(where,e){
 /* الحالة دائمة، فالتحذير يجب أن يدوم أيضاً.
    تنبيه يختفي بعد ثانيتين لا يكفي لمن سيُكمل أربعين دقيقة ثم يفقد كل شيء. */
 export let saveFailed=false;
+/* ما يُستأنَف إن خرج في نصفه: الدرسُ والمفرداتُ والمراجعةُ والتدريب.
+
+   والاختباراتُ لا تُستأنَف: البوابةُ والاستبقاءُ والامتحانُ قياسٌ،
+   ومن خرج منها عاد إليها من أوّلها — وإلّا صارت محاولةً مفتوحةً
+   يَخرج عند كلّ سؤالٍ صعبٍ ثمّ يعود.
+
+   وسألَ صاحبُ البرنامج بحقّ: «لو وقفتُ في نصف الدرس، أعود إليه أم
+   إلى أوّله؟» — وكان يعود إلى أوّله، فيَخسر ما عمل. */
+const RESUMABLE = ['lesson', 'words', 'review', 'drill', 'conv'];
+
 export function save(){
-  const c=Object.assign({},S);delete c.q;
+  const c=Object.assign({},S);
+  if(!(S.q&&RESUMABLE.includes(S.q.kind))) delete c.q;
   try{localStorage.setItem(K,JSON.stringify(c));saveFailed=false}
   catch(e){
     logError('حفظ التقدم',e);

@@ -107,6 +107,18 @@ async function main() {
   await writeFile(join(ANDROID, 'local.properties'),
     'sdk.dir=' + SDK.split('\\').join('/') + '\n');
 
+  /* شفرةُ المشروع الأصليّة.
+
+     ومجلّدُ android يُمحى ويُولَّد في كلّ بناء، فما كُتب فيه ضاع —
+     وقد ضاع جسرُ النطق مرّةً على هذا الوجه. فمصدرُه في android-src،
+     ويُنسَخ بعد التوليد. */
+  console.log('— الشفرة الأصليّة —');
+  const javaDir = join(ANDROID, 'app', 'src', 'main', 'java', 'org', 'elwazir', 'englishcoach');
+  for (const f of await readdir(join(ROOT, 'android-src'))) {
+    await cp(join(ROOT, 'android-src', f), join(javaDir, f));
+    console.log('  ' + f);
+  }
+
   console.log('— الأيقونات والهويّة —');
   const res = join(ANDROID, 'app', 'src', 'main', 'res');
   for (const d of ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi'])

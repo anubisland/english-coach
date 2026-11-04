@@ -3455,6 +3455,36 @@ const { run, report } = require('./harness.js');
         throw new Error('حُبس من له تقدّمٌ لأنّه بلا خطّة');
     });
 
+  /* من وقف في نصف درسٍ عاد إليه، ومن وقف في نصف اختبارٍ لم يَعُد.
+
+     وسألَ صاحبُ البرنامج: «لو وقفتُ في نصف الدرس، أعود إليه أم إلى
+     أوّله؟» — وكان يعود إلى أوّله فيَخسر ما عمل. والاختبارُ قياسٌ:
+     لو اُستؤنف لصار محاولةً مفتوحةً يَخرج عند كلّ سؤالٍ صعبٍ ويعود. */
+  await run('الدرسُ يُستأنَف من موضعه، والاختبارُ لا',
+    { 'eng-coach-v3': JSON.stringify({placed:true}) },
+    (ctx, ev) => {
+      const S = ev('S'), save = ev('save');
+
+      ctx.launch('lesson', '1.1');
+      S.q.i = 3; S.q.got = [true, true, false, true];
+      save();
+      let saved = JSON.parse(ctx._store['eng-coach-v3'] || '{}');
+      if (!saved.q || saved.q.i !== 3) throw new Error('لم يُحفَظ موضعُ الدرس');
+
+      /* وتُقرأ عند الإقلاع. */
+      /* وmigrate تُنشئ حالةً جديدةً وتُعيدها، ولا تُعدّل الجارية. */
+      const back = ev('migrate')(saved);
+      if (!back.q || back.q.i !== 3) throw new Error('لم يُستأنَف الدرسُ من موضعه');
+      if (back.q.score !== 3) throw new Error('لم تُحسَب الإصاباتُ: ' + back.q.score);
+
+      /* والاختبارُ لا يُحفَظ أصلاً. */
+      ctx.launch('cp', 1);
+      if (S.q) S.q.i = 2;
+      save();
+      saved = JSON.parse(ctx._store['eng-coach-v3'] || '{}');
+      if (saved.q) throw new Error('حُفظ اختبارُ البوابة، فصار يُخرَج منه ويُعاد');
+    });
+
   await run('كلُّ حقلٍ في الحالة مُصنَّفٌ: يُزامَن أو يُستثنى بقصد', {}, (ctx, ev) => {
     /* من نطاق الوحدة لا النافذة: sync-merge تُصدَّر ولا تُبَثّ. */
     const syncable = ev('syncable'), mergeInto = ev('mergeInto');
