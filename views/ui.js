@@ -23,13 +23,31 @@ export function svg(name,size,color){
 export function toast(t){const e=document.getElementById('toast');if(!e)return;e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',1800)}
 /* الفشل الشائع للنطق غير متزامن (لا إذن، أو لا صوت إنجليزي مثبّت) ويصل عبر onerror لا عبر throw. */
 
+/* ورسالةُ العجز تَذكر ما يُفعَل، لا ما لا يُفعَل.
+
+   وكانت تقول «جرّب Chrome أو Edge» — وصاحبُ البرنامج في تطبيقٍ لا
+   في متصفّح، فلا يَفهم ما المطلوب منه. وسببُ العجز في الأندرويد
+   غالباً أنّ محرّكَ قراءة النصوص غيرُ مُفعَّل في الجهاز، وهو شيءٌ
+   يُصلحه بنفسه في دقيقة — إن قيل له. */
+const NO_VOICE = 'الصوت غير مُفعَّل في جهازك: إعدادات الجهاز ← '
+  + 'إمكانية الوصول ← تحويل النص إلى كلام ← اختر محرّكاً ونزّل الإنجليزية.';
+
 export function say(t,r=0.9){
   try{
     speechSynthesis.cancel();
     const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=r;
-    u.onerror=ev=>{logError('نطق الجملة',(ev&&ev.error)||ev);toast('تعذّر تشغيل الصوت، جرّب Chrome أو Edge')};
+    u.onerror=ev=>{logError('نطق الجملة',(ev&&ev.error)||ev);toast(NO_VOICE)};
     speechSynthesis.speak(u);
-  }catch(e){logError('تشغيل الصوت',e);toast('الصوت غير متاح في هذا المتصفح، جرّب Chrome أو Edge')}
+  }catch(e){logError('تشغيل الصوت',e);toast(NO_VOICE)}
+}
+
+/* أفي الجهاز صوتٌ إنجليزيٌّ أصلاً؟ بها تُحذَّر محطّةُ الإملاء قبل
+   أن يَدخلها فيَجدها معطّلةً بعد أن بدأ. */
+export function hasVoiceEn(){
+  try{
+    const v=speechSynthesis.getVoices()||[];
+    return v.some(x=>/^en/i.test(x.lang||''));
+  }catch(e){ return false }
 }
 
 export function card(h,b,cls){return `<div class="card${cls?' '+cls:''}"><h2>${h}</h2>${b}</div>`}

@@ -2,7 +2,7 @@
 import {S} from '../engine/state.js';
 import {examDictItem, examDictResult} from '../engine/exam-dictation.js';
 import {dictationPool} from '../engine/exam-dictation.js';
-import {card, svg, ar, esc, count, resultLine} from './ui.js';
+import {card, svg, ar, esc, count, resultLine, hasVoiceEn} from './ui.js';
 
 export function examDictView() {
   const d = S.dx;
@@ -35,6 +35,10 @@ function askHtml(d) {
         <div class="bar" style="flex:1;margin:0"><i style="width:${d.i / d.items.length * 100}%"></i></div>
         <span class="muted" style="font-size:12px;font-weight:700">${ar(d.i + 1)} من ${ar(d.items.length)}</span></div>
       <p style="margin-top:12px;font-weight:700">استمع إلى الجملة ثم اكتبها كاملة.</p>
+      ${hasVoiceEn() ? '' : `<p class="muted" style="margin-top:8px;font-size:12.5px;
+        line-height:1.8;background:var(--warnBg,#FFF4DC);padding:10px 12px;border-radius:12px">
+        <b>الصوتُ غير مُفعَّلٍ في جهازك</b>، والإملاءُ لا يقوم بغيره.<br>
+        إعدادات الجهاز ← إمكانية الوصول ← تحويل النص إلى كلام ← اختر محرّكاً ونزّل الإنجليزية.</p>`}
       <div class="row" style="justify-content:flex-start;margin-top:12px">
         <button class="btn" onclick="examDictPlay()">${svg('sound', 18, '#fff')} استمع</button>
         <button class="btn ghost" onclick="examDictPlay(0.6)">ببطء</button></div>
