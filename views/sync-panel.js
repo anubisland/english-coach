@@ -59,8 +59,17 @@ export function syncCard() {
       </ul>
     </details>`;
 
+  /* ويُقال له إنّها تعمل وحدَها قبل أن يرى الزرّ.
+
+     وكان الزرُّ معروضاً بلا بيان، فيراه على الجهازين فلا يدري
+     أيَّهما يَدوس ولا أيَلزمه الدوسُ أصلاً — وزرٌّ يُحدث شكّاً
+     أسوأُ من زرٍّ لا يوجد. */
   const st = state();
   return `<p class="muted">المزامنة · <b style="color:${st.cls}">${esc(st.t)}</b></p>
+
+    <p class="muted" style="margin-top:8px;font-size:12.5px;line-height:1.85">
+      وهي تعمل وحدَها: تَسحب الجديدَ حين تفتح البرنامج، وتَرفع عملَك حين تُغادره.
+      <b>فلا يلزمك شيء.</b></p>
 
     <p class="muted" style="margin-top:10px;font-size:12.5px">رمزك — اكتبه على جهازك الآخر:</p>
     <div class="en" dir="ltr" style="margin-top:4px;padding:12px;border:2px dashed var(--line);
@@ -68,7 +77,7 @@ export function syncCard() {
       user-select:all">${esc(syncCode())}</div>
 
     <div class="row" style="justify-content:flex-start;margin-top:10px">
-      <button class="btn" onclick="syncRun()">زامن الآن</button>
+      <button class="btn ghost" onclick="syncRun()">زامن الآن (إن استعجلت)</button>
       <button class="btn ghost" onclick="syncCopyCode()">انسخ الرمز</button>
     </div>
     <div class="row" style="justify-content:flex-start;margin-top:4px">
