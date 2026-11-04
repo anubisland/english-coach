@@ -2,6 +2,7 @@
 import {RULE} from '../content/rules.js';
 import {S,save,logError,saveFailed,bootWarn} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
+import {speak, hasVoice} from '../engine/voice.js';
 
 export const ICON={
  home:'<path d="M3 10.2 12 3l9 7.2V20a1.4 1.4 0 0 1-1.4 1.4H4.4A1.4 1.4 0 0 1 3 20v-9.8Z"/>',
@@ -33,34 +34,13 @@ const NO_VOICE = 'الصوت غير مُفعَّل في جهازك: إعدادا
   + 'إمكانية الوصول ← تحويل النص إلى كلام ← اختر محرّكاً ونزّل الإنجليزية.';
 
 export function say(t,r=0.9){
-  try{
-    speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=r;
-    u.onerror=ev=>{logError('نطق الجملة',(ev&&ev.error)||ev);toast(NO_VOICE)};
-    speechSynthesis.speak(u);
-  }catch(e){logError('تشغيل الصوت',e);toast(NO_VOICE)}
+  /* ويُسجَّل العجزُ كما يُعرَض: الرسالةُ للمتعلّم، والسجلُّ لمن
+     يَبحث بعدُ في سبب صمتِ جهازٍ بعينه. */
+  if(!speak(t,'en',r)){ logError('تشغيل الصوت',new Error('لا محرّكَ نطقٍ متاح')); toast(NO_VOICE) }
 }
 
-/* أفي الجهاز صوتٌ إنجليزيٌّ أصلاً؟ بها تُحذَّر محطّةُ الإملاء قبل
-   أن يَدخلها فيَجدها معطّلةً بعد أن بدأ.
-
-   والأصواتُ تُحمَّل بعد الإقلاع في كثيرٍ من المحرّكات، فأوّلُ سؤالٍ
-   عنها يعود فارغاً وإن كانت موجودة. فلا يُحكَم بالعدم حتّى يُسأل
-   مرّةً بعد أن تجيء — وإلّا رأى تحذيراً كاذباً من أوّل فتحة. */
-let voicesSeen = false;
-try{
-  if(typeof speechSynthesis!=='undefined'&&speechSynthesis.addEventListener)
-    speechSynthesis.addEventListener('voiceschanged',()=>{voicesSeen=true});
-}catch(e){ /* لا نطقَ في هذه البيئة */ }
-
-export function hasVoiceEn(){
-  try{
-    const v=speechSynthesis.getVoices()||[];
-    if(v.length) return v.some(x=>/^en/i.test(x.lang||''));
-    /* لم تَجئ بعد: لا يُحكَم عليها بالعدم إلّا إن كانت قد جاءت فارغة. */
-    return !voicesSeen;
-  }catch(e){ return false }
-}
+/* أفي الجهاز صوتٌ إنجليزيّ؟ بها تُحذَّر محطّةُ الإملاء قبل الدخول. */
+export function hasVoiceEn(){ return hasVoice('en') }
 
 export function card(h,b,cls){return `<div class="card${cls?' '+cls:''}"><h2>${h}</h2>${b}</div>`}
 /* تحذير يبقى ظاهراً ما دام سببه قائماً، بخلاف التنبيه العابر. */
