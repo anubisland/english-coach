@@ -6,6 +6,7 @@ import {hooks} from '../engine/bus.js';
 export const ICON={
  home:'<path d="M3 10.2 12 3l9 7.2V20a1.4 1.4 0 0 1-1.4 1.4H4.4A1.4 1.4 0 0 1 3 20v-9.8Z"/>',
  map:'<circle cx="17" cy="5.5" r="2.6"/><circle cx="7" cy="18.5" r="2.6"/><path d="M17 8.1v3.4a3 3 0 0 1-3 3h-4a3 3 0 0 0-3 3"/>',
+ coach:'<circle cx="12" cy="8" r="3.6"/><path d="M4.8 20.5a7.2 7.2 0 0 1 14.4 0"/>',
  mic:'<rect x="9" y="2.5" width="6" height="11.5" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>',
  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
  lock:'<rect x="4.5" y="10.5" width="15" height="10" rx="2.4"/><path d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7"/>',

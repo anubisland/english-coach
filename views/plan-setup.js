@@ -44,7 +44,7 @@ export function planAccept(){
 }
 
 const say = (txt, sub) => `<div class="coach-row">
-  <div class="coach-ava">${svg('mic',17,'#fff')}</div>
+  <div class="coach-ava">${svg('coach',18,'#fff')}</div>
   <div class="coach-says">${txt}${sub?`<span class="coach-sub">${sub}</span>`:''}</div></div>`;
 
 const opts = (k, list) => `<div class="coach-opts">${

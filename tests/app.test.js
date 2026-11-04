@@ -3431,6 +3431,30 @@ const { run, report } = require('./harness.js');
       if (!h.includes('خطّتُك')) throw new Error('اختفى تذكيرُ الخطّة أيضاً');
     });
 
+  /* المبتدئُ لا يَجد باباً يتخطّى به خطوةَ الخطّة.
+
+     وقيل له «ثلاثُ خطواتٍ قبل أن تبدأ»، فوجودُ زرِّ «ابدأ الآن»
+     معها بابٌ جانبيٌّ يتخطّاها منه. وشاشةُ «اليوم» تُحاسبه على
+     خطّته، فبغيرها أرقامٌ بلا مرجع.
+
+     ومن بدأ فعلاً لا يُحبَس: خطّتُه تذكيرٌ لا بوّابة. */
+  await run('المبتدئُ بلا خطّةٍ لا يَجد ما يتخطّاها به',
+    { 'eng-coach-v3': JSON.stringify({placed:true, introSeen:true, skipped:{1:true,2:true}}) },
+    (ctx, ev) => {
+      const h = ctx.homeView();
+      if (!h.includes('بقيت خطوةٌ واحدة')) throw new Error('لم تُعرَض الخطوةُ الباقية');
+      if (h.includes('ابدأ الآن'))
+        throw new Error('زرُّ البدء معروضٌ مع الخطوة الباقية — بابٌ يتخطّاها منه');
+    });
+
+  await run('ومن بدأ فعلاً لا تَحبسه الخطّة',
+    { 'eng-coach-v3': JSON.stringify({placed:true, introSeen:true, lessons:{'1.1':true}}) },
+    (ctx, ev) => {
+      const h = ctx.homeView();
+      if (!h.includes('ابدأ الآن'))
+        throw new Error('حُبس من له تقدّمٌ لأنّه بلا خطّة');
+    });
+
   await run('كلُّ حقلٍ في الحالة مُصنَّفٌ: يُزامَن أو يُستثنى بقصد', {}, (ctx, ev) => {
     /* من نطاق الوحدة لا النافذة: sync-merge تُصدَّر ولا تُبَثّ. */
     const syncable = ev('syncable'), mergeInto = ev('mergeInto');

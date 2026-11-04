@@ -32,7 +32,7 @@ export function todayMiss(i){
   f['x' + i] = (f['x' + i] || 0) + 1; save(); hooks.render();
 }
 
-const say = (txt, sub) => `<div class="coach-row"><div class="coach-ava">${svg('mic',17,'#fff')}</div>
+const say = (txt, sub) => `<div class="coach-row"><div class="coach-ava">${svg('coach',18,'#fff')}</div>
   <div class="coach-says">${txt}${sub ? `<span class="coach-sub">${sub}</span>` : ''}</div></div>`;
 
 /* يُستقبَل ثمّ يُؤمَر.
@@ -99,8 +99,19 @@ export function todayView(nx, startHtml){
      وكانت تُعرَضان معاً: «ابدأ بها» و«بقيت خطوةٌ واحدة» في شاشةٍ
      واحدة — أمرانِ متنازعان، ولا يَعلم أيَّهما يُجيب. فتُقدَّم
      الخطوةُ الباقيةُ ويُؤخَّر الأمرُ بالبدء حتّى تتمّ. */
-  const pending = !hasPlan();
-  if (pending) h += planLine();
+  /* وما دامت خطوةٌ من خطوات البداية باقيةً فهي وحدَها المعروضة.
+
+     وقيل له «ثلاثُ خطواتٍ قبل أن تبدأ»، فلو بقي زرُّ «ابدأ الآن»
+     معها كان باباً جانبيّاً يتخطّاها منه — وشاشةُ «اليوم» كلُّها
+     تُحاسبه على خطّته، فبغيرها أرقامٌ بلا مرجع.
+
+     ولا يُحبَس بهذا من بدأ فعلاً: من كان له تقدّمٌ قبل أن تُبنى
+     الخطّةُ أصلاً ليس في مرحلة البداية، فالخطّةُ له تذكيرٌ لا بوّابة. */
+  const started = Object.keys(S.lessons || {}).length
+    || Object.keys(S.conv || {}).length
+    || (S.book || []).length;
+  const pending = !hasPlan() && !started;
+  if (pending) return h + planLine();
 
   /* ثمّ البطاقةُ التي فيها الزرّ — بعد أن يُحيَّا ويُقال له بماذا يبدأ. */
   h += startHtml || '';
