@@ -42,11 +42,23 @@ export function say(t,r=0.9){
 }
 
 /* أفي الجهاز صوتٌ إنجليزيٌّ أصلاً؟ بها تُحذَّر محطّةُ الإملاء قبل
-   أن يَدخلها فيَجدها معطّلةً بعد أن بدأ. */
+   أن يَدخلها فيَجدها معطّلةً بعد أن بدأ.
+
+   والأصواتُ تُحمَّل بعد الإقلاع في كثيرٍ من المحرّكات، فأوّلُ سؤالٍ
+   عنها يعود فارغاً وإن كانت موجودة. فلا يُحكَم بالعدم حتّى يُسأل
+   مرّةً بعد أن تجيء — وإلّا رأى تحذيراً كاذباً من أوّل فتحة. */
+let voicesSeen = false;
+try{
+  if(typeof speechSynthesis!=='undefined'&&speechSynthesis.addEventListener)
+    speechSynthesis.addEventListener('voiceschanged',()=>{voicesSeen=true});
+}catch(e){ /* لا نطقَ في هذه البيئة */ }
+
 export function hasVoiceEn(){
   try{
     const v=speechSynthesis.getVoices()||[];
-    return v.some(x=>/^en/i.test(x.lang||''));
+    if(v.length) return v.some(x=>/^en/i.test(x.lang||''));
+    /* لم تَجئ بعد: لا يُحكَم عليها بالعدم إلّا إن كانت قد جاءت فارغة. */
+    return !voicesSeen;
   }catch(e){ return false }
 }
 
