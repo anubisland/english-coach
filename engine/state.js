@@ -22,6 +22,7 @@ export function defaultState(){return{
   errs:{},                  // عدّاد أخطاء الجرامر المتكررة بنصّها
   days:{},                  // سجلّ الأيّام: ما تمّ وما صحّ وما أُخطئ فيه
   plan:null,                // خطّة المتعلّم: دقائقه وأيّامه وغرضه
+  introSeen:false,         // رأى التعريفَ بالبرنامج — لئلّا يُعاد عليه
   setup:null,               // مفاوضةُ الخطّة الجارية — لحظيّة لا تُحفظ
   book:[],                  // كتابُك: جُمَلُ المتعلّم بنسختَيها
   found:{},                 // ما دُلَّ عليه في صفحة اليوم — لحظيّ
@@ -140,6 +141,8 @@ export function migrate(saved){
   /* نتحقق من نوع كل قيمة بدل نسخها كما هي: xp كنصّ مثلاً يجعل addXp يدمج بدل أن يجمع. */
   /* من عنده تقدّم محفوظ هو مستخدم قديم: لا نوقفه عند اختبار لم يكن موجوداً حين بدأ. */
   if(saved.placed===true||hasProgress(saved))S.placed=true;
+  /* ومن رأى التعريفَ لا يُعاد عليه بعد إقلاعٍ جديد. */
+  if(saved.introSeen===true)S.introSeen=true;
   if(typeof saved.exam==='boolean')S.exam=saved.exam;
   if(Number.isFinite(saved.xp)&&saved.xp>=0)S.xp=saved.xp;
   if(LEVELS.includes(saved.level))S.level=saved.level;

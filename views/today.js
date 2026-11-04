@@ -185,11 +185,14 @@ function after(rec, rid, lvl, hist){
    لا يُعيد سؤالَه عمّا أجاب عنه — إنّما يُذكّره بما اختار. */
 function planLine(){
   if (!hasPlan())
-    return card('ابدأ من هنا',
-      '<p>قبل أن تبدأ، اذهب إلى <b>الإعدادات</b> ⚙️ — هناك تعريفٌ بالبرنامج، '
-      + 'ومنه تضع خطّتك: دقائقُك وأيّامُك وموعدُ فراغك من <span class="en">'+esc(currentLevel())+'</span>.</p>'
+    /* ومن فرغ من الاختبار يُسلَّم إلى الخطّة بزرٍّ يَفتحها، لا
+       بإحالةٍ إلى الإعدادات يَبحث فيها. والإعداداتُ موضعُها بعدُ،
+       لمن أراد أن يُغيّر. */
+    return card('بقيت خطوةٌ واحدة',
+      '<p>عرفتَ البرنامج، وحدّدتَ نقطةَ بدايتك. يبقى أن نَضع خطّتك: '
+      + 'دقائقُك وأيّامُك، ومنها موعدُ فراغك من <span class="en">'+esc(currentLevel())+'</span>.</p>'
       + '<div class="row" style="justify-content:flex-start">'
-      + '<button class="btn" onclick="go(\'settings\')">افتح الإعدادات</button></div>');
+      + '<button class="btn" onclick="planStart()">ضَع خطّتك الآن</button></div>');
 
   const p = paceStatus();
   if (!p) return '';

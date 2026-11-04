@@ -11,6 +11,7 @@ import {WHY, setPlan, forecast, levelLeft, arDate, arWeeks} from '../engine/plan
 import {currentLevel} from '../engine/cefr.js';
 import {ar, esc} from './ui.js';
 import {sayAr, stopAr, hasVoiceAr} from '../engine/voice-ar.js';
+import {launch} from '../engine/quiz.js';
 
 /* المشهدُ مرتّبٌ على خطوات: ثلاثُ خطواتٍ يَعرف فيها البرنامجَ، ثمّ
    خطوةٌ تَنتقل به إلى السؤال، ثمّ ثلاثةُ أسئلة، ثمّ النتيجة.
@@ -20,7 +21,17 @@ import {sayAr, stopAr, hasVoiceAr} from '../engine/voice-ar.js';
 const FIRST = -3;
 const D = () => S.setup || (S.setup = {step: FIRST, why: null, mins: null, days: null});
 
-export function planStart(){ S.setup={step:FIRST,why:null,mins:null,days:null}; S.tab='plan'; save(); hooks.render() }
+export function planStart(){
+  /* ومن رأى التعريفَ لا يُعاد عليه، إلّا أن يطلبه من الإعدادات. */
+  S.setup={step:(S.introSeen&&S.placed)?0:FIRST,why:null,mins:null,days:null};
+  S.tab='plan'; save(); hooks.render();
+}
+export function planIntro(){ S.setup={step:FIRST,why:null,mins:null,days:null}; S.tab='plan'; save(); hooks.render() }
+export function planIntroDone(){
+  S.introSeen = true; S.setup = null; save();
+  launch('place');
+}
+
 export function planNext(){ const d=D(); d.step++; save(); hooks.render() }
 export function planPick(k,v){ const d=D(); d[k]=v; d.step++; save(); hooks.render() }
 export function planBack(){ const d=D(); if(d.step>FIRST)d.step--; save(); hooks.render() }
@@ -116,6 +127,19 @@ export function planView(){
     + listen(-2) + next('فهمت، وبعدين؟') + back());
 
   /* الانتقالةُ: يُقال له لماذا سيُسأل قبل أن يُسأل. */
+  /* ومَن لم يُختبَر بعد يُسلَّم إلى الاختبار، لا إلى الأسئلة.
+
+     فالخطّةُ تُحسَب على ما بقي، والاختبارُ قد يُعفيه من وحدات —
+     فلو وُضعت قبله تبدّل موعدُ فراغه بعد أن رآه. */
+  if(d.step===-1 && !S.placed) return wrap(
+    say('هذا هو البرنامج. وقد عرفتَه.')
+    + say('والخطوةُ التالية: <b>اختبارُ تحديد المستوى</b> — اثنا عشر سؤالاً تُحدّد من أين تبدأ.',
+          'ثمّ نضع خطّتك بعده، لأنّه قد يُعفيك من وحداتٍ فيَقرُب موعدُ فراغك.')
+    + listen(-1)
+    + `<div class="coach-opts">
+         <button class="btn coach-opt" onclick="planIntroDone()">يلّا نعمل الاختبار</button>
+       </div>` + back());
+
   if(d.step===-1) return wrap(
     say('هذا هو البرنامج. يبقى أن نَضبطه عليك أنت.')
     + say('سأسألك <b>ثلاثةَ أسئلة</b> — ثمّ أُريك متى تَفرغ من مستواك باختيارك.',

@@ -80,8 +80,13 @@ function hereNow(){
 }
 
 export function homeView(){
-  if(!S.placed) return card('أهلاً بك 👋',
-    '<p class="muted">قبل أن نبدأ، اختبار قصير من 12 سؤالاً يحدد نقطة انطلاقك. يستغرق دقيقتين، ولا توجد إجابة تُحسب عليك.</p><div class="row"><button class="btn" onclick="launch(\'place\')">ابدأ اختبار تحديد المستوى</button></div>');
+  /* الخطواتُ الثلاثُ مرتّبةٌ ومعروضةٌ، لا يُترَك يُخمّنها.
+
+     وترتيبُها ليس ذوقاً: لا يُختبَر في برنامجٍ لم يَعرفه بعد، ولا
+     تُوضَع خطّتُه قبل الاختبار — لأنّ الاختبار قد يُعفيه من وحدات،
+     فيتبدّل موعدُ فراغه بعد أن رآه. فكلُّ خطوةٍ تُفتَح بتمام ما
+     قبلها، وتُعرَض الثلاثُ ليَعلم أين هو منها. */
+  if(!S.placed) return startSteps();
 
   const nx=nextStep();
   const h=hereNow();
@@ -243,4 +248,41 @@ function cefrCard(){
     +'<button class="btn ghost" onclick=\'go("cefr")\'>اعرض التفصيل</button>'
     +'<button class="btn ghost" onclick=\'go("roadmap")\'>خريطة المنهج</button></div>',
     'tone2');
+}
+
+/* الخطواتُ الثلاثُ قبل أن يبدأ: تعريفٌ، فاختبارٌ، فخطّة.
+
+   وكلُّ واحدةٍ تُعرَض بحالها — تمّت، أو دورُها، أو تنتظر — فيَعلم
+   أين هو ولا يَسأل «أبدأ بأيّهما؟». */
+function startSteps(){
+  const seen = !!S.introSeen;
+  const step = !seen ? 1 : 2;
+
+  const row = (n, t, sub, state, act, cta) => {
+    const dot = state==='done' ? 'var(--green)' : state==='now' ? 'var(--ind)' : 'var(--line)';
+    const fade = state==='wait' ? ';opacity:.55' : '';
+    return `<div style="display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--line)${fade}">
+      <span style="width:27px;height:27px;flex:0 0 27px;border-radius:50%;background:${dot};
+        color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px">${
+        state==='done' ? '✓' : ar(n)}</span>
+      <span style="flex:1;min-width:0">
+        <b style="font-size:14.5px">${t}</b>
+        <span class="muted" style="display:block;font-size:12.5px;line-height:1.75;margin-top:2px">${sub}</span>
+        ${state==='now' ? `<button class="btn" style="margin-top:9px" onclick="${act}">${cta}</button>` : ''}
+      </span></div>`;
+  };
+
+  return card('أهلاً بك 👋',
+    '<p>ثلاثُ خطواتٍ قصيرةٍ قبل أن تبدأ، بهذا الترتيب:</p>'
+    + '<div style="margin-top:6px">'
+    + row(1, 'تعرَّف على البرنامج',
+          'ما هو، وكيف تمشي فيه الوحدة — دقيقتان.',
+          seen ? 'done' : 'now', "planStart()", 'ابدأ التعريف')
+    + row(2, 'اختبارُ تحديد المستوى',
+          'اثنا عشر سؤالاً تُحدّد نقطةَ انطلاقك. لا إجابةَ تُحسب عليك.',
+          step===2 ? 'now' : 'wait', "launch('place')", 'ابدأ الاختبار')
+    + row(3, 'ضَع خطّتك',
+          'دقائقُك وأيّامُك، ومنها موعدُ فراغك — <b>بعد</b> الاختبار، لأنّه قد يُعفيك من وحدات فيتبدّل الموعد.',
+          'wait', '', '')
+    + '</div>');
 }

@@ -14,7 +14,7 @@ import {currentUnit, UNIT_NS} from '../engine/progress.js';
 
    وكان رقماً مستقلّاً («٤») لا صلة له برقم الحزمة، فنزّل المستخدم
    ١٫١٫٠ ورأى في التطبيق «إصدار ٤». الحقيقة الواحدة تُكتب مرّةً. */
-export const APP_VERSION = '1.12.3';
+export const APP_VERSION = '1.13.0';
 
 /* ما يُصدَّر: الحالة بلا الاختبار الجاري، فهو لحظي لا يُنقل. */
 function snapshot() {
@@ -108,7 +108,7 @@ export function settingsView() {
   return card('البرنامج وخطّتك',
     '<p class="muted">تعريفٌ بالبرنامج وترتيبِ وحداته، ثمّ خطّتُك — دقائقُك وأيّامُك وموعدُ فراغك.</p>'
     + '<div class="row" style="justify-content:flex-start">'
-    + '<button class="btn" onclick="planStart()">شاهد التعريف واضبط خطّتك</button></div>')
+    + '<button class="btn" onclick="planIntro()">شاهد التعريف واضبط خطّتك</button></div>')
   + card('المظهر',
     `<p class="muted">الوضع النهاري هو الافتراضي.</p>
      <div class="row" style="justify-content:flex-start;margin-top:4px">
