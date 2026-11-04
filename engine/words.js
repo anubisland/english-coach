@@ -65,8 +65,14 @@ export function wordsItems(unit, n) {
     shuffle(list).slice(0, per).forEach(x => picked.push([x, list]));
   });
 
-  return shuffle(picked).slice(0, want)
-    .map(([word, topic], i) => ask(word, topic, unit, i % 2 ? 'en' : 'ar'));
+  /* التعرّفُ قبل الإنتاج: النصفُ الأوّل «ما معناها؟» — يرى
+     الإنجليزيّةَ فيختار العربيّة — ثمّ النصفُ الثاني عكسُه.
+
+     وكانت الجهتان تتناوبان سؤالاً بسؤال، فتَقفز الشاشةُ بين لغتين
+     في كلّ نقرة، ويُطالَب بأن يُنتج قبل أن يَعرف. */
+  const list = shuffle(picked).slice(0, want);
+  const half = Math.ceil(list.length / 2);
+  return list.map(([word, topic], i) => ask(word, topic, unit, i < half ? 'en' : 'ar'));
 }
 
 /* ما بلغه من كلمات الوحدة: الدرجةُ تُحفظ ولا تُنقَص. */

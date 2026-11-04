@@ -75,7 +75,8 @@ export function unitPlan(u) {
         ? 'كلماتُ الوحدة، تتعلّمها قبل أن تراها في جملة'
         : 'نتيجتك ' + sc + '٪' + (sc >= WORDS_PASS ? '' : ' — المطلوب ' + WORDS_PASS + '٪'),
       done: sc >= WORDS_PASS, score: sc,
-      act: `launch('words', ${u})`, cta: 'ابدأ المفردات'
+      /* إلى التعرّف أوّلاً، ومنه إلى الاختبار. */
+      act: `learnWords(${u})`, cta: 'ابدأ المفردات'
     });
   }
 

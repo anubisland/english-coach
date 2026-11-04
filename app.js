@@ -19,6 +19,7 @@ import * as journal from './engine/journal.js';
 import * as book from './engine/book.js';
 import * as voiceAr from './engine/voice-ar.js';
 import * as todayView from './views/today.js';
+import * as wordsLearn from './views/words-learn.js';
 import * as quizv from './views/quiz.js';   // ليس quizView: الاسم يحجب الدالة
 import * as speak from './views/speak.js';
 import * as settings from './views/settings.js';
@@ -96,7 +97,7 @@ function render(){
     applyTheme();
     renderHead();
     renderNav();
-    app.innerHTML=ui.banners()+(S.q?quizv.quizView():VIEWS[S.tab]());
+    app.innerHTML=ui.banners()+(S.q?quizv.quizView():S.peek?wordsLearn.wordsLearnView():VIEWS[S.tab]());
   }catch(e){
     /* أي استثناء هنا كان يترك الصفحة فارغة بلا شريط تنقل ولا مخرج. */
     logError('رسم الشاشة',e);
@@ -115,7 +116,7 @@ const VIEWS={home:home.homeView,plan:planSetup.planView,course:course.courseView
 
 /* المعالجات داخل الـ HTML (onclick) تحتاج أسماءً عامة. */
 Object.assign(window,{
-  ...state,...grammar,...pronounce,...progress,...quiz,...examLevel,...wordsEng,...sceneEng,...chat,...ui,...home,...course,...planSetup,...planEng,...journal,...book,...voiceAr,...syncEng,...todayView,...quizv,...speak,...settings,...reviewerPanel,...syncPanel,...translate,...trEngine,...sounds,...examScore,...examConv,...examConvView,...writeScore,...examWrite,...examWriteView,...readScore,...examRead,...examReadView,...examDict,...examDictView,...cefrEng,...cefrView,...roadmapContent,...roadmapView,...srs,...relevanceEng,
+  ...state,...grammar,...pronounce,...progress,...quiz,...examLevel,...wordsEng,...sceneEng,...chat,...ui,...home,...course,...planSetup,...planEng,...journal,...book,...voiceAr,...syncEng,...wordsLearn,...todayView,...quizv,...speak,...settings,...reviewerPanel,...syncPanel,...translate,...trEngine,...sounds,...examScore,...examConv,...examConvView,...writeScore,...examWrite,...examWriteView,...readScore,...examRead,...examReadView,...examDict,...examDictView,...cefrEng,...cefrView,...roadmapContent,...roadmapView,...srs,...relevanceEng,
   render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme,setTheme
 });
 /* S مرتبط حيّاً لأنه يُعاد بناؤه عند كل إقلاع. */
@@ -181,6 +182,7 @@ export * from './engine/journal.js';
 export * from './engine/book.js';
 export * from './engine/voice-ar.js';
 export * from './views/today.js';
+export * from './views/words-learn.js';
 export * from './views/quiz.js';
 export * from './views/speak.js';
 export * from './views/settings.js';
