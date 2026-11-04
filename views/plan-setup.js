@@ -9,7 +9,7 @@ import {S, save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
 import {WHY, setPlan, forecast, levelLeft, arDate, arWeeks} from '../engine/plan.js';
 import {currentLevel} from '../engine/cefr.js';
-import {ar, esc} from './ui.js';
+import {ar, esc, svg} from './ui.js';
 import {sayAr, stopAr, hasVoiceAr} from '../engine/voice-ar.js';
 import {launch} from '../engine/quiz.js';
 
@@ -44,7 +44,7 @@ export function planAccept(){
 }
 
 const say = (txt, sub) => `<div class="coach-row">
-  <div class="coach-ava">م</div>
+  <div class="coach-ava">${svg('mic',17,'#fff')}</div>
   <div class="coach-says">${txt}${sub?`<span class="coach-sub">${sub}</span>`:''}</div></div>`;
 
 const opts = (k, list) => `<div class="coach-opts">${

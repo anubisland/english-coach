@@ -32,7 +32,7 @@ export function todayMiss(i){
   f['x' + i] = (f['x' + i] || 0) + 1; save(); hooks.render();
 }
 
-const say = (txt, sub) => `<div class="coach-row"><div class="coach-ava">م</div>
+const say = (txt, sub) => `<div class="coach-row"><div class="coach-ava">${svg('mic',17,'#fff')}</div>
   <div class="coach-says">${txt}${sub ? `<span class="coach-sub">${sub}</span>` : ''}</div></div>`;
 
 /* يُستقبَل ثمّ يُؤمَر.
