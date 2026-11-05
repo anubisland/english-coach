@@ -231,7 +231,7 @@ function planLine(){
      فيه شيئاً. وقبل ذلك تُذكَّر الخطّةُ تذكيراً لا تقريعاً. */
   const fresh = !p.stations && !p.worked;
   const young = p.plan.from && daysSince(p.plan.from) < 7;
-  const f = focusOf();
+  const f = focusOf(S.plan);
 
   /* وما يُقال له أثرُ اختياره وما وَعد به، لا موعدٌ حسبتُه له.
 
@@ -248,12 +248,20 @@ function planLine(){
       <button class="btn ghost sm" onclick="go('settings')">التعريف بالبرنامج والخطّة</button></div>`;
 
   return `<div class="plan-line ${p.kept ? 'ok' : 'late'}">
-    <b>${p.kept ? 'وفَيتَ بما وعدتَ' : `بقي عليك ${ar(p.owed)} من أيّام أسبوعك`}</b>
-    <span>وعدتَ بـ${ar(p.plan.days)} أيّامٍ في الأسبوع، ${ar(p.plan.mins)} دقيقةً في اليوم ·
-      ذاكرتَ ${ar(p.worked)} ${p.worked === 1 ? 'يوماً' : 'أيّامٍ'}
-      وأنجزتَ ${ar(p.stations)} محطّة.${line}</span>
+    <b>${p.kept ? 'وفَيتَ بما وعدتَ' : `بقي عليك ${arDays(p.owed)}`}</b>
+    <span>وعدتَ بـ${arDays(p.plan.days)} في الأسبوع، ${ar(p.plan.mins)} دقيقةً في اليوم ·
+      ذاكرتَ ${arDays(p.worked)} وأنجزتَ ${ar(p.stations)} محطّةً.${line}</span>
     <button class="btn ghost sm" onclick="go('settings')">التعريف بالبرنامج والخطّة</button></div>`;
 }
+
+/* جمعُ العربيّة ليس إضافةَ لاحقة: «يومٌ» و«يومان» و«أيّام» —
+   وقولُ «٢ أيّامٍ» لحنٌ يُقرأ ركيكاً فيُضعف ثقةَ القارئ. وكان في
+   البرنامج arWeeks يَحمل هذه القاعدةَ مكتوبةً، فلمّا رُفع الموعدُ
+   رُفعت معه فعاد اللحنُ من حيث خرج. فها هي لليوم.
+
+   والمثنّى ها هنا مجرورٌ أبداً («بقي عليك يومين»، «ذاكرتَ يومين»)،
+   فلا يُحتاج إلى إعرابه. */
+const arDays = n => n === 1 ? 'يوماً' : n === 2 ? 'يومين' : ar(n) + ' أيّام';
 
 const daysSince = key => {
   if (!key) return 999;

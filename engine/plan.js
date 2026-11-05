@@ -12,6 +12,7 @@ import {UNIT_NS, levelUnits} from './progress.js';
 import {currentLevel} from './cefr.js';
 import {unitPlan} from './unit-plan.js';
 import {dayKey, shiftDay, dayReport} from './journal.js';
+import {isFocus, FOCUS_FALLBACK} from './focus.js';
 
 /* لماذا يتعلّم — وأثرُه في ترتيب محطّات الوحدة، لا في موعدٍ يُحسَب
    له. وانظر engine/focus.js: هناك يُقرأ هذا الجواب. */
@@ -26,7 +27,7 @@ export const hasPlan = () => !!(S.plan && S.plan.mins && S.plan.days);
 
 export function setPlan(p){
   S.plan = {
-    why:  WHY.some(w=>w.v===p.why) ? p.why : 'talk',
+    why:  isFocus(p.why) ? p.why : FOCUS_FALLBACK,
     mins: clamp(p.mins, 5, 120),
     days: clamp(p.days, 1, 7),
     from: dayKey()
@@ -83,11 +84,13 @@ export function paceStatus(now){
     if(r.stations || r.total) worked++;
   });
 
+  /* ولا يُحسَب ها هنا ما بقي من المستوى: كان حقلاً لا يَقرؤه أحد،
+     ومَسحُه يَمشي على وحدات المستوى كلِّها في كلّ رسمةٍ لشاشة
+     «اليوم». وهو من بقايا الموعد المرفوع. */
   return {
     plan:p, stations, worked,
     owed: Math.max(0, p.days - worked),
-    kept: worked >= p.days,
-    left: levelLeft().left
+    kept: worked >= p.days
   };
 }
 

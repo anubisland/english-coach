@@ -1121,6 +1121,38 @@ const { run, report } = require('./harness.js');
     if (ctx.gateReady(3)) throw new Error('فُتحت البوابةُ على وحدةٍ لم تَتمّ');
   });
 
+  /* ومفاتيحُ التركيز تُطابق مهاراتِ الوحدة: مهارةٌ تُزاد ولا تُذكَر
+     في ORDER تَغرق في ذيل القائمة لكلّ متعلّمٍ أبداً، بلا سجلٍّ
+     ولا اختبارٍ أحمر. فالمطابقةُ ها هنا تَجعلها بناءً فاشلاً فوراً. */
+  await run('كلُّ مهارةٍ في الوحدة مذكورةٌ في كلّ تركيز', {}, (ctx) => {
+    const have = ctx.unitSkills(3).map(s => s.k).sort().join(',');
+    ctx.FOCUS_KEYS.forEach(k => {
+      const f = ctx.focusBy(k);
+      if (!f) throw new Error('مفتاحُ تركيزٍ لا يُعرَف: ' + k);
+      if (f.skills.slice().sort().join(',') !== have)
+        throw new Error('تركيزُ «' + k + '» لا يُطابق مهاراتِ الوحدة: '
+          + f.skills.join(',') + ' ≠ ' + have);
+    });
+    if (!ctx.FOCUS_KEYS.includes(ctx.FOCUS_FALLBACK))
+      throw new Error('المرجعُ عند الجهل ليس من المفاتيح');
+    /* والقائمةُ المعروضةُ في الأسئلة هي هي، فلا يُعرَض ما لا أثرَ له. */
+    const shown = ctx.WHY.map(w => w.v).sort().join(',');
+    if (shown !== ctx.FOCUS_KEYS.slice().sort().join(','))
+      throw new Error('أسئلةُ الغاية تَعرض غيرَ ما يَعمل: ' + shown);
+  });
+
+  /* وغايةٌ لا تُعرَف لا تَنجو صامتةً: كانت cleanPlan تَقبل أيَّ نصٍّ
+     دون اثنتي عشرة حرفاً كما هو، فتَمضي خطّةٌ مستورَدةٌ بـwhy:"zzz"
+     ثمّ يَسقط أثرُها ولا يَدري المتعلّمُ لِمَ غاب تركيزُه. */
+  await run('غايةٌ غير معروفة تُردّ إلى المرجع ولا تُحفَظ كما جاءت',
+    { 'eng-coach-v3': JSON.stringify({ placed: true, plan: {why: 'zzz', mins: 10, days: 5} }) },
+    (ctx, ev) => {
+      const w = ev('S').plan.why;
+      if (w === 'zzz') throw new Error('نَجت الغايةُ المجهولةُ من التنقية');
+      if (w !== ctx.FOCUS_FALLBACK) throw new Error('رُدّت إلى غير المرجع: ' + w);
+      if (!ctx.focusOf(ev('S').plan)) throw new Error('الخطّةُ المنقّاة بلا تركيز');
+    });
+
   /* ولا موعدَ يُحمَّل عليه: اشترى البرنامجَ ليتعلّم، لا ليُلاحَق
      بتاريخٍ اشتقّه البرنامجُ بالقسمة من جوابه. */
   await run('لا موعدَ فراغٍ محسوبٌ في البرنامج', {}, (ctx) => {

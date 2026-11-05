@@ -5,6 +5,7 @@ import {CONVO,convItems} from '../content/convo.js';
 import {SCENES} from '../content/scenes.js';
 import {RULE} from '../content/rules.js';
 import {GR} from './grammar.js';
+import {isFocus, FOCUS_FALLBACK} from './focus.js';
 import {hooks} from './bus.js';
 
 export const K='eng-coach-v3';
@@ -323,8 +324,16 @@ function cleanPlan(p){
   const n=(v,lo,hi)=>{const x=Math.round(Number(v));return Number.isFinite(x)&&x>=lo&&x<=hi?x:null};
   const mins=n(p.mins,1,240), days=n(p.days,1,7);
   if(mins===null||days===null)return null;
-  return {why:typeof p.why==='string'?p.why.slice(0,12):'talk', mins, days,
-          from:DATE_KEY.test(p.from)?p.from:null};
+  /* والغايةُ تُطابَق بالمرجع لا بالطول: كان يُقبَل أيُّ نصٍّ دون
+     اثنتي عشرة حرفاً كما هو، فتَنجو why:"zzz" من ملفٍّ مستورَدٍ ثمّ
+     يَسقط أثرُها صامتاً — فلا المتعلّمُ يَرى تركيزَه ولا يَعلم لِمَ
+     غاب. وتُسجَّل لئلّا يَمضيَ الرفضُ بلا خبر. */
+  let why = p.why;
+  if(!isFocus(why)){
+    if(why!==undefined&&why!==null) logError('غايةٌ غير معروفة في الخطّة', why);
+    why = FOCUS_FALLBACK;
+  }
+  return {why, mins, days, from:DATE_KEY.test(p.from)?p.from:null};
 }
 
 /* الورقةُ الجارية: يُؤخَذ منها الموضعُ وحدَه، وتُبنى أسئلتُها

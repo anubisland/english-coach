@@ -9,7 +9,7 @@
 import {S, save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
 import {WHY, setPlan, levelLeft} from '../engine/plan.js';
-import {focusBy} from '../engine/focus.js';
+import {focusBy, FOCUS_FALLBACK} from '../engine/focus.js';
 import {currentLevel} from '../engine/cefr.js';
 import {ar, esc, svg} from './ui.js';
 import {sayAr, stopAr, hasVoiceAr} from '../engine/voice-ar.js';
@@ -167,19 +167,23 @@ export function planView(){
      أو يُبطئ كما شاء — والموعدُ رقمٌ يَشتقّه البرنامجُ بالقسمة ثمّ
      يُحاسبه عليه كأنّه وعدٌ منه. فالذي يُقال له أثرُ اختياره: بمَ
      يَبدأ في وحدته، ومتى أُذكّره. */
-  const f = focusBy(d.why);
+  /* وما يُعرَض هو ما سيُحفَظ: setPlan تَقسِر المجهولَ إلى
+     FOCUS_FALLBACK، فلو عَرضت الشاشةُ «الترتيب المعتاد» ثمّ حَفظ
+     الزرُّ تركيزَ الكلام لكانت شاشةَ تأكيدٍ تُخالف زرَّها — وهو
+     أسوأُ ما يُترَك قائماً. فالمصدرُ واحد. */
+  const f = focusBy(d.why) || focusBy(FOCUS_FALLBACK);
   const L = levelLeft(lv);
   return wrap(
     say('تمام. ضَبَطتُ البرنامجَ عليك:')
     + `<div class="coach-card">
-         <div class="coach-big">${f ? f.t : 'تعلّمك'}</div>
-         <p>${f ? f.sub : 'تمشي على الترتيب المعتاد'} في أوّل كلّ وحدة.</p>
+         <div class="coach-big">${esc(f.t)}</div>
+         <p>${esc(f.sub)} في أوّل كلّ وحدة.</p>
          <p class="muted">${ar(d.mins)} دقيقةً، ${ar(d.days)} أيّامٍ في الأسبوع —
            وأُذكّرك إن غِبتَ عمّا وعدتَ به.</p>
        </div>`
     + say('ولا أُسقِط عنك محطّة: الوحدةُ تَتمّ كلُّها قبل بوابتها، '
         + `وإنّما يَتقدّم ما جئتَ لأجله. وأمامك في <span class="en">${esc(lv)}</span> `
-        + `${ar(L.left)} محطّة.`,
+        + `${ar(L.left)} محطّةً.`,
           'تُغيّر هذا متى شئت من الإعدادات.')
     + `<div class="coach-opts">
          <button class="btn coach-opt" onclick="planAccept()">ابدأ</button>

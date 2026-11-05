@@ -137,7 +137,7 @@ export function unitPlan(u) {
      يَتقدّم منها ما جاء لأجله. والمشهدُ الحيُّ آخرَها في الأصل —
      تنميةُ الطلاقة تأتي على ما تُعلّم، لا قبله — إلّا لمن جاء
      للكلام نفسِه، فهو مطلوبُه لا ثمرةُ غيره. */
-  const f = focusOf();
+  const f = focusOf(st().plan);
   const skills = orderSkills(unitSkills(u), f).map(s => skillStop(u, s));
   const scene = sceneStop(u);
 
