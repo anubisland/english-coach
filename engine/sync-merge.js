@@ -101,6 +101,24 @@ function mergeSrs(a, b) {
   return out;
 }
 
+/* الورقةُ الجارية: يُؤخَذ أبعدُهما شوطاً.
+
+   ولا يُؤخَذ الأحدثُ: لو سبق أحدُهما إلى السؤال العاشر ثمّ فُتح
+   الآخرُ عند الثالث، لضاعت سبعُ إجاباتٍ بلا ذنب. والقاعدةُ هنا
+   كالقاعدة في سائر الدمج: يزيد ولا ينقص.
+
+   وإن كانتا ورقتين مختلفتين بقيت التي على الجهاز: هو أعلمُ بما
+   يَفعل الآن من وسيطٍ كتبه قبل ساعة. */
+function mergeQ(a, b) {
+  const ok = x => x && typeof x === 'object' && Array.isArray(x.items) && x.items.length;
+  if (!ok(a)) return ok(b) ? b : (a || null);
+  if (!ok(b)) return a;
+  const same = a.kind === b.kind && String(a.id) === String(b.id);
+  if (!same) return a;
+  const n = x => (Array.isArray(x.got) ? x.got.length : 0);
+  return n(b) > n(a) ? b : a;
+}
+
 /* الكتاب: اتّحادٌ بمفتاح (الوقت + النصّ)، مرتَّبٌ بالوقت.
 
    ولا يُجمَع بالإلحاق: الرفعُ يقع مرّاتٍ في اليوم، فتتضاعف الجملةُ
@@ -144,6 +162,9 @@ export function syncable(S) {
   out.res = obj(S.res);
   out.srs = obj(S.srs);
   out.cxSeen = Array.isArray(S.cxSeen) ? S.cxSeen : [];
+  /* الورقةُ الجاريةُ تُرفَع كذلك: يُذاكر على اللوح فيقف في نصف
+     درسٍ، ثمّ يفتح الهاتف — فيَجده حيث تركه لا من أوّله. */
+  out.q = S.q || null;
   out.book = Array.isArray(S.book) ? S.book : [];
   out.days = obj(S.days);
   out.plan = S.plan || null;
@@ -164,6 +185,7 @@ export function mergeInto(S, remote) {
   MAXMAP2.forEach(k => { S[k] = maxMap2(S[k], r[k]) });
   MAXNUM.forEach(k => { S[k] = Math.max(num(S[k]), num(r[k])) });
   ANYTRUE.forEach(k => { S[k] = !!S[k] || !!r[k] });
+  S.q = mergeQ(S.q, r.q);
   S.book = mergeBook(S.book, r.book);
   S.days = mergeDays(S.days, r.days);
   S.plan = S.plan || r.plan || null;

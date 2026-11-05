@@ -3485,6 +3485,37 @@ const { run, report } = require('./harness.js');
       if (saved.q) throw new Error('حُفظ اختبارُ البوابة، فصار يُخرَج منه ويُعاد');
     });
 
+  /* الورقةُ الجاريةُ تَعبُر بين الأجهزة، ويُؤخَذ أبعدُهما شوطاً.
+
+     وسألَ صاحبُ البرنامج: «أقف في نصف الدرس على اللوح، فأفتح الهاتف
+     — أجدُه حيث تركتُه أم من أوّله؟» — وكان من أوّله.
+
+     ولا يُؤخَذ الأحدث: لو سبق أحدُهما إلى العاشر ثمّ فُتح الآخرُ عند
+     الثالث لضاعت سبعُ إجاباتٍ بلا ذنب. */
+  await run('نصفُ الدرس يَعبُر إلى الجهاز الآخر، ولا يَنقُص',
+    { 'eng-coach-v3': JSON.stringify({placed:true}) },
+    (ctx, ev) => {
+      const S = ev('S');
+      ctx.launch('lesson', '1.1');
+      S.q.i = 7; S.q.got = [true,true,true,false,true,true,true];
+
+      const up = ev('syncable')(S);
+      if (!up.q || up.q.i !== 7) throw new Error('الورقةُ الجاريةُ لا تُرفَع');
+
+      /* جهازٌ أقلُّ شوطاً لا يَمحو الأبعد. */
+      ev('mergeInto')(S, {q: Object.assign({}, up.q, {i: 2, got: [true, true]})});
+      if (S.q.i !== 7) throw new Error('جهازٌ متأخّرٌ أرجع الدرسَ إلى الوراء: ' + S.q.i);
+
+      /* وجهازٌ أبعدُ شوطاً يُؤخَذ منه. */
+      ev('mergeInto')(S, {q: Object.assign({}, up.q,
+        {i: 9, got: [true,true,true,false,true,true,true,true,true]})});
+      if (S.q.i !== 9) throw new Error('لم يُؤخَذ الأبعدُ شوطاً: ' + S.q.i);
+
+      /* وورقةٌ أخرى لا تَقتحم ما هو فيه. */
+      ev('mergeInto')(S, {q: Object.assign({}, up.q, {id: '1.2', i: 0, got: []})});
+      if (String(S.q.id) !== '1.1') throw new Error('ورقةُ جهازٍ آخرَ أزاحت ورقتَه الجارية');
+    });
+
   await run('كلُّ حقلٍ في الحالة مُصنَّفٌ: يُزامَن أو يُستثنى بقصد', {}, (ctx, ev) => {
     /* من نطاق الوحدة لا النافذة: sync-merge تُصدَّر ولا تُبَثّ. */
     const syncable = ev('syncable'), mergeInto = ev('mergeInto');
