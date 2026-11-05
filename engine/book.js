@@ -35,8 +35,14 @@ export const lines = () => (S.book = Array.isArray(S.book) ? S.book : []);
 export const wrongLine = x => !!(x && (x.fix || (x.r && x.r.length)));
 
 /* جملةٌ أنتجها المتعلّم. ولا تُسجَّل الفارغةُ ولا المكرّرةُ في جلسة. */
+/* وسقفُ الجملة ثلاثمئة حرف، يُقَصّ عند الكتابة لا عند القراءة
+   وحدها: كان القصُّ في cleanBook، أي بعد أن يَستقرّ النصُّ بطوله
+   في التخزين وفي حمولة المزامنة إلى أوّل إقلاعٍ تالٍ. ونصُّ الكتابة
+   الحرّة لا حدَّ لطوله. */
+const CUT = 300;
+
 export function noteSentence({text, fix, rids, src, u}) {
-  const t = String(text || '').trim();
+  const t = String(text || '').trim().slice(0, CUT);
   if (t.length < 2) return null;
 
   const all = lines();
@@ -49,7 +55,7 @@ export function noteSentence({text, fix, rids, src, u}) {
 
   const rec = {
     t,
-    fix: fix && fix !== t ? fix : null,
+    fix: fix && String(fix).slice(0, CUT) !== t ? String(fix).slice(0, CUT) : null,
     r: Array.isArray(rids) ? rids.filter(Boolean).slice(0, 4) : [],
     src: String(src || '').slice(0, 40),
     u: Number(u) || null,

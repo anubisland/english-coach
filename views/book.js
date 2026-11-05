@@ -15,7 +15,7 @@ import {S, save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
 import {lines, bookStats, wrongIndex, wrongLine} from '../engine/book.js';
 import {RULE} from '../content/rules.js';
-import {card, ar, esc} from './ui.js';
+import {card, ar, esc, count} from './ui.js';
 
 /* المعروض: الكلُّ أو ما فيه تصحيح. */
 export function bookFilter(k){ S.bookF = (k === 'bad') ? 'bad' : 'all'; save(); hooks.render() }
@@ -26,12 +26,17 @@ export function bookFilter(k){ S.bookF = (k === 'bad') ? 'bad' : 'all'; save(); 
    «أربعون جملةً، في أربعين منها لم تُخطئ» ثمّ يَدوس «ما أخطأتُ فيه»
    فيَجد اثنتي عشرة. مِقياسان لشيءٍ واحد. */
 
+/* ولمن لا تاريخَ له عنوانُه: جُمَلُ المتعلّم قبل أن يُبنى السجلُّ
+   اليوميُّ تَخرج من التنقية بـd فارغة، فكان يُرسَم لها عنوانٌ هو
+   نقطةٌ وعدد — «· ١ جملة» فوق أقدم ما كتب. وكذلك تاريخٌ يَعبُر
+   DATE_KEY وشهرُه خارج الاثني عشر. */
+const UNDATED = 'ممّا كتبتَ قبلُ';
+const MON = ['يناير','فبراير','مارس','أبريل','مايو','يونيو',
+             'يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 const dayAr = d => {
-  if (!d) return '';
-  const [y, m, dd] = String(d).split('-').map(Number);
-  const MON = ['يناير','فبراير','مارس','أبريل','مايو','يونيو',
-               'يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-  return Number.isFinite(dd) && MON[m - 1] ? ar(dd) + ' ' + MON[m - 1] : '';
+  if (!d) return UNDATED;
+  const [, m, dd] = String(d).split('-').map(Number);
+  return Number.isFinite(dd) && MON[m - 1] ? ar(dd) + ' ' + MON[m - 1] : UNDATED;
 };
 
 /* الجملةُ بنسختيها، والكلمةُ المختلفةُ مُعلَّمةٌ في الأصل.
@@ -67,10 +72,12 @@ function rules(rec){
     : '';
 }
 
-/* يومٌ وجُمَلُه. */
+/* يومٌ وجُمَلُه. والعددُ بـcount لا بشرطٍ مكتوبٍ ها هنا: مطابقةُ
+   العدد في العربيّة أداتُها واحدةٌ في views/ui.js، و«١٥ جُمَل» في
+   برنامجٍ لتعليم اللغة لحنٌ يَنقض ما يُعلّمه. */
 const dayBlock = (d, recs) => `<div style="margin-top:14px">
   <p class="muted" style="font-size:12.5px;margin:0 0 4px">${esc(dayAr(d))}
-    · ${ar(recs.length)} ${recs.length === 1 ? 'جملة' : recs.length === 2 ? 'جملتان' : 'جُمَل'}</p>
+    · ${esc(count(recs.length, 'جملة', 'جُمَل'))}</p>
   <div class="lines">${recs.map(sentence).join('')}</div>
 </div>`;
 
@@ -91,13 +98,18 @@ export function bookView(){
   const bad = S.bookF === 'bad';
   const shown = bad ? all.filter(wrongLine) : all;
 
-  /* بالأيّام، من الأحدث. والترتيبُ داخل اليوم من الأحدث كذلك. */
-  const days = [];
+  /* بالأيّام، من الأحدث. والترتيبُ داخل اليوم من الأحدث كذلك.
+
+     وبخريطةٍ لا بمقارنةِ المتجاور: mergeBook تَدسّ جُمَلَ الجهاز
+     الآخر بأوقاتها هي، فيَقَع فرقُ ساعةٍ أو جملةٌ بلا تاريخٍ بين
+     جملتين من يومٍ واحد — فيَنقسم اليومُ عنوانين أو ثلاثة. */
+  const byDay = new Map();
   shown.forEach(r => {
-    const last = days[days.length - 1];
-    if (last && last[0] === r.d) last[1].push(r);
-    else days.push([r.d, [r]]);
+    const k = r.d || '';
+    if (!byDay.has(k)) byDay.set(k, []);
+    byDay.get(k).push(r);
   });
+  const days = [...byDay.entries()];
 
   const pick = on => 'margin:0;padding:9px 16px;min-height:0;border-radius:999px;font-size:13px'
     + (on ? '' : ';background:var(--surf2);color:var(--mute)');

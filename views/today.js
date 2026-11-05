@@ -49,7 +49,11 @@ export function todayView(nx, startHtml){
      طريّةٌ في ذهنه. */
   const prev = lastActiveDay() || (linesOf(dayKey()).length ? dayKey() : null);
   const rep = prev ? dayReport(prev) : null;
-  const mine = prev ? linesOf(prev).filter(x => x.fix) : [];
+  /* وما لا موضعَ لغلطه لا يَصير تمريناً: البطاقةُ تَسأل «دوس على
+     الكلمة» فإن لم تكن ثمّةَ كلمةٌ مختلفة قالت لكلّ ما يَدوس «لا،
+     ليست هذه» بلا مخرج. وقد يقع هذا بفرقٍ في علامةٍ أو حرفِ كبيرٍ
+     يَراه fix ولا يَراه wrongIndex. */
+  const mine = prev ? linesOf(prev).filter(x => x.fix && wrongIndex(x) >= 0) : [];
   const st = bookStats();
 
   let h = '';

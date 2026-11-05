@@ -189,6 +189,9 @@ export function migrate(saved){
   S.book=cleanBook(saved.book);
   S.days=cleanDays(saved.days);
   S.plan=cleanPlan(saved.plan);
+  /* وما أُعلن حقلاً في الحالة يُستعاد، وإلّا كُتب في كلّ مرّةٍ
+     ثمّ طُرح عند الإقلاع — إعلانٌ لا يُصدّقه سلوك. */
+  S.bookF=saved.bookF==='bad'?'bad':'all';
   S.levelDone={};
   if(saved.levelDone&&typeof saved.levelDone==='object')
     LEVELS.forEach(lv=>{if(saved.levelDone[lv]===true)S.levelDone[lv]=true});
@@ -292,7 +295,12 @@ function cleanBook(a){
   const str=(v,n)=>typeof v==='string'?v.slice(0,n):'';
   return a.filter(x=>x&&typeof x==='object'&&typeof x.t==='string'&&x.t.length)
     .map(x=>({
-      t:str(x.t,300), fix:x.fix?str(x.fix,300):null,
+      /* وتصحيحٌ يساوي أصلَه ليس تصحيحاً: noteSentence تَمنعه عند
+         الكتابة وكانت التنقيةُ تَقبله عند القراءة، فتَمرّ من الوسيط
+         أو من ملفٍّ جملةٌ صوابُها هي هي — فيُطلَب من المتعلّم أن
+         يَدُلّ على غلطةٍ لا وجودَ لها، فكلُّ كلمةٍ يَدوسها تَقول
+         «لا، ليست هذه» ولا مخرجَ له من البطاقة. */
+      t:str(x.t,300), fix:x.fix&&str(x.fix,300)!==str(x.t,300)?str(x.fix,300):null,
       r:Array.isArray(x.r)?x.r.filter(v=>typeof v==='string'&&v.length<64).slice(0,4):[],
       src:str(x.src,40), u:Number(x.u)||null,
       at:Number.isFinite(Number(x.at))?Number(x.at):Date.now(),
@@ -375,6 +383,9 @@ const SHEET = {
    bootState. */
 let migrateLostQ=false;
 export let resumeLost=null;
+/* ويُنشَر بعد كلّ migrate يَملك صاحبُه ورقتَه: الإقلاعُ والاستيراد.
+   ولا يُنشَر بعد سحبٍ من الوسيط — تلك ورقةُ جهازٍ آخر. */
+export function publishLostQ(){resumeLost=migrateLostQ||null;return resumeLost}
 
 function cleanQ(q){
   if(!q||typeof q!=='object')return null;
@@ -428,7 +439,7 @@ export let S,bootWarn=null;
 /* يُستدعى مرة عند الإقلاع، ومرة لكل اختبار، فالحالة تُبنى لا تُستورد جاهزة. */
 export function bootState(){
   saveFailed=false;bootWarn=null;resumeLost=null;
-  try{S=migrate(JSON.parse(localStorage.getItem(K)||'null'));resumeLost=migrateLostQ||null}
+  try{S=migrate(JSON.parse(localStorage.getItem(K)||'null'));publishLostQ()}
   catch(e){
     S=defaultState();logError('قراءة التقدم المحفوظ',e);
     bootWarn='إن كنت تستخدم التصفح الخاص أو حجب بيانات المواقع فجرّب نافذة عادية.';

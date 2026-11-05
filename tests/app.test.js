@@ -1,6 +1,15 @@
 /* اختبارات سلوكية للتطبيق. التشغيل:  node tests/app.test.js  */
 const { run, report } = require('./harness.js');
 
+/* مفتاحُ يوم اليوم بالتوقيت المحلّيّ، كما تَكتبه engine/journal.js —
+   ولا يُؤخَذ من toISOString: ذاك بتوقيت غرينتش، فيَختلف عن مفتاح
+   المتعلّم ليلاً. */
+const ctxDay = () => {
+  const d = new Date();
+  const p = n => String(n).padStart(2, '0');
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+};
+
 (async () => {
   console.log('— الحالة والترقية —');
 
@@ -1176,6 +1185,62 @@ const { run, report } = require('./harness.js');
       if (ev('S').tab !== 'book') throw new Error('أُلقيَ إلى: ' + ev('S').tab);
     });
 
+  /* وتصحيحٌ يساوي أصلَه ليس تصحيحاً: يَمرّ من الوسيط أو من ملفٍّ،
+     فتُبنى منه بطاقةُ «دُلَّ على الغلطة» ولا غلطةَ فيها — فكلُّ
+     كلمةٍ يَدوسها تقول «لا، ليست هذه» ولا مخرجَ له. */
+  await run('تصحيحٌ يساوي أصلَه يُطرَح عند القراءة كما يُطرَح عند الكتابة',
+    { 'eng-coach-v3': JSON.stringify({ placed: true, book: [
+        {t: 'I am fine', fix: 'I am fine', r: [], src: 'إملاء', u: 1,
+         at: Date.now(), d: '2026-11-04'}
+      ] }) },
+    (ctx, ev) => {
+      const rec = ev('S').book[0];
+      if (rec.fix) throw new Error('نَجا تصحيحٌ هو الأصلُ نفسُه');
+      if (ctx.wrongIndex(rec) >= 0) throw new Error('زُعم موضعُ غلطٍ لا وجودَ له');
+      /* ولا يُعَدّ غلطاً فيُطلَب ترشيحُه. */
+      if (ctx.wrongLine(rec)) throw new Error('عُدَّت الجملةُ غلطاً وهي صواب');
+      if (ctx.bookView().includes('الصواب')) throw new Error('عُرض «الصواب» تحت الجملة نفسِها');
+    });
+
+  /* ولا يُبنى تمرينٌ من جملةٍ لا موضعَ لغلطها. */
+  await run('ما لا موضعَ لغلطه لا يَصير تمريناً في اليوم',
+    { 'eng-coach-v3': JSON.stringify({ placed: true, book: [
+        {t: 'I am fine', fix: 'I am  fine!', r: ['be-subject'], src: 'مشهد: س',
+         u: 1, at: Date.now(), d: ctxDay()}
+      ] }) },
+    (ctx) => {
+      const h = ctx.todayView(null, '');
+      if (h.includes('todayMiss(')) throw new Error('بُنيت بطاقةٌ لا مخرجَ منها');
+    });
+
+  /* ولمن لا تاريخَ له عنوانُه: جُمَلُه قبل أن يُبنى السجلُّ اليوميّ
+     تَخرج بلا يوم، فكان عنوانُها نقطةً وعدداً. */
+  await run('جُمَلٌ بلا تاريخٍ لها عنوانُها، واليومُ لا يَنقسم',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+      const now = Date.now(), d = ctxDay();
+      ev('S.book=' + JSON.stringify([
+        {t: 'one from before', fix: null, r: [], src: 'مشهد: س', u: 1, at: now - 300, d: null},
+        {t: 'same day first', fix: null, r: [], src: 'مشهد: س', u: 1, at: now - 200, d},
+        /* جملةُ الجهاز الآخر تَقَع بينهما بلا تاريخ. */
+        {t: 'from other device', fix: null, r: [], src: 'مشهد: س', u: 1, at: now - 100, d: null},
+        {t: 'same day second', fix: null, r: [], src: 'مشهد: س', u: 1, at: now, d}
+      ]));
+      const h = ctx.bookView();
+      if (!h.includes('ممّا كتبتَ قبلُ')) throw new Error('عنوانٌ فارغٌ لمن لا تاريخَ له');
+      const heads = (h.match(/ممّا كتبتَ قبلُ/g) || []).length;
+      if (heads !== 1) throw new Error('انقسم ما لا تاريخَ له إلى ' + heads);
+      /* واليومُ الواحدُ عنوانٌ واحدٌ ولو تخلّلته جملةٌ بلا تاريخ. */
+      if ((h.match(/جملتان/g) || []).length !== 2)
+        throw new Error('انقسم اليومُ الواحدُ أو أُسيئت مطابقةُ العدد');
+    });
+
+  /* وما أُعلن حقلاً يُستعاد، وإلّا كُتب ثمّ طُرح عند كلّ إقلاع. */
+  await run('ترشيحُ الكتاب يَنجو من الإقلاع',
+    { 'eng-coach-v3': JSON.stringify({ placed: true, bookF: 'bad' }) },
+    (ctx, ev) => {
+      if (ev('S').bookF !== 'bad') throw new Error('طُرح الترشيحُ: ' + ev('S').bookF);
+    });
+
   /* ومِقياسُ الغلط واحدٌ في الكتاب كلِّه: كان العنوانُ يَعُدّ
      بأرقام القواعد والمُرشَّحُ يُرشّح بالتصحيح، فيَقرأ «أربعون، في
      أربعين لم تُخطئ» ثمّ يَدوس «ما أخطأتَ فيه» فيَجد اثنتي عشرة. */
@@ -1289,10 +1354,11 @@ const { run, report } = require('./harness.js');
       const before = ctx.lines().length;
       ctx.examWriteStart(0);
       const w = ev('S').wx;
-      /* وعلى نوعٍ جوابُه جملةٌ تامّة: الفراغُ كلمةٌ واحدة لا تُقاس
-         قواعدُها، والنصُّ الحرُّ لا نموذجَ له يُقابَل به. */
-      while (w.items[w.i] && w.items[w.i].k !== 'order' && w.items[w.i].k !== 'build') w.i++;
-      if (!w.items[w.i]) throw new Error('لا سؤالَ جوابُه جملةٌ في الورقة');
+      /* وعلى نوعٍ أنشأ جوابَه بنفسه: الفراغُ كلمةٌ واحدة، والترتيبُ
+         كلماتٌ معطاةٌ مخلوطة — وما يَقع في ترتيبها من لحنٍ صنعَه
+         التمرينُ لا اعتقادُه، فلا يُقاس في واحدٍ منهما. */
+      while (w.items[w.i] && w.items[w.i].k !== 'build') w.i++;
+      if (!w.items[w.i]) throw new Error('لا سؤالَ إنشاءٍ في الورقة');
       ctx.examWriteAnswer('he go to school every day');
 
       const added = ctx.lines().slice(before);

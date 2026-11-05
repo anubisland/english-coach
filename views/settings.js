@@ -1,5 +1,5 @@
 /* الإعدادات: الوضع، هدف الكلام، نقل التقدّم بين الأجهزة، وإعادة البداية. */
-import {S, save, logError, defaultState, migrate, K} from '../engine/state.js';
+import {S, save, logError, defaultState, migrate, K, publishLostQ} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
 import {LESSONS} from '../content/lessons.js';
 import {card, svg, ar, toast, esc} from './ui.js';
@@ -16,7 +16,7 @@ import {currentLevel} from '../engine/cefr.js';
 
    وكان رقماً مستقلّاً («٤») لا صلة له برقم الحزمة، فنزّل المستخدم
    ١٫١٫٠ ورأى في التطبيق «إصدار ٤». الحقيقة الواحدة تُكتب مرّةً. */
-export const APP_VERSION = '1.19.0';
+export const APP_VERSION = '1.19.1';
 
 /* ما يُصدَّر: الحالة بلا الاختبار الجاري، فهو لحظي لا يُنقل. */
 function snapshot() {
@@ -54,6 +54,10 @@ export function applyImport(text) {
 
   const next = migrate(parsed);
   if (!next || typeof next !== 'object') { toast('الملف غير صالح'); return false }
+  /* وما تعذّر استئنافُه في الملفّ المستورَد يُقال كما يُقال عند
+     الإقلاع: يَستعيد نسخةً احتياطيّةً فيَضيع درسُه الذي وقف فيه،
+     والشاشةُ ساكتة. */
+  publishLostQ();
 
   Object.keys(S).forEach(k => { delete S[k] });
   Object.assign(S, next);
