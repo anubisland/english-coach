@@ -16,7 +16,7 @@ import {currentLevel} from '../engine/cefr.js';
 
    وكان رقماً مستقلّاً («٤») لا صلة له برقم الحزمة، فنزّل المستخدم
    ١٫١٫٠ ورأى في التطبيق «إصدار ٤». الحقيقة الواحدة تُكتب مرّةً. */
-export const APP_VERSION = '1.19.1';
+export const APP_VERSION = '1.20.0';
 
 /* ما يُصدَّر: الحالة بلا الاختبار الجاري، فهو لحظي لا يُنقل. */
 function snapshot() {
@@ -116,6 +116,18 @@ export function settingsView() {
     '<p class="muted">تعريفٌ بالبرنامج وترتيبِ وحداته، ثمّ خطّتُك — بمَ تَبدأ في كلّ وحدة، وكم تُذاكر في الأسبوع.</p>'
     + '<div class="row" style="justify-content:flex-start">'
     + '<button class="btn" onclick="planIntro()">شاهد التعريف واضبط خطّتك</button></div>')
+  /* وبابٌ دائمٌ إلى كتابه.
+
+     وكان بابُه الوحيدُ بطاقةَ العدد في شاشة «اليوم»، وهي لا تُعرَض
+     إلّا لمن في كتابه جملة — فشرطُ البابِ هو عينُ ما يَعرضه. فمن
+     لم يَبلغ محطّةَ كتابةٍ بعدُ لا يَعلم أنّ للمكان وجوداً، ولا
+     يَعلم ما يَملؤه. وصفحتُه تَشرح ذلك لمن يَبلغها، ولا سبيلَ له
+     إليها. */
+  + card('كتابك',
+    '<p class="muted">كلُّ جملةٍ تكتبها بنفسك تُحفَظ لك بنسختيها — '
+    + 'في المشهد الحيّ، والترجمة، والكتابة، والإملاء. ومعها غلطاتُك المفتوحة.</p>'
+    + '<div class="row" style="justify-content:flex-start;margin-top:4px">'
+    + '<button class="btn ghost" onclick="go(&quot;book&quot;)">افتح كتابك</button></div>')
   + card('المظهر',
     `<p class="muted">الوضع النهاري هو الافتراضي.</p>
      <div class="row" style="justify-content:flex-start;margin-top:4px">

@@ -13,7 +13,7 @@
    يُسأل عنه، فمن جاء يقرأ لا يُمتحَن. */
 import {S, save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
-import {lines, bookStats, wrongIndex, wrongLine} from '../engine/book.js';
+import {lines, bookStats, wrongIndex, wrongLine, openErrors, errHistory} from '../engine/book.js';
 import {RULE} from '../content/rules.js';
 import {card, ar, esc, count} from './ui.js';
 
@@ -90,6 +90,48 @@ const empty = () => card('كتابك',
   + '<div class="row" style="justify-content:flex-start;margin-top:10px">'
   + '<button class="btn ghost" onclick="goHome()">رجوع</button></div>');
 
+/* غلطاتُك المفتوحة: ما تَكرّر ولم يُصحَّح بعدُ، مرتَّباً.
+
+   وهي ثمرةُ الكتاب التي لا تُعطيها جملةٌ وحدها: «وقعتَ في هذه
+   القاعدة أربع مرّات، آخرُها أمس، وهذه الجُمَل» — بيانٌ لا يُستخرَج
+   من درجةٍ ولا من نسبة.
+
+   وإعلامٌ لا بوّابة: لا يُحبَس عن الجديد حتّى يُسدّد. يُقال له
+   ما هو، والقرارُ له. */
+const LVL = [
+  null,
+  {t: 'وقعت مرّة',      c: 'var(--mute)'},
+  {t: 'تكرّرت',          c: 'var(--amber)'},
+  {t: 'تكرّرت كثيراً',   c: 'var(--amber)'},
+  {t: 'أكثر ما تُخطئ فيه', c: 'var(--coral)'}
+];
+
+function openBlock(){
+  const open = openErrors().filter(e => RULE[e.rid]).slice(0, 5);
+  if (!open.length) return '';
+
+  const row = e => {
+    const R = RULE[e.rid], lv = LVL[e.level] || LVL[1];
+    const hist = errHistory(e.rid);
+    const last = hist[hist.length - 1];
+    return `<div class="ln">
+      <div class="meta"><span style="color:${lv.c}">${esc(lv.t)}</span>
+        · ${esc(count(e.n, 'مرّة', 'مرّات'))}</div>
+      <div style="font-size:14.5px;font-weight:700;margin:2px 0 4px">${esc(R.t)}</div>
+      <p class="muted" style="font-size:13px;line-height:1.9;margin:0">${esc(R.rule || '')}</p>
+      ${last ? `<span class="lbl">آخرُ مرّة</span>
+        <div class="en"><span class="bad">${esc(last.t)}</span></div>` : ''}
+    </div>`;
+  };
+
+  return `<div style="margin-top:18px">
+    <p style="font-size:15px;font-weight:700;margin:0 0 2px">غلطاتُك المفتوحة</p>
+    <p class="muted" style="font-size:12.5px;margin:0 0 6px">
+      قواعدُ تَكرّر وقوعُك فيها ولم يَأتِ بعدها صوابٌ يُغلقها.</p>
+    <div class="lines">${open.map(row).join('')}</div>
+  </div>`;
+}
+
 export function bookView(){
   const all = lines().slice().sort((a, b) => b.at - a.at);
   if (!all.length) return empty();
@@ -123,6 +165,7 @@ export function bookView(){
        <button class="btn${bad ? ' ghost' : ''}" style="${pick(!bad)}" onclick="bookFilter('all')">كلُّها</button>
        <button class="btn${bad ? '' : ' ghost'}" style="${pick(bad)}" onclick="bookFilter('bad')">ما أخطأتَ فيه</button>
      </div>`
+    + openBlock()
     + (shown.length
        ? days.map(([d, recs]) => dayBlock(d, recs)).join('')
        : '<p class="muted" style="margin-top:14px">ولا غلطةَ في جُمَلك. أحسنتَ.</p>')

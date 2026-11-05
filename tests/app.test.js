@@ -1185,6 +1185,56 @@ const ctxDay = () => {
       if (ev('S').tab !== 'book') throw new Error('أُلقيَ إلى: ' + ev('S').tab);
     });
 
+  /* ولا يكون شرطُ البابِ هو عينَ ما يَعرضه: كان بابُ الكتاب
+     الوحيدُ بطاقةَ العدد في «اليوم»، ولا تُعرَض إلّا لمن في كتابه
+     جملة — فمن لم يَبلغ محطّةَ كتابةٍ لا يَعلم أنّ للمكان وجوداً
+     ولا ما يَملؤه، وصفحتُه تَشرح ذلك لمن يَبلغها ولا سبيلَ له. */
+  await run('لكتابه بابٌ لا يَشترط أن يكون فيه شيء',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx) => {
+      if (ctx.lines().length) throw new Error('الكتابُ ليس فارغاً فلا يُقاس به');
+      /* وبالزرِّ نفسِه لا بذكر الكلمة: الإعداداتُ تَحمل الدليلَ في
+         صدرها، وفيه سؤالٌ عن الكتاب — فمجرّدُ ورودِ الاسم يَمرّ ولو
+         رُفع الباب. */
+      const sx = ctx.settingsView();
+      if (!/go\(&quot;book&quot;\)|go\('book'\)|go\("book"\)/.test(sx))
+        throw new Error('لا بابَ إلى الكتاب في الإعدادات');
+      /* والدليلُ يَدلّ عليه بالاسم، ويَذكر ما يَملؤه — والجوابُ
+         لا يُرسَم إلّا مفتوحاً، فيُفتَح. */
+      if (!ctx.helpCard().includes("openHelp('book')"))
+        throw new Error('لا سؤالَ عن الكتاب في الدليل');
+      ctx.openHelp('book');
+      const hx = ctx.helpCard().replace(/<[^>]+>/g, ' ');
+      if (!hx.includes('كتابك')) throw new Error('الدليلُ لا يُسمّي الكتاب');
+      if (!hx.includes('الإعدادات ← كتابك')) throw new Error('الدليلُ لا يَدلّ على موضعه');
+    });
+
+  /* وغلطاتُه المفتوحةُ تُعرَض ولا تَحبس: الرابعةُ إعلامٌ لا بوّابة. */
+  await run('الغلطاتُ المفتوحةُ تُعرَض في كتابه بقاعدتها وآخرِ جملة',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx) => {
+      for (let i = 0; i < 4; i++)
+        ctx.noteSentence({text: 'he go to work ' + i, fix: 'he goes to work ' + i,
+                          rids: ['be-subject'], src: 'مشهد: س', u: 2});
+      const t = ctx.bookView().replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+      if (!t.includes('غلطاتُك المفتوحة')) throw new Error('لا قسمَ للغلطات المفتوحة');
+      if (!t.includes('فعل الكون')) throw new Error('لم تُسمَّ القاعدة');
+      if (!t.includes('٤ مرّات')) throw new Error('لم يُقَل كم مرّة وقع فيها');
+      if (!t.includes('he go to work 3')) throw new Error('لم تُعرض آخرُ جملةٍ وقع فيها');
+    });
+
+  /* ولا وعدَ في الشفرة بلا مُنفِّذ: كان المكتوبُ أنّ الرابعةَ دَينٌ
+     «لا يُمضى إلى الجديد قبل أن يُسدَّد» ولا سطرَ يُنفّذه. */
+  await run('لا شيءَ يَحبس المتعلّمَ عن المضيّ بسبب غلطةٍ متكرّرة',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+      const before = (ctx.nextStep() || {}).anchor;
+      for (let i = 0; i < 6; i++)
+        ctx.noteSentence({text: 'he go there ' + i, fix: 'he goes there ' + i,
+                          rids: ['be-subject'], src: 'مشهد: س', u: 2});
+      if (ctx.errLevel('be-subject') < 4) throw new Error('لم تبلغ الغلطةُ الرابعة');
+      const after = (ctx.nextStep() || {}).anchor;
+      if (before !== after) throw new Error('تغيّرت الخطوةُ التالية بسبب غلطة: ' + before + ' ← ' + after);
+      if (typeof ctx.debts === 'function') throw new Error('عادت debts بلا مُستدعٍ');
+    });
+
   /* وتصحيحٌ يساوي أصلَه ليس تصحيحاً: يَمرّ من الوسيط أو من ملفٍّ،
      فتُبنى منه بطاقةُ «دُلَّ على الغلطة» ولا غلطةَ فيها — فكلُّ
      كلمةٍ يَدوسها تقول «لا، ليست هذه» ولا مخرجَ له. */
