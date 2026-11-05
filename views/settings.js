@@ -16,7 +16,7 @@ import {currentLevel} from '../engine/cefr.js';
 
    وكان رقماً مستقلّاً («٤») لا صلة له برقم الحزمة، فنزّل المستخدم
    ١٫١٫٠ ورأى في التطبيق «إصدار ٤». الحقيقة الواحدة تُكتب مرّةً. */
-export const APP_VERSION = '1.17.2';
+export const APP_VERSION = '1.18.0';
 
 /* ما يُصدَّر: الحالة بلا الاختبار الجاري، فهو لحظي لا يُنقل. */
 function snapshot() {
@@ -109,7 +109,7 @@ export function settingsView() {
      للداخل حديثاً، فمن عنده تقدّمٌ لا سبيلَ له إلى مراجعته. */
   return helpCard()
   + card('البرنامج وخطّتك',
-    '<p class="muted">تعريفٌ بالبرنامج وترتيبِ وحداته، ثمّ خطّتُك — دقائقُك وأيّامُك وموعدُ فراغك.</p>'
+    '<p class="muted">تعريفٌ بالبرنامج وترتيبِ وحداته، ثمّ خطّتُك — بمَ تَبدأ في كلّ وحدة، وكم تُذاكر في الأسبوع.</p>'
     + '<div class="row" style="justify-content:flex-start">'
     + '<button class="btn" onclick="planIntro()">شاهد التعريف واضبط خطّتك</button></div>')
   + card('المظهر',

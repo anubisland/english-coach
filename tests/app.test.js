@@ -1095,6 +1095,40 @@ const { run, report } = require('./harness.js');
         throw new Error('لا توضيح أن دروس الوحدة المتخطّاة للمراجعة');
     });
 
+  /* التركيزُ يُقدّم ولا يُسقط: الوحدةُ تَتمّ كلُّها، وإنّما يَبدأ
+     بما جاء لأجله. وكان جوابُ «لماذا تتعلّم؟» يُخزَّن ولا يَقرؤه
+     أحد — سؤالٌ بلا أثر. */
+  await run('التركيزُ يُرتّب محطّاتِ الوحدة ولا يُسقط منها شيئاً',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+    const ids = why => {
+      ev('S.plan=' + JSON.stringify(why ? {why, mins: 10, days: 5, from: '2026-01-01'} : null));
+      return ctx.unitPlan(3).map(x => x.id);
+    };
+    const base = ids(null), work = ids('work'), talk = ids('talk');
+    const set = a => a.slice().sort().join('|');
+    if (set(base) !== set(work) || set(base) !== set(talk))
+      throw new Error('التركيز أسقط محطّةً أو زاد واحدة');
+    if (base.join('|') === work.join('|')) throw new Error('التركيز بلا أثرٍ في الترتيب');
+
+    const at = (a, p) => a.findIndex(x => x.startsWith(p));
+    if (at(work, 'st-s-write') > at(work, 'st-s-read'))
+      throw new Error('صاحبُ الشغل لم تُقدَّم له الكتابة');
+    if (at(talk, 'st-sc-') > at(talk, 'st-s-'))
+      throw new Error('صاحبُ الكلام لم يُقدَّم له المشهد');
+
+    /* ولا تُفتَح البوابةُ بترتيبٍ: الشرطُ تمامُ الكلّ. */
+    ev('S.plan=' + JSON.stringify({why: 'talk', mins: 10, days: 5, from: '2026-01-01'}));
+    if (ctx.gateReady(3)) throw new Error('فُتحت البوابةُ على وحدةٍ لم تَتمّ');
+  });
+
+  /* ولا موعدَ يُحمَّل عليه: اشترى البرنامجَ ليتعلّم، لا ليُلاحَق
+     بتاريخٍ اشتقّه البرنامجُ بالقسمة من جوابه. */
+  await run('لا موعدَ فراغٍ محسوبٌ في البرنامج', {}, (ctx) => {
+    ['forecast', 'priceOf', 'arDate', 'arWeeks', 'stationMins'].forEach(k => {
+      if (ctx[k] !== undefined) throw new Error('عاد حسابُ الموعد: ' + k);
+    });
+  });
+
   /* القارئُ ها هنا يَقرأ، لا يُنفَّذ. وكان تحت جوابين زرّان يَسوقانه
      إلى مسارٍ لا رجوعَ منه، فيَنسى أنّه كان يقرأ. */
   await run('دليل الاستعمال لا يَسوق قارئه خارجه', {}, (ctx, ev) => {

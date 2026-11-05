@@ -34,6 +34,8 @@ import * as examScore from './engine/exam-score.js';
 import * as writeScore from './engine/write-score.js';
 import * as relevanceEng from './engine/relevance.js';
 import * as srs from './engine/srs.js';
+import * as unitPlanEng from './engine/unit-plan.js';
+import * as focusEng from './engine/focus.js';
 import * as readScore from './engine/read-score.js';
 import * as examRead from './engine/exam-read.js';
 import * as roadmapContent from './content/roadmap.js';
@@ -128,7 +130,7 @@ const VIEWS={home:home.homeView,plan:planSetup.planView,course:course.courseView
 
 /* المعالجات داخل الـ HTML (onclick) تحتاج أسماءً عامة. */
 Object.assign(window,{
-  ...state,...grammar,...pronounce,...progress,...quiz,...examLevel,...wordsEng,...sceneEng,...chat,...ui,...home,...course,...planSetup,...planEng,...journal,...book,...voiceAr,...syncEng,...wordsLearn,...help,...todayView,...quizv,...speak,...settings,...reviewerPanel,...syncPanel,...translate,...trEngine,...sounds,...examScore,...examConv,...examConvView,...writeScore,...examWrite,...examWriteView,...readScore,...examRead,...examReadView,...examDict,...examDictView,...cefrEng,...cefrView,...roadmapContent,...roadmapView,...srs,...relevanceEng,
+  ...state,...grammar,...pronounce,...progress,...quiz,...examLevel,...wordsEng,...sceneEng,...chat,...ui,...home,...course,...planSetup,...planEng,...journal,...book,...voiceAr,...syncEng,...wordsLearn,...help,...todayView,...quizv,...speak,...settings,...reviewerPanel,...syncPanel,...translate,...trEngine,...sounds,...examScore,...examConv,...examConvView,...writeScore,...examWrite,...examWriteView,...readScore,...examRead,...examReadView,...examDict,...examDictView,...cefrEng,...cefrView,...roadmapContent,...roadmapView,...srs,...unitPlanEng,...focusEng,...relevanceEng,
   render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme,setTheme
 });
 /* S مرتبط حيّاً لأنه يُعاد بناؤه عند كل إقلاع. */
@@ -243,3 +245,5 @@ export * from './engine/relevance.js';
 export * from './views/exam-read.js';
 export * from './content/read-texts.js';
 export {render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme,setTheme,VIEWS};
+export * from './engine/unit-plan.js';
+export * from './engine/focus.js';

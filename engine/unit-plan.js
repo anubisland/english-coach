@@ -18,6 +18,7 @@ import {WRITE} from '../content/write-tasks.js';
 import {wordsOf, topicsOf} from '../content/words.js';
 import {wordsScore, WORDS_PASS} from './words.js';
 import {scenesOf, sceneDone} from './scene.js';
+import {focusOf, orderSkills} from './focus.js';
 
 export const PASS_SKILL = 60;
 
@@ -58,12 +59,10 @@ export const unitSkills = u => SKILLS.filter(s => s.has(u).length);
 
    والمشهدُ الحيّ ليس هنا: هو ساحةُ تدريبٍ مفتوحةٌ بلا سجلِّ إتمام،
    فلا تُقفَل عليه بوابةٌ بما لا يُقاس. وإضافتُه تنتظر سجلَّه. */
-export function unitPlan(u) {
-  const out = [];
-
-  if (wordsOf(u).length) {
-    const sc = wordsScore(u);
-    out.push({
+function wordsStop(u) {
+  if (!wordsOf(u).length) return null;
+  const sc = wordsScore(u);
+  return {
       kind: 'words', id: 'st-w-' + u, key: 'words',
       /* بلا رقمٍ كأخواتها («قراءة الوحدة»): الرقمُ اللاتينيّ هنا
          يخالف أرقامَ الواجهة العربيّة، وموضعُ المحطّة يُغني عنه. */
@@ -76,56 +75,74 @@ export function unitPlan(u) {
         : 'نتيجتك ' + sc + '٪' + (sc >= WORDS_PASS ? '' : ' — المطلوب ' + WORDS_PASS + '٪'),
       done: sc >= WORDS_PASS, score: sc,
       /* إلى التعرّف أوّلاً، ومنه إلى الاختبار. */
-      act: `learnWords(${u})`, cta: 'ابدأ المفردات'
-    });
-  }
+    act: `learnWords(${u})`, cta: 'ابدأ المفردات'
+  };
+}
 
-  lessonsOf(u).forEach(l => out.push({
-    kind: 'lesson', id: 'st-l-' + l.id, key: l.id,
-    t: 'الدرس ' + l.id + ': ' + l.t, meta: l.items.length + ' تمرين',
-    done: !!(st().lessons || {})[l.id], act: `openLesson('${l.id}')`, cta: 'ابدأ الدرس'
-  }));
+const lessonStop = l => ({
+  kind: 'lesson', id: 'st-l-' + l.id, key: l.id,
+  t: 'الدرس ' + l.id + ': ' + l.t, meta: l.items.length + ' تمرين',
+  done: !!(st().lessons || {})[l.id], act: `openLesson('${l.id}')`, cta: 'ابدأ الدرس'
+});
 
-  convosOf(u).forEach(c => out.push({
-    kind: 'convo', id: 'st-c-' + c.id, key: c.id,
-    t: 'حوار: ' + c.t, meta: 'تدرّب على القاعدة في حوار',
-    done: !!(st().conv || {})[c.id], act: `launch('conv','${c.id}')`, cta: 'ابدأ المحادثة'
-  }));
+const convoStop = c => ({
+  kind: 'convo', id: 'st-c-' + c.id, key: c.id,
+  t: 'حوار: ' + c.t, meta: 'تدرّب على القاعدة في حوار',
+  done: !!(st().conv || {})[c.id], act: `launch('conv','${c.id}')`, cta: 'ابدأ المحادثة'
+});
 
-  unitSkills(u).forEach(s => {
-    const sc = skill(u, s.k);
-    out.push({
-      kind: 'skill', id: 'st-s-' + s.k + '-' + u, key: s.k,
-      t: s.t,
-      meta: sc === undefined ? s.meta
-        : 'نتيجتك ' + sc + '٪' + (sc >= PASS_SKILL ? '' : ' — المطلوب ' + PASS_SKILL + '٪'),
-      /* بالعتبة لا بمجرّد المحاولة: كان done يعني «خاضها»، فمن نال
-         عشرةً في المئة فُتحت له البوابةُ على وحدةٍ لا يعرفها — وهو
-         الخللُ الذي كُتبت هذه الوحدةُ لمنعه. وPASS_SKILL كانت
-         مكتوبةً ولا تُقرأ.
+function skillStop(u, s) {
+  const sc = skill(u, s.k);
+  return {
+    kind: 'skill', id: 'st-s-' + s.k + '-' + u, key: s.k,
+    t: s.t,
+    meta: sc === undefined ? s.meta
+      : 'نتيجتك ' + sc + '٪' + (sc >= PASS_SKILL ? '' : ' — المطلوب ' + PASS_SKILL + '٪'),
+    /* بالعتبة لا بمجرّد المحاولة: كان done يعني «خاضها»، فمن نال
+       عشرةً في المئة فُتحت له البوابةُ على وحدةٍ لا يعرفها — وهو
+       الخللُ الذي كُتبت هذه الوحدةُ لمنعه. وPASS_SKILL كانت
+       مكتوبةً ولا تُقرأ.
 
-         ومن أتاها بصفرٍ من جهازٍ آخر لا يفتحها كذلك: المزامنةُ تنقل
-         رقماً، والرقمُ دون العتبة لا يَخدم وحدة. */
-      done: sc >= PASS_SKILL, score: sc, act: s.act(u), cta: s.cta
-    });
-  });
+       ومن أتاها بصفرٍ من جهازٍ آخر لا يفتحها كذلك: المزامنةُ تنقل
+       رقماً، والرقمُ دون العتبة لا يَخدم وحدة. */
+    done: sc >= PASS_SKILL, score: sc, act: s.act(u), cta: s.cta
+  };
+}
 
-  /* المشهدُ الحيّ آخرَ المحطّات: تنميةُ الطلاقة تأتي على ما تُعلّم،
-     لا قبله. وكان خارج الرحلة كلِّها — تبويبٌ حرٌّ يعرض مشاهدَ
-     المنهج كلِّه، فيستطيع المتعلّم أن يترك الوحدةَ ويقضي وقته فيه.
-     ولم يكن يُقفَل عليه شيءٌ لأنّه بلا سجلّ، فبُني السجلُّ ودخل. */
+/* المشهدُ الحيّ: وكان خارج الرحلة كلِّها — تبويبٌ حرٌّ يعرض مشاهدَ
+   المنهج كلِّه، فيستطيع المتعلّم أن يترك الوحدةَ ويقضي وقته فيه.
+   ولم يكن يُقفَل عليه شيءٌ لأنّه بلا سجلّ، فبُني السجلُّ ودخل. */
+function sceneStop(u) {
   const sc = scenesOf(u);
-  if (sc.length) {
-    const left = sc.filter(x => !sceneDone(x)).length;
-    out.push({
-      kind: 'scene', id: 'st-sc-' + u, key: 'scene',
-      t: 'تكلَّم بصوتك',
-      meta: left ? 'تتكلّم بصوتك في ' + sc.length + ' مواقف — بقي ' + left
-                 : 'أدّيتَ مواقفَ الوحدة كلَّها',
-      done: left === 0,
-      act: `startUnitScene(${u})`, cta: 'ابدأ المشهد'
-    });
-  }
+  if (!sc.length) return null;
+  const left = sc.filter(x => !sceneDone(x)).length;
+  return {
+    kind: 'scene', id: 'st-sc-' + u, key: 'scene',
+    t: 'تكلَّم بصوتك',
+    meta: left ? 'تتكلّم بصوتك في ' + sc.length + ' مواقف — بقي ' + left
+               : 'أدّيتَ مواقفَ الوحدة كلَّها',
+    done: left === 0,
+    act: `startUnitScene(${u})`, cta: 'ابدأ المشهد'
+  };
+}
+
+export function unitPlan(u) {
+  const out = [];
+  const w = wordsStop(u);
+  if (w) out.push(w);
+  lessonsOf(u).forEach(l => out.push(lessonStop(l)));
+  convosOf(u).forEach(c => out.push(convoStop(c)));
+
+  /* وها هنا يَظهر تركيزُه: المحطّاتُ هي هي لا تُنقَص، وإنّما
+     يَتقدّم منها ما جاء لأجله. والمشهدُ الحيُّ آخرَها في الأصل —
+     تنميةُ الطلاقة تأتي على ما تُعلّم، لا قبله — إلّا لمن جاء
+     للكلام نفسِه، فهو مطلوبُه لا ثمرةُ غيره. */
+  const f = focusOf();
+  const skills = orderSkills(unitSkills(u), f).map(s => skillStop(u, s));
+  const scene = sceneStop(u);
+
+  if (scene && f && f.speakFirst) out.push(scene, ...skills);
+  else { out.push(...skills); if (scene) out.push(scene) }
 
   return out;
 }

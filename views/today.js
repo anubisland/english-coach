@@ -10,7 +10,8 @@ import {S, save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
 import {linesOf, errHistory, errLevel, wrongIndex, bookStats, lines} from '../engine/book.js';
 import {dayKey, lastActiveDay, dayReport} from '../engine/journal.js';
-import {hasPlan, paceStatus, arDate, arWeeks, arNum} from '../engine/plan.js';
+import {hasPlan, paceStatus, arNum} from '../engine/plan.js';
+import {focusOf} from '../engine/focus.js';
 import {RULE} from '../content/rules.js';
 import {GR} from '../engine/grammar.js';
 import {currentLevel} from '../engine/cefr.js';
@@ -211,8 +212,9 @@ function planLine(){
        بإحالةٍ إلى الإعدادات يَبحث فيها. والإعداداتُ موضعُها بعدُ،
        لمن أراد أن يُغيّر. */
     return card('بقيت خطوةٌ واحدة',
-      '<p>عرفتَ البرنامج، وحدّدتَ نقطةَ بدايتك. يبقى أن نَضع خطّتك: '
-      + 'دقائقُك وأيّامُك، ومنها موعدُ فراغك من <span class="en">'+esc(currentLevel())+'</span>.</p>'
+      '<p>عرفتَ البرنامج، وحدّدتَ نقطةَ بدايتك — وأنت الآن في '
+      + '<span class="en">' + esc(currentLevel()) + '</span>. '
+      + 'يبقى أن نَضع خطّتك: بمَ تَبدأ في كلّ وحدة، وكم تُذاكر في الأسبوع.</p>'
       + '<div class="row" style="justify-content:flex-start">'
       + '<button class="btn" onclick="planStart()">ضَع خطّتك الآن</button></div>');
 
@@ -229,21 +231,27 @@ function planLine(){
      فيه شيئاً. وقبل ذلك تُذكَّر الخطّةُ تذكيراً لا تقريعاً. */
   const fresh = !p.stations && !p.worked;
   const young = p.plan.from && daysSince(p.plan.from) < 7;
+  const f = focusOf();
+
+  /* وما يُقال له أثرُ اختياره وما وَعد به، لا موعدٌ حسبتُه له.
+
+     وكان يُقال «وبهذه السرعة تُنهي A1 يوم ١٢ مارس» — تاريخٌ اشتُقّ
+     بقسمةِ ما بقي على ما وَعد، ثمّ صار ديناً عليه يُقال له «متأخّر».
+     وهو لم يَعِد به، وإنّما وَعد بأيّامه. فعليها يُحاسَب. */
+  const line = f ? `<br>وبدايةُ كلّ وحدةٍ على ${esc(f.t)}: ${esc(f.sub)}.` : '';
 
   if (fresh || young)
     return `<div class="plan-line ok">
       <b>خطّتُك</b>
-      <span>${ar(p.plan.mins)} دقيقةً، ${ar(p.plan.days)} أيّامٍ في الأسبوع —
-        وهذا يُنهي ${esc(currentLevel())} يوم ${arDate(p.date)}.<br>
-        ${fresh ? '' : `أنجزتَ ${ar(p.stations)} محطّةً هذا الأسبوع.`}</span>
+      <span>${ar(p.plan.mins)} دقيقةً، ${ar(p.plan.days)} أيّامٍ في الأسبوع.${line}
+        ${fresh ? '' : `<br>أنجزتَ ${ar(p.stations)} محطّةً هذا الأسبوع.`}</span>
       <button class="btn ghost sm" onclick="go('settings')">التعريف بالبرنامج والخطّة</button></div>`;
 
-  const late = !p.onTrack;
-  return `<div class="plan-line ${late ? 'late' : 'ok'}">
-    <b>${late ? 'متأخّرٌ عن خطّتك' : 'ماشٍ على خطّتك'}</b>
-    <span>وعدتَ بـ${ar(p.plan.mins)} دقيقةً ${ar(p.plan.days)} أيّامٍ في الأسبوع ·
-      أنجزتَ ${ar(p.stations)} محطّةً هذا الأسبوع من ${ar(p.stationsPerWeek)}.<br>
-      وبهذه السرعة تُنهي ${esc(currentLevel())} في ${arWeeks(p.weeks)} — يوم ${arDate(p.date)}.</span>
+  return `<div class="plan-line ${p.kept ? 'ok' : 'late'}">
+    <b>${p.kept ? 'وفَيتَ بما وعدتَ' : `بقي عليك ${ar(p.owed)} من أيّام أسبوعك`}</b>
+    <span>وعدتَ بـ${ar(p.plan.days)} أيّامٍ في الأسبوع، ${ar(p.plan.mins)} دقيقةً في اليوم ·
+      ذاكرتَ ${ar(p.worked)} ${p.worked === 1 ? 'يوماً' : 'أيّامٍ'}
+      وأنجزتَ ${ar(p.stations)} محطّة.${line}</span>
     <button class="btn ghost sm" onclick="go('settings')">التعريف بالبرنامج والخطّة</button></div>`;
 }
 
