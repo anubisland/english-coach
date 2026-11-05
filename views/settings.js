@@ -2,20 +2,21 @@
 import {S, save, logError, defaultState, migrate, K} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
 import {LESSONS} from '../content/lessons.js';
-import {card, svg, ar, toast} from './ui.js';
+import {card, svg, ar, toast, esc} from './ui.js';
 import {reviewerPanel} from './reviewer-panel.js';
 import {syncCard} from './sync-panel.js';
 import {helpCard} from './help.js';
 import {syncOn, forgetSync} from '../engine/sync.js';
 import {hasPlan} from '../engine/plan.js';
-import {currentUnit, UNIT_NS} from '../engine/progress.js';
+import {currentUnit, UNIT_NS, levelUnits, unitLessons} from '../engine/progress.js';
+import {currentLevel} from '../engine/cefr.js';
 
 /* مصدرُ رقم النسخة الوحيد. يقرؤه scripts/build-apk.mjs ليضعه في
    الـAPK، ويحرس tests/apk.test.mjs أنّ package.json يطابقه.
 
    وكان رقماً مستقلّاً («٤») لا صلة له برقم الحزمة، فنزّل المستخدم
    ١٫١٫٠ ورأى في التطبيق «إصدار ٤». الحقيقة الواحدة تُكتب مرّةً. */
-export const APP_VERSION = '1.17.0';
+export const APP_VERSION = '1.17.1';
 
 /* ما يُصدَّر: الحالة بلا الاختبار الجاري، فهو لحظي لا يُنقل. */
 function snapshot() {
@@ -139,23 +140,40 @@ export function settingsView() {
          </label>
        </div>
      </details>`)
-  + card('تقدّمك الآن',
-    `<p class="muted">${ar(done)} من ${ar(LESSONS.length)} دروس · ${ar(Object.keys(S.cp).length)} وحدات مجتازة · ${ar(S.xp)} نقطة</p>`)
-  /* لا نقول «مستواك A1» — البرنامج يغطّي أساسيات A1 وحدها، فلا يملك
-     أن يُحدّد مستوى المتعلّم على السلّم العالمي، وإنّما نقطةَ بدايته فيه. */
-  + card('نقطة بدايتك',
-    (done
-      ? `<p class="muted">بدأتَ من الوحدة ${ar((S.place && S.place.suggest) || 1)}، وأنت الآن في الوحدة ${ar(currentUnit() || 1)} من ${ar(UNIT_NS.length)}.</p>`
-      : `<p class="muted">نقطةُ بدايتك الوحدة ${ar((S.place && S.place.suggest) || 1)} من ${ar(UNIT_NS.length)}. أعد الاختبار إن شعرتَ أنّها لم تناسبك.</p>`)
-    + `<div class="row" style="justify-content:flex-start;margin-top:4px">
-       <button class="btn ghost" onclick="launch('place')">أعد تحديد نقطة البداية</button>
-     </div>`)
+  /* بيانٌ واحدٌ عن موضعه، لا بطاقتان تتناقضان.
+
+     وكان فوقَها «تقدّمك الآن: ٠ من ٨٢ درساً» وتحتَها «بدأتَ من
+     الوحدة ٤» — فيَسأل بحقّ: والثلاثُ قبلها؟ أليست تقدّماً؟
+     والثمانون مقامُ المنهج كلِّه تحت رقمٍ يَعُدّ ما أتمّه بيده. */
+  + card('أين أنت الآن',
+    (() => {
+      const off = Object.keys(S.skipped || {}).length;
+      const at = currentUnit() || 1;
+      const lv = currentLevel();
+      const lvLessons = levelUnits(lv).flatMap(unitLessons);
+      const lvDone = lvLessons.filter(l => S.lessons[l.id]).length;
+
+      return '<p class="muted" style="line-height:2">'
+        + `أنت في <b>الوحدة ${ar(at)}</b> من ${ar(UNIT_NS.length)}، في مستوى <span class="en">${esc(lv)}</span>.`
+        + (off ? `<br>أعفاك اختبارُ التحديد من <b>${ar(off)}</b> ${off === 1 ? 'وحدة' : off === 2 ? 'وحدتين' : 'وحدات'}.` : '')
+        + `<br>وأتممتَ <b>${ar(lvDone)}</b> من ${ar(lvLessons.length)} درساً في هذا المستوى`
+        + (S.xp ? `، ولك ${ar(S.xp)} نقطة` : '') + '.</p>'
+        + '<div class="row" style="justify-content:flex-start;margin-top:4px">'
+        + '<button class="btn ghost" onclick="launch(&quot;place&quot;)">أعد تحديد نقطة البداية</button></div>';
+    })())
   + card('إعادة البداية',
     `<p class="muted">يمحو كل تقدّمك ويعيدك إلى اختبار تحديد المستوى. لا يمكن التراجع.</p>
      <div class="row" style="justify-content:flex-start;margin-top:4px">
        <button class="btn ghost" style="color:var(--coral)" onclick="resetProgress()">امحُ كل شيء وابدأ من جديد</button>
      </div>`)
-  + reviewerPanel()
+  /* والميزةُ الاختياريّةُ تُرفَع من هنا.
+
+     وسألَ صاحبُ البرنامج: «ما لزومُها وهو لا يحتاجها؟» — والجوابُ
+     أنّ لا لزومَ لها عند المشتري: تَحتاج اشتراكاً مدفوعاً لدى خدمةٍ
+     خارجيّة، ولا تَزيد في درجةٍ ولا تَفتح محطّة. وبطاقةٌ تُطمئنه
+     أنّه لا يحتاجها خيرٌ منها ألّا تُعرَض أصلاً.
+
+     والشفرةُ باقيةٌ في views/reviewer-panel.js لمن أرادها. */
   + card('عن التطبيق',
     `<p class="muted">مدرب الإنجليزية · إصدار ${ar(APP_VERSION)}<br>
      تعلّم بالكلام: شرح بالعربية، تمارين، ومحادثة حيّة مع تصحيح فوري.</p>`);
