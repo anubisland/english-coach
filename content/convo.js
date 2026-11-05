@@ -341,3 +341,10 @@ export const CONVO=[
 {p:`How do you answer the strongest objection?`,o:[`It might be argued that the saving is temporary.`,`It might argue that the saving is temporary.`,`Someone can say the saving is temporary maybe.`],a:0,tip:`It might be argued that صيغةُ عرض الاعتراض`},
 {p:`And the last line before the conclusion?`,o:[`Taken as a whole, the case for the policy is strong.`,`Taking as a whole, the case for the policy is strong.`,`Taken as whole, the case for the policy is strong.`],a:0,tip:`Taken as a whole حالٌ من الحجّة كلّها`}]}
 ];
+
+/* بنودُ الحوار كما يَقرؤها محرّكُ الاختبار: السؤالُ في p لا في q.
+
+   وكانت هذه الخريطةُ مكتوبةً في موضعين — في _launch وفي استئناف
+   الورقة — فاختلفا: استأنفَ المتعلّمُ حواراً فرأى الخياراتِ بلا
+   سؤالٍ فوقها، لأنّ esc(undefined) فراغ. فصارت في موضعٍ واحد. */
+export const convItems = c => (c.turns || []).map(t => ({q: t.p, o: t.o, a: t.a, tip: t.tip}));

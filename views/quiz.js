@@ -7,7 +7,7 @@ import {speakTurn,startFrom,itemTyped} from '../engine/quiz.js';
 import {card,svg,ar,ruleCard,toggleRule,esc} from './ui.js';
 
 export function speakPanel(q,it){if(q.kind!=='conv'||q.picked==null)return '';if(q.typed)return `<p class=muted style='margin-top:8px'>كُتبت ولم تُنطق — <b style="color:var(--amber)">لم يُقَس النطق</b>${q.heard?'<br>ما كتبته: «'+esc(q.heard)+'»':''}</p>`;
-  if(q.spoke!=null)return `<p class=muted style='margin-top:8px'>دقة النطق: ${ar(q.spoke)}٪${q.heard?'<br>سمعتُ: «'+esc(q.heard)+'»':''}</p>`;return `<div style='background:#EEF2FF;border-radius:14px;padding:12px;margin-top:12px'><div class=muted>الآن قل الجملة الصحيحة بصوتك أو اكتبها:</div><div class=en style='font-size:18px;margin:8px 0;font-weight:700'>${it.o[it.a]}</div><div class=row><button class=btn onclick='mic2()'>🎙️ تحدّث</button></div><div class=row style='margin-top:8px'><input id=ctxt2 class=en placeholder='Type it' style='direction:ltr;max-width:220px;margin:0;padding:10px;border:2px solid var(--line);border-radius:12px'><button class='btn' onclick='typed2()'>✓</button></div>${q.heard?`<p class=muted style='margin-top:8px'>سمعتُ: «${q.heard}»</p>`:''}${q.feedback?`<p class=muted style='margin-top:8px'>${q.feedback}</p>`:''}</div>`}
+  if(q.spoke!=null)return `<p class=muted style='margin-top:8px'>دقة النطق: ${ar(q.spoke)}٪${q.heard?'<br>سمعتُ: «'+esc(q.heard)+'»':''}</p>`;return `<div style='background:#EEF2FF;border-radius:14px;padding:12px;margin-top:12px'><div class=muted>الآن قل الجملة الصحيحة بصوتك أو اكتبها:</div><div class=en style='font-size:18px;margin:8px 0;font-weight:700'>${esc(it.o[it.a])}</div><div class=row><button class=btn onclick='mic2()'>🎙️ تحدّث</button></div><div class=row style='margin-top:8px'><input id=ctxt2 class=en placeholder='Type it' style='direction:ltr;max-width:220px;margin:0;padding:10px;border:2px solid var(--line);border-radius:12px'><button class='btn' onclick='typed2()'>✓</button></div>${q.heard?`<p class=muted style='margin-top:8px'>سمعتُ: «${esc(q.heard)}»</p>`:''}${q.feedback?`<p class=muted style='margin-top:8px'>${esc(q.feedback)}</p>`:''}</div>`}
 
 export function mic2(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;const q=S.q;if(!R){q.feedback='التعرف على الصوت غير مدعوم هنا، اكتب الجملة في المربع';hooks.render();return}const r=new R();r.lang='en-US';r.onresult=e=>speakTurn(e.results[0][0].transcript.trim());r.onerror=e=>{q.feedback='تعذّر التسجيل ('+e.error+')';hooks.render()};
  try{r.start()}catch(x){logError('بدء التسجيل',x);q.feedback='تعذّر بدء التسجيل. اضغط مرة واحدة فقط، أو اكتب الجملة في المربع';hooks.render()}}
@@ -85,7 +85,7 @@ export function quizView(){
     return `<div class="card" style="text-align:center;padding-top:22px">
         <div class="dsp" style="font-size:52px;line-height:1;color:${q.pass?'var(--green)':'var(--amber)'}">${ar(q.score)}<span style="font-size:24px;color:var(--mute)">/${ar(q.items.length)}</span></div>
         <div class="bar" style="max-width:220px;margin:14px auto 0"><i style="width:${pc}%;background:${q.pass?'var(--green)':'var(--amber)'}"></i></div>
-        <h2 style="margin-top:14px">${q.pass?'🎉 اجتزت '+q.title:'لم تجتز بعد'}</h2>
+        <h2 style="margin-top:14px">${q.pass?'🎉 اجتزت '+esc(q.title):'لم تجتز بعد'}</h2>
         <p class="muted">${resultNote(q)}${
           q.attempt&&q.attempt>1?' · المحاولة '+ar(q.attempt):''}</p>
         <div class="row" style="margin-top:6px">${resultActions(q)}</div>
@@ -99,9 +99,9 @@ export function quizView(){
      <div style="display:flex;align-items:center;gap:11px">
        <div class="bar" style="flex:1;margin:0"><i style="width:${q.i/total*100}%"></i></div>
        <span class="muted" style="font-size:12px;font-weight:700;flex:0 0 auto">${ar(q.i+1)} من ${ar(total)}</span></div>
-     <p class="muted" style="margin-top:12px;font-size:12px">${q.title}</p>
-     ${itemTyped(it)?askHtml(it):`${it.ar?`<p style="margin-top:6px;font-weight:700">${esc(it.ar)}</p>`:''}<div class="mean en" style="font-size:19px;margin-top:6px;line-height:1.7;font-weight:500">${it.q}</div>`}${opts}
-     ${speakPanel(q,it)}${q.picked!=null&&(q.kind!=='conv'||q.spoke!=null)?`<p class='muted' style='margin-top:10px'>💡 ${it.tip}</p>${itemRuleHtml(q,it)}<div class="row"><button class="btn" onclick="nextQ()">${q.i+1>=total?'النتيجة':'التالي ←'}</button></div>`:''}
+     <p class="muted" style="margin-top:12px;font-size:12px">${esc(q.title)}</p>
+     ${itemTyped(it)?askHtml(it):`${it.ar?`<p style="margin-top:6px;font-weight:700">${esc(it.ar)}</p>`:''}<div class="mean en" style="font-size:19px;margin-top:6px;line-height:1.7;font-weight:500">${esc(it.q)}</div>`}${opts}
+     ${speakPanel(q,it)}${q.picked!=null&&(q.kind!=='conv'||q.spoke!=null)?`<p class='muted' style='margin-top:10px'>💡 ${esc(it.tip)}</p>${itemRuleHtml(q,it)}<div class="row"><button class="btn" onclick="nextQ()">${q.i+1>=total?'النتيجة':'التالي ←'}</button></div>`:''}
      <div class="row" style="margin-top:4px"><button class="btn ghost" style="background:transparent;color:var(--faint)" onclick="closeQ()">إلغاء</button></div></div>`;
 }
 

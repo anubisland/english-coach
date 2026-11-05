@@ -80,17 +80,26 @@ public class TtsPlugin extends Plugin {
         String lang = call.getString("lang", "en");
         Float rate = call.getFloat("rate", 1.0f);
 
-        if (!ready || text == null || text.isEmpty()) {
-            call.reject("المحرّك غير مهيّأ");
-            return;
-        }
+        if (text == null || text.isEmpty()) { call.reject("لا نصَّ للنطق"); return; }
+        if (!ready) { call.reject("محرّكُ النطق غير مهيّأ بعد"); return; }
         try {
             tts.stop();
-            tts.setLanguage(localeOf(lang));
+            /* وتُقرأ نتيجةُ الضبط: اللغةُ غيرُ المنزّلة أشهرُ ما
+               يَقع، وهي عينُ ما كُتبت رسالةُ التنبيه لأجله. ولو
+               مُضي بعدها لقال الجسرُ «تمّ» ولم يُنطَق حرف. */
+            int lr = tts.setLanguage(localeOf(lang));
+            if (lr == TextToSpeech.LANG_MISSING_DATA || lr == TextToSpeech.LANG_NOT_SUPPORTED) {
+                call.reject("لغةُ النطق غير منزّلة في الجهاز");
+                return;
+            }
             tts.setSpeechRate(rate == null ? 1.0f : rate);
             /* QUEUE_FLUSH: نطقٌ واحدٌ في كلّ مرّة — وإلّا تراكمت الجملُ
                إن ضغط «استمع» مرّاتٍ متتابعة. */
-            tts.speak(text, TextToSpeech.QUEUE_FLUSH, new HashMap<String, String>());
+            if (tts.speak(text, TextToSpeech.QUEUE_FLUSH, new HashMap<String, String>())
+                    != TextToSpeech.SUCCESS) {
+                call.reject("رفض المحرّكُ النطق");
+                return;
+            }
             call.resolve();
         } catch (Exception e) {
             call.reject(String.valueOf(e.getMessage()));

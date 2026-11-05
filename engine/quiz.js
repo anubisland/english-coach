@@ -1,7 +1,7 @@
 /* محرّك الاختبارات: الإطلاق، والاختيار، والانتقال، والنتيجة.
    أنواعه: lesson, cp, ret, exam, conv, place. */
 import {LESSONS} from '../content/lessons.js';
-import {CONVO} from '../content/convo.js';
+import {CONVO,convItems} from '../content/convo.js';
 import {S,save,addXp,logError} from './state.js';
 import {hooks} from './bus.js';
 import {unitItems,itemsUpTo,shuffle,PLACE,lessonOpen,unitOf,skillOf,UNIT_NS,LAST_UNIT,levelItems,LEVELS_BUILT} from './progress.js';
@@ -48,7 +48,7 @@ export function _launch(kind,id){
     const items=wordsItems(id);
     Object.assign(q,{items,title:'مفردات الوحدة '+id,need:Math.ceil(items.length*WORDS_PASS/100)});
   }
-  else if(kind==='conv'){const c=CONVO.find(x=>x.id===id);Object.assign(q,{title:'محادثة: '+c.t,items:c.turns.map(t=>({q:t.p,o:t.o,a:t.a,tip:t.tip})),need:c.turns.length})}
+  else if(kind==='conv'){const c=CONVO.find(x=>x.id===id);Object.assign(q,{title:'محادثة: '+c.t,items:convItems(c),need:c.turns.length})}
   /* pickPlace تقرأ q.items لتتجنّب تكرار سؤال، فيجب أن توجد قبل أول نداء. */
   /* تدريب من المهارات التي أخطأ فيها في البوابة وحدها — لا الوحدة كلها. */
   else if(kind==='drill'){

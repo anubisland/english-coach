@@ -1,7 +1,7 @@
 /* حالة التطبيق: تعريفها الكامل، وترقية المحفوظ القديم، وحفظها.
    أي حقل جديد يُضاف إلى defaultState أولاً، وإلا انهار التطبيق عند أول استخدام. */
 import {LESSONS,UNITS} from '../content/lessons.js';
-import {CONVO} from '../content/convo.js';
+import {CONVO,convItems} from '../content/convo.js';
 import {SCENES} from '../content/scenes.js';
 import {RULE} from '../content/rules.js';
 import {GR} from './grammar.js';
@@ -22,6 +22,7 @@ export function defaultState(){return{
   errs:{},                  // عدّاد أخطاء الجرامر المتكررة بنصّها
   days:{},                  // سجلّ الأيّام: ما تمّ وما صحّ وما أُخطئ فيه
   plan:null,                // خطّة المتعلّم: دقائقه وأيّامه وغرضه
+  help:null,                // سؤالُ الدليل المفتوح — لحظيّ
   peek:null,                // وحدةٌ تُعرَض كلماتُها قبل اختبارها — لحظيّ
   introSeen:false,         // رأى التعريفَ بالبرنامج — لئلّا يُعاد عليه
   setup:null,               // مفاوضةُ الخطّة الجارية — لحظيّة لا تُحفظ
@@ -326,26 +327,50 @@ function cleanPlan(p){
           from:DATE_KEY.test(p.from)?p.from:null};
 }
 
-/* الورقةُ الجارية: لا تُقبَل إلّا من نوعٍ يُستأنَف، وبعناصرَ من
-   المحتوى نفسِه لا من الملفّ. فالملفُّ المستورد غير موثوق، ومحرّكُ
-   الاختبار يقرأ من items بلا سؤال. */
+/* الورقةُ الجارية: يُؤخَذ منها الموضعُ وحدَه، وتُبنى أسئلتُها
+   من المحتوى عندنا.
+
+   ولا تُنسَخ items ولا title ممّا جاء: الحالةُ تَعبُر الوسيطَ وتُستورَد
+   من ملفّ، وشاشةُ الاختبار تَكتب نصَّ السؤال في الصفحة — فنصٌّ ملفَّقٌ
+   يصير شفرةً تعمل في جهاز المتعلّم. وهذا ثغرةٌ أُدخلت يومَ صارت الورقةُ
+   تُزامَن، ولم تكن قبلَه لأنّها كانت تُبنى محلّيّاً دائماً.
+
+   ولا يُستأنَف إلّا ما تُبنى أسئلتُه بعينها من هويّته: الدرسُ والمحادثة.
+   وأمّا المفرداتُ والمراجعةُ والتدريبُ فأسئلتُها تُنتقى انتقاءً، فلا
+   سبيلَ إلى ردّها كما كانت — فتُترَك ولا تُستأنَف. */
+const SHEET = {
+  lesson: id => {
+    const l = LESSONS.find(x => x.id === String(id));
+    return l ? {items: l.items, title: 'درس ' + l.id, need: l.items.length} : null;
+  },
+  conv: id => {
+    const c = CONVO.find(x => x.id === String(id));
+    return c ? {items: convItems(c), title: 'محادثة: ' + c.t, need: c.turns.length} : null;
+  }
+};
+
 function cleanQ(q){
   if(!q||typeof q!=='object')return null;
-  if(!RESUMABLE.includes(q.kind))return null;
-  if(!Array.isArray(q.items)||!q.items.length)return null;
+  /* بـhasOwnProperty: SHEET['constructor'] يَرجع دالّةَ النموذج
+     الأصليّ فتَمرّ الحراسةُ ثمّ تنهار القراءةُ بعدها — ويَخرج
+     الانهيارُ من migrate فيُعطّل المزامنةَ على الجهازين أبداً. */
+  const build=Object.prototype.hasOwnProperty.call(SHEET,q.kind)?SHEET[q.kind]:null;
+  if(!build)return null;
 
-  const n=q.items.length;
+  const sheet=build(q.id);
+  if(!sheet)return null;                       /* هويّةٌ لا محتوى لها */
+
+  const n=sheet.items.length;
   const i=Math.round(Number(q.i));
-  const got=Array.isArray(q.got)?q.got.slice(0,n).map(x=>!!x):[];
-  /* مؤشّرٌ خارج الورقة يُسقطها: استئنافٌ من موضعٍ لا وجودَ له يَنهار. */
   if(!Number.isFinite(i)||i<0||i>=n)return null;
 
-  return Object.assign({},q,{
-    i, got,
-    wrong:Array.isArray(q.wrong)?q.wrong.slice(0,n):[],
-    picked:null, done:false,
-    score:got.filter(Boolean).length
-  });
+  const got=(Array.isArray(q.got)?q.got:[]).slice(0,n).map(x=>!!x);
+  return {
+    kind:q.kind, id:String(q.id),
+    items:sheet.items, title:sheet.title, need:sheet.need,
+    i, got, wrong:[], picked:null, done:false,
+    score:got.filter(Boolean).length, theta:1
+  };
 }
 
 function cleanSrs(o){
@@ -391,7 +416,7 @@ export let saveFailed=false;
 
    وسألَ صاحبُ البرنامج بحقّ: «لو وقفتُ في نصف الدرس، أعود إليه أم
    إلى أوّله؟» — وكان يعود إلى أوّله، فيَخسر ما عمل. */
-const RESUMABLE = ['lesson', 'words', 'review', 'drill', 'conv'];
+export const RESUMABLE = Object.keys(SHEET);
 
 export function save(){
   const c=Object.assign({},S);

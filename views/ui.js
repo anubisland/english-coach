@@ -2,7 +2,7 @@
 import {RULE} from '../content/rules.js';
 import {S,save,logError,saveFailed,bootWarn} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
-import {speak, hasVoice} from '../engine/voice.js';
+import {speak, hasVoice, setSilentHandler} from '../engine/voice.js';
 
 export const ICON={
  home:'<path d="M3 10.2 12 3l9 7.2V20a1.4 1.4 0 0 1-1.4 1.4H4.4A1.4 1.4 0 0 1 3 20v-9.8Z"/>',
@@ -32,6 +32,8 @@ export function toast(t){const e=document.getElementById('toast');if(!e)return;e
    يُصلحه بنفسه في دقيقة — إن قيل له. */
 const NO_VOICE = 'الصوت غير مُفعَّل في جهازك: إعدادات الجهاز ← '
   + 'إمكانية الوصول ← تحويل النص إلى كلام ← اختر محرّكاً ونزّل الإنجليزية.';
+
+setSilentHandler(e => { logError('نطق الجهاز', e); toast(NO_VOICE) });
 
 export function say(t,r=0.9){
   /* ويُسجَّل العجزُ كما يُعرَض: الرسالةُ للمتعلّم، والسجلُّ لمن

@@ -14,7 +14,7 @@
    جهازٍ بعينه (السمة، وهدف الدقائق) — فلا يُفرض ليلُ جهازٍ على نهار
    آخر. وكتابةُ المتعلّم الحرّة ورأيُ المراجع لا يغادران جهازه. */
 
-import {migrate} from './state.js';
+import {migrate, RESUMABLE} from './state.js';
 
 /* الحقول المنقولة، ولكلٍّ طريقةُ دمجه. وما ليس هنا لا يُرسَل أصلاً. */
 const UNION = ['lessons', 'conv', 'cp', 'ret', 'skipped', 'levelDone', 'scenes'];
@@ -113,10 +113,23 @@ function mergeQ(a, b) {
   const ok = x => x && typeof x === 'object' && Array.isArray(x.items) && x.items.length;
   if (!ok(a)) return ok(b) ? b : (a || null);
   if (!ok(b)) return a;
-  const same = a.kind === b.kind && String(a.id) === String(b.id);
-  if (!same) return a;
-  const n = x => (Array.isArray(x.got) ? x.got.length : 0);
-  return n(b) > n(a) ? b : a;
+  if (a.kind !== b.kind || String(a.id) !== String(b.id)) return a;
+
+  /* تُدمَج الإجاباتُ ولا تُحَلّ الورقة.
+
+     وكان يُؤخَذ أبعدُهما شوطاً بتمامه، فتَذهب إجاباتُ الآخر: من
+     أصاب السؤالَ الثاني على هاتفه ثمّ جاءت ورقةُ اللوح وفيه خطأٌ
+     في الثاني — صارت درجتُه المعروضةُ درجةَ جهازٍ آخر لا درجتَه.
+
+     والصوابُ يَغلب الخطأ: ما أصابه على أيّ جهازٍ أصابه. */
+  const ga = Array.isArray(a.got) ? a.got : [];
+  const gb = Array.isArray(b.got) ? b.got : [];
+  const n = Math.min(a.items.length, Math.max(ga.length, gb.length));
+  const got = [];
+  for (let k = 0; k < n; k++) got[k] = !!(ga[k] || gb[k]);
+
+  const i = Math.min(a.items.length - 1, Math.max(num(a.i), num(b.i)));
+  return Object.assign({}, a, {i, got, score: got.filter(Boolean).length});
 }
 
 /* الكتاب: اتّحادٌ بمفتاح (الوقت + النصّ)، مرتَّبٌ بالوقت.
@@ -164,7 +177,9 @@ export function syncable(S) {
   out.cxSeen = Array.isArray(S.cxSeen) ? S.cxSeen : [];
   /* الورقةُ الجاريةُ تُرفَع كذلك: يُذاكر على اللوح فيقف في نصف
      درسٍ، ثمّ يفتح الهاتف — فيَجده حيث تركه لا من أوّله. */
-  out.q = S.q || null;
+  /* وبالبوّابة نفسِها التي يَحفظ بها: ثلاثُ بوّاباتٍ لقرارٍ واحدٍ
+     تختلف يوماً ما، فتُرفَع أوراقُ الاختبارات بلا سببٍ ولا فائدة. */
+  out.q = (S.q && RESUMABLE.includes(S.q.kind)) ? S.q : null;
   out.book = Array.isArray(S.book) ? S.book : [];
   out.days = obj(S.days);
   out.plan = S.plan || null;
@@ -185,7 +200,12 @@ export function mergeInto(S, remote) {
   MAXMAP2.forEach(k => { S[k] = maxMap2(S[k], r[k]) });
   MAXNUM.forEach(k => { S[k] = Math.max(num(S[k]), num(r[k])) });
   ANYTRUE.forEach(k => { S[k] = !!S[k] || !!r[k] });
-  S.q = mergeQ(S.q, r.q);
+  /* وورقةٌ لدرسٍ أتمّه هذا الجهازُ لا تُبعَث: خلوُّ S.q قرارٌ اتّخذه
+     بإتمامه، لا نقصٌ يُستدرَك. وS.q هي الشاشةُ نفسُها، فبعثُها
+     يُلقي به داخلَ درسٍ فرغ منه. */
+  const doneHere = r.q && ((r.q.kind === 'lesson' && obj(S.lessons)[r.q.id])
+                        || (r.q.kind === 'conv' && obj(S.conv)[r.q.id]));
+  S.q = mergeQ(S.q, doneHere ? null : r.q);
   S.book = mergeBook(S.book, r.book);
   S.days = mergeDays(S.days, r.days);
   S.plan = S.plan || r.plan || null;

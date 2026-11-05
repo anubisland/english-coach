@@ -3516,6 +3516,91 @@ const { run, report } = require('./harness.js');
       if (String(S.q.id) !== '1.1') throw new Error('ورقةُ جهازٍ آخرَ أزاحت ورقتَه الجارية');
     });
 
+  /* الورقةُ الجاريةُ لا تُصدَّق فيما تَحمله، ويُؤخَذ موضعُها وحدَه.
+
+     والحالةُ تَعبُر الوسيطَ وتُستورَد من ملفّ، وشاشةُ الاختبار تَكتب
+     نصَّ السؤال في الصفحة — فنصٌّ ملفَّقٌ يصير شفرةً تعمل في جهاز
+     المتعلّم. وهي ثغرةٌ أُدخلت يومَ صارت الورقةُ تُزامَن. */
+  await run('ورقةٌ ملفَّقةٌ من الوسيط لا تَبلغ الشاشة',
+    { 'eng-coach-v3': JSON.stringify({placed:true}) },
+    (ctx, ev) => {
+      const S = ev('S');
+      const BAD = '<img src=x onerror=alert(1)>';
+
+      ev('mergeInto')(S, {q: {
+        kind: 'lesson', id: '1.1', i: 1, got: [true],
+        title: BAD,
+        items: [{k:'mcq', q: BAD, ar: BAD, o: [BAD, 'b'], a: 0, tip: BAD}]
+      }});
+
+      if (!S.q) throw new Error('البذرةُ لا تقيس: لم تُقبَل الورقةُ أصلاً');
+
+      /* الأسئلةُ من بنك المحتوى لا ممّا جاء. */
+      const real = ev('LESSONS').find(l => l.id === '1.1');
+      if (S.q.items !== real.items) throw new Error('نُسخت الأسئلةُ ممّا جاء بدل بناءِها');
+      if (String(S.q.title).includes('<img')) throw new Error('نُسخ العنوانُ ممّا جاء');
+
+      const html = ctx.quizView();
+      if (html.includes('onerror=alert')) throw new Error('نصٌّ ملفَّقٌ بلغ الشاشة بلا تهريب');
+
+      /* وأنواعٌ لا تُبنى أسئلتُها من هويّتها لا تُستأنَف أصلاً. */
+      ev('mergeInto')(S, {q: {kind:'words', id:1, i:1, got:[true],
+        items:[{k:'mcq', q:BAD, o:[BAD], a:0}]}});
+      if (S.q && S.q.kind === 'words') throw new Error('استُؤنفت ورقةٌ لا تُبنى أسئلتُها');
+    });
+
+  /* المزامنةُ لا تُضيع إجابةً أصابها، ولا تَبعث درساً أتمّه.
+
+     وS.q هي الشاشةُ نفسُها لا حقلاً خفيّاً، فكلُّ تبديلٍ فيها يَنقل
+     المتعلّمَ من شاشةٍ إلى شاشة. */
+  await run('المزامنةُ تَدمج الإجاباتِ ولا تُحلّ الورقة',
+    { 'eng-coach-v3': JSON.stringify({placed:true}) },
+    (ctx, ev) => {
+      const S = ev('S');
+      ctx.launch('lesson', '1.1');
+      S.q.i = 2; S.q.got = [true, false];
+
+      /* جهازٌ آخرُ أبعدُ شوطاً، وأخطأ في الأوّل الذي أصبتُه. */
+      ev('mergeInto')(S, {q: {kind:'lesson', id:'1.1', i:6,
+        got:[false, true, true, true, true, true]}});
+
+      if (S.q.got[0] !== true)
+        throw new Error('إجابةٌ أصبتُها صارت خطأً بعد المزامنة');
+      if (S.q.i !== 6) throw new Error('لم يُؤخَذ الأبعدُ شوطاً: ' + S.q.i);
+      if (S.q.i >= S.q.items.length) throw new Error('مؤشّرٌ خارج الورقة');
+
+      /* ودرسٌ أتمّه لا يُبعَث فيُلقى داخلَه من جديد. */
+      S.q = null; S.lessons['1.1'] = true;
+      ev('mergeInto')(S, {q: {kind:'lesson', id:'1.1', i:3, got:[true,true,true]}});
+      if (S.q) throw new Error('بُعث درسٌ أتمّه، فأُلقي داخلَه بعد فراغه منه');
+
+      /* ولا تُرفَع ورقةُ اختبار: لا تُستأنَف، فلا معنى لسفرها. */
+      ctx.launch('cp', 1);
+      if (ev('syncable')(S).q) throw new Error('رُفعت ورقةُ البوّابة إلى الوسيط');
+    });
+
+  /* صمتُ الجهاز يَبلغ المتعلّم ولا يُبتلَع.
+
+     والفشلُ في الجسر يقع بعد أن يعود النداء، فلا يَبلغه say() —
+     فكان المتعلّم يَضغط «استمع» فلا يَسمع ولا يُقال له شيء. */
+  await run('فشلُ النطق في الجهاز يَبلغ المتعلّم',
+    {}, async (ctx, ev) => {
+      const g = ev('globalThis');
+      g.window = g.window || {};
+      g.window.Capacitor = {isNativePlatform: () => true, Plugins: {Tts: {
+        stop: () => Promise.resolve(),
+        speak: () => Promise.reject(new Error('لغةُ النطق غير منزّلة في الجهاز'))
+      }}};
+      try {
+        ctx.say('Hello');
+        await Promise.resolve(); await Promise.resolve();
+        if (!String(ctx._els.toast.textContent).includes('الصوت'))
+          throw new Error('صَمَت الجهازُ ولم يُقَل للمتعلّم شيء');
+        if (!ctx._logged.some(l => l.includes('نطق الجهاز')))
+          throw new Error('لم يُسجَّل سببُ الصمت');
+      } finally { g.window.Capacitor = undefined }
+    });
+
   await run('كلُّ حقلٍ في الحالة مُصنَّفٌ: يُزامَن أو يُستثنى بقصد', {}, (ctx, ev) => {
     /* من نطاق الوحدة لا النافذة: sync-merge تُصدَّر ولا تُبَثّ. */
     const syncable = ev('syncable'), mergeInto = ev('mergeInto');
@@ -3545,7 +3630,8 @@ const { run, report } = require('./harness.js');
       setup: 'مفاوضةُ الخطّة الجارية — لحظيّة، والخطّةُ نفسُها تُزامَن',
       found: 'ما دُلَّ عليه في صفحة اليوم — عرضٌ لا تقدّم',
       introSeen: 'رأى التعريفَ على هذا الجهاز — عرضٌ لا تقدّم',
-      peek: 'كلماتٌ تُقرأ قبل اختبارها — شاشةٌ لحظيّة'
+      peek: 'كلماتٌ تُقرأ قبل اختبارها — شاشةٌ لحظيّة',
+      help: 'سؤالُ الدليل المفتوح — عرضٌ لا تقدّم'
     };
 
     const sent = syncable(ev('S'));

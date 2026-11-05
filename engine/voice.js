@@ -26,8 +26,12 @@ export function probeVoice(lang){
   if (asked[k] !== undefined) return;
   asked[k] = null;                       // جارٍ
   T.available({lang: k})
-    .then(r => { asked[k] = !!(r && r.hasVoice) })
-    .catch(() => { asked[k] = false });
+    .then(r => { asked[k] = (r && r.ready === false) ? undefined : !!(r && r.hasVoice) })
+    /* ولا يُلتَقط «لم يُهيَّأ بعد» على أنّه «لا صوت»: الجسرُ يُهيَّأ
+       بعد الإقلاع، فسؤالٌ يقع في الفجوة يُرجع false فيُحذَّر صاحبُ
+       جهازٍ سليمٍ طولَ الجلسة. فيُترَك مجهولاً ليُعاد السؤال. */
+    .then(() => {})
+    .catch(() => { asked[k] = undefined });
 }
 
 /* أفي الجهاز صوتٌ لهذه اللغة؟
@@ -48,6 +52,10 @@ export function hasVoice(lang){
   } catch (e) { return false }
 }
 
+/* ومن يُبلَّغ بالصمت المتأخّر: يُضبَط من views/ui.js. */
+let onSilent = () => {};
+export function setSilentHandler(fn){ onSilent = fn || (() => {}) }
+
 export function speak(text, lang, rate){
   const t = String(text || '');
   if (!t) return false;
@@ -56,7 +64,13 @@ export function speak(text, lang, rate){
 
   if (T) {
     T.stop().catch(() => {});
-    T.speak({text: t, lang: k, rate: rate || 1}).catch(() => fallback(t, k, rate));
+    /* والفشلُ هنا يقع بعد العودة، فلا يَبلغه say() — فيُبلَّغ من
+       هنا. وإلّا ضغط المتعلّم «استمع» فلم يَسمع ولم يُقَل له شيء.
+
+       ولا يُرجَع إلى المتصفّح هنا: هو الطريقُ الميتُ في التطبيق —
+       وهذا سببُ وجود الجسر أصلاً — ويَقول «تمّ» ولا يَنطق، فتُبتلَع
+       الرسالةُ ولا يَعلم المتعلّمُ لماذا صَمَت. */
+    T.speak({text: t, lang: k, rate: rate || 1}).catch(e => onSilent(e));
     return true;
   }
   return fallback(t, k, rate);
