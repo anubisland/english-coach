@@ -1095,6 +1095,20 @@ const { run, report } = require('./harness.js');
         throw new Error('لا توضيح أن دروس الوحدة المتخطّاة للمراجعة');
     });
 
+  /* القارئُ ها هنا يَقرأ، لا يُنفَّذ. وكان تحت جوابين زرّان يَسوقانه
+     إلى مسارٍ لا رجوعَ منه، فيَنسى أنّه كان يقرأ. */
+  await run('دليل الاستعمال لا يَسوق قارئه خارجه', {}, (ctx, ev) => {
+    const keys = [...ctx.helpCard().matchAll(/openHelp\('([a-z]+)'\)/g)].map(m => m[1]);
+    if (keys.length < 6) throw new Error('أسئلة الدليل ناقصة: ' + keys.length);
+    keys.forEach(k => {
+      ev('S.help=' + JSON.stringify(k));
+      const stray = [...ctx.helpCard().matchAll(/onclick="([^"]+)"/g)]
+        .map(m => m[1]).filter(c => !c.startsWith('openHelp('));
+      if (stray.length)
+        throw new Error('زرٌّ يُخرج القارئ من الدليل عند «' + k + '»: ' + stray.join('، '));
+    });
+  });
+
   console.log('— صدق القياس —');
 
   await run('الكتابة في اختبار المحادثة لا تُسجَّل درجة نطق',
