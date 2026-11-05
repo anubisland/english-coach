@@ -3601,6 +3601,26 @@ const { run, report } = require('./harness.js');
       } finally { g.window.Capacitor = undefined }
     });
 
+  /* يُرفَع عقبَ كلّ محطّةٍ تتمّ، لا عند المغادرة وحدها.
+
+     وكان الرفعُ معلّقاً بلحظةٍ واحدة: يَخرج من البرنامج فيُرفَع. فإن
+     ضعفت الشبكةُ تلك اللحظةَ فشل في صمتٍ ولم يُعَد، فيفتح هاتفَه في
+     الطريق فلا يَجد عملَه — وهذا أوّلُ ما وُضعت المزامنةُ له. */
+  await run('كلُّ محطّةٍ تتمّ تَطلب رفعاً',
+    { 'eng-coach-v3': JSON.stringify({placed:true}) },
+    (ctx, ev) => {
+      let asked = 0;
+      ev('setHooks')({syncSoon: () => asked++});
+      const S = ev('S');
+
+      ctx.launch('lesson', '1.1');
+      S.q.i = S.q.items.length - 1;
+      S.q.got = S.q.items.map(() => true);
+      ctx.endQ();
+
+      if (!asked) throw new Error('تمّت محطّةٌ ولم يُطلَب رفعُها');
+    });
+
   await run('كلُّ حقلٍ في الحالة مُصنَّفٌ: يُزامَن أو يُستثنى بقصد', {}, (ctx, ev) => {
     /* من نطاق الوحدة لا النافذة: sync-merge تُصدَّر ولا تُبَثّ. */
     const syncable = ev('syncable'), mergeInto = ev('mergeInto');

@@ -134,7 +134,18 @@ Object.assign(window,{
 /* S مرتبط حيّاً لأنه يُعاد بناؤه عند كل إقلاع. */
 Object.defineProperty(window,'S',{get:()=>S,configurable:true});
 
-setHooks({render,toast:ui.toast,say:ui.say,nextStep:home.nextStep,goToStep:course.goToStep});
+/* مهلةٌ قصيرةٌ تَجمع المتتابعات: من أتمّ محطّتين في دقيقةٍ لا يُرفَع
+   له مرّتين. ولا تُعرَض رسالةٌ — هذا رفعٌ لم يَطلبه. */
+let syncTimer = null;
+function syncSoon(){
+  if (!syncEng.syncOn()) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => {
+    syncPanel.syncRun(true).catch(e => state.logError('رفعٌ بعد محطّة', e));
+  }, 4000);
+}
+
+setHooks({render,toast:ui.toast,say:ui.say,nextStep:home.nextStep,goToStep:course.goToStep,syncSoon});
 bootState();
 voiceAr.initVoiceAr(()=>{ if(S.tab==='plan') render() });
 render();
@@ -179,6 +190,7 @@ export * from './content/lessons.js';
 export * from './content/rules.js';
 export * from './content/scenes.js';
 export * from './content/convo.js';
+export * from './engine/bus.js';
 export * from './engine/state.js';
 export * from './engine/grammar.js';
 export * from './engine/pronounce.js';
