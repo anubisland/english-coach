@@ -12,6 +12,7 @@ import {keepSkill} from './unit-plan.js';
 import {reachedUnit} from './progress.js';
 import {hooks} from './bus.js';
 import {typedOk} from './quiz.js';
+import {noteSentence} from './book.js';
 
 const N = 10;
 
@@ -65,7 +66,24 @@ export function examDictAnswer(text) {
   const said = String(text === undefined ? (el && el.value) || '' : text).trim();
   d.shown = {said, ok: typedOk(said, it.ok), model: it.ok[0], plays: d.plays};
   d.done.push(d.shown);
+  keepHeard(d, d.shown);
   save(); hooks.render();
+}
+
+/* وجملتُه تدخل كتابَه، وتصحيحُها أدقُّ ما فيه.
+
+   فجملةُ المشهد يُقابلها تصحيحٌ مظنون (fixText)، وجملةُ الإملاء
+   يُقابلها النصُّ الذي أُملي عليه بعينه — فلا ظنَّ ولا تقريب.
+
+   ولا تُعَدّ غلطتُه ها هنا في دفتر القواعد: الإملاءُ يَخلط السمعَ
+   بالنحو، فمن كتب «a cat» وقد سمع «a hat» لم يُخطئ في قاعدة. ولو
+   عُدَّت لصُعِّدت عليه قاعدةٌ لم يَقع فيها، ولقيل له «ركّز على كذا»
+   وعلّتُه في أذنه لا في نحوه. فالكتابُ يَحفظ، والدفترُ لا يَعُدّ. */
+function keepHeard(d, got) {
+  const said = String(got.said || '').trim();
+  if (said.length < 2) return;
+  noteSentence({text: said, fix: got.ok ? null : got.model, rids: [],
+                src: 'إملاء', u: d.u});
 }
 
 export function examDictNext() {

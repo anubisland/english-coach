@@ -1121,6 +1121,216 @@ const { run, report } = require('./harness.js');
     if (ctx.gateReady(3)) throw new Error('فُتحت البوابةُ على وحدةٍ لم تَتمّ');
   });
 
+  /* وما تعذّر استئنافُه يُقال، لا يُبتلَع: المتعلّم يقف في نصف
+     درسٍ ويُغلق، ثمّ يفتح فلا يَجد ورقةً ولا خبراً عنها — وهو عينُ
+     ما اشترى البرنامجَ لأجله. */
+  await run('ورقةٌ تعذّر استئنافُها يُخبَر بها ولا تُبتلَع',
+    { 'eng-coach-v3': JSON.stringify({ placed: true,
+        q: {kind: 'lesson', id: '9.9', i: 0, got: []} }) },
+    (ctx, ev) => {
+      if (ev('S').q) throw new Error('بُنيت ورقةٌ من درسٍ لا وجودَ له');
+      if (!ctx.banners().includes('تعذّر استئنافُ')) throw new Error('ضاعت الورقةُ صامتةً');
+      if (!ctx.banners().includes('بقيّةُ تقدّمك سليمة')) throw new Error('لم يُطمأَن على باقي تقدّمه');
+    });
+
+  /* ولا يُنعى ما ليس ورقةً أصلاً: حقلٌ تالفٌ أو مفتاحٌ مجهولٌ
+     يُطرَح صامتاً، وإلّا فزّع المتعلّمَ بما لم يَفقده. */
+  await run('ما ليس ورقةً لا يُنعى', { 'eng-coach-v3': JSON.stringify({
+      placed: true, q: {kind: 'constructor', id: 'x', i: 0} }) },
+    (ctx, ev) => {
+      if (ev('S').q) throw new Error('نجا مفتاحٌ من سلسلة النماذج');
+      if (ctx.banners().includes('تعذّر استئنافُ'))
+        throw new Error('نُعيت ورقةٌ لم تكن ورقةً');
+    });
+
+  /* والتبويبُ المحفوظُ يُطابق المعروض: كان التعليقُ وحدَه يقول
+     «يجب أن يطابق»، ولا شيءَ يَحرسه. فتبويبٌ يُزاد في app.js
+     ويُنسى في VIEWS_KEYS يَعمل في جلسته ثمّ يُلقي صاحبَه إلى
+     الرئيسيّة عند أوّل إقلاع. */
+  await run('كلُّ تبويبٍ معروضٍ يَنجو من الإقلاع', {}, (ctx) => {
+    /* إلّا ما استُثنيَ بقصدٍ ومعه سببُه. */
+    const TRANSIENT = {
+      plan: 'شاشةُ وضع الخطّة: حالتُها (setup) لحظيّةٌ لا تُستعاد، '
+          + 'فمن عاد إليها وجد نفسَه في مفاوضةٍ بلا جواب'
+    };
+    const shown = Object.keys(ctx.VIEWS).filter(k => !(k in TRANSIENT)).sort().join(',');
+    const kept = ctx.VIEWS_KEYS.slice().sort().join(',');
+    /* والمستثنى يبقى تبويباً حقيقيّاً، وإلّا كان الاستثناءُ غطاءً لسهو. */
+    Object.keys(TRANSIENT).forEach(k => {
+      if (!(k in ctx.VIEWS)) throw new Error('استُثني تبويبٌ لا وجودَ له: ' + k);
+      if (ctx.VIEWS_KEYS.includes(k)) throw new Error('مستثنًى ومحفوظٌ معاً: ' + k);
+    });
+    if (shown !== kept)
+      throw new Error('VIEWS و VIEWS_KEYS مختلفان:\n  معروض: ' + shown + '\n  محفوظ: ' + kept);
+
+    /* ولكلٍّ عنوانُه: renderHead تَرجع إلى HEAD.home عند الغياب،
+       فيَقرأ الشريطُ «اليوم» والبطاقةُ تحته تقول شيئاً آخر. */
+    const noHead = ctx.VIEWS_KEYS.filter(k => !(k in ctx.HEAD));
+    if (noHead.length) throw new Error('تبويبٌ يَنجو من الإقلاع بلا عنوان: ' + noHead.join('، '));
+  });
+
+  /* ويُستأنَف التبويبُ فعلاً، لا بالقائمة وحدها. */
+  await run('من أغلق البرنامج على كتابه عاد إليه',
+    { 'eng-coach-v3': JSON.stringify({ placed: true, tab: 'book' }) },
+    (ctx, ev) => {
+      if (ev('S').tab !== 'book') throw new Error('أُلقيَ إلى: ' + ev('S').tab);
+    });
+
+  /* ومِقياسُ الغلط واحدٌ في الكتاب كلِّه: كان العنوانُ يَعُدّ
+     بأرقام القواعد والمُرشَّحُ يُرشّح بالتصحيح، فيَقرأ «أربعون، في
+     أربعين لم تُخطئ» ثمّ يَدوس «ما أخطأتَ فيه» فيَجد اثنتي عشرة. */
+  await run('العنوانُ والمُرشَّحُ يَعُدّان الغلطَ عدّاً واحداً',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx) => {
+      /* إملاءٌ: تصحيحٌ بلا قاعدة. ونصٌّ حرّ: قاعدةٌ بلا تصحيح. */
+      ctx.noteSentence({text: 'a cat on the mat', fix: 'a hat on the mat',
+                        rids: [], src: 'إملاء', u: 2});
+      ctx.noteSentence({text: 'he go to work', fix: null,
+                        rids: ['be-subject'], src: 'كتابة: نصّ حرّ', u: 2});
+      ctx.noteSentence({text: 'I am a teacher', fix: null, rids: [], src: 'إملاء', u: 2});
+
+      const st = ctx.bookStats();
+      if (st.wrong !== 2) throw new Error('عُدَّ الغلطُ: ' + st.wrong + ' والصوابُ اثنان');
+      if (st.clean !== 1) throw new Error('عُدَّ السليمُ: ' + st.clean + ' والصوابُ واحد');
+
+      ctx.bookFilter('bad');
+      const text = ctx.bookView().replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+      if (!text.includes('a cat on the mat')) throw new Error('المُرشَّحُ أسقط غلطةَ الإملاء');
+      if (!text.includes('he go to work')) throw new Error('المُرشَّحُ أسقط غلطةَ النصّ الحرّ');
+      if (text.includes('I am a teacher')) throw new Error('المُرشَّحُ أبقى السليمة');
+      /* وما لا تصحيحَ له تُسمّى قاعدتُه، وإلّا عُدّ غلطاً بلا بيان. */
+      if (!text.includes('فعل الكون')) throw new Error('لم تُسمَّ القاعدةُ لمن لا نموذجَ له');
+      ctx.bookFilter('all');
+    });
+
+  /* والنزعُ عند الامتلاء يُبقي الغلطَ لا نوعَ المحطّة: كان يَنزع
+     ما لا أرقامَ له، وهو في الإملاء والفراغ صوابُه وغلطُه سواء. */
+  await run('الامتلاءُ يَنزع السليمَ لا جُمَلَ محطّةٍ بعينها',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx) => {
+      /* أقدمُ جملةٍ غلطةُ إملاءٍ — لا أرقامَ لها وفيها تصحيح. */
+      ctx.noteSentence({text: 'the oldest wrong one', fix: 'the oldest right one',
+                        rids: [], src: 'إملاء', u: 1});
+      for (let i = 0; i < 245; i++)
+        ctx.noteSentence({text: 'clean line number ' + i, fix: null, rids: [], src: 'إملاء', u: 2});
+
+      const all = ctx.lines();
+      if (all.length > 240) throw new Error('تجاوز السقف: ' + all.length);
+      if (!all.some(x => x.t === 'the oldest wrong one'))
+        throw new Error('نُزعت أقدمُ غلطةٍ وبقيَ السليم');
+    });
+
+  /* وجوابان متتابعان متطابقان في الإملاء جوابان لا واحد. */
+  await run('الكلمةُ المكرّرةُ لا تُبتلَع كما تُبتلَع الجملة',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx) => {
+      const n = ctx.lines().length;
+      ctx.noteSentence({text: 'is', fix: null, rids: [], src: 'إملاء', u: 1});
+      ctx.noteSentence({text: 'is', fix: null, rids: [], src: 'إملاء', u: 1});
+      if (ctx.lines().length !== n + 2) throw new Error('ابتُلع جوابٌ قصيرٌ مكرّر');
+
+      /* أمّا الجملةُ فتُطرَح: إعادةُ إرسالٍ في مشهدٍ حيّ. */
+      ctx.noteSentence({text: 'I go to work', fix: null, rids: [], src: 'مشهد: س', u: 1});
+      ctx.noteSentence({text: 'I go to work', fix: null, rids: [], src: 'مشهد: س', u: 1});
+      if (ctx.lines().length !== n + 3) throw new Error('سُجّلت الجملةُ مرّتين');
+    });
+
+  /* والفراغُ كلمةٌ لا جملة، فلا يَدخل كتاباً عنوانُه «كلُّ جملةٍ
+     كتبتَها»، ولا يَشغل من سقفه أربعةَ مواضعَ في الورقة. */
+  await run('جوابُ الفراغ لا يَدخل الكتاب',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+      ctx.examWriteStart(0);
+      const w = ev('S').wx;
+      while (w.items[w.i] && w.items[w.i].k !== 'gap') w.i++;
+      if (!w.items[w.i]) throw new Error('لا سؤالَ فراغٍ في الورقة');
+      const before = ctx.lines().length;
+      ctx.examWriteAnswer('zzz');
+      if (ctx.lines().length !== before) throw new Error('دخلت كلمةُ الفراغ الكتابَ');
+    });
+
+  /* والكتابُ يُقرأ: كان عدَدُه يُعرَض بلا بابٍ إليه. */
+  await run('كتابُه يُفتَح من شاشة اليوم ويُرجَع منه',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+      /* ولا بابَ لمن لا كتابَ له، ولا صفحةٌ فارغةٌ بلا بيان. */
+      if (ctx.bookView().includes('اقرأه من أوّله')) throw new Error('عُرض بابٌ بلا كتاب');
+      if (!ctx.bookView().includes('لم تكتب جملةً بعد')) throw new Error('الفارغُ بلا بيان');
+      if (!ctx.bookView().includes('goHome()')) throw new Error('لا رجوعَ من الصفحة الفارغة');
+
+      ctx.noteSentence({text: 'he go to school', fix: 'he goes to school',
+                        rids: ['r1'], src: 'كتابة: ترتيب', u: 2});
+      ctx.noteSentence({text: 'I am a student', fix: null, rids: [], src: 'إملاء', u: 2});
+
+      const today = ctx.todayView(null, '');
+      if (!today.includes("go('book')")) throw new Error('لا بابَ إلى الكتاب في اليوم');
+
+      /* والكلماتُ مغلَّفةٌ كلُّ واحدةٍ بوسمها لتُعلَّم الغلطُ منها،
+         فيُنزَع الوسمُ قبل الموازنة. */
+      const text = html => html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+      const h = ctx.bookView();
+      if (!text(h).includes('he go to school')) throw new Error('جملتُه ليست في كتابه');
+      if (!text(h).includes('he goes to school')) throw new Error('التصحيحُ غائب');
+      if (!text(h).includes('I am a student')) throw new Error('السليمةُ ليست في كتابه');
+      if (!h.includes('goHome()')) throw new Error('لا رجوعَ من الكتاب');
+
+      /* والغلطُ مُعلَّمٌ في موضعه: «go» لا «school». */
+      if (!/<span class="bad">go<\/span>/.test(h)) throw new Error('لم تُعلَّم الكلمةُ الغلط');
+
+      /* والمُرشَّحُ يُسقِط ما لا تصحيحَ فيه، ولا يَخلط الحالتين. */
+      ctx.bookFilter('bad');
+      const bad = text(ctx.bookView());
+      if (!bad.includes('he go to school')) throw new Error('المُرشَّحُ أسقط ما فيه تصحيح');
+      if (bad.includes('I am a student')) throw new Error('المُرشَّحُ أبقى السليمة');
+      ctx.bookFilter('all');
+      if (!text(ctx.bookView()).includes('I am a student')) throw new Error('لم يَرجع العرضُ الكامل');
+    });
+
+  /* ونصفُ ما يُنتجه المتعلّم كان يَضيع: الكتابةُ والإملاءُ
+     يُصحَّحان ثمّ يُرمَيان، فيَفتح «اليوم» بعد ورقةِ كتابةٍ كاملةٍ
+     ولا يَجد جملةً واحدةً من جُمَله. */
+  await run('جملةُ الكتابة تدخل كتابَه وتُعَدّ غلطتُها',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+      const before = ctx.lines().length;
+      ctx.examWriteStart(0);
+      const w = ev('S').wx;
+      /* وعلى نوعٍ جوابُه جملةٌ تامّة: الفراغُ كلمةٌ واحدة لا تُقاس
+         قواعدُها، والنصُّ الحرُّ لا نموذجَ له يُقابَل به. */
+      while (w.items[w.i] && w.items[w.i].k !== 'order' && w.items[w.i].k !== 'build') w.i++;
+      if (!w.items[w.i]) throw new Error('لا سؤالَ جوابُه جملةٌ في الورقة');
+      ctx.examWriteAnswer('he go to school every day');
+
+      const added = ctx.lines().slice(before);
+      if (added.length !== 1) throw new Error('عددُ ما دخل الكتاب: ' + added.length);
+      const rec = added[0];
+      if (!rec.src.startsWith('كتابة')) throw new Error('المصدرُ غير مبيَّن: ' + rec.src);
+      if (rec.t !== 'he go to school every day') throw new Error('حُفظ غيرُ ما كتب: ' + rec.t);
+      if (!rec.r.length) throw new Error('لم تُحمَل أرقامُ القواعد مع الجملة');
+      /* والدفترُ يَعُدّها كذلك، وإلّا ظهر «خطؤك المتكرّر» للمتكلّم وحده. */
+      if (!ctx.errHistory(rec.r[0]).length) throw new Error('الغلطةُ بلا تاريخ');
+      if (!Object.keys(ev('S').errs).length) throw new Error('لم تُعَدّ في «خطؤك المتكرر»');
+    });
+
+  /* والإملاءُ يَدخل الكتابَ ولا يَدخل دفترَ القواعد: من كتب «a cat»
+     وقد سمع «a hat» لم يُخطئ في قاعدة، فلا تُصعَّد عليه. */
+  await run('جملةُ الإملاء تدخل كتابَه بتصحيحٍ مقطوعٍ به ولا تُصعَّد',
+    { 'eng-coach-v3': JSON.stringify({ placed: true }) }, (ctx, ev) => {
+      const before = ctx.lines().length;
+      ctx.examDictStart();
+      const it = ctx.examDictItem();
+      ctx.examDictAnswer('zzz qqq www');
+
+      const added = ctx.lines().slice(before);
+      if (added.length !== 1) throw new Error('عددُ ما دخل الكتاب: ' + added.length);
+      const rec = added[0];
+      if (rec.src !== 'إملاء') throw new Error('المصدرُ غير مبيَّن: ' + rec.src);
+      if (rec.fix !== it.ok[0]) throw new Error('التصحيحُ ليس النصَّ المُملى: ' + rec.fix);
+      if (rec.r.length) throw new Error('عُدَّت قاعدةٌ على سمعٍ لا على نحو');
+      if (Object.keys(ev('S').errs).length) throw new Error('صُعِّدت غلطةُ إملاءٍ في دفتر القواعد');
+
+      /* والصوابُ يُحفَظ بلا تصحيح: الكتابُ سجلٌّ لا قائمةَ أخطاء. */
+      ctx.examDictNext();
+      const it2 = ctx.examDictItem();
+      ctx.examDictAnswer(it2.ok[0]);
+      const ok = ctx.lines()[ctx.lines().length - 1];
+      if (ok.fix) throw new Error('وُضع تصحيحٌ على جملةٍ صحيحة');
+    });
+
   /* ومفاتيحُ التركيز تُطابق مهاراتِ الوحدة: مهارةٌ تُزاد ولا تُذكَر
      في ORDER تَغرق في ذيل القائمة لكلّ متعلّمٍ أبداً، بلا سجلٍّ
      ولا اختبارٍ أحمر. فالمطابقةُ ها هنا تَجعلها بناءً فاشلاً فوراً. */
@@ -3731,7 +3941,8 @@ const { run, report } = require('./harness.js');
       found: 'ما دُلَّ عليه في صفحة اليوم — عرضٌ لا تقدّم',
       introSeen: 'رأى التعريفَ على هذا الجهاز — عرضٌ لا تقدّم',
       peek: 'كلماتٌ تُقرأ قبل اختبارها — شاشةٌ لحظيّة',
-      help: 'سؤالُ الدليل المفتوح — عرضٌ لا تقدّم'
+      help: 'سؤالُ الدليل المفتوح — عرضٌ لا تقدّم',
+      bookF: 'ما يُعرَض من الكتاب — عرضٌ لا تقدّم'
     };
 
     const sent = syncable(ev('S'));

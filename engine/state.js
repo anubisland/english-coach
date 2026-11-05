@@ -24,6 +24,7 @@ export function defaultState(){return{
   days:{},                  // سجلّ الأيّام: ما تمّ وما صحّ وما أُخطئ فيه
   plan:null,                // خطّة المتعلّم: دقائقه وأيّامه وغرضه
   help:null,                // سؤالُ الدليل المفتوح — لحظيّ
+  bookF:'all',              // ما يُعرَض من الكتاب — عرضٌ لا تقدّم
   peek:null,                // وحدةٌ تُعرَض كلماتُها قبل اختبارها — لحظيّ
   introSeen:false,         // رأى التعريفَ بالبرنامج — لئلّا يُعاد عليه
   setup:null,               // مفاوضةُ الخطّة الجارية — لحظيّة لا تُحفظ
@@ -139,6 +140,7 @@ export function hasProgress(x){
 
 /* يرقّي أي حالة محفوظة من إصدار سابق إلى البنية الحالية دون فقد تقدّم المستخدم. */
 export function migrate(saved){
+  migrateLostQ=false;
   const S=defaultState();
   if(!saved||typeof saved!=='object')return S;
   /* نتحقق من نوع كل قيمة بدل نسخها كما هي: xp كنصّ مثلاً يجعل addXp يدمج بدل أن يجمع. */
@@ -358,20 +360,41 @@ const SHEET = {
   }
 };
 
+/* ما ضاع من ورقةٍ كان فيها: يُقال له، ولا يُبتلَع.
+
+   فالمتعلّمُ يَقف في نصف درسٍ ويُغلق، ثمّ يفتح فلا يَجد شيئاً —
+   لا الورقةَ ولا خبراً عنها. وهذا عينُ ما اشترى البرنامجَ لأجله:
+   أن يَقف ها هنا ويُكمل هناك. فإن تعذّر الاستئنافُ مرّةً قيل له
+   لِمَ تعذّر، وطُمئن على باقي تقدّمه.
+
+   ولا يُقال إلّا عن ورقةِ هذا الجهاز: migrate تَجري على الوارد من
+   الوسيط وعلى الملفّ المستورَد كما تَجري على المحفوظ ها هنا، فورقةٌ
+   وقف فيها على جهازٍ آخر كانت تَرفع التحذيرَ على جهازٍ لم يَقف
+   صاحبُه فيه شيئاً — ويَبقى معروضاً بقيّةَ الجلسة ولو أتمّ بعده
+   دروساً. فتُجمَع الواقعةُ ها هنا، ولا يُنشَر الخبرُ إلّا في
+   bootState. */
+let migrateLostQ=false;
+export let resumeLost=null;
+
 function cleanQ(q){
   if(!q||typeof q!=='object')return null;
+  /* وما كان بلا نوعٍ معروفٍ فليس ورقةً أصلاً، فيُطرَح صامتاً قبل
+     أن يَبلغ lost — وإلّا فزّع المتعلّمَ بما لم يَفقده. */
+  const known=typeof q.kind==='string'
+    &&Object.prototype.hasOwnProperty.call(SHEET,q.kind);
+  const lost=()=>{migrateLostQ=true;return null};
   /* بـhasOwnProperty: SHEET['constructor'] يَرجع دالّةَ النموذج
      الأصليّ فتَمرّ الحراسةُ ثمّ تنهار القراءةُ بعدها — ويَخرج
      الانهيارُ من migrate فيُعطّل المزامنةَ على الجهازين أبداً. */
-  const build=Object.prototype.hasOwnProperty.call(SHEET,q.kind)?SHEET[q.kind]:null;
+  const build=known?SHEET[q.kind]:null;
   if(!build)return null;
 
   const sheet=build(q.id);
-  if(!sheet)return null;                       /* هويّةٌ لا محتوى لها */
+  if(!sheet)return lost();                     /* هويّةٌ لا محتوى لها */
 
   const n=sheet.items.length;
   const i=Math.round(Number(q.i));
-  if(!Number.isFinite(i)||i<0||i>=n)return null;
+  if(!Number.isFinite(i)||i<0||i>=n)return lost();
 
   const got=(Array.isArray(q.got)?q.got:[]).slice(0,n).map(x=>!!x);
   return {
@@ -396,13 +419,16 @@ function cleanSrs(o){
   return out;
 }
 
-export const VIEWS_KEYS=['home','course','speak','settings','translate','sounds','examconv','examwrite','examread','examdict','cefr','roadmap'];   // يجب أن يطابق مفاتيح VIEWS في app.js
+/* ويَحرس المطابقةَ اختبارٌ، لا هذا التعليقُ وحدَه: تبويبٌ يُزاد في
+   app.js ويُنسى ها هنا يَعمل في الجلسة ثمّ يُلقي صاحبَه إلى
+   الرئيسيّة عند أوّل إقلاع — فيَظنّ أنّ الصفحةَ ضاعت. */
+export const VIEWS_KEYS=['home','course','speak','settings','translate','sounds','examconv','examwrite','examread','examdict','cefr','roadmap','book'];
 export let S,bootWarn=null;
 
 /* يُستدعى مرة عند الإقلاع، ومرة لكل اختبار، فالحالة تُبنى لا تُستورد جاهزة. */
 export function bootState(){
-  saveFailed=false;bootWarn=null;
-  try{S=migrate(JSON.parse(localStorage.getItem(K)||'null'))}
+  saveFailed=false;bootWarn=null;resumeLost=null;
+  try{S=migrate(JSON.parse(localStorage.getItem(K)||'null'));resumeLost=migrateLostQ||null}
   catch(e){
     S=defaultState();logError('قراءة التقدم المحفوظ',e);
     bootWarn='إن كنت تستخدم التصفح الخاص أو حجب بيانات المواقع فجرّب نافذة عادية.';

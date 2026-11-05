@@ -34,6 +34,7 @@ import * as examScore from './engine/exam-score.js';
 import * as writeScore from './engine/write-score.js';
 import * as relevanceEng from './engine/relevance.js';
 import * as srs from './engine/srs.js';
+import * as bookView from './views/book.js';
 import * as unitPlanEng from './engine/unit-plan.js';
 import * as focusEng from './engine/focus.js';
 import * as readScore from './engine/read-score.js';
@@ -96,8 +97,12 @@ const HEAD={
   examread:['اختبار القراءة','نصّ قصير ثم أسئلة عليه'],
   examdict:['اختبار الإملاء','تسمع وتكتب'],
   cefr:['أين أنت من A1','قياسك على الإطار الأوروبي'],
-  roadmap:['خريطة المنهج','المستويات الستّة وما بُني منها']
+  roadmap:['خريطة المنهج','المستويات الستّة وما بُني منها'],
+  book:['كتابك','كلُّ جملةٍ كتبتَها، بنسختيها']
 };
+/* وكلُّ تبويبٍ يَنجو من الإقلاع له عنوانُه ها هنا: من عاد إلى
+   كتابه وجد الشريطَ يقول «اليوم» والبطاقةُ تحته تقول «كتابك» —
+   إذ renderHead تَرجع إلى HEAD.home عند الغياب. ويَحرسه اختبار. */
 function renderHead(){
   const h=HEAD[S.tab]||HEAD.home;
   const t=document.getElementById('hTitle'),p=document.getElementById('hSub');
@@ -126,12 +131,12 @@ if(window.addEventListener)window.addEventListener('error',ev=>{
   ui.toast('حدث خطأ غير متوقع. أعد تحميل الصفحة إن توقّف التطبيق');
 });
 
-const VIEWS={home:home.homeView,plan:planSetup.planView,course:course.courseView,speak:speak.speakView,settings:settings.settingsView,translate:translate.translateView,sounds:sounds.soundsView,examconv:examConvView.examConvView,examwrite:examWriteView.examWriteView,examread:examReadView.examReadView,examdict:examDictView.examDictView,cefr:cefrView.cefrView,roadmap:roadmapView.roadmapView};
+const VIEWS={home:home.homeView,plan:planSetup.planView,course:course.courseView,speak:speak.speakView,settings:settings.settingsView,translate:translate.translateView,sounds:sounds.soundsView,examconv:examConvView.examConvView,examwrite:examWriteView.examWriteView,examread:examReadView.examReadView,examdict:examDictView.examDictView,cefr:cefrView.cefrView,roadmap:roadmapView.roadmapView,book:bookView.bookView};
 
 /* المعالجات داخل الـ HTML (onclick) تحتاج أسماءً عامة. */
 Object.assign(window,{
-  ...state,...grammar,...pronounce,...progress,...quiz,...examLevel,...wordsEng,...sceneEng,...chat,...ui,...home,...course,...planSetup,...planEng,...journal,...book,...voiceAr,...syncEng,...wordsLearn,...help,...todayView,...quizv,...speak,...settings,...reviewerPanel,...syncPanel,...translate,...trEngine,...sounds,...examScore,...examConv,...examConvView,...writeScore,...examWrite,...examWriteView,...readScore,...examRead,...examReadView,...examDict,...examDictView,...cefrEng,...cefrView,...roadmapContent,...roadmapView,...srs,...unitPlanEng,...focusEng,...relevanceEng,
-  render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme,setTheme
+  ...state,...grammar,...pronounce,...progress,...quiz,...examLevel,...wordsEng,...sceneEng,...chat,...ui,...home,...course,...planSetup,...planEng,...journal,...book,...voiceAr,...syncEng,...wordsLearn,...help,...todayView,...quizv,...speak,...settings,...reviewerPanel,...syncPanel,...translate,...trEngine,...sounds,...examScore,...examConv,...examConvView,...writeScore,...examWrite,...examWriteView,...readScore,...examRead,...examReadView,...examDict,...examDictView,...cefrEng,...cefrView,...roadmapContent,...roadmapView,...srs,...unitPlanEng,...focusEng,...bookView,...relevanceEng,
+  render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme,setTheme,VIEWS,HEAD
 });
 /* S مرتبط حيّاً لأنه يُعاد بناؤه عند كل إقلاع. */
 Object.defineProperty(window,'S',{get:()=>S,configurable:true});
@@ -244,6 +249,7 @@ export * from './engine/srs.js';
 export * from './engine/relevance.js';
 export * from './views/exam-read.js';
 export * from './content/read-texts.js';
-export {render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme,setTheme,VIEWS};
+export {render,renderNav,renderHead,go,goHome,applyTheme,toggleTheme,setTheme,VIEWS,HEAD};
 export * from './engine/unit-plan.js';
 export * from './engine/focus.js';
+export * from './views/book.js';

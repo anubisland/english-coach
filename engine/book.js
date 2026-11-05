@@ -23,6 +23,17 @@ const CAP = 240;
 
 export const lines = () => (S.book = Array.isArray(S.book) ? S.book : []);
 
+/* أخطأ في هذه الجملة؟
+
+   وكان الجوابُ «أفيها أرقامُ قواعد؟» — وهو صحيحٌ يومَ كان الكتابُ
+   يُملأ من المشهد والترجمة وحدهما، وقد فسد يومَ دخله الإملاءُ
+   والفراغ: للإملاء تصحيحٌ مقطوعٌ به ولا قاعدةَ له، وللنصّ الحرّ
+   قواعدُ ولا نموذجَ يُقابَل به. فصار ثلثُ الكتاب يُعَدّ سليماً وهو
+   غلط، ويُنزَع أوّلَ ما يُنزَع عند امتلائه.
+
+   فالعلامةُ ها هنا: تصحيحٌ، أو قاعدةٌ وقع فيها. */
+export const wrongLine = x => !!(x && (x.fix || (x.r && x.r.length)));
+
 /* جملةٌ أنتجها المتعلّم. ولا تُسجَّل الفارغةُ ولا المكرّرةُ في جلسة. */
 export function noteSentence({text, fix, rids, src, u}) {
   const t = String(text || '').trim();
@@ -30,7 +41,11 @@ export function noteSentence({text, fix, rids, src, u}) {
 
   const all = lines();
   const last = all[all.length - 1];
-  if (last && last.t === t && Date.now() - last.at < 60000) return last;
+  /* والتكرارُ يُطرَح في الجملة دون الكلمة: هذا الحارسُ وُضع لإعادةِ
+     إرسالِ كلامٍ في مشهدٍ حيّ، فلمّا دخل الإملاءُ صار يَبتلع جوابين
+     متتابعين متطابقين — وهما في الإملاء جوابان صحيحان لسؤالين. */
+  if (last && last.t === t && t.split(/\s+/).length > 1
+      && Date.now() - last.at < 60000) return last;
 
   const rec = {
     t,
@@ -44,8 +59,12 @@ export function noteSentence({text, fix, rids, src, u}) {
   all.push(rec);
 
   if (all.length > CAP) {
-    /* يُنزَع الأقدمُ السليم، فإن لم يكن فالأقدمُ على الإطلاق. */
-    const i = all.findIndex(x => !x.r.length);
+    /* يُنزَع الأقدمُ السليم، فإن لم يكن فالأقدمُ على الإطلاق.
+
+       وبـwrongLine لا بالأرقام وحدها: وإلّا نُزعت جُمَلُ الإملاء
+       والفراغِ أوّلاً — صوابُها وغلطُها سواءً — فيَصير ما يَبقى من
+       أوّل الكتاب أثراً لمحطّةٍ بعينها لا سجلّاً لصاحبه. */
+    const i = all.findIndex(x => !wrongLine(x));
     all.splice(i >= 0 ? i : 0, 1);
   }
   save();
@@ -85,7 +104,7 @@ export const debts = () => openErrors().filter(e => e.level >= 4);
 
 export function bookStats() {
   const all = lines();
-  const wrong = all.filter(x => x.r.length).length;
+  const wrong = all.filter(wrongLine).length;
   return {
     total: all.length,
     clean: all.length - wrong,

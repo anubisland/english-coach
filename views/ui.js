@@ -1,6 +1,6 @@
 /* عناصر الواجهة المشتركة: الأيقونات، البطاقة، التنبيه، النطق، بطاقة القاعدة. */
 import {RULE} from '../content/rules.js';
-import {S,save,logError,saveFailed,bootWarn} from '../engine/state.js';
+import {S,save,logError,saveFailed,bootWarn,resumeLost} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
 import {speak, hasVoice, setSilentHandler} from '../engine/voice.js';
 
@@ -51,6 +51,11 @@ export function banners(){
   let h='';
   if(saveFailed)h+='<div class="card warn"><h2>⚠️ تقدّمك لا يُحفظ في هذا المتصفح</h2><p class="muted">أكمل درسك الآن لكن لا تغلق الصفحة. جرّب نافذة عادية بدل التصفح الخاص، أو متصفحاً آخر.</p></div>';
   if(bootWarn)h+='<div class="card warn"><h2>⚠️ تعذّرت قراءة تقدّمك السابق</h2><p class="muted">بدأنا من جديد. '+bootWarn+'</p></div>';
+  /* ورقةٌ وقف فيها ثمّ تغيّر محتواها: الصمتُ ها هنا يَنقض ما اشترى
+     البرنامجَ لأجله — أن يقف على جهازٍ ويُكمل على آخر. */
+  if(resumeLost)h+='<div class="card warn"><h2>⚠️ تعذّر استئنافُ ما وقفتَ فيه</h2>'
+    +'<p class="muted">تغيّر محتوى ذلك الدرس، فابدأه من أوّله. '
+    +'وبقيّةُ تقدّمك سليمةٌ كما هي.</p></div>';
   return h;
 }
 

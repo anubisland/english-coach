@@ -43,7 +43,17 @@ function gradeOrder(t, said) {
   if (hit) return {sc: 100, note: null};
   const given = t.w.map(w => w.toLowerCase()).sort().join(' ');
   const mine = toks(said).sort().join(' ');
+  /* وتُقرأ قواعدُه ها هنا كما تُقرأ في الإنشاء: جوابُ الترتيب جملةٌ
+     تامّة، فما وقع فيها من غلطٍ غلطُه هو. والدرجةُ لا تتغيّر —
+     الترتيبُ وحده كما كان — أمّا قائمةُ الأخطاء في ورقة النتيجة
+     فتَزيد بهذه، إذ تَجمعها writeTotals من g. وهو المقصود: ورقةٌ
+     تُحصي أخطاءه لا تُغفل نصفَها.
+
+     وليس كذلك الفراغُ: جوابُه كلمةٌ واحدةٌ لا جملة، وقياسُ النحو
+     على كلمةٍ مفردةٍ يَرجم بالغيب. */
+  const g = checkGrammar(said);
   return {sc: Math.round(overlap(normalize(said), normalize(t.ok[0])) * 70),
+    g: g.map(x => x.ar), rids: g.map(x => x.rid),
     note: given === mine ? 'الكلمات صحيحة والترتيب خطأ.' : 'استعمل الكلمات المعطاة كلها، بلا زيادة ولا نقصان.'};
 }
 
@@ -78,7 +88,10 @@ function gradeBuild(t, said) {
      لا تؤدّي المطلوب. */
   const w = Math.min(1, score * 1.6);
   const sc = clamp(score * 70 + (g.length ? 0 : 30) * w) - missing.length * 15;
-  return {sc: clamp(sc), model, g: g.map(x => x.ar),
+  /* وتُحمَل أرقامُ القواعد مع أسمائها: الاسمُ للعرض، والرقمُ هو
+     الذي يَربط الغلطةَ بتاريخها وبتصعيدها في engine/book.js. وكانت
+     تُحسَب ها هنا ثمّ تُرمى، فلا تَعرف الكتابةُ غلطةً وقعت فيها. */
+  return {sc: clamp(sc), model, g: g.map(x => x.ar), rids: g.map(x => x.rid),
     note: missing.length ? 'ينقص المطلوب: ' + missing.map(m => m.split('|')[0]).join('، ') : null};
 }
 
@@ -98,7 +111,7 @@ function gradeFree(t, said) {
 
   return {
     sc: clamp(100 * (cover * 0.4 + enough * 0.2 + clean * 0.4)),
-    asked, sentences: sentences.length, g: g.map(x => x.ar), model: t.ok[0],
+    asked, sentences: sentences.length, g: g.map(x => x.ar), rids: g.map(x => x.rid), model: t.ok[0],
     /* الصياغة على الشاشة لا هنا: مطابقة العدد في العربية شأن عرض،
        وأداتها في views/ui.js ولا يستوردها المحرّك. */
     short: sentences.length < (t.min || 3) ? {wrote: sentences.length, need: t.min || 3} : null,
@@ -111,7 +124,8 @@ export function gradeWrite(task, said) {
   const by = {order: gradeOrder, gap: gradeGap, build: gradeBuild, free: gradeFree}[task.k];
   const r = by ? by(task, text) : {sc: 0, note: null};
   return {k: task.k, said: text, sc: r.sc, note: r.note || null, short: r.short || null,
-    g: r.g || [], model: r.model || task.ok[0], asked: r.asked || null, sentences: r.sentences};
+    g: r.g || [], rids: r.rids || [], model: r.model || task.ok[0],
+    asked: r.asked || null, sentences: r.sentences};
 }
 
 /* الأنواع الحرّة أثقل من المقيّدة: ترتيب كلمات معطاة أسهل من إنشاء جملة. */

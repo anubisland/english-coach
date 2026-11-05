@@ -281,6 +281,8 @@ table.g tr:last-child td{border-bottom:0}
   padding:13px 16px;margin-bottom:14px}
 .bookbar b{display:block;font-size:14px;margin-bottom:3px}
 .bookbar span{font-size:12.5px;color:var(--mute);line-height:1.8}
+/* والبابُ إلى الكتاب تحت عدَده، كزرّ خطّتك تحت سطرها. */
+.bookbar .btn{margin:9px 0 0}
 
 .plan-line{border-radius:16px;padding:14px 16px;margin-bottom:14px;
   background:var(--surf);border:1px solid var(--line)}
