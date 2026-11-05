@@ -26,6 +26,8 @@
    في كتابه، ويُقال له في أيّ جملةٍ وقعت وكم مرّة. والقرارُ له. */
 import {S, save} from './state.js';
 import {dayKey} from './journal.js';
+import {UNIT_NS} from './progress.js';
+import {unitPlan} from './unit-plan.js';
 
 /* سقفُ الكتاب: الحالةُ تُحفظ في التخزين المحلّيّ وتُزامَن، فلا
    تُترك تنمو بلا حدّ. والأقدمُ يُنزَع، إلّا ما لم تُصلَح غلطتُه. */
@@ -88,6 +90,32 @@ export function noteSentence({text, fix, rids, src, u}) {
 }
 
 export const linesOf = day => lines().filter(x => x.d === day);
+
+/* ما يَملأ الكتاب: المحطّاتُ التي يُنشئ فيها المتعلّمُ جملةً من
+   عنده. والقراءةُ ليست منها — أسئلةُ فهمٍ لا إنشاء. والمفرداتُ
+   والدروسُ والحوارُ اختياراتٌ لا جُمَل.
+
+   وهذه القائمةُ هي هي مواضعُ noteSentence في المحرّك، فمن زاد
+   موضعاً زادها ها هنا — ويَحرس المطابقةَ اختبار. */
+export const FILLS = ['scene', 'write', 'dict', 'tr'];
+
+/* أقربُ محطّةٍ تَملأ كتابَه، وكم محطّةً أمامه قبلها.
+
+   وكانت الصفحةُ الفارغةُ تَعُدّ له المحطّاتِ الأربعَ بأسمائها ولا
+   تقول أين هو منها — فيَفتح كتابَه وهو في درسه الأوّل فيَجده خالياً
+   ولا يَعلم أهو عطلٌ أم أوانُه لم يَحِن. والخبرُ عندنا، فيُقال. */
+export function nextFilling(){
+  let before = 0;
+  for (const u of UNIT_NS) {
+    if ((S.skipped || {})[u]) continue;
+    for (const st of unitPlan(u)) {
+      if (st.done) continue;
+      if (FILLS.includes(st.key)) return {u, t: st.t, before};
+      before++;
+    }
+  }
+  return null;
+}
 
 /* تاريخُ غلطةٍ بعينها: كلُّ جملةٍ وقعت فيها، من الأقدم. */
 export const errHistory = rid =>

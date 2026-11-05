@@ -13,7 +13,7 @@
    يُسأل عنه، فمن جاء يقرأ لا يُمتحَن. */
 import {S, save} from '../engine/state.js';
 import {hooks} from '../engine/bus.js';
-import {lines, bookStats, wrongIndex, wrongLine, openErrors, errHistory} from '../engine/book.js';
+import {lines, bookStats, wrongIndex, wrongLine, openErrors, errHistory, nextFilling} from '../engine/book.js';
 import {RULE} from '../content/rules.js';
 import {card, ar, esc, count} from './ui.js';
 
@@ -81,14 +81,33 @@ const dayBlock = (d, recs) => `<div style="margin-top:14px">
   <div class="lines">${recs.map(sentence).join('')}</div>
 </div>`;
 
-/* ولا يُستقبَل الفارغُ بصفحةٍ فارغة: يُقال له بمَ تَمتلئ. */
-const empty = () => card('كتابك',
-  '<p class="muted">لم تكتب جملةً بعد.</p>'
-  + '<p class="muted" style="margin-top:8px;line-height:1.95">وكلُّ جملةٍ تكتبها '
-  + 'في <b>المشهد الحيّ</b> أو <b>الترجمة</b> أو <b>الكتابة</b> أو <b>الإملاء</b> '
-  + 'تُحفَظ لك ها هنا بنسختيها — كما كتبتَها، وكما تُكتَب.</p>'
-  + '<div class="row" style="justify-content:flex-start;margin-top:10px">'
-  + '<button class="btn ghost" onclick="goHome()">رجوع</button></div>');
+/* ولا يُستقبَل الفارغُ بصفحةٍ فارغة: يُقال له بمَ تَمتلئ، وأين هو
+   منها.
+
+   وكانت تَعُدّ له المحطّاتِ الأربعَ بأسمائها ولا تَصِلها بموضعه —
+   ففتَحها صاحبُ البرنامج وهو في درسه الأوّل من وحدته، فوجدها خاليةً
+   ولم يَدرِ أعطلٌ هو أم أنّ أوانَه لم يَحِن. وبينه وبين أوّل محطّةٍ
+   تَملؤه ثمانٍ، والخبرُ عندنا فيُقال. */
+function empty(){
+  const nx = nextFilling();
+  const where = nx
+    ? `<p class="muted" style="margin-top:10px;line-height:1.95">
+         وأقربُ محطّةٍ تَملؤه: <b>${esc(nx.t)}</b> في الوحدة
+         <b>${ar(nx.u)}</b>${nx.before
+           ? ` — وأمامك ${esc(count(nx.before, 'محطّة', 'محطّات'))} قبلها`
+           : ' — وهي محطّتك التالية'}.</p>`
+    : '';
+
+  return card('كتابك',
+    '<p class="muted">لم تكتب جملةً بعد.</p>'
+    + '<p class="muted" style="margin-top:8px;line-height:1.95">وكلُّ جملةٍ تكتبها '
+    + 'بنفسك تُحفَظ لك ها هنا بنسختيها — في <b>المشهد الحيّ</b>، '
+    + 'و<b>الترجمة</b>، و<b>الكتابة</b>، و<b>الإملاء</b>. أمّا المفرداتُ '
+    + 'والدروسُ والحوارُ فاختياراتٌ لا جُمَلٌ من إنشائك.</p>'
+    + where
+    + '<div class="row" style="justify-content:flex-start;margin-top:12px">'
+    + '<button class="btn ghost" onclick="goHome()">رجوع</button></div>');
+}
 
 /* غلطاتُك المفتوحة: ما تَكرّر ولم يُصحَّح بعدُ، مرتَّباً.
 

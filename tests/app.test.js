@@ -1185,6 +1185,50 @@ const ctxDay = () => {
       if (ev('S').tab !== 'book') throw new Error('أُلقيَ إلى: ' + ev('S').tab);
     });
 
+  /* والصفحةُ الفارغةُ تَصِل الخبرَ بموضعه: فتَحها صاحبُ البرنامج
+     وهو في درسه الأوّل من الوحدة الرابعة، فوجدها خاليةً ولم يَدرِ
+     أعطلٌ هو أم أنّ أوانَه لم يَحِن. */
+  await run('الكتابُ الفارغُ يَقول أقربَ محطّةٍ تَملؤه وكم أمامه',
+    { 'eng-coach-v3': JSON.stringify({ placed: true, skipped: {1: true, 2: true, 3: true},
+        words: {4: 100} }) },
+    (ctx) => {
+      const nx = ctx.nextFilling();
+      if (!nx) throw new Error('لم تُحدَّد محطّةٌ تَملأ الكتاب');
+      if (nx.u !== 4) throw new Error('الوحدةُ المحسوبة: ' + nx.u);
+      if (!ctx.FILLS.includes('write')) throw new Error('الكتابةُ ليست ممّا يَملأ');
+      if (nx.before < 1) throw new Error('قيل إنّها محطّتُه التالية وبينهما دروسٌ وحوار');
+
+      const t = ctx.bookView().replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+      if (!t.includes('أقربُ محطّةٍ تَملؤه')) throw new Error('لم يُقَل له أين هو منها');
+      if (!t.includes(nx.t)) throw new Error('لم تُسمَّ المحطّة: ' + nx.t);
+      if (!t.includes('قبلها')) throw new Error('لم يُقَل كم أمامه');
+    });
+
+  /* وقائمةُ ما يَملأ الكتابَ هي هي مواضعُ noteSentence في المحرّك:
+     من زاد موضعاً ونسيَ القائمةَ قيل للمتعلّم إنّ أقربَ ما يَملؤه
+     محطّةٌ أبعدُ ممّا هي. */
+  await run('ما يَملأ الكتابَ مطابقٌ لمواضع التسجيل في المحرّك', {}, (ctx) => {
+    const fs = require('fs'), path = require('path');
+    const dir = path.join(__dirname, '..', 'engine');
+    const wired = fs.readdirSync(dir)
+      .filter(f => f.endsWith('.js') && f !== 'book.js')
+      .filter(f => /noteSentence\s*\(/.test(fs.readFileSync(path.join(dir, f), 'utf8')));
+    /* ولكلِّ ملفٍّ مُسجِّلٍ مفتاحُ محطّته. */
+    const BY_FILE = {
+      'chat.js': 'scene', 'translate.js': 'tr',
+      'exam-write.js': 'write', 'exam-dictation.js': 'dict',
+      'state.js': null            /* تنقيةٌ لا تسجيل */
+    };
+    const unknown = wired.filter(f => !(f in BY_FILE));
+    if (unknown.length)
+      throw new Error('موضعُ تسجيلٍ لا يُعرَف له مفتاح: ' + unknown.join('، ')
+        + ' — زِدْه في FILLS وفي هذا الاختبار');
+    const need = wired.map(f => BY_FILE[f]).filter(Boolean).sort().join(',');
+    const have = ctx.FILLS.slice().sort().join(',');
+    if (need !== have)
+      throw new Error('FILLS لا تُطابق المحرّك:\n  المحرّك: ' + need + '\n  FILLS: ' + have);
+  });
+
   /* ولا يكون شرطُ البابِ هو عينَ ما يَعرضه: كان بابُ الكتاب
      الوحيدُ بطاقةَ العدد في «اليوم»، ولا تُعرَض إلّا لمن في كتابه
      جملة — فمن لم يَبلغ محطّةَ كتابةٍ لا يَعلم أنّ للمكان وجوداً
